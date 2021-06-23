@@ -1,0 +1,7 @@
+{
+	"domain": "srv1.cgb005.xyz",
+	"mysql_host": "localhost",
+	"mysql_user": "USER",
+	"mysql_password": "PASS",
+	"mysql_database": "db"
+}

@@ -1,0 +1,2 @@
+RewriteEngine on
+RewriteRule ^index.html$ index.php [L,NC]

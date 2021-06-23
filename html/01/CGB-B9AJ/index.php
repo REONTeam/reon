@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Welcome!</title>
+</head>
+<body>
+<img src="img/banner.bmp"/>
+
+Congratulations! You are<br>
+now online. <br>
+Thank you for being a <br>
+great tester! &lt;3<br>
+<hr>
+Credits:
+<ul>
+<li>Arves100</li>
+<li>Billy</li>
+<li>EchleonPrime</li>
+<li>Hacky</li>
+<li>Incineroar</li>
+<li>pfero</li>
+<li>Shonumi</li>
+<li>thomasnet</li>
+</ul>
+</body>
+</html>
