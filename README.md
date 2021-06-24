@@ -9,9 +9,6 @@ This repository holds various folders for the service, and each has its own READ
 - `mail/` holds the Node.js mail server by @Matze167435
 - `app/` holds various non-web applications, such as the Pokémon Trade Corner program by @thomasnet-mc
 - `html/` holds the web-facing section of the service; this includes scripts for various games.
-- `dns/` holds a forked copy of [Sylverant's PSO DNS application](https://github.com/Sylverant/pso_dns) with a path modification.
-
-An important note here is that this is **the service** repository: web scripts for other things such as account management are not in this repository.
 
 # Server Setup
 
@@ -19,8 +16,6 @@ An important note here is that this is **the service** repository: web scripts f
 2. Continue these steps later once the production server is setup.
 
 
-# Licenses
-
-- The `dns` folder holds a modified copy of Sylverant's PSO DNS code; this code is licenced under [the BSD-2 "Simplified" License](https://github.com/Sylverant/pso_dns/blob/master/COPYING)
+# License
 
 [Clear up what license we'd like to use!]
