@@ -128,5 +128,6 @@ CREATE TABLE IF NOT EXISTS `amkj_rule` (
  `five_laps_enabled` tinyint(1) NOT NULL,
  `course` tinyint(2) NOT NULL,
  `num_attempts` tinyint(2) NOT NULL,
+ `message` text DEFAULT NULL,
  PRIMARY KEY (`id`)
 );

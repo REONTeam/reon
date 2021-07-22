@@ -9,6 +9,12 @@
 	$result = fancy_get_result($stmt);
 	
 	if (sizeof($result) > 0) {
+		if ($result[0]["message"] == null) {
+			$messageLength = 0;
+		} else {
+			$messageLength = substr_count($data = $result[0]["message"], "\r\n") + 1;
+		}
+		
 		$data = $result[0]["file_name"]."\r\n"
 		.str_replace("-", "", $result[0]["start_date"])."\r\n"
 		.str_replace("-", "", $result[0]["end_date"])."\r\n"
@@ -26,12 +32,14 @@
 		.$result[0]["character"]
 		.$result[0]["start_coins"]
 		.$result[0]["five_laps_enabled"]
-		."00"
+		."\r\n"
 		.sprintf('%02d', $result[0]["course"])
-		."00"
+		."\r\n"
 		.sprintf('%02d', $result[0]["num_attempts"])
-		."00"
-		."00";
+		."\r\n"
+		.sprintf('%02d', $messageLength)
+		."\r\n"
+		.mb_convert_encoding($result[0]["message"], "SJIS", "UTF-8");
 		
 		echo $data;
 	}
