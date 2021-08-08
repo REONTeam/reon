@@ -7,7 +7,8 @@
 	// The utility function however seems to immediately return the requested data (this is what $immediate is for)
 	// type 0 = normal, type 1 = ranking, type 2 = utility
 	function doAuth($type = 0) {
-		$isAuthRequired = $type == 2 ? true : preg_match("/\/[0-9]+\./", $_GET["name"]);
+		$cost = isset($_GET["name"]) ? getCost($_GET["name"]) : null;
+		$isAuthRequired = $type == 2 ? true : !empty($cost);
 		if($isAuthRequired && !isset($_SERVER["HTTP_GB_AUTH_ID"])) { // is the Auth ID set?
 			if(!isset($_SERVER["HTTP_AUTHORIZATION"]) || $_SERVER["HTTP_AUTHORIZATION"] === "") { // If Auth ID isnt set but there's an Auth header, that means they've sent us something to check.
 				// Generate a challenge
@@ -47,8 +48,11 @@
 					// The download and upload functions give the user a session that is to be used for the next request
 					// The utility function however seems to immediately return the requested data
 					if ($type == 2) {
-						return;
+						return $result["userId"];
 					} else {
+						// 
+						addCostToAccount($result["userId"], $cost);
+						
 						// Open a session
 						$sessionId = bin2hex(random_bytes(16));
 						session_id($sessionId);
@@ -161,5 +165,31 @@
 			"isValid" => $passwordHash === md5($challenge.$result[0]["password"]),
 			"userId" => $result[0]["id"]
 		);
+	}
+	
+	// Returns the cost of the accessed file (auth required) or null if the file has no cost specified (no auth)
+	function getCost($uri) {
+		$parts = explode("/", $uri);
+		$fileName = $parts[sizeof($parts) - 1];
+		$cost = explode(".", $fileName)[0];
+		if (is_numeric($cost)) {
+			return intval($cost);
+		}
+	}
+	
+	function addCostToAccount($userId, $cost) {
+		if ($cost == 0) return;
+		$db = connectMySQL();
+		$stmt = $db->prepare("update users set money_spent = money_spent + ? where id = ?");
+		$stmt->bind_param("ii", $cost, $userId);
+		$stmt->execute();
+	}
+	
+	function getMoneySpent($userId) {
+		$db = connectMySQL();
+		$stmt = $db->prepare("select money_spent from users where id = ?");
+		$stmt->bind_param("i", $userId);
+		$stmt->execute();
+		return fancy_get_result($stmt)[0]["money_spent"];
 	}
 ?>

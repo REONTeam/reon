@@ -7,6 +7,7 @@ CREATE TABLE `users` (
  `dion_id` varchar(10) NOT NULL,
  `email_id` varchar(8) NOT NULL,
  `password` varchar(8) NOT NULL,
+ `money_spent` int(11) NOT NULL,
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `mail` (
