@@ -5,8 +5,9 @@
 	// Will only be performed for files prefixed with a cost (e.g. "10.")
 	// The download and upload functions give the user a session that is to be used for the next request
 	// The utility function however seems to immediately return the requested data (this is what $immediate is for)
-	function doAuth($immediate = false) {
-		$isAuthRequired = $immediate ? true : preg_match("/\/[0-9]+\./", $_GET["name"]);
+	// type 0 = normal, type 1 = ranking, type 2 = utility
+	function doAuth($type = 0) {
+		$isAuthRequired = $type == 2 ? true : preg_match("/\/[0-9]+\./", $_GET["name"]);
 		if($isAuthRequired && !isset($_SERVER["HTTP_GB_AUTH_ID"])) { // is the Auth ID set?
 			if(!isset($_SERVER["HTTP_AUTHORIZATION"]) || $_SERVER["HTTP_AUTHORIZATION"] === "") { // If Auth ID isnt set but there's an Auth header, that means they've sent us something to check.
 				// Generate a challenge
@@ -40,19 +41,25 @@
 				
 				// Validate what they sent
 				$data = decodeAuthorization($challenge, $authString);
-				if (validateAuthData($data["dionId"], $data["passwordHash"], $challenge)) {
+				$result = validateAuthData($data["dionId"], $data["passwordHash"], $challenge);
+				if ($result["isValid"]) {
 					// Auth successful
 					// The download and upload functions give the user a session that is to be used for the next request
 					// The utility function however seems to immediately return the requested data
-					if ($immediate) {
+					if ($type == 2) {
 						return;
 					} else {
 						// Open a session
 						$sessionId = bin2hex(random_bytes(16));
 						session_id($sessionId);
 						session_start();
-						// Set the DION ID into the session so it is known later
-						$_SESSION['dionId'] = $data["dionId"];
+						// Set some information about the user into the session so it is known later
+						$_SESSION['userId'] = $result["userId"];
+						$_SESSION['dionId'] = $result["dionId"];
+						
+						if ($type == 1) {
+							return $sessionId;
+						}
 						
 						header_remove();
 						http_response_code(200);
@@ -84,6 +91,8 @@
 		}
 		header_remove();
 		// When getting here, everything should be OK
+		
+		if ($type == 1 && !$isAuthRequired) return 0;
 	}
 	
 	function getBit($byte, $bit) {
@@ -139,7 +148,7 @@
 	
 	function validateAuthData($dionId, $passwordHash, $challenge) {
 		$db = connectMySQL();
-		$stmt = $db->prepare("select password from users where dion_id = ?;");
+		$stmt = $db->prepare("select id, password from users where dion_id = ?;");
 		$stmt->bind_param("s", $dionId);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -147,6 +156,10 @@
 		// If the user doesn't exist it's a fail
 		if (sizeof($result) == 0) return false;
 		// Check if the hashes match
-		return $passwordHash === md5($challenge.$result[0]["password"]);
+		return array(
+			"dionId" => $dionId,
+			"isValid" => $passwordHash === md5($challenge.$result[0]["password"]),
+			"userId" => $result[0]["id"]
+		);
 	}
 ?>

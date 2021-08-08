@@ -107,6 +107,11 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_leaders` (
 );
 
 # Mario Kart Advance (AMKJ)
+CREATE TABLE `amkj_user_map` (
+ `player_id` binary(16) NOT NULL,
+ `user_id` int(11) NOT NULL,
+ PRIMARY KEY (`player_id`)
+);
 CREATE TABLE IF NOT EXISTS `amkj_rule` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
  `file_name` text NOT NULL,
@@ -129,5 +134,26 @@ CREATE TABLE IF NOT EXISTS `amkj_rule` (
  `course` tinyint(2) NOT NULL,
  `num_attempts` tinyint(2) NOT NULL,
  `message` text DEFAULT NULL,
+ PRIMARY KEY (`id`)
+);
+CREATE TABLE `amkj_ghosts` (
+ `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `player_id` binary(16) NOT NULL,
+ `name` binary(5) NOT NULL,
+ `state` tinyint(3) unsigned NOT NULL,
+ `course` tinyint(3) unsigned NOT NULL,
+ `driver` tinyint(3) unsigned NOT NULL,
+ `time` smallint(5) unsigned NOT NULL,
+ `input_data` blob NOT NULL,
+ PRIMARY KEY (`id`)
+);
+CREATE TABLE `amkj_ghosts_mobilegp` (
+ `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `player_id` binary(16) NOT NULL,
+ `name` binary(5) NOT NULL,
+ `state` tinyint(3) unsigned NOT NULL,
+ `driver` tinyint(3) unsigned NOT NULL,
+ `time` smallint(5) unsigned NOT NULL,
+ `input_data` blob NOT NULL,
  PRIMARY KEY (`id`)
 );

@@ -11,10 +11,14 @@ function getConfig() {
 	return $config;
 }
 
-function serveFileOrExecScript($filePath) {
+function serveFileOrExecScript($filePath, $sessionId = null) {
 	$dir = dirname(__DIR__).DIRECTORY_SEPARATOR."html".DIRECTORY_SEPARATOR;
 	
 	header_remove();
+	
+	if (isset($sessionId)) {
+		header("Gb-Auth-ID: ".$sessionId);
+	}
     
     if (isset($filePath) && $filePath != "")
     {
@@ -54,7 +58,7 @@ function serveFileOrExecScript($filePath) {
         http_response_code(404);
 	}
 	
-	if (session_status() == PHP_SESSION_ACTIVE) {
+	if (session_status() == PHP_SESSION_ACTIVE && !isset($sessionId)) {
 		session_destroy();
 	}
 }
