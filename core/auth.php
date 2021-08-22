@@ -158,7 +158,11 @@
 		$result = fancy_get_result($stmt);
 		
 		// If the user doesn't exist it's a fail
-		if (sizeof($result) == 0) return false;
+		if (sizeof($result) == 0) {
+			return array(
+				"isValid" => false
+			);
+		}
 		// Check if the hashes match
 		return array(
 			"dionId" => $dionId,
