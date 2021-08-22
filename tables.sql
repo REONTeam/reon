@@ -20,6 +20,22 @@ CREATE TABLE IF NOT EXISTS `mail` (
 );
 
 # Pokemon Crystal (BXTJ)
+CREATE TABLE `pkm_trades` (
+ `tradeid` VARCHAR(11) NOT NULL COMMENT 'Per-trade UUID.',
+ `entry_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Current time at entry.',
+ `email` VARCHAR(25) NOT NULL COMMENT 'DION email',
+ `trainer_id` VARCHAR(4) NOT NULL COMMENT 'Trainer ID',
+ `secret_id` VARCHAR(4) NOT NULL COMMENT 'Secret ID',
+ `offer_gender` ENUM('00','01','02','03') NOT NULL DEFAULT '00' COMMENT 'Gender of Pokémon',
+ `offer_species` INT(3) NOT NULL DEFAULT '0' COMMENT 'Decimal Pokémon ID.',
+ `request_gender` ENUM('00','01','02','03') NOT NULL DEFAULT '00',
+ `request_species` INT(3) NOT NULL DEFAULT '0',
+ `file` TEXT NOT NULL COMMENT 'Pokémon in B64',
+ UNIQUE INDEX `UNIQUE` (`tradeid`, `email`)
+)
+COMMENT='Pokémon Trade Corner information'
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB;
 CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_records` (
  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
  `room` int(10) unsigned NOT NULL,
