@@ -8,7 +8,7 @@
 	// type 0 = normal, type 1 = ranking, type 2 = utility
 	function doAuth($type = 0) {
 		$cost = isset($_GET["name"]) ? getCost($_GET["name"]) : null;
-		$isAuthRequired = $type == 2 ? true : !empty($cost);
+		$isAuthRequired = $type == 2 ? true : !is_null($cost);
 		if($isAuthRequired && !isset($_SERVER["HTTP_GB_AUTH_ID"])) { // is the Auth ID set?
 			if(!isset($_SERVER["HTTP_AUTHORIZATION"]) || $_SERVER["HTTP_AUTHORIZATION"] === "") { // If Auth ID isnt set but there's an Auth header, that means they've sent us something to check.
 				// Generate a challenge
