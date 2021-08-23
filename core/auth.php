@@ -87,7 +87,9 @@
 			session_start();
 			// If there is no DION ID associated with the session, it's not valid
 			if (!isset($_SESSION['dionId'])) {
-				session_destroy();
+				if (session_status() == PHP_SESSION_ACTIVE) {
+					session_destroy();
+				}
 				header_remove();
 				http_response_code(401);
 				exit();
