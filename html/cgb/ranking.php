@@ -9,7 +9,7 @@
     
 	$sessionId = doAuth(1);
 	if (isset($sessionId)) {
-		if ($sessionId == 0) {
+		if (is_int($sessionId) && $sessionId == 0) {
 			serveFileOrExecScript($_GET["name"]);
 		} else {
 			serveFileOrExecScript($_GET["name"], $sessionId);
