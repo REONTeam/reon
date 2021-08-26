@@ -16,6 +16,7 @@ class POP3Connection extends EventEmitter {
 		
 		this._socket.on('data', data => this._onData(data));
 		this._socket.on('close', () => this._onClose());
+		this._socket.on('error', error => this._onError(error));
 		
 		this._send(true, "service ready");
 		this._isBusy = false;

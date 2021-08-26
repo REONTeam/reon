@@ -15,6 +15,7 @@ class SMTPConnection extends EventEmitter {
 		
 		this._socket.on('data', data => this._onData(data));
 		this._socket.on('close', () => this._onClose());
+		this._socket.on('error', error => this._onError(error));
 		
 		this._send(220, "service ready");
 		this._isBusy = false;
