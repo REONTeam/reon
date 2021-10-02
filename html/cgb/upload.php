@@ -5,7 +5,7 @@ require_once(CORE_PATH.'/core.php');
 require_once(CORE_PATH.'/auth.php');
 
 	doAuth();
-    serveFileOrExecScript($_GET["name"]);
+    serveFileOrExecScript($_GET["name"], "upload");
 
 
 /* (These docs credited to Háčky from Glitch City)

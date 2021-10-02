@@ -10,9 +10,9 @@
 	$sessionId = doAuth(1);
 	if (isset($sessionId)) {
 		if (is_int($sessionId) && $sessionId == 0) {
-			serveFileOrExecScript($_GET["name"]);
+			serveFileOrExecScript($_GET["name"], "ranking");
 		} else {
-			serveFileOrExecScript($_GET["name"], $sessionId);
+			serveFileOrExecScript($_GET["name"], "ranking", $sessionId);
 		}
 	}
 ?>

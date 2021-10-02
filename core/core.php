@@ -11,8 +11,8 @@ function getConfig() {
 	return $config;
 }
 
-function serveFileOrExecScript($filePath, $sessionId = null) {
-	$dir = dirname(__DIR__).DIRECTORY_SEPARATOR."html".DIRECTORY_SEPARATOR;
+function serveFileOrExecScript($filePath, $type, $sessionId = null) {
+	$dir = dirname(__DIR__).DIRECTORY_SEPARATOR."app".DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR;
 	
 	header_remove();
 	
