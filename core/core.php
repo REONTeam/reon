@@ -12,7 +12,7 @@ function getConfig() {
 }
 
 function serveFileOrExecScript($filePath, $type, $sessionId = null) {
-	$dir = dirname(__DIR__).DIRECTORY_SEPARATOR."app".DIRECTORY_SEPARATOR.$type.DIRECTORY_SEPARATOR;
+	$dir = dirname(__DIR__).DIRECTORY_SEPARATOR."app".DIRECTORY_SEPARATOR.$type;
 	
 	header_remove();
 	
@@ -22,35 +22,24 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
     
     if (isset($filePath) && $filePath != "")
     {
-		$file = test_input($filePath);
-		$file = ltrim($file, '/');
-		$file = strtok($file, '?'); // strip url parameters from file path
+		$realBaseDir = realpath($dir);
+		$realFilePath = realpath($dir.$filePath);
 		
-		if (file_exists($dir.$file))
-		{
-			if (pathinfo($dir.$file)["extension"] === "php") {
+		// if a .cgb file was requested but doesn't exist, try .php instead
+		if ($realFilePath === false) $realFilePath = realpath(str_replace(".cgb", ".php", $dir.$filePath));
+		
+		if ($realFilePath === false || strpos($realFilePath, $realBaseDir) !== 0) {
+			// file doesn't exist or is outiside of the base directory (directory traversal)
+			http_response_code(404);
+		} else {
+			// file exists
+			if (pathinfo($realFilePath)["extension"] === "php") {
 				// If a PHP script, execute
-				include($dir.$file);
+				include($realFilePath);
 			} else {
 				// If not a PHP script, serve the file
 				header("HTTP/1.0 200 OK");
-				readfile($dir.$file); // This puts the file into the output buffer.
-			}
-		}
-		else
-		{
-			if (pathinfo($dir.$file)["extension"] === "cgb") {
-				// .cgb files were probably dynamic stuff instead of actual files on the original server
-				$phpPath = str_replace(".cgb", ".php", $dir.$file);
-				if (file_exists($phpPath)) {
-					include($phpPath);
-				} else {
-					// File not found, so 404!
-					http_response_code(404);
-				}
-			} else {
-				// File not found, so 404!
-				http_response_code(404);
+				readfile($realFilePath); // This puts the file into the output buffer.
 			}
 		}
 	} else {
@@ -61,21 +50,5 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
 	if (session_status() == PHP_SESSION_ACTIVE && !isset($sessionId)) {
 		session_destroy();
 	}
-}
-
-function generate_UUID() {
-	return str_replace(
-		array('+','/','='),
-		array('-','_',''),
-		base64_encode(file_get_contents('/dev/urandom', 0, null, -1, 8))
-	);
-}
-
-function test_input($data) {
-	$data = trim($data);
-	$data = stripslashes($data);
-	$data = htmlspecialchars($data);
-	$data = str_replace("../", "", $data);
-	return $data;
 }
 ?>
