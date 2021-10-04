@@ -1,4 +1,5 @@
 <?php
+	// SPDX-License-Identifier: MIT
 	// These are L:10 trainers from the english battle tower
 	// TODO: Add trainers for higher levels
 

@@ -1,4 +1,5 @@
 <?php
+// SPDX-License-Identifier: MIT
 require_once(CORE_PATH."/core.php");
 
 global $db;

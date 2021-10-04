@@ -1,4 +1,5 @@
 <?php
+// SPDX-License-Identifier: MIT
 // Core file for CGB-005 server.
 
 global $config;

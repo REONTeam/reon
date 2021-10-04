@@ -1,4 +1,5 @@
 <?php
+	// SPDX-License-Identifier: MIT
 	// Ghost download by rank in state ranking
 	
 	require_once(CORE_PATH."/mario_kart.php");

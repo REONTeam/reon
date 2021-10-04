@@ -1,4 +1,5 @@
 <?php
+	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/database.php");
 	require_once(CORE_PATH."/pokemon/func.php");
 	require_once(CORE_PATH."/pokemon/battle_tower_trainers.php");

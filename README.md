@@ -18,4 +18,4 @@ This repository holds various folders for the service, and each has its own READ
 
 # License
 
-[Clear up what license we'd like to use!]
+This code is licenced under MIT.

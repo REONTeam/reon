@@ -1,4 +1,6 @@
-﻿using MailKit.Net.Smtp;
+﻿// SPDX-License-Identifier: MIT
+
+using MailKit.Net.Smtp;
 using MimeKit;
 using MySql.Data.MySqlClient;
 using System;

@@ -1,5 +1,5 @@
 <?php
-
+// SPDX-License-Identifier: MIT
 function decodeExchange ($stream, $pkm = true) {
     $postdata = fopen($stream, "rb");
     $decData = array();

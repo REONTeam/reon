@@ -1,4 +1,5 @@
 <?php
+// SPDX-License-Identifier: MIT
 require CORE_PATH.'/pokemon/func.php';
 require CORE_PATH.'/database.php';
 

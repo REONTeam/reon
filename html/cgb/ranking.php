@@ -1,4 +1,5 @@
 <?php
+	// SPDX-License-Identifier: MIT
 	// Authentication seems weird here...
 	// Instead of sending POST data and getting a response on the third request, it happens on the second request
 	// After this, there will be (useless?) third request that shouldn't cause the requested script to run again

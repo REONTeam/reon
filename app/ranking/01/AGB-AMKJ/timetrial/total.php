@@ -1,4 +1,5 @@
 <?php
+	// SPDX-License-Identifier: MIT
 	// Probably total amount of entries in the ranking (probably)
 	// Seems to influence the rk parameters sent to query.cgb
 	

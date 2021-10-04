@@ -1,4 +1,5 @@
 <?php
+// SPDX-License-Identifier: MIT
 // utility
 define('CORE_PATH', dirname(dirname(__DIR__)) . '/core');
 require_once(CORE_PATH.'/core.php');

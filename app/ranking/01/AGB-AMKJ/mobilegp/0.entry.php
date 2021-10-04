@@ -1,4 +1,5 @@
 <?php
+	// SPDX-License-Identifier: MIT
 	// Ghost upload (Mobile GP)
 	
 	require_once(CORE_PATH."/mario_kart.php");
