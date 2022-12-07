@@ -162,7 +162,7 @@ class POP3Connection extends EventEmitter {
 				if (this._maildrop[i]["deleted"]) deleteList.push(this._maildrop[i]["id"]);
 			}
 			if (deleteList.length > 0) {
-				this._server.mysql.query("delete from mail where id in ?", [deleteList], function (error, results, fields) {
+				this._server.mysql.query("delete from mail where id in (?)", [deleteList], function (error, results, fields) {
 					if (error) {
 						this._onError(error);
 					} else {
@@ -191,6 +191,25 @@ class POP3Connection extends EventEmitter {
 		}
 	}
 	
+	_commandHandler_LIST(param) {
+		if (this._state == POP3State.TRANSACTION) {
+			if (param != null && param != "" && !isNaN(param)) {
+				if (this._maildrop[param - 1]) {
+					//this._getMail(this._maildrop[param - 1]["id"], function(data) {
+					this._send(true, param + " " + this._maildrop[param - 1]["size"] + "\r\n");
+					//});
+				} else {
+					this._send(false, "no such message");
+				}
+			} else {
+				//this._send(true, this._maildrop.length + " " + (this._maildrop.length == 0 ? "0" : this._maildrop.map(entry => entry["size"]).reduce((a, b) => a + b, 0)));
+				this._send(false, "not implemented");
+			}
+		} else {
+			this._send(false, "command not allowed");
+		}
+	}
+	
 	_commandHandler_RETR(param) {
 		if (this._state == POP3State.TRANSACTION) {
 			if (param != null && param != "" && !isNaN(param)) {
@@ -214,7 +233,7 @@ class POP3Connection extends EventEmitter {
 			if (param != null) {
 				let params = param.split(" ");
 				if (params.length == 2 && !isNaN(params[0]) && !isNaN(params[1])) {
-					let messageId = params[0];
+					let messageId = params[0] - 1;
 					let lines = params[1];
 					if (this._maildrop[messageId]) {
 						this._getMail(this._maildrop[messageId]["id"], function(mailContent) {
