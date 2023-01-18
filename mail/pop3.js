@@ -6,7 +6,7 @@ class POP3Server {
 	constructor(mysqlConfig) {
 		this.connections = new Set();
 		this.mysql = mysql.createPool(mysqlConfig);
-		net.createServer(sock => this._onClientConnect(sock)).listen(110, "127.0.0.1");
+		net.createServer(sock => this._onClientConnect(sock)).listen(110, "0.0.0.0");
 		console.log("POP3 server listening");
 	}
 	

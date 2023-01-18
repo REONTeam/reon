@@ -1,8 +1,8 @@
 <?php
 // SPDX-License-Identifier: MIT
-function decodeExchange ($stream, $pkm = true) {
+function decodeExchange ($stream, $pkm = true, $bxtj = false) {
     $postdata = fopen($stream, "rb");
-    $decData = array();
+	$decData = array();
     $decData["email"] = fread($postdata, 0x18); // $00 DION e-mail address (null-terminated ASCII)
     fseek($postdata, 0x1E); // Jump to Trainer ID
     $decData["trainer_id"] = bin2hex(fread($postdata, 0x2)); // $1E Trainer ID
@@ -11,7 +11,12 @@ function decodeExchange ($stream, $pkm = true) {
     $decData["offer_species"] = hexdec(bin2hex(fread($postdata, 0x1))); // $23 Offered Pokémon’s species
     $decData["req_gender"] = bin2hex(fread($postdata, 0x1)); // $24 Requested Pokémon’s gender
     $decData["req_species"] = hexdec(bin2hex(fread($postdata, 0x1))); // $25 Requested Pokémon’s species
-    $decData["b64_pokemon"] = $pkm ? base64_encode(fread($postdata, 0x69)) : NULL; // Base64 of the Pokémon that needs to be sent back in email.
+    if($bxtj = false) {
+        $decData["b64_pokemon"] = $pkm ? base64_encode(fread($postdata, 0x78)) : NULL; // Base64 of the Pokémon that needs to be sent back in email.
+    }
+    else {
+        $decData["b64_pokemon"] = $pkm ? base64_encode(fread($postdata, 0x69)) : NULL; // Base64 of the Pokémon that needs to be sent back in email.
+    }
     // These bytes (except for b64_pokemon) are all that the web scripts need to deal with.
     return $decData;
 }
