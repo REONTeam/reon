@@ -1,0 +1,12 @@
+[Unit]
+Description=REON Script for the Pokemon Crystal Trade Corner
+Documentation=https://github.com/REONTeam/reon
+Wants=reon_trade_corner.timer
+
+[Service]
+Type=oneshot
+WorkingDirectory=/var/www/gameboy.datacenter.ne.jp/
+ExecStart=/var/www/gameboy.datacenter.ne.jp/tradecorner.sh
+
+[Install]
+WantedBy=multi-user.target

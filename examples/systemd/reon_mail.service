@@ -1,0 +1,13 @@
+[Unit]
+Description=REON Email Service                                  
+Documentation=https://github.com/REONTeam/reon
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/gameboy.datacenter.ne.jp/mail
+ExecStart=/usr/bin/node /var/www/gameboy.datacenter.ne.jp/mail/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
