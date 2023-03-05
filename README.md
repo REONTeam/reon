@@ -13,8 +13,8 @@ This repository holds various folders for the service, and each has its own READ
 # Server Setup
 
 1. Install Apache2, PHP, MySQL
-2. Continue these steps later once the production server is setup.
-
+2. Place the files in Apache2's (or the vhost's if used) website root folder
+3. Continue these steps later once the production server is setup.
 
 # License
 
