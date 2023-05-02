@@ -36,10 +36,10 @@
 	}
 	
 	
-	echo pack("n", date("Y")); // Year
-	echo pack("C", date("m")); // Month
-	echo pack("C", date("d")); // Day
-	echo pack("C", date("H")); // Hour
+	echo pack("n", date("Y", time() + 32400)); // Year
+	echo pack("C", date("m", time() + 32400)); // Month
+	echo pack("C", date("d", time() + 32400)); // Day
+	echo pack("C", date("H", time() + 32400)); // Hour
 	echo pack("C", date("i")); // Minute
 	
 	echo pack("N", getTotalRankingEntriesMobileGP());
