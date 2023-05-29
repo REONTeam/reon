@@ -12,7 +12,7 @@
 	}
     $data = parseGhostUpload(fopen("php://input", "rb"));
 	
-	if ($data["driver"] > 7 || $data["state"] > 46) {
+	if ($data["driver"] > 7) {
 		http_response_code(400);
 		return;
 	}
@@ -32,9 +32,11 @@
 		$stmt->bind_param("s", $data["player_id"]);
 		$stmt->execute();
 		
+		$gp_id = getCurrentMobileGP();
+
 		// Insert new record
-		$stmt = $db->prepare("insert into amkj_ghosts_mobilegp (player_id, name, state, driver, time, input_data) values (?,?,?,?,?,?)");
-		$stmt->bind_param("ssiiis", $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["input_data"]);
+		$stmt = $db->prepare("insert into amkj_ghosts_mobilegp (gp_id, player_id, name, state, driver, time, input_data, full_name, phone_number, postal_code, address, unk10, unk18) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		$stmt->bind_param("issiiisssssii", $gp_id, $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"], $data["unk10"], $data["unk18"]);
 		$stmt->execute();
 		
 		$db->commit();
