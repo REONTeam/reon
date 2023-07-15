@@ -1,0 +1,2 @@
+RewriteEngine on
+RewriteRule ^daa_gb_jikan.cgi$ daa_gb_jikan.php [L,NC]
