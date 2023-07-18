@@ -1,4 +1,4 @@
-http://gameboy.datacenter.ne.jp/cgb/download?name=/01/CGB-BXTJ/news/metadata.bin
-http://gameboy.datacenter.ne.jp/cgb/upload?name=/01/CGB-BXTJ/news/0.upload.php
-http://gameboy.datacenter.ne.jp/cgb/ranking?name=/01/CGB-BXTJ/news/0.ranking.php
-http://gameboy.datacenter.ne.jp/cgb/download?name=/01/CGB-BXTJ/news/100.menu.cgb
+http://gameboy.datacenter.ne.jp/cgb/download?name=/01/CGB-BXTJ/news/config.php
+http://gameboy.datacenter.ne.jp/cgb/upload?name=/01/CGB-BXTJ/news/0.entry.php
+http://gameboy.datacenter.ne.jp/cgb/ranking?name=/01/CGB-BXTJ/ranking/query.php
+http://gameboy.datacenter.ne.jp/cgb/download?name=/01/CGB-BXTJ/news/100.news.php
