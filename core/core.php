@@ -31,7 +31,9 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
 		
 		if ($realFilePath === false || strpos($realFilePath, $realBaseDir) !== 0) {
 			// file doesn't exist or is outiside of the base directory (directory traversal)
-			http_response_code(404);
+			if ($type != "download" || !str_starts_with($filePath, "/01/AGB-AMKJ/")) { // mobile GP
+				http_response_code(404);
+			}
 		} else {
 			// file exists
 			if (pathinfo($realFilePath)["extension"] === "php") {

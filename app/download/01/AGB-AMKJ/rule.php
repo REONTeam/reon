@@ -24,14 +24,14 @@
 		.str_replace("-", "", $result[0]["entry_end_date"])."\r\n"
 		.str_replace("-", "", $result[0]["ranking_start_date"])."\r\n"
 		.str_replace("-", "", $result[0]["ranking_end_date"])."\r\n"
-		.$result[0]["coins_enabled"]
-		.$result[0]["items_enabled"]
-		.$result[0]["start_item_triple_shroom_enabled"]
-		.$result[0]["shrooms_only_enabled"]
-		.$result[0]["cpu_enabled"]
-		.$result[0]["character"]
-		.$result[0]["start_coins"]
-		.$result[0]["five_laps_enabled"]
+		.dechex($result[0]["coins_enabled"])
+		.dechex($result[0]["items_enabled"])
+		.dechex($result[0]["start_item_triple_shroom_enabled"])
+		.dechex($result[0]["shrooms_only_enabled"])
+		.dechex($result[0]["cpu_enabled"])
+		.dechex($result[0]["character"])
+		.dechex($result[0]["start_coins"])
+		.dechex($result[0]["five_laps_enabled"])
 		."\r\n"
 		.sprintf('%02d', $result[0]["course"])
 		."\r\n"

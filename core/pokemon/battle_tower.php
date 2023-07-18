@@ -5,7 +5,7 @@
 	require_once(CORE_PATH."/pokemon/battle_tower_trainers.php");
 	
 	function battleTowerGetRoomCount() {
-		$num_rooms_per_level = 1; // change number of available rooms here
+		$num_rooms_per_level = 5; // change number of available rooms here
 		return pack("n",$num_rooms_per_level * 10);
 	}
 	
@@ -22,7 +22,36 @@
 		// If there are not enough user generated trainers available for this room, add some placeholder trainers
 		// As the game reads the trainers in reverse, the placeholder trainers will be battled first which is welcome as the battles should become harder as you progress
 		for ($i = sizeof($result); $i < 7; $i++) {
+		if ($level == 0){
 			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN($i) : getBattleTowerPlaceholderTrainerJP($i);
+			}
+		if ($level == 1){
+			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN1($i) : getBattleTowerPlaceholderTrainerJP1($i);
+			}
+		if ($level == 2){
+			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN2($i) : getBattleTowerPlaceholderTrainerJP2($i);
+			}
+		if ($level == 3){
+			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN3($i) : getBattleTowerPlaceholderTrainerJP3($i);
+			}
+		if ($level == 4){
+			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN4($i) : getBattleTowerPlaceholderTrainerJP4($i);
+			}
+		if ($level == 5){
+			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN5($i) : getBattleTowerPlaceholderTrainerJP5($i);
+			}
+		if ($level == 6){
+			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN6($i) : getBattleTowerPlaceholderTrainerJP6($i);
+			}
+		if ($level == 7){
+			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN7($i) : getBattleTowerPlaceholderTrainerJP7($i);
+			}
+		if ($level == 8){
+			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN8($i) : getBattleTowerPlaceholderTrainerJP8($i);
+			}
+		if ($level == 9){
+			$result[$i] = $bxte ? getBattleTowerPlaceholderTrainerEN9($i) : getBattleTowerPlaceholderTrainerJP9($i);
+			}
 		}
 		
 		return encodeBattleTowerRoomData($result, $bxte);

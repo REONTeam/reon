@@ -35,16 +35,15 @@
 		array_push($rk, hexdec($params["rk_".$i]));
 	}
 	
-	
-	echo pack("n", date("Y")); // Year
-	echo pack("C", date("m")); // Month
-	echo pack("C", date("d")); // Day
-	echo pack("C", date("H")); // Hour
+	echo pack("n", date("Y", time() + 32400)); // Year
+	echo pack("C", date("m", time() + 32400)); // Month
+	echo pack("C", date("d", time() + 32400)); // Day
+	echo pack("C", date("H", time() + 32400)); // Hour
 	echo pack("C", date("i")); // Minute
 	
 	echo pack("N", getTotalRankingEntriesMobileGP());
 	
-	echo pack("N", 0);
+	echo pack("N", getTotalRankingEntriesMobileGP());
 	
 	$top10 = getTop10MobileGP($myid);
 	echo pack("n", sizeof($top10));
@@ -62,16 +61,8 @@
 	
 	echo pack("n", 0);
 	
-	echo pack("n", 0);
-	echo pack("n", 0);
-	echo pack("n", 0);
-	echo pack("n", 0);
-	echo pack("n", 0);
-	echo pack("n", 0);
-	echo pack("n", 0);
-	echo pack("n", 0);
-	echo pack("n", 0);
-	echo pack("n", 0);
-	echo pack("n", 0);
+	for ($i = 0; $i < 11; $i++) {
+		echo pack("n", 0);
+	}
 
 ?>
