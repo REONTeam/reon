@@ -11,7 +11,7 @@ require CORE_PATH.'/database.php';
 $data = decodeExchange("php://input", false); // This makes a nice array of data.
 $db = connectMySQL(); // Connect to DION Database!
 
-$stmt = $db->prepare("DELETE FROM `pkm_trades` WHERE email = ?;"); // Delete the trade from Database.
+$stmt = $db->prepare("DELETE FROM `btxj_pkm_trades` WHERE email = ?;"); // Delete the trade from Database.
 $stmt->bind_param("s",$data["email"]);
 $stmt->execute();
 

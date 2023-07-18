@@ -1,0 +1,11 @@
+[Unit]
+Description=REON Script for the Pokemon Crystal Trade Corner
+Documentation=https://github.com/REONTeam/reon
+Requires=reon_trade_corner.service
+
+[Timer]
+Unit=reon_trade_corner.service
+OnCalendar=*-*-* *:00:00
+
+[Install]
+WantedBy=timers.target

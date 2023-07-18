@@ -7,7 +7,7 @@ class SMTPServer {
 		this.connections = new Set();
 		this.mysql = mysql.createPool(mysqlConfig);
 		this.domain = domain;
-		net.createServer(sock => this._onClientConnect(sock)).listen(25, "127.0.0.1");
+		net.createServer(sock => this._onClientConnect(sock)).listen(25, "0.0.0.0");
 		console.log("SMTP server listening");
 	}
 	

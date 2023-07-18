@@ -52,4 +52,12 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
 		session_destroy();
 	}
 }
+
+function generate_UUID() {
+	return str_replace(
+		array('+','/','='),
+		array('-','_',''),
+		base64_encode(file_get_contents('/dev/urandom', 0, null, 0, 8))
+	);
+}
 ?>

@@ -1,0 +1,38 @@
+server {
+        listen 80;
+        server_name gameboy.datacenter.ne.jp mgb.dion.ne.jp;
+        set $base /var/www/gameboy.datacenter.ne.jp/;
+        index  index.php index.html index.htm;
+        root $base/html;
+
+        location /cgb/ {
+		try_files $uri $uri/ @extensionless-php;
+                #rewrite "^download$" /"/cgb/download?name=/01/CGB-BXTE/battle/room.cgb&room=%1";
+                #rewrite "^download$" /"/cgb/download?name=/01/CGB-BXTE/battle/leaders.cgb&room=%1";
+                #rewrite "^download$" /"/cgb/download?name=/01/CGB-BXTJ/battle/room.cgb&room=%1";
+                #rewrite "^download$" /"/cgb/download?name=/01/CGB-BXTJ/battle/leaders.cgb&room=%1";
+		#rewrite "^download$" /"/cgb/download?name=/01/CGB-BXTE/exchange/index.txt";
+		#rewrite "^ranking$" /"/cgb/ranking?name=/01/AGB-AMKJ/timetrial/%2&course=%1";
+                #rewrite "^upload$" /"/cgb/upload?name=/01/AGB-AMKJ/timetrial/0.entry.cgb&course=%1";
+                #rewrite "^download$" /"download.php";
+                #rewrite "^upload$" /"upload.php";
+                #rewrite "^ranking$" /"ranking.php";
+                #rewrite "^utility$" /"utility.php";
+        }
+
+        # Pass the PHP scripts to FastCGI server
+        location ~* \.php {
+            # Write your FPM configuration here
+            include snippets/fastcgi-php.conf;
+            #fastcgi_split_path_info ^(.+\.php)(/.+)$;
+            fastcgi_pass unix:/var/run/php/php-fpm.sock;
+            #fastcgi_index index.php;
+            #fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            #include fastcgi_params;
+        }
+
+	location @extensionless-php {
+		rewrite ^(.*)$ $1.php last;
+	}
+
+}
