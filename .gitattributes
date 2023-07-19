@@ -1,4 +1,9 @@
-# .txt files should have Windows Line Endings - GBC code *requires* Windows endings.
-# Other files should be fine with Unix
 * text=auto
+
+# .txt files should have Windows Line Endings - GBC code *requires* Windows endings.
 *.txt text eol=crlf
+
+# binary files
+*.bin binary
+*.cgb binary
+*.bmp binary
