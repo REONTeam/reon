@@ -41,7 +41,6 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
 				include($realFilePath);
 			} else {
 				// If not a PHP script, serve the file
-				header("HTTP/1.0 200 OK");
 				readfile($realFilePath); // This puts the file into the output buffer.
 			}
 		}
