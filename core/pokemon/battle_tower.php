@@ -18,7 +18,20 @@
 		$stmt->bind_param("ii", $room, $level);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
-		
+		$i = sizeof($result);
+		//If there are less than 7 user generated trainers in the room, generate trainers from submitted trainer records
+		if ($i < 7){
+			$stmt1 = $db->prepare("insert into ".($bxte ? "bxte" : "bxtj")."_battle_tower_trainers (room, level, name, class, pokemon1, pokemon2, pokemon3, message_start, message_win, message_lose) select room, level, name, class, pokemon1, pokemon2, pokemon3, message_start, message_win, message_lose from ".($bxte ? "bxte" : "bxtj")."_battle_tower_records where room = ? and level = ? order by num_trainers_defeated desc, num_turns_required asc, damage_taken asc, num_fainted_pokemon asc limit 6;");
+			$stmt1->bind_param("ii", $room, $level);
+			$stmt1->execute();
+			$stmt2 = $db->prepare("insert into ".($bxte ? "bxte" : "bxtj")."_battle_tower_trainers (room, level, name, class, pokemon1, pokemon2, pokemon3, message_start, message_win, message_lose) select room, level, name, class, pokemon1, pokemon2, pokemon3, message_start, message_win, message_lose from ".($bxte ? "bxte" : "bxtj")."_battle_tower_records where room = ? and level = ? order by rand() limit 1;");
+			$stmt2->bind_param("ii", $room, $level);
+			$stmt2->execute();
+			$stmt = $db->prepare("select hex(name), hex(class), hex(pokemon1), hex(pokemon2), hex(pokemon3), hex(message_start), hex(message_win), hex(message_lose) from ".($bxte ? "bxte" : "bxtj")."_battle_tower_trainers where room = ? and level = ? order by no desc limit 7;");
+			$stmt->bind_param("ii", $room, $level);
+			$stmt->execute();
+			$result = fancy_get_result($stmt);
+		}
 		// If there are not enough user generated trainers available for this room, add some placeholder trainers
 		// As the game reads the trainers in reverse, the placeholder trainers will be battled first which is welcome as the battles should become harder as you progress
 		for ($i = sizeof($result); $i < 7; $i++) {
@@ -73,6 +86,11 @@
 		$db = connectMySQL();
 		$stmt = $db->prepare("insert into ".($bxte ? "bxte" : "bxtj")."_battle_tower_records (room, level, email, trainer_id, secret_id, name, class, pokemon1, pokemon2, pokemon3, message_start, message_win, message_lose, num_trainers_defeated, num_turns_required, damage_taken, num_fainted_pokemon) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 		$stmt->bind_param("iisiissssssssiiii", $data["room"], $data["level"], $data["email"], $data["trainer_id"], $data["secret_id"], $data["name"], $data["class"], $data["pokemon1"], $data["pokemon2"], $data["pokemon3"], $data["message_start"], $data["message_win"], $data["message_lose"], $data["num_trainers_defeated"], $data["num_turns_required"], $data["damage_taken"], $data["num_fainted_pokemon"]);
+		$stmt->execute();
+		//Add to Honor Roll if player defeated all 7 trainers
+		if($data["num_trainers_defeated"] == 7){
+			$db->query("insert into ".($bxte ? "bxte" : "bxtj")."_battle_tower_leaders ( room, level, name) VALUES ({$data["room"]},{$data["level"]},'{$data["name"]}')");
+		}
 		return $stmt->execute();
 	}
 	

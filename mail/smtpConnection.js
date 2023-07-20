@@ -180,7 +180,7 @@ class SMTPConnection extends EventEmitter {
 	
 	_handleData(data) {
 		this._mailData += data;
-		if (data.endsWith("\r\n.\r\n")) {
+		if (data.endsWith(".\r\n")) {
 			this._dataInputMode = false;
 			let mailToInsert = [];
 			for (let i = 0; i < this._forwardPath.length; i++) {
