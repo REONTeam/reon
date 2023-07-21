@@ -108,9 +108,9 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_records` (
  `pokemon1` binary(59) NOT NULL,
  `pokemon2` binary(59) NOT NULL,
  `pokemon3` binary(59) NOT NULL,
- `message_start` binary(12) NOT NULL,
- `message_win` binary(12) NOT NULL,
- `message_lose` binary(12) NOT NULL,
+ `message_start` binary(8) NOT NULL,
+ `message_win` binary(8) NOT NULL,
+ `message_lose` binary(8) NOT NULL,
  `num_trainers_defeated` int(10) unsigned NOT NULL,
  `num_turns_required` int(10) unsigned NOT NULL,
  `damage_taken` int(10) unsigned NOT NULL,
@@ -126,9 +126,9 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_trainers` (
  `pokemon1` binary(59) NOT NULL,
  `pokemon2` binary(59) NOT NULL,
  `pokemon3` binary(59) NOT NULL,
- `message_start` binary(12) NOT NULL,
- `message_win` binary(12) NOT NULL,
- `message_lose` binary(12) NOT NULL,
+ `message_start` binary(8) NOT NULL,
+ `message_win` binary(8) NOT NULL,
+ `message_lose` binary(8) NOT NULL,
  PRIMARY KEY (`room`,`level`,`no`)
 );
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_leaders` (
