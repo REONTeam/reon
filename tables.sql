@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `bxtj_ranking` (
  `player_zip` smallint(3) NOT NULL,
  `player_message` binary(12) NOT NULL,
  `score` int(11) unsigned NOT NULL,
- `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS `bxte_ranking` (
  `player_zip` binary(3) NOT NULL,
  `player_message` binary(8) NOT NULL,
  `score` int(11) unsigned NOT NULL,
- `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
