@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_records` (
 CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_trainers` (
  `room` int(10) unsigned NOT NULL,
  `level` int(1) unsigned NOT NULL,
- `no` int(1) unsigned NOT NULL DEFAULT '1' AUTO_INCREMENT,
+ `no` int(1) unsigned NOT NULL AUTO_INCREMENT,
  `name` binary(5) NOT NULL,
  `class` binary(1) NOT NULL,
  `pokemon1` binary(54) NOT NULL,
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_records` (
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_trainers` (
  `room` int(10) unsigned NOT NULL,
  `level` int(1) unsigned NOT NULL,
- `no` int(1) unsigned NOT NULL DEFAULT '1' AUTO_INCREMENT,
+ `no` int(1) unsigned NOT NULL AUTO_INCREMENT,
  `name` binary(10) NOT NULL,
  `class` binary(1) NOT NULL,
  `pokemon1` binary(59) NOT NULL,
