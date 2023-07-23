@@ -163,10 +163,15 @@ function set_ranking($region, $content, $length) {
 		$stmt->bind_param("iiiii", $news_param["id"], $category["id"], $_SESSION["userId"], $trainer_id, $secret_id);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
-		// update the db only if there is no registered score or the registered score is lower than the new score
-		if (!array_key_exists(0, $result) || $result[0]["score"] < $score) {
+		// if there is a previous record for this player with a score equals (or greater for cheaters) than the submitted score, then do an update to update their information without touching the timestamp of their submission
+		// otherwise do insert replace which will update the timestamp
+		if (array_key_exists(0, $result) && $result[0]["score"] >= $score) {
+			$stmt = $db->prepare("update bxt".$region."_ranking set player_name = ?, player_gender = ?, player_age = ?, player_region = ?, player_zip = ?, player_message = ? where news_id = ? and category_id = ? and account_id = ? and trainer_id = ? and secret_id = ?");
+			$stmt->bind_param("siii".($region == "j" ? "i" : "s")."siiiii", $name, $gender, $age, $pregion, $zip, $message, $news_param["id"], $category["id"], $_SESSION["userId"], $trainer_id, $secret_id);
+			$stmt->execute();
+		} else {
 			$stmt = $db->prepare("replace into bxt".$region."_ranking (news_id, category_id, account_id, trainer_id, secret_id, player_name, player_gender, player_age, player_region, player_zip, player_message, score) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-		$stmt->bind_param("iiiiisiii".($region == "j" ? "i" : "s")."si", $news_param["id"], $category["id"], $_SESSION["userId"], $trainer_id, $secret_id, $name, $gender, $age, $pregion, $zip, $message, $score);
+			$stmt->bind_param("iiiiisiii".($region == "j" ? "i" : "s")."si", $news_param["id"], $category["id"], $_SESSION["userId"], $trainer_id, $secret_id, $name, $gender, $age, $pregion, $zip, $message, $score);
 			$stmt->execute();
 		}
 	}
@@ -270,14 +275,14 @@ function get_ranking($region, $post_string) {
 
 function make_ranking_table($region, $category, $top10, $total_ranked, $my_rank) {
 	$out = pack("N", $total_ranked);
-	$out .= pack("n", 0);
+	$out .= pack("n", 0); // currently unknown
 	$out .= pack("N", $my_rank);
 	$out .= pack("n", sizeof($top10));
 	foreach ($top10 as $player) {
 		$out .= $player["player_name"];
-		if ($region == "j") $out .= hex2bin("5050");
+		if ($region == "j") $out .= hex2bin("5000"); // japanese version has a 6th byte for the name plus a completely unused byte
 		$out .= pack("C", $player["player_region"]);
-		$out .= pack("n", 0); // possibly part of zip code?
+		$out .= pack("n", 0); // unused 2 bytes
 		$out .= pack("C", $player["player_age"]);
 		$out .= pack("C", $player["player_gender"]);
 		$out .= $player["player_message"];
