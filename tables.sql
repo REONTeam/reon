@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_trainers` (
  `message_start` binary(12) NOT NULL,
  `message_win` binary(12) NOT NULL,
  `message_lose` binary(12) NOT NULL,
- PRIMARY KEY (`room`,`level`,`no`)
+ PRIMARY KEY (`no`,`room`,`level`)
 );
 CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_leaders` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_trainers` (
  `message_start` binary(8) NOT NULL,
  `message_win` binary(8) NOT NULL,
  `message_lose` binary(8) NOT NULL,
- PRIMARY KEY (`room`,`level`,`no`)
+ PRIMARY KEY (`no`,`room`,`level`)
 );
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_leaders` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
