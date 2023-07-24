@@ -58,9 +58,9 @@ CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_records` (
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_trainers` (
+ `no` int unsigned NOT NULL AUTO_INCREMENT,
  `room` int(10) unsigned NOT NULL,
  `level` int(1) unsigned NOT NULL,
- `no` int(1) unsigned NOT NULL,
  `name` binary(5) NOT NULL,
  `class` binary(1) NOT NULL,
  `pokemon1` binary(54) NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_trainers` (
  `message_start` binary(12) NOT NULL,
  `message_win` binary(12) NOT NULL,
  `message_lose` binary(12) NOT NULL,
- PRIMARY KEY (`room`,`level`,`no`)
+ PRIMARY KEY (`no`,`room`,`level`)
 );
 CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_leaders` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -118,9 +118,9 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_records` (
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_trainers` (
+ `no` int unsigned NOT NULL AUTO_INCREMENT,
  `room` int(10) unsigned NOT NULL,
  `level` int(1) unsigned NOT NULL,
- `no` int(1) unsigned NOT NULL,
  `name` binary(10) NOT NULL,
  `class` binary(1) NOT NULL,
  `pokemon1` binary(59) NOT NULL,
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_trainers` (
  `message_start` binary(8) NOT NULL,
  `message_win` binary(8) NOT NULL,
  `message_lose` binary(8) NOT NULL,
- PRIMARY KEY (`room`,`level`,`no`)
+ PRIMARY KEY (`no`,`room`,`level`)
 );
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_leaders` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

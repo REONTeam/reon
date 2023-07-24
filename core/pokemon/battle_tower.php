@@ -5,7 +5,7 @@
 	require_once(CORE_PATH."/pokemon/battle_tower_trainers.php");
 	
 	function battleTowerGetRoomCount() {
-		$num_rooms_per_level = 5; // change number of available rooms here
+		$num_rooms_per_level = 20; // change number of available rooms here
 		return pack("n",$num_rooms_per_level * 10);
 	}
 	
