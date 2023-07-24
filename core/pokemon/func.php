@@ -22,7 +22,10 @@ function encodeBattleTowerRoomData($result, $bxte = false) {
 	$output = "";
 	for($i = 0; $i < sizeof($result); $i++) {
 		$output .= $result[$i]["hex(name)"]; // $00 Trainer name
-		$output .= $result[$i]["hex(class)"]; // $05 Trainer class
+		if ($bxte) {
+			$output .= hex2bin("505050");
+		}
+		$output .= pack("C", $result[$i]["class"]); // $05 Trainer class
 		$output .= $result[$i]["hex(pokemon1)"]; // $06 1st Pokemon
 		$output .= $result[$i]["hex(pokemon2)"]; // $3c 2nd Pokemon
 		$output .= $result[$i]["hex(pokemon3)"]; // $72 3rd Pokemon
@@ -58,7 +61,7 @@ function decodeBattleTowerRecord($stream, $bxte = false) {
 	$decData["trainer_id"] = unpack("n",fread($postdata, 0x2))["1"]; // $20 Trainer ID
 	$decData["secret_id"] = unpack("n",fread($postdata, 0x2))["1"]; // $22 Secret ID
 	$decData["name"] = fread($postdata, $bxte ? 0x7 : 0x5); // $24 Trainer name
-	$decData["class"] = fread($postdata, 0x1); // $29 Trainer class
+	$decData["class"] = unpack("C",fread($postdata, 0x1))["1"]; // $29 Trainer class
 	$decData["pokemon1"] = fread($postdata, $bxte ? 0x3b : 0x36); // $2a 1st Pokemon
 	$decData["pokemon2"] = fread($postdata, $bxte ? 0x3b : 0x36); // $60 2nd Pokemon
 	$decData["pokemon3"] = fread($postdata, $bxte ? 0x3b : 0x36); // $96 3rd Pokemon
