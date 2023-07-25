@@ -19,11 +19,6 @@
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		
-		if ($bxte) {
-			for ($i = 0; $i < sizeof($result); $i++) {
-				$result[$i]["name"] .= hex2bin("505050");
-			}
-		}
 		
 		// If there are not enough user generated trainers available for this room, add some placeholder trainers
 		// As the game reads the trainers in reverse, the placeholder trainers will be battled first which is welcome as the battles should become harder as you progress
