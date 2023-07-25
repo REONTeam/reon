@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_records` (
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_trainers` (
- `no` tinyint(1) unsigned NOT NULL,
+ `no` tinyint(1) unsigned NOT NULL AUTO_INCREMENT,
  `room` int(10) unsigned NOT NULL,
  `level` tinyint(1) unsigned NOT NULL,
  `name` binary(5) NOT NULL,
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_records` (
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_trainers` (
- `no` tinyint(1) unsigned NOT NULL,
+ `no` tinyint(1) unsigned NOT NULL AUTO_INCREMENT,
  `room` int(10) unsigned NOT NULL,
  `level` tinyint(1) unsigned NOT NULL,
  `name` binary(7) NOT NULL,
