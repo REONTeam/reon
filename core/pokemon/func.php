@@ -21,19 +21,16 @@ function decodeExchange ($stream, $pkm = true, $region) {
 function encodeBattleTowerRoomData($result, $bxte = false) {
 	$output = "";
 	for($i = 0; $i < sizeof($result); $i++) {
-		$output .= $result[$i]["hex(name)"]; // $00 Trainer name
-		if ($bxte) {
-			$output .= hex2bin("505050");
-		}
+		$output .= $result[$i]["name"]; // $00 Trainer name
 		$output .= pack("C", $result[$i]["class"]); // $05 Trainer class
-		$output .= $result[$i]["hex(pokemon1)"]; // $06 1st Pokemon
-		$output .= $result[$i]["hex(pokemon2)"]; // $3c 2nd Pokemon
-		$output .= $result[$i]["hex(pokemon3)"]; // $72 3rd Pokemon
-		$output .= $result[$i]["hex(message_start)"]; // $ae Easy Chat message for when the battle starts
-		$output .= $result[$i]["hex(message_win)"]; // $ba Easy Chat message for winning a battle
-		$output .= $result[$i]["hex(message_lose)"]; // $c6 Easy Chat message for losing a battle
+		$output .= $result[$i]["pokemon1"]; // $06 1st Pokemon
+		$output .= $result[$i]["pokemon2"]; // $3c 2nd Pokemon
+		$output .= $result[$i]["pokemon3"]; // $72 3rd Pokemon
+		$output .= $result[$i]["message_start"]; // $ae Easy Chat message for when the battle starts
+		$output .= $result[$i]["message_win"]; // $ba Easy Chat message for winning a battle
+		$output .= $result[$i]["message_lose"]; // $c6 Easy Chat message for losing a battle
 	}
-	return hex2bin($output);
+	return $output;
 }
 
 function encodeLeaderList($result, $bxte = false) {

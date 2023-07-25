@@ -14,10 +14,16 @@
 		$level = roomNoToLevel($roomNo); // selected level (0 = L:10, 9 = L:100)
 		
 		$db = connectMySQL();
-		$stmt = $db->prepare("select hex(name), class, hex(pokemon1), hex(pokemon2), hex(pokemon3), hex(message_start), hex(message_win), hex(message_lose) from ".($bxte ? "bxte" : "bxtj")."_battle_tower_trainers where room = ? and level = ? order by no desc limit 7;");
+		$stmt = $db->prepare("select name, class, pokemon1, pokemon2, pokemon3, message_start, message_win, message_lose from ".($bxte ? "bxte" : "bxtj")."_battle_tower_trainers where room = ? and level = ? order by no desc limit 7;");
 		$stmt->bind_param("ii", $room, $level);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
+		
+		if ($bxte) {
+			for ($i = 0; $i < sizeof($result); $i++) {
+				$result[$i]["name"] .= hex2bin("505050");
+			}
+		}
 		
 		// If there are not enough user generated trainers available for this room, add some placeholder trainers
 		// As the game reads the trainers in reverse, the placeholder trainers will be battled first which is welcome as the battles should become harder as you progress
