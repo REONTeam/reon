@@ -10,9 +10,7 @@ function decodeExchange ($stream, $pkm = true, $region) {
     $decData["offer_species"] = hexdec(bin2hex(fread($postdata, 0x1))); // $23 Offered Pokémon’s species
     $decData["req_gender"] = bin2hex(fread($postdata, 0x1)); // $24 Requested Pokémon’s gender
     $decData["req_species"] = hexdec(bin2hex(fread($postdata, 0x1))); // $25 Requested Pokémon’s species
-	$decData["trainer_name"] = fread($postdata, $region == "j" ? 0x5 : 0x7); // $26 Name of trainer who requests the trade
-    $decData["pokemon_data"] = $pkm ? fread($postdata, $region == "j" ? 0x0 : 0x41) : NULL; // $2B Pokémon data
-	$decData["mail_data"] = fread($postdata, $region == "j" ? 0x0 : 0x2F); // $2B Held mail data
+	$decData["b64_pokemon"] = base64_encode(fread($postdata, $region == "j" ? 0x69 : 0x78)); // Base64 of the Pokemon that needs to be sent back in email
     // These bytes (except for b64_pokemon) are all that the web scripts need to deal with.
     return $decData;
 }
