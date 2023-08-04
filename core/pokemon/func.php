@@ -1,21 +1,5 @@
 <?php
 // SPDX-License-Identifier: MIT
-function decodeExchange ($stream, $pkm = true, $region) {
-    $postdata = fopen($stream, "rb");
-    $decData = array();
-    $decData["email"] = fread($postdata, 0x1E); // $00 DION e-mail address (null-terminated ASCII, 30 characters max.)
-    $decData["trainer_id"] = hexdec(bin2hex(fread($postdata, 0x2))); // $1E Trainer ID
-    $decData["secret_id"] = hexdec(bin2hex(fread($postdata, 0x2))); // $20 Secret ID
-    $decData["offer_gender"] = bin2hex(fread($postdata, 0x1)); // $22 Offered Pokémon’s gender
-    $decData["offer_species"] = hexdec(bin2hex(fread($postdata, 0x1))); // $23 Offered Pokémon’s species
-    $decData["req_gender"] = bin2hex(fread($postdata, 0x1)); // $24 Requested Pokémon’s gender
-    $decData["req_species"] = hexdec(bin2hex(fread($postdata, 0x1))); // $25 Requested Pokémon’s species
-	$decData["trainer_name"] = fread($postdata, $region == "j" ? 0x5 : 0x7); // $26 Name of trainer who requests the trade
-    $decData["pokemon_data"] = $pkm ? fread($postdata, $region == "j" ? 0x0 : 0x41) : NULL; // $2B Pokémon data
-	$decData["mail_data"] = fread($postdata, $region == "j" ? 0x0 : 0x2F); // $2B Held mail data
-    // These bytes (except for b64_pokemon) are all that the web scripts need to deal with.
-    return $decData;
-}
 
 // Note: $result should have 7 entries. If not, the game will not accept the file.
 function encodeBattleTowerRoomData($result, $bxte = false) {

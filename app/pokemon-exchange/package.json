@@ -1,0 +1,15 @@
+{
+  "name": "pokemon-exchange",
+  "version": "1.0.0",
+  "description": "Application to perform Trade Corner trades, should be setup as cronjob",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "mysql2": "^3.5.2"
+  }
+}

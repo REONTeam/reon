@@ -20,18 +20,20 @@ CREATE TABLE IF NOT EXISTS `mail` (
 );
 
 # Pokemon Crystal (BXTJ)
-CREATE TABLE `pkm_trades` (
- `tradeid` VARCHAR(11) NOT NULL COMMENT 'Per-trade UUID.',
- `entry_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Current time at entry.',
- `email` VARCHAR(25) NOT NULL COMMENT 'DION email',
- `trainer_id` VARCHAR(4) NOT NULL COMMENT 'Trainer ID',
- `secret_id` VARCHAR(4) NOT NULL COMMENT 'Secret ID',
- `offer_gender` ENUM('00','01','02','03') NOT NULL DEFAULT '00' COMMENT 'Gender of Pokémon',
- `offer_species` INT(3) NOT NULL DEFAULT '0' COMMENT 'Decimal Pokémon ID.',
- `request_gender` ENUM('00','01','02','03') NOT NULL DEFAULT '00',
- `request_species` INT(3) NOT NULL DEFAULT '0',
- `file` TEXT NOT NULL COMMENT 'Pokémon in B64',
- UNIQUE INDEX `UNIQUE` (`tradeid`, `email`)
+CREATE TABLE `bxtj_exchange` (
+ `entry_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Current time at entry.',
+ `email` VARCHAR(30) NOT NULL COMMENT 'DION email',
+ `account_id` INT(11) UNSIGNED NOT NULL,
+ `trainer_id` SMALLINT(5) UNSIGNED NOT NULL COMMENT 'Trainer ID',
+ `secret_id` SMALLINT(5) UNSIGNED NOT NULL COMMENT 'Secret ID',
+ `offer_gender` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Gender of Pokémon',
+ `offer_species` TINYINT(3) UNSIGNED NOT NULL COMMENT 'Decimal Pokémon ID.',
+ `request_gender` TINYINT(1) UNSIGNED NOT NULL,
+ `request_species` TINYINT(3) UNSIGNED NOT NULL,
+ `trainer_name` BINARY(5) NOT NULL COMMENT 'Name of player',
+ `pokemon` BINARY(58) NOT NULL COMMENT 'Pokémon',
+ `mail` BINARY(42) NOT NULL COMMENT 'Held mail of Pokémon',
+ UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
 )
 COMMENT='Pokémon Trade Corner information'
 COLLATE='utf8mb4_general_ci'
@@ -96,6 +98,24 @@ CREATE TABLE IF NOT EXISTS `bxtj_ranking` (
 );
 
 # Pokemon Crystal (BXTE)
+CREATE TABLE `bxte_exchange` (
+ `entry_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Current time at entry.',
+ `email` VARCHAR(30) NOT NULL COMMENT 'DION email',
+ `account_id` INT(11) UNSIGNED NOT NULL,
+ `trainer_id` SMALLINT(5) UNSIGNED NOT NULL COMMENT 'Trainer ID',
+ `secret_id` SMALLINT(5) UNSIGNED NOT NULL COMMENT 'Secret ID',
+ `offer_gender` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Gender of Pokémon',
+ `offer_species` TINYINT(3) UNSIGNED NOT NULL COMMENT 'Decimal Pokémon ID.',
+ `request_gender` TINYINT(1) UNSIGNED NOT NULL,
+ `request_species` TINYINT(3) UNSIGNED NOT NULL,
+ `trainer_name` BINARY(7) NOT NULL COMMENT 'Name of player',
+ `pokemon` BINARY(65) NOT NULL COMMENT 'Pokémon',
+ `mail` BINARY(47) NOT NULL COMMENT 'Held mail of Pokémon',
+ UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
+)
+COMMENT='Pokémon Trade Corner information'
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB;
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_records` (
  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
  `room` int(10) unsigned NOT NULL,
