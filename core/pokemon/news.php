@@ -112,7 +112,7 @@ function get_ranking_category_info($news_param) {
 	$category_ids = [$news_param["ranking_category_1"], $news_param["ranking_category_2"], $news_param["ranking_category_3"]];
 	$arr = join(",", array_fill(0, count($category_ids), "?"));
 	$db = connectMySQL();
-	$stmt = $db->prepare("select id, name, ram_address, size from bxt_ranking_categories where id in (".$arr.") order by field (".$arr.")");
+	$stmt = $db->prepare("select id, name, ram_address, size from bxt_ranking_categories where id in (".$arr.") order by field (id, ".$arr.")");
 	$stmt->bind_param(str_repeat("i", count($category_ids) * 2), ...array_merge($category_ids, $category_ids));
 	$stmt->execute();
 	return fancy_get_result($stmt);
