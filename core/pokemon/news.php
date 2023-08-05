@@ -71,9 +71,9 @@ function get_news_parameters_bin($region) {
 	// size of records for each rankings table
 	$out .= pack("v", sizeof($category_info) * 2 * 3);
 	foreach ($category_info as $category) {
-		$out .= pack("v", $region == "j" ? 24 : 20 + $category["size"]);
-		$out .= pack("v", $region == "j" ? 24 : 20 + $category["size"]);
-		$out .= pack("v", $region == "j" ? 24 : 20 + $category["size"]);
+		$out .= pack("v", ($region == "j" ? 24 : 20) + $category["size"]);
+		$out .= pack("v", ($region == "j" ? 24 : 20) + $category["size"]);
+		$out .= pack("v", ($region == "j" ? 24 : 20) + $category["size"]);
 	}
 	
 	$sram = get_sram_structure($region);
