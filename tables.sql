@@ -244,7 +244,7 @@ CREATE TABLE IF NOT EXISTS `bxt_news` (
 # Mario Kart Advance (AMKJ)
 CREATE TABLE `amkj_user_map` (
  `player_id` binary(16) NOT NULL,
- `user_id` int(11) NOT NULL,
+ `user_id` int(11),
  PRIMARY KEY (`player_id`)
 );
 CREATE TABLE IF NOT EXISTS `amkj_rule` (
@@ -280,15 +280,36 @@ CREATE TABLE `amkj_ghosts` (
  `driver` tinyint(3) unsigned NOT NULL,
  `time` smallint(5) unsigned NOT NULL,
  `input_data` blob NOT NULL,
+ `unk10` tinyint(3) unsigned NOT NULL,
+ `unk18` smallint(5) unsigned NOT NULL,
+ `full_name` binary(16) NOT NULL,
+ `phone_number` binary(12) NOT NULL,
+ `postal_code` binary(8) NOT NULL,
+ `address` binary(128) NOT NULL,
  PRIMARY KEY (`id`)
 );
 CREATE TABLE `amkj_ghosts_mobilegp` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `gp_id` int(11) NOT NULL,
  `player_id` binary(16) NOT NULL,
  `name` binary(5) NOT NULL,
  `state` tinyint(3) unsigned NOT NULL,
  `driver` tinyint(3) unsigned NOT NULL,
  `time` smallint(5) unsigned NOT NULL,
  `input_data` blob NOT NULL,
+ `unk10` tinyint(3) unsigned NOT NULL,
+ `unk18` smallint(5) unsigned NOT NULL,
+ `full_name` binary(16) NOT NULL,
+ `phone_number` binary(12) NOT NULL,
+ `postal_code` binary(8) NOT NULL,
+ `address` binary(128) NOT NULL,
+ PRIMARY KEY (`id`)
+);
+CREATE TABLE `amkj_indextime` (
+ `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `month` tinyint(3) unsigned NOT NULL,
+ `day` tinyint(3) unsigned NOT NULL,
+ `hour` tinyint(3) unsigned NOT NULL,
+ `minute` tinyint(3) unsigned NOT NULL,
  PRIMARY KEY (`id`)
 );
