@@ -4,5 +4,5 @@
 	
 	require_once(CORE_PATH."/mario_kart.php");
 	
-	echo pack("N", getTotalRankingEntriesMobileGP());
+	echo pack("N", getTotalRankingEntriesMobileGP(getCurrentMobileGP()));
 ?>
