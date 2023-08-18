@@ -7,13 +7,13 @@ global $config;
 function getConfig() {
 	global $config;
 	if(!$config) {
-		$config = json_decode(file_get_contents(dirname(__DIR__).DIRECTORY_SEPARATOR."config.json"), true);
+		$config = json_decode(file_get_contents(dirname(__DIR__).DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."config.json"), true);
 	}
 	return $config;
 }
 
 function serveFileOrExecScript($filePath, $type, $sessionId = null) {
-	$dir = dirname(__DIR__).DIRECTORY_SEPARATOR."app".DIRECTORY_SEPARATOR."cgb".DIRECTORY_SEPARATOR.$type;
+	$dir = dirname(__DIR__).DIRECTORY_SEPARATOR."cgb".DIRECTORY_SEPARATOR.$type;
 	
 	header_remove();
 	

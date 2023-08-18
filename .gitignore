@@ -3,3 +3,5 @@ config.json
 vhost.conf
 mail/node_modules
 app/*/node_modules
+web/tmp
+web/vendor

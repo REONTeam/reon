@@ -3,7 +3,7 @@ server {
         server_name gameboy.datacenter.ne.jp mgb.dion.ne.jp;
         set $base /var/www/gameboy.datacenter.ne.jp/;
         index  index.php index.html index.htm;
-        root $base/html;
+        root $base/web/htdocs;
 
         location /cgb/ {
 		try_files $uri $uri/ @extensionless-php;

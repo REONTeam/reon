@@ -1,7 +1,7 @@
 <?php
 // SPDX-License-Identifier: MIT
 // This is a very small script that asks the GBC to send an Authentication header along with the data.
-define('CORE_PATH', dirname(dirname(__DIR__)) . '/core');
+define('CORE_PATH', dirname(dirname(__DIR__)) . '/cgb');
 require_once(CORE_PATH.'/core.php');
 require_once(CORE_PATH.'/auth.php');
 
