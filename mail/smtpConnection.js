@@ -143,7 +143,7 @@ class SMTPConnection extends EventEmitter {
 						this._send(250, "OK");
 					} else {
 						// Check if user exists
-						this._server.mysql.query("select * from users where email_id = ? limit 1", [this._sliceDomain(forwardPath)], function (error, results, fields) {
+						this._server.mysql.query("select * from sys_users where dion_email_local = ? limit 1", [this._sliceDomain(forwardPath)], function (error, results, fields) {
 							if (error) {
 								this._onError(error);
 							} else {
@@ -198,7 +198,8 @@ class SMTPConnection extends EventEmitter {
 					if (error) {
 						this._onError(error);
 					} else {
-						this._send(250, "OK");
+						//this._send(250, "OK");
+						this._send(503, "bad sequence of commands");
 					}
 				}.bind(this));
 			}

@@ -2,11 +2,11 @@ CREATE SCHEMA if NOT EXISTS `db`;
 USE `db`;
 
 # System
-CREATE TABLE `users` (
+CREATE TABLE `sys_users` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
- `dion_id` varchar(10) NOT NULL,
- `email_id` varchar(8) NOT NULL,
- `password` varchar(8) NOT NULL,
+ `dion_ppp_id` varchar(10) NOT NULL,
+ `dion_email_local` varchar(8) NOT NULL,
+ `log_in_password` varchar(8) NOT NULL,
  `money_spent` int(11) NOT NULL,
  PRIMARY KEY (`id`)
 );

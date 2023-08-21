@@ -80,7 +80,7 @@
 		}
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select dion_id from users where email_id = ?");
+		$stmt = $db->prepare("select dion_ppp_id from sys_users where dion_email_local = ?");
 		$stmt->bind_param("s", $decoded["email_id"]);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -88,11 +88,11 @@
 			return false;
 		}
 		
-		if (!is_null($dion_id) && !in_array(array("dion_id" => $dion_id), $result)) {
+		if (!is_null($dion_id) && !in_array(array("dion_ppp_id" => $dion_id), $result)) {
 			return false;
 		}
 		if (sizeof($result) == 1) {
-			$dion_id = $result[0]["dion_id"];
+			$dion_id = $result[0]["dion_ppp_id"];
 		}
 
 		$stmt = $db->prepare("select user_id from amkj_user_map where player_id = ?");

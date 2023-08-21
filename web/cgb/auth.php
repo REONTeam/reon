@@ -59,6 +59,7 @@
 						session_id($sessionId);
 						session_start();
 						// Set some information about the user into the session so it is known later
+						$_SESSION['type'] = "cgb";
 						$_SESSION['userId'] = $result["userId"];
 						$_SESSION['dionId'] = $result["dionId"];
 						
@@ -87,7 +88,7 @@
 			session_id($_SERVER["HTTP_GB_AUTH_ID"]);
 			session_start();
 			// If there is no DION ID associated with the session, it's not valid
-			if (!isset($_SESSION['dionId'])) {
+			if (!(isset($_SESSION['dionId']) && isset($_SESSION['type']) && $_SESSION['type'] == "cgb")) {
 				if (session_status() == PHP_SESSION_ACTIVE) {
 					session_destroy();
 				}
@@ -155,7 +156,7 @@
 	
 	function validateAuthData($dionId, $passwordHash, $challenge) {
 		$db = connectMySQL();
-		$stmt = $db->prepare("select id, password from users where dion_id = ?;");
+		$stmt = $db->prepare("select id, log_in_password from sys_users where dion_ppp_id = ?;");
 		$stmt->bind_param("s", $dionId);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -169,7 +170,7 @@
 		// Check if the hashes match
 		return array(
 			"dionId" => $dionId,
-			"isValid" => $passwordHash === md5($challenge.$result[0]["password"]),
+			"isValid" => $passwordHash === md5($challenge.$result[0]["log_in_password"]),
 			"userId" => $result[0]["id"]
 		);
 	}
@@ -194,7 +195,7 @@
 	
 	function getMoneySpent($userId) {
 		$db = connectMySQL();
-		$stmt = $db->prepare("select money_spent from users where id = ?");
+		$stmt = $db->prepare("select money_spent from sys_users where id = ?");
 		$stmt->bind_param("i", $userId);
 		$stmt->execute();
 		return fancy_get_result($stmt)[0]["money_spent"];

@@ -106,13 +106,13 @@ class POP3Connection extends EventEmitter {
         if (this._state == POP3State.AUTHORIZATION) {
 			if (param != null && param != "") {
 				if (this._user != null) {
-					this._server.mysql.query("select password from users where email_id = ? limit 1", [this._user], function (error, results, fields) {
+					this._server.mysql.query("select log_in_password from sys_users where dion_email_local = ? limit 1", [this._user], function (error, results, fields) {
 						if (error) {
 							this._onError(error);
 						} else {
 							if (results.length > 0) {
 								// Check password
-								if (param === results[0]["password"]) {
+								if (param === results[0]["log_in_password"]) {
 									// Get a list of mail for the client
 									this._server.mysql.query("select id, char_length(content) as size from mail where recipient = ?", [this._user], function (error, results, fields) {
 										if (error) {
