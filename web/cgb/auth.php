@@ -188,7 +188,7 @@
 	function addCostToAccount($userId, $cost) {
 		if ($cost == 0) return;
 		$db = connectMySQL();
-		$stmt = $db->prepare("update users set money_spent = money_spent + ? where id = ?");
+		$stmt = $db->prepare("update sys_users set money_spent = money_spent + ? where id = ?");
 		$stmt->bind_param("ii", $cost, $userId);
 		$stmt->execute();
 	}
