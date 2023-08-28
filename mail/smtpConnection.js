@@ -198,8 +198,7 @@ class SMTPConnection extends EventEmitter {
 					if (error) {
 						this._onError(error);
 					} else {
-						//this._send(250, "OK");
-						this._send(503, "bad sequence of commands");
+						this._send(250, "OK");
 					}
 				}.bind(this));
 			}
