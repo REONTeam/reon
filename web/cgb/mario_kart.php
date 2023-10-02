@@ -371,7 +371,7 @@
 		if ($myid === false) {
 			http_response_code(400);
 		}
-		$decoded = decodePlayerID($myid)
+		$decoded = decodePlayerID($myid);
 		if (!$decoded["valid"]) {
 			return makeGhostDownload(array(), $course);
 		}
@@ -420,7 +420,7 @@
 
 	function getPlayerIDByStateRank($course) { // 0.dlghostst.cgb
 		parse_str(file_get_contents("php://input"), $params);
-		if (!array_key_exists("ghostrank", $params) || strlen($params["ghostrank"]) != 8 || !array_key_exists("state"), $params || strlen($params["state"]) != 2) {
+		if (!array_key_exists("ghostrank", $params) || strlen($params["ghostrank"]) != 8 || !array_key_exists("state", $params) || strlen($params["state"]) != 2) {
 			http_response_code(400);
 			return;
 		}
@@ -455,7 +455,7 @@
 
 	function getPlayerIDByDriverRank($course) { // 0.dlghostdr.cgb
 		parse_str(file_get_contents("php://input"), $params);
-		if (!array_key_exists("ghostrank", $params) || strlen($params["ghostrank"]) != 8 || !array_key_exists("driver"), $params || strlen($params["driver"]) != 2) {
+		if (!array_key_exists("ghostrank", $params) || strlen($params["ghostrank"]) != 8 || !array_key_exists("driver", $params) || strlen($params["driver"]) != 2) {
 			http_response_code(400);
 			return;
 		}

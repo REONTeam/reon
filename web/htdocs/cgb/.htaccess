@@ -15,11 +15,11 @@ RewriteRule "^download$" "/cgb/download?name=/01/CGB-BXTJ/battle/leaders.cgb&roo
 
 
 # Mario Kart
-RewriteCond "%{QUERY_STRING}" "^name=/01/AGB-AMKJ/timetrial/(..)/(.*)$"
-RewriteRule "^ranking$" "/cgb/ranking?name=/01/AGB-AMKJ/timetrial/%2&course=%1"
+#RewriteCond "%{QUERY_STRING}" "^name=/01/AGB-AMKJ/timetrial/(..)/(.*)$"
+#RewriteRule "^ranking$" "/cgb/ranking?name=/01/AGB-AMKJ/timetrial/%2&course=%1"
 
-RewriteCond "%{QUERY_STRING}" "^name=/01/AGB-AMKJ/timetrial/(..)/0\.entry\.cgb$"
-RewriteRule "^upload$" "/cgb/upload?name=/01/AGB-AMKJ/timetrial/0.entry.cgb&course=%1"
+#RewriteCond "%{QUERY_STRING}" "^name=/01/AGB-AMKJ/timetrial/(..)/0\.entry\.cgb$"
+#RewriteRule "^upload$" "/cgb/upload?name=/01/AGB-AMKJ/timetrial/0.entry.cgb&course=%1"
 
 
 # General rules for the up- and download functions
