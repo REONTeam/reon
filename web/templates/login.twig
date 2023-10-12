@@ -1,0 +1,29 @@
+{% extends "main.twig" %}
+
+{% block title %}Login{% endblock %}
+{% block content %}
+	<div class="d-flex">
+		<div class="card m-auto">
+			<form method="post" class="card-body">
+				<fieldset>
+					<legend>Login to your REON account</legend>
+					{% if login_fail %}
+						<div class="alert alert-danger" role="alert">
+							Incorrect email or password
+						</div>
+					{% endif %}
+					<div class="mb-3">
+						<label for="email" class="form-label">Email address</label>
+						<input type="email" id="email" name="email" required class="form-control">
+					</div>
+					<div class="mb-3">
+						<label for="password" class="form-label">Password</label>
+						<input type="password" id="password" name="password" required class="form-control">
+					</div>
+					<button type="submit" class="btn btn-primary me-2">Login</button>
+					<a href="/forgot_password.php" class="btn btn-outline-primary">Forgot password</a>
+				</fieldset>
+			</form>
+		</div>
+	</div>
+{% endblock %}

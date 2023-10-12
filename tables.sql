@@ -4,10 +4,32 @@ USE `db`;
 # System
 CREATE TABLE `sys_users` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `email` varchar(254) NOT NULL,
+ `password` varchar(255) NOT NULL,
  `dion_ppp_id` varchar(10) NOT NULL,
  `dion_email_local` varchar(8) NOT NULL,
  `log_in_password` varchar(8) NOT NULL,
  `money_spent` int(11) NOT NULL,
+ PRIMARY KEY (`id`)
+);
+CREATE TABLE `sys_email_change` (
+ `user_id` int(11) unsigned NOT NULL,
+ `new_email` varchar(254) NOT NULL,
+ `secret` varchar(48) NOT NULL,
+ `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`user_id`)
+);
+CREATE TABLE `sys_password_reset` (
+ `user_id` int(11) unsigned NOT NULL,
+ `secret` varchar(48) NOT NULL,
+ `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`user_id`)
+);
+CREATE TABLE `sys_signup` (
+ `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `email` varchar(254) NOT NULL,
+ `secret` varchar(48) NOT NULL,
+ `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `mail` (

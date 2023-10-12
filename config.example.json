@@ -1,5 +1,7 @@
 {
-	"domain": "srv1.cgb005.xyz",
+	"hostname": "example.net",
+	"email_domain": "example.net",
+	"email_domain_dion": "xxxx.dion.ne.jp",
 	"mysql_host": "localhost",
 	"mysql_user": "USER",
 	"mysql_password": "PASS",

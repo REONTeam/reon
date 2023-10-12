@@ -1,0 +1,11 @@
+.cgb-gradient-border {
+  border-image: linear-gradient(to right, rgba(0, 0, 0, 0), #b80a41, #4e4ba8, #6eb122, #daac06, #00938a, rgba(0, 0, 0, 0)) 1;
+  border-width: 0 0 3px 0;
+  border-style: solid;
+}
+
+.ma-gradient-border {
+  border-image: linear-gradient(to right, rgba(0, 0, 0, 0), #1b93ab, #f5c95c, #e783bc, rgba(0, 0, 0, 0)) 1;
+  border-width: 0 0 3px 0;
+  border-style: solid;
+}

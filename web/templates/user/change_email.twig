@@ -1,0 +1,35 @@
+{% extends "main.twig" %}
+
+{% block title %}Confirm email address{% endblock %}
+{% block content %}
+	<div class="d-flex">
+		{% if result != 0 %}
+			<div class="card m-auto">
+				<form method="post" accept-charset="utf-8" class="card-body">
+					<fieldset>
+						<legend>Change your email address</legend>
+						<div class="mb-3">
+							<label for="currentPassword" class="form-label">Current password</label>
+							<input id="currentPassword" name="currentPassword" type="password" required class="form-control{% if result == 1 %}{{ " is-invalid" }}{% endif %}">
+							<div class="invalid-feedback">
+								Wrong password
+							</div>
+						</div>
+						<div class="mb-3">
+							<label for="newEmail" class="form-label">New email</label>
+							<input id="newEmail" name="newEmail" type="email" required class="form-control{% if result == 2 %}{{ " is-invalid" }}{% endif %}" value="{{ email|e }}">
+							<div class="invalid-feedback">
+								Email invalid
+							</div>
+						</div>
+						<button type="submit" class="btn btn-primary">Send</button>
+					</fieldset>
+				</form>
+			</div>
+		{% else %}
+			<div class="alert alert-success m-auto">
+				If not yet registered, an email containing a link to confirm this change was sent to the specified email address.
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

@@ -30,7 +30,7 @@ class SMTPConnection extends EventEmitter {
 	}
 	
 	_isMailAddressedToUs(address) {
-		return address.endsWith("@dion.ne.jp") || address.endsWith("@" + this._server.domain);
+		return address.endsWith("@" + this._server.dionDomain) || address.endsWith("@" + this._server.domain);
 	}
 	
 	_sliceDomain(address) {
