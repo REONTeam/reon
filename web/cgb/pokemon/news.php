@@ -63,7 +63,12 @@ function get_news_parameters_bin($region) {
 	$out = hex2bin(substr($news_param["md5(news_binary_".$region.")"], 0, 24));
 	
 	// message displayed in the lower text box before actually downloading the news
-	$out .= $news_param["message_".$region].hex2bin("50");
+	if ($news_param["message_".$region] != "") {
+		$out .= $news_param["message_".$region];
+	} else {
+		$out .= hex2bin("5050"); // this prevents glitches when no message is set
+	}
+	$out .= hex2bin("50");
 	
 	// address to store rankings data at
 	$out .= pack("v", 0xA000 + $news_param["octet_length(news_binary_".$region.")"]);
