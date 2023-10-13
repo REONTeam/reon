@@ -7,18 +7,24 @@
 		$db = connectMySQL(); // Connect to DION Database!
 
 		// Now, begin adding the new trade data...
-		$stmt = $db->prepare("REPLACE INTO `bxt".$region."_exchange` (account_id, trainer_id, secret_id, email, offer_gender, offer_species, request_gender, request_species, trainer_name, pokemon, mail) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
-		//var_dump($db->error);
-		// Bind the parameters. REMEMBER: Pokémon Species are the DECIMAL index, not hex!
-		$stmt->bind_param("iiisiiiisss", $_SESSION["userId"], $decoded_data["trainer_id"], $decoded_data["secret_id"], $decoded_data["email"], $decoded_data["offer_gender"], $decoded_data["offer_species"], $decoded_data["req_gender"], $decoded_data["req_species"], $decoded_data["trainer_name"], $decoded_data["pokemon"], $decoded_data["mail"]);
-		$stmt->execute();
+		if ($region == "j") {
+			$stmt = $db->prepare("REPLACE INTO `bxtj_exchange` (account_id, trainer_id, secret_id, email, offer_gender, offer_species, request_gender, request_species, trainer_name, pokemon, mail) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+			//var_dump($db->error);
+			// Bind the parameters. REMEMBER: Pokémon Species are the DECIMAL index, not hex!
+			$stmt->bind_param("iiisiiiisss", $_SESSION["userId"], $decoded_data["trainer_id"], $decoded_data["secret_id"], $decoded_data["email"], $decoded_data["offer_gender"], $decoded_data["offer_species"], $decoded_data["req_gender"], $decoded_data["req_species"], $decoded_data["trainer_name"], $decoded_data["pokemon"], $decoded_data["mail"]);
+			$stmt->execute();
+		} else {
+			$stmt = $db->prepare("REPLACE INTO `bxt_exchange` (account_id, game_region, trainer_id, secret_id, email, offer_gender, offer_species, request_gender, request_species, trainer_name, pokemon, mail) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+			$stmt->bind_param("isiisiiiisss", $_SESSION["userId"], $region, $decoded_data["trainer_id"], $decoded_data["secret_id"], $decoded_data["email"], $decoded_data["offer_gender"], $decoded_data["offer_species"], $decoded_data["req_gender"], $decoded_data["req_species"], $decoded_data["trainer_name"], $decoded_data["pokemon"], $decoded_data["mail"]);
+			$stmt->execute();
+		}
 	}
 	
 	function process_cancel_request($region, $request_data) {
 		$data = decode_exchange($region, $request_data, false); // This makes a nice array of data.
 		$db = connectMySQL(); // Connect to DION Database!
 
-		$stmt = $db->prepare("DELETE FROM `bxt".$region."_exchange` WHERE account_id = ? and trainer_id = ? and secret_id = ?;"); // Delete the trade from Database.
+		$stmt = $db->prepare("DELETE FROM `bxt".($region == "j" ? "j" : "")."_exchange` WHERE account_id = ? and trainer_id = ? and secret_id = ?;"); // Delete the trade from Database.
 		$stmt->bind_param("iii", $_SESSION["userId"], $data["trainer_id"], $data["secret_id"]);
 		$stmt->execute();
 	}

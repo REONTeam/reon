@@ -120,24 +120,6 @@ CREATE TABLE IF NOT EXISTS `bxtj_ranking` (
 );
 
 # Pokemon Crystal (BXTE)
-CREATE TABLE `bxte_exchange` (
- `entry_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Current time at entry.',
- `email` VARCHAR(30) NOT NULL COMMENT 'DION email',
- `account_id` INT(11) UNSIGNED NOT NULL,
- `trainer_id` SMALLINT(5) UNSIGNED NOT NULL COMMENT 'Trainer ID',
- `secret_id` SMALLINT(5) UNSIGNED NOT NULL COMMENT 'Secret ID',
- `offer_gender` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Gender of Pokémon',
- `offer_species` TINYINT(3) UNSIGNED NOT NULL COMMENT 'Decimal Pokémon ID.',
- `request_gender` TINYINT(1) UNSIGNED NOT NULL,
- `request_species` TINYINT(3) UNSIGNED NOT NULL,
- `trainer_name` BINARY(7) NOT NULL COMMENT 'Name of player',
- `pokemon` BINARY(65) NOT NULL COMMENT 'Pokémon',
- `mail` BINARY(47) NOT NULL COMMENT 'Held mail of Pokémon',
- UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
-)
-COMMENT='Pokémon Trade Corner information'
-COLLATE='utf8mb4_general_ci'
-ENGINE=InnoDB;
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_records` (
  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
  `room` int(10) unsigned NOT NULL,
@@ -306,6 +288,25 @@ CREATE TABLE IF NOT EXISTS `bxtu_ranking` (
 );
 
 # Pokemon Crystal general
+CREATE TABLE `bxt_exchange` (
+ `entry_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Current time at entry.',
+ `email` VARCHAR(30) NOT NULL COMMENT 'DION email',
+ `account_id` INT(11) UNSIGNED NOT NULL,
+ `game_region` CHAR(1) NOT NULL,
+ `trainer_id` SMALLINT(5) UNSIGNED NOT NULL COMMENT 'Trainer ID',
+ `secret_id` SMALLINT(5) UNSIGNED NOT NULL COMMENT 'Secret ID',
+ `offer_gender` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Gender of Pokémon',
+ `offer_species` TINYINT(3) UNSIGNED NOT NULL COMMENT 'Decimal Pokémon ID.',
+ `request_gender` TINYINT(1) UNSIGNED NOT NULL,
+ `request_species` TINYINT(3) UNSIGNED NOT NULL,
+ `trainer_name` BINARY(7) NOT NULL COMMENT 'Name of player',
+ `pokemon` BINARY(65) NOT NULL COMMENT 'Pokémon',
+ `mail` BINARY(47) NOT NULL COMMENT 'Held mail of Pokémon',
+ UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
+)
+COMMENT='Pokémon Trade Corner information'
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB;
 CREATE TABLE IF NOT EXISTS `bxt_ranking_categories` (
  `id` tinyint(2) unsigned NOT NULL,
  `name` varchar(80) NOT NULL,

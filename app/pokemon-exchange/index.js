@@ -8,7 +8,7 @@ const mysqlConfig = {
 	password: config["mysql_password"],
 	database: config["mysql_database"]
 }
-const regions = ["j", "e"];
+const regions = ["j", "int"];
 
 async function doExchange() {
 	const connection = await mysql.createConnection(mysqlConfig);
@@ -24,8 +24,9 @@ async function doExchange() {
 }
 
 async function doExchangeForRegion(region, connection) {
-	await connection.execute("delete from bxt" + region + "_exchange where entry_time < now() - interval 7 day");
-	let [trades] = await connection.execute("select * from bxt" + region + "_exchange order by entry_time asc");
+	let table = (region == "j" ? "bxtj_exchange" : "bxt_exchange");
+	await connection.execute("delete from " + table + " where entry_time < now() - interval 7 day");
+	let [trades] = await connection.execute("select * from " + table + " order by entry_time asc");
 	let performedTrades = new Set();
 	
 	for (let i = 0; i < trades.length; i++) {
@@ -38,9 +39,9 @@ async function doExchangeForRegion(region, connection) {
 				(trades[i]["offer_gender"] == trades[j]["request_gender"] || trades[j]["request_gender"] == 3) &&
 				(trades[i]["request_gender"] == trades[j]["offer_gender"] || trades[i]["request_gender"] == 3)
 			) {
-				await connection.execute("delete from bxt" + region + "_exchange where (account_id = ? and trainer_id = ? and secret_id = ?) or (account_id = ? and trainer_id = ? and secret_id = ?)", [trades[i]["account_id"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[j]["account_id"], trades[j]["trainer_id"], trades[j]["secret_id"]]);
-				await insertExchangeEmail(region, connection, trades[i]["email"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[i]["offer_species"], trades[i]["request_species"], trades[i]["offer_gender"], trades[i]["request_gender"], trades[j]["trainer_name"], trades[j]["pokemon"], trades[j]["mail"]);
-				await insertExchangeEmail(region, connection, trades[j]["email"], trades[j]["trainer_id"], trades[j]["secret_id"], trades[j]["offer_species"], trades[j]["request_species"], trades[j]["offer_gender"], trades[j]["request_gender"], trades[i]["trainer_name"], trades[i]["pokemon"], trades[i]["mail"]);
+				await connection.execute("delete from " + table + " where (account_id = ? and trainer_id = ? and secret_id = ?) or (account_id = ? and trainer_id = ? and secret_id = ?)", [trades[i]["account_id"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[j]["account_id"], trades[j]["trainer_id"], trades[j]["secret_id"]]);
+				await insertExchangeEmail(region == "j" ? "j" : trades[i]["game_region"], connection, trades[i]["email"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[i]["offer_species"], trades[i]["request_species"], trades[i]["offer_gender"], trades[i]["request_gender"], trades[j]["trainer_name"], trades[j]["pokemon"], trades[j]["mail"]);
+				await insertExchangeEmail(region == "j" ? "j" : trades[j]["game_region"], connection, trades[j]["email"], trades[j]["trainer_id"], trades[j]["secret_id"], trades[j]["offer_species"], trades[j]["request_species"], trades[j]["offer_gender"], trades[j]["request_gender"], trades[i]["trainer_name"], trades[i]["pokemon"], trades[i]["mail"]);
 				performedTrades.add(i);
 				performedTrades.add(j);
 				break;
