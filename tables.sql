@@ -197,6 +197,78 @@ CREATE TABLE IF NOT EXISTS `bxte_ranking` (
  PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
+# Pokemon Crystal (BXTD)
+CREATE TABLE IF NOT EXISTS `bxtd_ranking` (
+ `news_id` int(11) unsigned NOT NULL,
+ `category_id` tinyint(2) unsigned NOT NULL,
+ `account_id` int(11) unsigned NOT NULL,
+ `trainer_id` smallint(5) unsigned NOT NULL,
+ `secret_id` smallint(5) unsigned NOT NULL,
+ `player_name` binary(7) NOT NULL,
+ `player_gender` tinyint(1) unsigned NOT NULL,
+ `player_age` tinyint(3) unsigned NOT NULL,
+ `player_region` tinyint(3) unsigned NOT NULL,
+ `player_zip` binary(3) NOT NULL,
+ `player_message` binary(8) NOT NULL,
+ `score` int(11) unsigned NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
+);
+
+# Pokemon Crystal (BXTF)
+CREATE TABLE IF NOT EXISTS `bxtf_ranking` (
+ `news_id` int(11) unsigned NOT NULL,
+ `category_id` tinyint(2) unsigned NOT NULL,
+ `account_id` int(11) unsigned NOT NULL,
+ `trainer_id` smallint(5) unsigned NOT NULL,
+ `secret_id` smallint(5) unsigned NOT NULL,
+ `player_name` binary(7) NOT NULL,
+ `player_gender` tinyint(1) unsigned NOT NULL,
+ `player_age` tinyint(3) unsigned NOT NULL,
+ `player_region` tinyint(3) unsigned NOT NULL,
+ `player_zip` binary(3) NOT NULL,
+ `player_message` binary(8) NOT NULL,
+ `score` int(11) unsigned NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
+);
+
+# Pokemon Crystal (BXTI)
+CREATE TABLE IF NOT EXISTS `bxti_ranking` (
+ `news_id` int(11) unsigned NOT NULL,
+ `category_id` tinyint(2) unsigned NOT NULL,
+ `account_id` int(11) unsigned NOT NULL,
+ `trainer_id` smallint(5) unsigned NOT NULL,
+ `secret_id` smallint(5) unsigned NOT NULL,
+ `player_name` binary(7) NOT NULL,
+ `player_gender` tinyint(1) unsigned NOT NULL,
+ `player_age` tinyint(3) unsigned NOT NULL,
+ `player_region` tinyint(3) unsigned NOT NULL,
+ `player_zip` binary(3) NOT NULL,
+ `player_message` binary(8) NOT NULL,
+ `score` int(11) unsigned NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
+);
+
+# Pokemon Crystal (BXTS)
+CREATE TABLE IF NOT EXISTS `bxts_ranking` (
+ `news_id` int(11) unsigned NOT NULL,
+ `category_id` tinyint(2) unsigned NOT NULL,
+ `account_id` int(11) unsigned NOT NULL,
+ `trainer_id` smallint(5) unsigned NOT NULL,
+ `secret_id` smallint(5) unsigned NOT NULL,
+ `player_name` binary(7) NOT NULL,
+ `player_gender` tinyint(1) unsigned NOT NULL,
+ `player_age` tinyint(3) unsigned NOT NULL,
+ `player_region` tinyint(3) unsigned NOT NULL,
+ `player_zip` binary(3) NOT NULL,
+ `player_message` binary(8) NOT NULL,
+ `score` int(11) unsigned NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
+);
+
 # Pokemon Crystal general
 CREATE TABLE IF NOT EXISTS `bxt_ranking_categories` (
  `id` tinyint(2) unsigned NOT NULL,
@@ -258,8 +330,16 @@ CREATE TABLE IF NOT EXISTS `bxt_news` (
  `ranking_category_3` tinyint(2) unsigned,
  `message_j` varbinary(100) NOT NULL,
  `message_e` varbinary(100) NOT NULL,
+ `message_d` varbinary(100) NOT NULL,
+ `message_f` varbinary(100) NOT NULL,
+ `message_i` varbinary(100) NOT NULL,
+ `message_s` varbinary(100) NOT NULL,
  `news_binary_j` blob NOT NULL,
  `news_binary_e` blob NOT NULL,
+ `news_binary_d` blob NOT NULL,
+ `news_binary_f` blob NOT NULL,
+ `news_binary_i` blob NOT NULL,
+ `news_binary_s` blob NOT NULL,
  PRIMARY KEY (`id`)
 );
 
