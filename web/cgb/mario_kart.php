@@ -3,8 +3,8 @@
 	require_once(CORE_PATH."/database.php");
 
 	function validatePlayerID($month, $day, $hour, $minute, $email_id, $email_svr, $name0) {
-		if ($month < 1 || $month > 12) return false;
-		if ($day < 1) return false;
+		if ($month == 0 || $month > 12) return false;
+		if ($day == 0) return false;
 		if ($day == 31 && ($month == 2 || $month == 4 || $month == 6 || $month == 9 || $month == 11)) return false;
 		if ($day == 30 && $month == 2) return false;
 		if ($hour > 23) return false;
@@ -91,41 +91,7 @@
 		if (!is_null($dion_id) && !in_array(array("dion_ppp_id" => $dion_id), $result)) {
 			return false;
 		}
-		if (sizeof($result) == 1) {
-			$dion_id = $result[0]["dion_ppp_id"];
-		}
-
-		$stmt = $db->prepare("select user_id from amkj_user_map where player_id = ?");
-		$stmt->bind_param("s", $myid);
-		$stmt->execute();
-		$result = fancy_get_result($stmt);
-		if (sizeof($result) == 1) {
-			if (is_null($result[0]["user_id"])) {
-				if (!is_null($dion_id)) {
-					$stmt = $db->prepare("update amkj_user_map set user_id = ? where player_id = ?");
-					$stmt->bind_param("ss", $dion_id, $myid);
-					$stmt->execute();
-				}
-				return true;
-			}
-			if (!is_null($dion_id) && $result[0]["user_id"] != $dion_id) {
-				return false;
-			}
-			return true;
-		}
-		$stmt = $db->prepare("select id from amkj_indextime where month = ? and day = ? and hour = ? and minute = ? limit 1");
-		$stmt->bind_param("iiii", $decoded["month"], $decoded["day"], $decoded["hour"], $decoded["minute"]);
-		$stmt->execute();
-		$result = fancy_get_result($stmt);
-		if (sizeof($result) == 0) {
-			return false;
-		}
-		$stmt = $db->prepare("insert into amkj_user_map values (?,?)");
-		$stmt->bind_param("ss", $myid, $dion_id);
-		$stmt->execute();
-		$stmt = $db->prepare("delete ignore from amkj_indextime where id = ?");
-		$stmt->bind_param("i", $result[0]["id"]);
-		$stmt->execute();
+		
 		return true;
 	}
 
