@@ -53,10 +53,15 @@ async function doExchangeForRegion(region, connection) {
 
 async function insertExchangeEmail(region, connection, emailAddress, trainerId, secretId, offerSpecies, requestSpecies, offerGender, requestGender, trainerName, pokemon, mail) {
 	let emailContent =
+		"MIME-Version: 1.0\r\n" +
 		"From: MISSINGNO.\r\n" +
+		"Subject: Trade\r\n" +
+		"X-Game-title: POCKET MONSTERS\r\n" + // this should be 16 characters at most
 		`X-Game-code: CGB-BXT${region.toUpperCase()}-00\r\n` +
 		`X-Game-result: 1 ${toHexString(trainerId, 2)}${toHexString(secretId, 2)} ${toHexString(offerGender, 1)}${toHexString(offerSpecies, 1)} ${toHexString(requestGender, 1)}${toHexString(requestSpecies, 1)} 1\r\n` +
 		"X-GBmail-type: exclusive\r\n" +
+		"Content-Type: application/octet-stream\r\n" +
+		"Content-Transfer-Encoding: base64\r\n" +
 		"\r\n" +
 		`${Buffer.concat([trainerName, pokemon, mail]).toString("base64")}\r\n`
 	;
