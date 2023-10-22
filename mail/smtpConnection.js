@@ -137,25 +137,8 @@ class SMTPConnection extends EventEmitter {
 				let forwardPath = param.substring(param.indexOf("TO:<") + 4, param.indexOf(">"));
 				if (this._isMailAddressedToUs(forwardPath)) {
 					// Mail addressed to us
-					let user = this._sliceDomain(forwardPath);
-					if (user == "postmaster") {
-						this._forwardPath.push(forwardPath);
-						this._send(250, "OK");
-					} else {
-						// Check if user exists
-						this._server.mysql.query("select * from sys_users where dion_email_local = ? limit 1", [this._sliceDomain(forwardPath)], function (error, results, fields) {
-							if (error) {
-								this._onError(error);
-							} else {
-								if (results.length > 0) {
-									this._forwardPath.push(forwardPath);
-									this._send(250, "OK");
-								} else {
-									this._send(550, "unknown recipient");
-								}
-							}
-						}.bind(this));
-					}
+					this._forwardPath.push(forwardPath);
+					this._send(250, "OK");
 				} else {
 					// Mail addressed to other server
 					this._send(550, "unknown recipient");
@@ -185,16 +168,24 @@ class SMTPConnection extends EventEmitter {
 			let mailToInsert = [];
 			for (let i = 0; i < this._forwardPath.length; i++) {
 				if (this._isMailAddressedToUs(this._forwardPath[i])) {
-					let mail = [];
-					mail[0] = this._reversePath;
-					mail[1] = this._sliceDomain(this._forwardPath[i]);
-					mail[2] = this._mailData.substring(0, this._mailData.length - 3);
-					mailToInsert.push(mail);
+					this._server.mysql.query("select id from sys_users where dion_email_local = ? limit 1", [this._sliceDomain(forwardPath)], function (error, results, fields) {
+						if (error) {
+							this._onError(error);
+						} else {
+							if (results.length > 0) {
+								let mail = [];
+								mail[0] = this._reversePath;
+								mail[1] = results[0]["id"];
+								mail[2] = this._mailData.substring(0, this._mailData.length - 3);
+								mailToInsert.push(mail);
+							}
+						}
+					}.bind(this));
 				}
 			}
 			
 			if (mailToInsert.length > 0) {
-				this._server.mysql.query("insert into mail (sender, recipient, content) values ?", [mailToInsert], function (error, results, fields) {
+				this._server.mysql.query("insert into sys_inbox (sender, recipient, message) values ?", [mailToInsert], function (error, results, fields) {
 					if (error) {
 						this._onError(error);
 					} else {

@@ -1,7 +1,8 @@
 const fs = require("fs");
+const path = require('path');
 const mysql = require("mysql2/promise");
 
-const config = JSON.parse(fs.readFileSync("../../config.json"));
+const config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "..", "..", "config.json")));
 const mysqlConfig = {
 	host: config["mysql_host"],
 	user: config["mysql_user"],
@@ -40,8 +41,8 @@ async function doExchangeForRegion(region, connection) {
 				(trades[i]["request_gender"] == trades[j]["offer_gender"] || trades[i]["request_gender"] == 3)
 			) {
 				await connection.execute("delete from " + table + " where (account_id = ? and trainer_id = ? and secret_id = ?) or (account_id = ? and trainer_id = ? and secret_id = ?)", [trades[i]["account_id"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[j]["account_id"], trades[j]["trainer_id"], trades[j]["secret_id"]]);
-				await insertExchangeEmail(region == "j" ? "j" : trades[i]["game_region"], connection, trades[i]["email"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[i]["offer_species"], trades[i]["request_species"], trades[i]["offer_gender"], trades[i]["request_gender"], trades[j]["trainer_name"], trades[j]["pokemon"], trades[j]["mail"]);
-				await insertExchangeEmail(region == "j" ? "j" : trades[j]["game_region"], connection, trades[j]["email"], trades[j]["trainer_id"], trades[j]["secret_id"], trades[j]["offer_species"], trades[j]["request_species"], trades[j]["offer_gender"], trades[j]["request_gender"], trades[i]["trainer_name"], trades[i]["pokemon"], trades[i]["mail"]);
+				await insertExchangeEmail(region == "j" ? "j" : trades[i]["game_region"], connection, trades[i]["account_id"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[i]["offer_species"], trades[i]["request_species"], trades[i]["offer_gender"], trades[i]["request_gender"], trades[j]["trainer_name"], trades[j]["pokemon"], trades[j]["mail"]);
+				await insertExchangeEmail(region == "j" ? "j" : trades[j]["game_region"], connection, trades[j]["account_id"], trades[j]["trainer_id"], trades[j]["secret_id"], trades[j]["offer_species"], trades[j]["request_species"], trades[j]["offer_gender"], trades[j]["request_gender"], trades[i]["trainer_name"], trades[i]["pokemon"], trades[i]["mail"]);
 				performedTrades.add(i);
 				performedTrades.add(j);
 				break;
@@ -51,7 +52,7 @@ async function doExchangeForRegion(region, connection) {
 	return performedTrades.size / 2;
 }
 
-async function insertExchangeEmail(region, connection, emailAddress, trainerId, secretId, offerSpecies, requestSpecies, offerGender, requestGender, trainerName, pokemon, mail) {
+async function insertExchangeEmail(region, connection, accountId, trainerId, secretId, offerSpecies, requestSpecies, offerGender, requestGender, trainerName, pokemon, mail) {
 	let emailContent =
 		"MIME-Version: 1.0\r\n" +
 		"From: MISSINGNO.\r\n" +
@@ -65,7 +66,7 @@ async function insertExchangeEmail(region, connection, emailAddress, trainerId, 
 		"\r\n" +
 		`${Buffer.concat([trainerName, pokemon, mail]).toString("base64")}\r\n`
 	;
-	await connection.execute("insert into mail (sender, recipient, content) values (?, ?, ?)", ["MISSINGNO.", emailAddress.substr(0,emailAddress.indexOf("@")), Buffer.from(emailContent, "ascii")]);
+	await connection.execute("insert into sys_inbox (sender, recipient, message) values (?, ?, ?)", ["MISSINGNO.", accountId, Buffer.from(emailContent, "ascii")]);
 }
 
 function toHexString(integer, size) {

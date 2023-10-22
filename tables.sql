@@ -32,12 +32,12 @@ CREATE TABLE `sys_signup` (
  `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
 );
-CREATE TABLE IF NOT EXISTS `mail` (
+CREATE TABLE IF NOT EXISTS `sys_inbox` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
- `sender` text NOT NULL,
- `recipient` text NOT NULL,
+ `sender` varchar(254) NOT NULL,
+ `recipient` int(11) unsigned NOT NULL,
  `date` timestamp NOT NULL DEFAULT current_timestamp(),
- `content` blob NOT NULL,
+ `message` blob NOT NULL,
  PRIMARY KEY (`id`)
 );
 
