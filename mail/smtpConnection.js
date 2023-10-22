@@ -55,7 +55,7 @@ class SMTPConnection extends EventEmitter {
 		this.close();
 	}
 	
-	_onData(data) {
+	async _onData(data) {
 		this._inputBuffer += data;
 		// Start processing the input buffer if not already
 		if (!this._isProcessingInput) {
@@ -67,7 +67,7 @@ class SMTPConnection extends EventEmitter {
 					this._isBusy = true;
 					try {
 						if (this._dataInputMode) {
-							this._handleData(this._inputBuffer.substring(0, this._inputBuffer.indexOf("\r\n") + 2));
+							await this._handleData(this._inputBuffer.substring(0, this._inputBuffer.indexOf("\r\n") + 2));
 						} else {
 							this._onCommand(this._inputBuffer.substring(0, this._inputBuffer.indexOf("\r\n") + 2));
 						}
@@ -161,38 +161,28 @@ class SMTPConnection extends EventEmitter {
 		}
     }
 	
-	_handleData(data) {
+	async _handleData(data) {
 		this._mailData += data;
 		if (data.endsWith(".\r\n")) {
 			this._dataInputMode = false;
 			let mailToInsert = [];
 			for (let i = 0; i < this._forwardPath.length; i++) {
 				if (this._isMailAddressedToUs(this._forwardPath[i])) {
-					this._server.mysql.query("select id from sys_users where dion_email_local = ? limit 1", [this._sliceDomain(forwardPath)], function (error, results, fields) {
-						if (error) {
-							this._onError(error);
-						} else {
-							if (results.length > 0) {
-								let mail = [];
-								mail[0] = this._reversePath;
-								mail[1] = results[0]["id"];
-								mail[2] = this._mailData.substring(0, this._mailData.length - 3);
-								mailToInsert.push(mail);
-							}
-						}
-					}.bind(this));
+					let [result] = await this._server.mysql.execute("select id from sys_users where dion_email_local = ? limit 1", [this._sliceDomain(this._forwardPath[i])]);
+					if (result.length > 0) {
+						let mail = [];
+						mail[0] = this._reversePath;
+						mail[1] = result[0]["id"];
+						mail[2] = this._mailData.substring(0, this._mailData.length - 3);
+						mailToInsert.push(mail);
+					}
 				}
 			}
 			
 			if (mailToInsert.length > 0) {
-				this._server.mysql.query("insert into sys_inbox (sender, recipient, message) values ?", [mailToInsert], function (error, results, fields) {
-					if (error) {
-						this._onError(error);
-					} else {
-						this._send(250, "OK");
-					}
-				}.bind(this));
+				await this._server.mysql.query("insert into sys_inbox (sender, recipient, message) values ?", [mailToInsert]);
 			}
+			this._send(250, "OK");
 		}
 	}
 }

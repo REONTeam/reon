@@ -1,6 +1,6 @@
 const net = require("net");
 const SMTPConnection = require("./smtpConnection").SMTPConnection;
-const mysql = require("mysql");
+const mysql = require("mysql2/promise");
 
 class SMTPServer {
 	constructor(mysqlConfig, domain, dionDomain) {
