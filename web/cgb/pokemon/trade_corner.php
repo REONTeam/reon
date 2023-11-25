@@ -14,7 +14,7 @@
 			$stmt->bind_param("iiisiiiisss", $_SESSION["userId"], $decoded_data["trainer_id"], $decoded_data["secret_id"], $decoded_data["email"], $decoded_data["offer_gender"], $decoded_data["offer_species"], $decoded_data["req_gender"], $decoded_data["req_species"], $decoded_data["trainer_name"], $decoded_data["pokemon"], $decoded_data["mail"]);
 			$stmt->execute();
 		} else {
-			$stmt = $db->prepare("REPLACE INTO `bxt_exchange` (account_id, game_region, trainer_id, secret_id, email, offer_gender, offer_species, request_gender, request_species, trainer_name, pokemon, mail) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+			$stmt = $db->prepare("REPLACE INTO `bxt_exchange` (account_id, game_region, trainer_id, secret_id, email, offer_gender, offer_species, request_gender, request_species, trainer_name, pokemon, mail) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
 			$stmt->bind_param("isiisiiiisss", $_SESSION["userId"], $region, $decoded_data["trainer_id"], $decoded_data["secret_id"], $decoded_data["email"], $decoded_data["offer_gender"], $decoded_data["offer_species"], $decoded_data["req_gender"], $decoded_data["req_species"], $decoded_data["trainer_name"], $decoded_data["pokemon"], $decoded_data["mail"]);
 			$stmt->execute();
 		}
