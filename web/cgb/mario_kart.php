@@ -3,8 +3,8 @@
 	require_once(CORE_PATH."/database.php");
 
 	function validatePlayerID($month, $day, $hour, $minute, $email_id, $email_svr, $name0) {
-		if ($month < 1 || $month > 12) return false;
-		if ($day < 1) return false;
+		if ($month == 0 || $month > 12) return false;
+		if ($day == 0) return false;
 		if ($day == 31 && ($month == 2 || $month == 4 || $month == 6 || $month == 9 || $month == 11)) return false;
 		if ($day == 30 && $month == 2) return false;
 		if ($hour > 23) return false;
