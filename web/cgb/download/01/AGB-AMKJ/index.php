@@ -1,15 +1,5 @@
 <?php
 	require_once(CORE_PATH."/database.php");
-
-	$month = date("m", $_SERVER['REQUEST_TIME']);
-	$day = date("d", $_SERVER['REQUEST_TIME']);
-	$hour = date("H", $_SERVER['REQUEST_TIME']);
-	$minute = date("i", $_SERVER['REQUEST_TIME']);
-
-	$db = connectMySQL();
-	$stmt = $db->prepare("insert into amkj_indextime (month, day, hour, minute) values (?,?,?,?)");
-	$stmt->bind_param("iiii", $month, $day, $hour, $minute);
-	$stmt->execute();
 	
 	// This contains prefixes for the ranking related files, one for every course (and the last one for Mobile GP)
 	// These must end with a "/", otherwise the game will not be able to correctly determine if auth is required

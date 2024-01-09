@@ -59,8 +59,6 @@
 		$name2 = $name.chr($last | 2);
 		$name3 = $name.chr($last | 3);
 
-		$email_chars = "0123456789abcdefghijklmnopqrstuvwxyz";
-
 		return array(
 			"month" => $month,
 			"day" => $day,
@@ -113,18 +111,8 @@
 			}
 			return true;
 		}
-		$stmt = $db->prepare("select id from amkj_indextime where month = ? and day = ? and hour = ? and minute = ? limit 1");
-		$stmt->bind_param("iiii", $decoded["month"], $decoded["day"], $decoded["hour"], $decoded["minute"]);
-		$stmt->execute();
-		$result = fancy_get_result($stmt);
-		if (sizeof($result) == 0) {
-			return false;
-		}
 		$stmt = $db->prepare("insert into amkj_user_map values (?,?)");
 		$stmt->bind_param("ss", $myid, $dion_id);
-		$stmt->execute();
-		$stmt = $db->prepare("delete ignore from amkj_indextime where id = ?");
-		$stmt->bind_param("i", $result[0]["id"]);
 		$stmt->execute();
 		return true;
 	}
@@ -720,6 +708,8 @@
 			echo pack("n", 0);
 			echo pack("n", 0);
 		}
+
+		echo pack("N", getTotalRankingEntries($course));
 	}
 	
 	function parseGhostUpload($input) {
