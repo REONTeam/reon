@@ -715,7 +715,7 @@
 	function parseGhostUpload($input) {
 		$data = array();
 		$data["player_id"] = fread($input, 0x10);
-		$data["unk10"] = unpack("C", fread($input, 0x1))[1];
+		$data["course_no"] = unpack("C", fread($input, 0x1))[1];
 		$data["driver"] = unpack("C", fread($input, 0x1))[1];
 		$data["name"] = fread($input, 0x5);
 		$data["state"] = unpack("C", fread($input, 0x1))[1];
@@ -760,8 +760,8 @@
 			$stmt->execute();
 			
 			// Insert new record
-			$stmt = $db->prepare("insert into amkj_ghosts (player_id, name, state, driver, time, course, input_data, full_name, phone_number, postal_code, address, unk10, unk18) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-			$stmt->bind_param("ssiiiisssssii", $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["course"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"], $data["unk10"], $data["unk18"]);
+			$stmt = $db->prepare("insert into amkj_ghosts (player_id, name, state, driver, time, course, input_data, full_name, phone_number, postal_code, address, course_no, unk18) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			$stmt->bind_param("ssiiiisssssii", $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["course"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"], $data["course_no"], $data["unk18"]);
 			$stmt->execute();
 			
 			$db->commit();

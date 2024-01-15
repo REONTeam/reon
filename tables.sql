@@ -419,7 +419,7 @@ CREATE TABLE `amkj_ghosts` (
  `driver` tinyint(3) unsigned NOT NULL,
  `time` smallint(5) unsigned NOT NULL,
  `input_data` blob NOT NULL,
- `unk10` tinyint(3) unsigned NOT NULL,
+ `course_no` tinyint(3) unsigned NOT NULL,
  `unk18` smallint(5) unsigned NOT NULL,
  `full_name` binary(16) NOT NULL,
  `phone_number` binary(12) NOT NULL,
