@@ -42,7 +42,7 @@
 
 		$db = connectMySQL();
 		if ($today == 0) {
-			$stmt = $db->prepare("select distinct on (name, email, gender, age, state) * from amoj_ranking where today != 0 order by money, properties desc limit 10");
+			$stmt = $db->prepare("select * from amoj_ranking where today != 0 group by id, name, email, gender, age, state order by money, properties desc limit 10");
 		} else {
 			$year = date("Y", time() + 32400) % 16;
 			$month = date("m", time() + 32400);
@@ -78,7 +78,7 @@
 			$stmt->bind_param("ss", $name, $email);
 		} else {
 			$stmt = $db->prepare("select * from amoj_ranking where name = ? and email = ? and today = ?");
-			$stmt->bind_param("ssi", substr($myname, 0, 4), substr($myname, 4, 32), $today);
+			$stmt->bind_param("ssi", $name, $email, $today);
 		}
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
