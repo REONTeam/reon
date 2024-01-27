@@ -35,8 +35,8 @@
 		$gp_id = getCurrentMobileGP();
 
 		// Insert new record
-		$stmt = $db->prepare("insert into amkj_ghosts_mobilegp (gp_id, player_id, name, state, driver, time, input_data, full_name, phone_number, postal_code, address, unk10, unk18) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-		$stmt->bind_param("issiiisssssii", $gp_id, $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"], $data["unk10"], $data["unk18"]);
+		$stmt = $db->prepare("insert into amkj_ghosts_mobilegp (gp_id, player_id, course_no, driver, name, state, unk18, course, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		$stmt->bind_param("iiisiiiiisssss", $gp_id, $data["player_id"], $data["course_no"], $data["name"], $data["state"], $data["unk18"], $data["course"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
 		$stmt->execute();
 		
 		$db->commit();
