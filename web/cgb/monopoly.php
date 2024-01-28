@@ -42,7 +42,7 @@
 
 		$db = connectMySQL();
 		if ($today == 0) {
-			$stmt = $db->prepare("select * from amoj_ranking where today != 0 group by id, name, email, gender, age, state order by money, points desc limit 10");
+			$stmt = $db->prepare("select * from amoj_ranking where today != 0 group by id, name, email, gender, age, state order by points, money desc limit 10");
 		} else {
 			$year = date("Y", time() + 32400) % 16;
 			$month = date("m", time() + 32400);
@@ -58,7 +58,7 @@
 				http_response_code(400);
 				return;
 			}
-			$stmt = $db->prepare("select * from amoj_ranking where today = ? order by money, points desc limit 10");
+			$stmt = $db->prepare("select * from amoj_ranking where today = ? order by points, money desc limit 10");
 			$stmt->bind_param("i", $today);
 		}
 		$stmt->execute();
@@ -74,7 +74,7 @@
 		$stmt->execute();
 
 		if ($today == 0) {
-			$stmt = $db->prepare("select * from amoj_ranking where name = ? and email = ? order by money, points desc limit 1");
+			$stmt = $db->prepare("select * from amoj_ranking where name = ? and email = ? order by points, money desc limit 1");
 			$stmt->bind_param("ss", $name, $email);
 		} else {
 			$stmt = $db->prepare("select * from amoj_ranking where name = ? and email = ? and today = ?");
@@ -85,8 +85,8 @@
 
 		echo pack("n", sizeof($result));
 		if (sizeof($result) != 0) {
-			$stmt = $db->prepare("select count(*) from amoj_ranking where money > ? or (money = ? and (points > ? or (points = ? and id <= ?)))");
-			$stmt->bind_param("iiiii", $result["money"], $result["money"], $result["points"], $result["points"], $result["id"]);
+			$stmt = $db->prepare("select count(*) from amoj_ranking where points > ? or (points = ? and (money > ? or (money = ? and id <= ?)))");
+			$stmt->bind_param("iiiii", $result["points"], $result["points"], $result["money"], $result["money"], $result["id"]);
 			$stmt->execute();
 			$rank = fancy_get_result($stmt)[0]["count(*)"];
 			echo makeRankingEntry($rank, $result[0]);

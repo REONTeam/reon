@@ -26,13 +26,13 @@
 		//http_response_code(400);
 		return;
 	}
-	if ($points > 60 || $gender > 1 || $age > 99 || $state > 46) {
+	if ($points % 5 != 0 || $points > 60 || $gender > 1 || $age > 99 || $state > 46) {
 		//http_response_code(400);
 		return;
 	}
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select dion_email_local from sys_users where dion_ppp_id = ?");
+	$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
 	$stmt->bind_param("s", $_SESSION["userId"]);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
@@ -75,4 +75,5 @@
 		http_response_code(500);
 		throw $e;
 	}
+	$db->commit();
 ?>
