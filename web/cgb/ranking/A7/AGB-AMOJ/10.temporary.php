@@ -13,7 +13,7 @@
 		return;
 	}
 
-	$properties = unpack("N", substr($myscore, 0, 4))[1];
+	$points = unpack("N", substr($myscore, 0, 4))[1];
 	$money = unpack("N", substr($myscore, 4))[1];
 
 	$db = connectMySQL();
@@ -27,16 +27,24 @@
 	}
 	$email = $result[0]["dion_email_local"]."@reon.dion.ne.jp";
 
-	$stmt = $db->prepare("select id, today2 from amoj_ranking where email = ? and properties = ? and money = ?");
-	$stmt->bind_param("sii", $email, $properties, $money);
+	$stmt = $db->prepare("select * from amoj_ranking where email = ? and points = ? and money = ?");
+	$stmt->bind_param("sii", $email, $points, $money);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 	if (sizeof($result) == 0 || $result[0]["today2"] == 0) {
-		http_response_code(400);
+		//http_response_code(400); // the game explicitly says that bad data will be accepted, but not saved
 		return;
 	}
 
 	$stmt = $db->prepare("update amoj_ranking set today = ? where id = ?");
 	$stmt->bind_param("ii", $result[0]["today2"], $result[0]["id"]);
 	$stmt->execute();
+
+	$stmt = $db->prepare("select count(*) from amoj_ranking where money > ? or (money = ? and (points > ? or (points = ? and id <= ?)))");
+	$stmt->bind_param("iiiii", $result["money"], $result["money"], $result["points"], $result["points"], $result["id"]);
+	$stmt->execute();
+	$result = fancy_get_result($stmt);
+
+	echo pack("n", 1);
+	echo pack("N", $result[0]["count(*)"]);
 ?>

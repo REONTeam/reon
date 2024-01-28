@@ -452,7 +452,7 @@ CREATE TABLE `amoj_ranking` (
  `name` binary(4) NOT NULL,
  `email` varchar(32) NOT NULL,
  `today` tinyint(3) unsigned NOT NULL DEFAULT 0,
- `properties` int(11) unsigned NOT NULL,
+ `points` int(11) unsigned NOT NULL,
  `money` int(11) unsigned NOT NULL,
  `gender` tinyint(3) unsigned NOT NULL,
  `age` tinyint(3) unsigned NOT NULL,

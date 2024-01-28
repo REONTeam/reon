@@ -7,7 +7,7 @@
 		$output = $output.$result["email"];
 		$output = $output.pack("C", $result["today"]);
 		$output = $output.$result["pad"];
-		$output = $output.pack("N", $result["properties"]);
+		$output = $output.pack("N", $result["points"]);
 		$output = $output.pack("N", $result["money"]);
 		$output = $output.pack("C", $result["gender"]);
 		$output = $output.pack("C", $result["age"]);
@@ -42,7 +42,7 @@
 
 		$db = connectMySQL();
 		if ($today == 0) {
-			$stmt = $db->prepare("select * from amoj_ranking where today != 0 group by id, name, email, gender, age, state order by money, properties desc limit 10");
+			$stmt = $db->prepare("select * from amoj_ranking where today != 0 group by id, name, email, gender, age, state order by money, points desc limit 10");
 		} else {
 			$year = date("Y", time() + 32400) % 16;
 			$month = date("m", time() + 32400);
@@ -58,7 +58,7 @@
 				http_response_code(400);
 				return;
 			}
-			$stmt = $db->prepare("select * from amoj_ranking where today = ? order by money, properties desc limit 10");
+			$stmt = $db->prepare("select * from amoj_ranking where today = ? order by money, points desc limit 10");
 			$stmt->bind_param("i", $today);
 		}
 		$stmt->execute();
@@ -74,7 +74,7 @@
 		$stmt->execute();
 
 		if ($today == 0) {
-			$stmt = $db->prepare("select * from amoj_ranking where name = ? and email = ? order by money, properties desc limit 1");
+			$stmt = $db->prepare("select * from amoj_ranking where name = ? and email = ? order by money, points desc limit 1");
 			$stmt->bind_param("ss", $name, $email);
 		} else {
 			$stmt = $db->prepare("select * from amoj_ranking where name = ? and email = ? and today = ?");
@@ -85,8 +85,8 @@
 
 		echo pack("n", sizeof($result));
 		if (sizeof($result) != 0) {
-			$stmt = $db->prepare("select count(*) from amoj_ranking where money > ? or (money = ? and (properties > ? or (properties = ? and id <= ?)))");
-			$stmt->bind_param("iiiii", $result["money"], $result["money"], $result["properties"], $result["properties"], $result["id"]);
+			$stmt = $db->prepare("select count(*) from amoj_ranking where money > ? or (money = ? and (points > ? or (points = ? and id <= ?)))");
+			$stmt->bind_param("iiiii", $result["money"], $result["money"], $result["points"], $result["points"], $result["id"]);
 			$stmt->execute();
 			$rank = fancy_get_result($stmt)[0]["count(*)"];
 			echo makeRankingEntry($rank, $result[0]);
