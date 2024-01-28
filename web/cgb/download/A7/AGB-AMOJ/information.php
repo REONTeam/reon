@@ -85,9 +85,7 @@
 				}
 				echo str_repeat("\xA3\0", 19 - $length);
 			}
-			if (i != 63) {
-				echo "\xFE\0";
-			}
+			echo $i == 63 ? "\xFF\0" : "\xFE\0";
 		}
 	}
 ?>

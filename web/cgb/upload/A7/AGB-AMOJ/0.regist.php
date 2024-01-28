@@ -42,38 +42,50 @@
 		return;
 	}
 
-	$db->begin_transaction();
-	try {
-		if ($today == 0) {
+	$config = getConfig();
+
+	if ($today == 0) {
+		$db->begin_transaction();
+		try {
 			$stmt = $db->prepare("delete ignore from amoj_ranking where today = 0 and name = ? and email = ? and gender = ? and age = ? and state = ?");
 			$stmt->bind_param("ssiii", $name, $email, $gender, $age, $state);
 			$stmt->execute();
 
 			$stmt = $db->prepare("insert into amoj_ranking (name, email, points, money, gender, age, state) values (?,?,?,?,?,?,?)");
 			$stmt->bind_param("ssiiiii", $name, $email, $points, $money, $gender, $age, $state);
-		} else {
-			$year = date("Y", time() + 32400) % 16;
-			$month = date("m", time() + 32400);
-			if (($today >> 4) != $year || ($today & 0xF) != $month) {
-				//http_response_code(400);
-				return;
-			}
-			$stmt = $db->prepare("select id from amoj_ranking where today2 = 0 and name = ? and email = ? and points = ? and money = ? and gender = ? and age = ? and state = ?");
-			$stmt->bind_param("ssiiiii", $name, $email, $points, $money, $gender, $age, $state);
 			$stmt->execute();
-			$result = fancy_get_result($stmt);
-			if (sizeof($result) == 0) {
-				//http_response_code(400);
-				return;
-			}
-			$stmt = $db->prepare("update amoj_ranking set today2 = ? where id = ?");
-			$stmt->bind_param("ii", $today, $result[0]["id"]);
+		} catch (mysqli_sql_exception $e) {
+			$db->rollback();
+			http_response_code(500);
+			throw $e;
 		}
+		$db->commit();
+	} else {
+		$year = date("Y", time() + 32400) % 16;
+		$month = date("m", time() + 32400);
+		if (($today >> 4) != $year || ($today & 0xF) != $month) {
+			//http_response_code(400);
+			return;
+		}
+		$stmt = $db->prepare("select id from amoj_ranking where today2 = 0 and name = ? and email = ? and points = ? and money = ? and gender = ? and age = ? and state = ?");
+		$stmt->bind_param("ssiiiii", $name, $email, $points, $money, $gender, $age, $state);
 		$stmt->execute();
-	} catch (mysqli_sql_exception $e) {
-		$db->rollback();
-		http_response_code(500);
-		throw $e;
+		$result = fancy_get_result($stmt);
+		if (sizeof($result) == 0) {
+			//http_response_code(400);
+			return;
+		}
+		$stmt = $db->prepare("update amoj_ranking set today = ?, today2 = ? where id = ?");
+		$stmt->bind_param("iii", empty($config["amoj_regist"]) ? 0 : $today, $today, $result[0]["id"]);
+		$stmt->execute();
+		if (substr($config["amoj_regist"], 0, 1) === "h") {
+			http_response_code(intval(substr($config["amoj_regist"], 1)));
+		} else if (substr($config["amoj_regist"], 0, 1) === "g") {
+			header("Gb-Status: ".substr($config["amoj_regist"], 1));
+		}
 	}
-	$db->commit();
+
+	if ($config["amoj_regist"] === "e") {
+		echo "\0";
+	}
 ?>
