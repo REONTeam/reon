@@ -6,7 +6,7 @@
 		$output = $output.$result["name"];
 		$output = $output.$result["email"];
 		$output = $output.pack("C", $result["today"]);
-		$output = $output.$result["pad"];
+		$output = $output."\0\0\0";
 		$output = $output.pack("N", $result["points"]);
 		$output = $output.pack("N", $result["money"]);
 		$output = $output.pack("C", $result["gender"]);
