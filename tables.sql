@@ -460,3 +460,8 @@ CREATE TABLE `amoj_ranking` (
  `today2` tinyint(3) unsigned NOT NULL DEFAULT 0,
  PRIMARY KEY (`id`)
 );
+CREATE TABLE `amoj_news` (
+ `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `text` text(65535) NOT NULL,
+ PRIMARY KEY (`id`)
+);
