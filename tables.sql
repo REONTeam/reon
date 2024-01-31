@@ -413,14 +413,14 @@ CREATE TABLE IF NOT EXISTS `amkj_rule` (
 CREATE TABLE `amkj_ghosts` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
  `player_id` binary(16) NOT NULL,
+ `course_no` tinyint(3) unsigned NOT NULL,
+ `driver` tinyint(3) unsigned NOT NULL,
  `name` binary(5) NOT NULL,
  `state` tinyint(3) unsigned NOT NULL,
+ `unk18` smallint(5) unsigned NOT NULL,
  `course` tinyint(3) unsigned NOT NULL,
- `driver` tinyint(3) unsigned NOT NULL,
  `time` smallint(5) unsigned NOT NULL,
  `input_data` blob NOT NULL,
- `unk10` tinyint(3) unsigned NOT NULL,
- `unk18` smallint(5) unsigned NOT NULL,
  `full_name` binary(16) NOT NULL,
  `phone_number` binary(12) NOT NULL,
  `postal_code` binary(8) NOT NULL,
@@ -429,26 +429,39 @@ CREATE TABLE `amkj_ghosts` (
 );
 CREATE TABLE `amkj_ghosts_mobilegp` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
- `gp_id` int(11) NOT NULL,
+ `gp_id` int(11) unsigned NOT NULL,
  `player_id` binary(16) NOT NULL,
+ `course_no` tinyint(3) unsigned NOT NULL,
+ `driver` tinyint(3) unsigned NOT NULL,
  `name` binary(5) NOT NULL,
  `state` tinyint(3) unsigned NOT NULL,
- `driver` tinyint(3) unsigned NOT NULL,
+ `unk18` smallint(5) unsigned NOT NULL,
+ `course` tinyint(3) unsigned NOT NULL,
  `time` smallint(5) unsigned NOT NULL,
  `input_data` blob NOT NULL,
- `unk10` tinyint(3) unsigned NOT NULL,
- `unk18` smallint(5) unsigned NOT NULL,
  `full_name` binary(16) NOT NULL,
  `phone_number` binary(12) NOT NULL,
  `postal_code` binary(8) NOT NULL,
  `address` binary(128) NOT NULL,
  PRIMARY KEY (`id`)
 );
-CREATE TABLE `amkj_indextime` (
+
+# EX Monopoly (AMOJ)
+CREATE TABLE `amoj_ranking` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
- `month` tinyint(3) unsigned NOT NULL,
- `day` tinyint(3) unsigned NOT NULL,
- `hour` tinyint(3) unsigned NOT NULL,
- `minute` tinyint(3) unsigned NOT NULL,
+ `name` binary(4) NOT NULL,
+ `email` varchar(32) NOT NULL,
+ `today` tinyint(3) unsigned NOT NULL DEFAULT 0,
+ `points` int(11) unsigned NOT NULL,
+ `money` int(11) unsigned NOT NULL,
+ `gender` tinyint(3) unsigned NOT NULL,
+ `age` tinyint(3) unsigned NOT NULL,
+ `state` tinyint(3) unsigned NOT NULL,
+ `today2` tinyint(3) unsigned NOT NULL DEFAULT 0,
+ PRIMARY KEY (`id`)
+);
+CREATE TABLE `amoj_news` (
+ `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `text` text(65535) NOT NULL,
  PRIMARY KEY (`id`)
 );

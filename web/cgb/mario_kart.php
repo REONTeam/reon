@@ -3,8 +3,8 @@
 	require_once(CORE_PATH."/database.php");
 
 	function validatePlayerID($month, $day, $hour, $minute, $email_id, $email_svr, $name0) {
-		if ($month < 1 || $month > 12) return false;
-		if ($day < 1) return false;
+		if ($month == 0 || $month > 12) return false;
+		if ($day == 0) return false;
 		if ($day == 31 && ($month == 2 || $month == 4 || $month == 6 || $month == 9 || $month == 11)) return false;
 		if ($day == 30 && $month == 2) return false;
 		if ($hour > 23) return false;
@@ -59,8 +59,6 @@
 		$name2 = $name.chr($last | 2);
 		$name3 = $name.chr($last | 3);
 
-		$email_chars = "0123456789abcdefghijklmnopqrstuvwxyz";
-
 		return array(
 			"month" => $month,
 			"day" => $day,
@@ -113,18 +111,8 @@
 			}
 			return true;
 		}
-		$stmt = $db->prepare("select id from amkj_indextime where month = ? and day = ? and hour = ? and minute = ? limit 1");
-		$stmt->bind_param("iiii", $decoded["month"], $decoded["day"], $decoded["hour"], $decoded["minute"]);
-		$stmt->execute();
-		$result = fancy_get_result($stmt);
-		if (sizeof($result) == 0) {
-			return false;
-		}
 		$stmt = $db->prepare("insert into amkj_user_map values (?,?)");
 		$stmt->bind_param("ss", $myid, $dion_id);
-		$stmt->execute();
-		$stmt = $db->prepare("delete ignore from amkj_indextime where id = ?");
-		$stmt->bind_param("i", $result[0]["id"]);
 		$stmt->execute();
 		return true;
 	}
@@ -720,12 +708,14 @@
 			echo pack("n", 0);
 			echo pack("n", 0);
 		}
+
+		echo pack("N", getTotalRankingEntries($course));
 	}
 	
 	function parseGhostUpload($input) {
 		$data = array();
 		$data["player_id"] = fread($input, 0x10);
-		$data["unk10"] = unpack("C", fread($input, 0x1))[1];
+		$data["course_no"] = unpack("C", fread($input, 0x1))[1];
 		$data["driver"] = unpack("C", fread($input, 0x1))[1];
 		$data["name"] = fread($input, 0x5);
 		$data["state"] = unpack("C", fread($input, 0x1))[1];
@@ -770,8 +760,8 @@
 			$stmt->execute();
 			
 			// Insert new record
-			$stmt = $db->prepare("insert into amkj_ghosts (player_id, name, state, driver, time, course, input_data, full_name, phone_number, postal_code, address, unk10, unk18) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-			$stmt->bind_param("ssiiiisssssii", $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["course"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"], $data["unk10"], $data["unk18"]);
+			$stmt = $db->prepare("insert into amkj_ghosts (player_id, course_no, driver, name, state, unk18, course, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			$stmt->bind_param("iisiiiiisssss", $data["player_id"], $data["course_no"], $data["name"], $data["state"], $data["unk18"], $data["course"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
 			$stmt->execute();
 			
 			$db->commit();
