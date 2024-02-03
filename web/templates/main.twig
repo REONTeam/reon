@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>{% block title %}Default Title{% endblock %} - REON</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+		<link href="/css/main.css" rel="stylesheet">
+		{% block head %}
+		{% endblock %}
+	</head>
+	<body>
+		<header class="navbar navbar-expand-lg bg-body-tertiary cgb-gradient-border container-xxl">
+			<nav class="container-xxl">
+				<a href="/index.php" class="navbar-brand">
+					<span class="fs-4">REON</span>
+				</a>
+				
+				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+					<li class="nav-item"><a href="/index.php" class="nav-link{% if nav_item == 'index' %}{{ ' active' }}{% endif %}" aria-current="page">Home</a></li>
+					<li class="nav-item"><a href="#" class="nav-link{% if nav_item == 'games' %}{{ ' active' }}{% endif %}">Games</a></li>
+					<li class="nav-item"><a href="/01/CGB-B9AJ/index.html" class="nav-link">Mobile Homepage</a></li>
+				</ul>
+				
+				<div class="d-flex">
+					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						{% if session_active %}
+							<li class="nav-item"><a href="/user/summary.php" class="btn btn-primary me-2">Your account</a></li>
+							<li class="nav-item"><a href="/logout.php" class="btn btn-outline-primary">Logout</a></li>
+						{% else %}
+							<li class="nav-item"><a href="/login.php" class="btn btn-outline-primary me-2">Login</a></li>
+							<li class="nav-item"><a href="/signup.php" class="btn btn-primary">Sign-up</a></li>
+						{% endif %}
+					</ul>
+				</div>
+			</nav>
+		</header>
+		
+		<div class="container-xxl">
+			<marquee>Welcome to the alpha test!</marquee>
+		</div>
+		
+		<main id="content" class="container-xxl mt-3 my-md-4">{% block content %}Default Content{% endblock %}</main>
+		
+		{% block body %}
+		{% endblock %}
+	</body>
+</html>

@@ -1,0 +1,4 @@
+http://gameboy.datacenter.ne.jp/cgb/upload?name=/01/CGB-BXTE/battle/0.record.cgb
+http://gameboy.datacenter.ne.jp/cgb/download?name=/01/CGB-BXTE/battle/rooms.cgb
+http://gameboy.datacenter.ne.jp/cgb/download?name=/01/CGB-BXTD/battle/roomXXXX.cgb
+http://gameboy.datacenter.ne.jp/cgb/download?name=/01/CGB-BXTE/battle/leadersXXXX.cgb

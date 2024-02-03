@@ -1,13 +1,14 @@
 const net = require("net");
 const SMTPConnection = require("./smtpConnection").SMTPConnection;
-const mysql = require("mysql");
+const mysql = require("mysql2/promise");
 
 class SMTPServer {
-	constructor(mysqlConfig, domain) {
+	constructor(mysqlConfig, domain, dionDomain) {
 		this.connections = new Set();
 		this.mysql = mysql.createPool(mysqlConfig);
 		this.domain = domain;
-		net.createServer(sock => this._onClientConnect(sock)).listen(25, "0.0.0.0");
+		this.dionDomain = dionDomain;
+		net.createServer(sock => this._onClientConnect(sock)).listen(25, "::");
 		console.log("SMTP server listening");
 	}
 	

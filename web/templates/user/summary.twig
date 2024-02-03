@@ -1,0 +1,108 @@
+{% extends "main.twig" %}
+
+{% block title %}Summary{% endblock %}
+
+{% block head %}
+	<script src="/js/user/summary.js"></script>
+	<noscript>
+		<style>
+			.js-only {
+				display: none !important;
+			}
+		</style>
+	</noscript>
+{% endblock %}
+
+{% block content %}
+	<h1>Your REON account</h1>
+	<div class="row">
+		<div class="col-lg-6">
+			<div class="card">
+				<div class="card-header">
+					Account details
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label for="email" class="form-label">Email</label>
+						<input id="email" type="text" readonly class="form-control" value="{{ email|e }}">
+					</div>
+					<hr>
+					<a href="change_email.php" class="btn btn-primary">Change email</a>
+					<a href="change_password.php" class="btn btn-primary">Change password</a>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-6">
+			<div class="card">
+				<div class="card-header">
+					Stats
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label for="inboxSize" class="form-label">Emails in inbox</label>
+						<input id="inboxSize" type="text" readonly class="form-control-plaintext" value="{{ inbox_size }}">
+					</div>
+					<div class="mb-3">
+						<label for="moneySpent" class="form-label">Money spent</label>
+						<input id="moneySpent" type="text" readonly class="form-control-plaintext" value="{{ money_spent }}">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-6">
+			<div class="card">
+				<div class="card-header">
+					DION account details
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label for="dionPppId" class="form-label">DION ID</label>
+						<input id="dionPppId" type="text" readonly class="form-control" value="{{ dion_ppp_id|e }}">
+					</div>
+					<div class="mb-3">
+						<label for="dionEmail" class="form-label">Email</label>
+						<input id="dionEmail" type="text" readonly class="form-control" value="{{ dion_email|e }}">
+					</div>
+					<div class="mb-3">
+						<label for="dionPassword" class="form-label js-only">Log-In Password</label>
+						<div class="input-group js-only">
+							<input id="dionPassword" type="text" readonly class="form-control" value="&lt;hidden&gt;" data-password="{{ log_in_password|e }}" aria-describedby="dionPasswordRevealButton">
+							<button id="dionPasswordRevealButton" type="button" class="btn btn-outline-primary">Reveal</button>
+						</div>
+						<noscript>
+							<label for="dionPasswordNoJs" class="form-label">Log-In Password</label>
+							<input id="dionPasswordNoJs" type="text" readonly class="form-control" value="{{ log_in_password|e }}">
+						</noscript>
+					</div>
+					<hr>
+					<button type="button" class="btn btn-primary js-only" data-bs-toggle="modal" data-bs-target="#confirmPasswordRerollModal">Reroll Log-In Password</button>
+					<noscript>
+						<a href="reroll_password.php" class="btn btn-primary">Reroll Log-In Password</a>
+					</noscript>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block body %}
+	<div id="confirmPasswordRerollModal" class="modal fade" tabindex="-1" aria-labelledby="confirmPasswordRerollModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 id="confirmPasswordRerollModalLabel" class="modal-title fs-5">Reroll Log-In Password</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					Are you sure you want to do this?<br>
+					You will have to change your password in all games.
+				</div>
+				<div class="modal-footer">
+					<a href="reroll_password.php" class="btn btn-primary">Reroll Log-In Password</a>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

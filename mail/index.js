@@ -10,5 +10,5 @@ const mysqlConfig = {
 	database: config["mysql_database"]
 }
 
-let smtp = new SMTPServer(mysqlConfig, config["domain"]);
+let smtp = new SMTPServer(mysqlConfig, config["email_domain"], config["email_domain_dion"]);
 let pop3 = new POP3Server(mysqlConfig);

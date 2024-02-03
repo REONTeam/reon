@@ -106,15 +106,15 @@ class POP3Connection extends EventEmitter {
         if (this._state == POP3State.AUTHORIZATION) {
 			if (param != null && param != "") {
 				if (this._user != null) {
-					this._server.mysql.query("select password from users where email_id = ? limit 1", [this._user], function (error, results, fields) {
+					this._server.mysql.query("select id, log_in_password from sys_users where dion_email_local = ? limit 1", [this._user], function (error, results, fields) {
 						if (error) {
 							this._onError(error);
 						} else {
 							if (results.length > 0) {
 								// Check password
-								if (param === results[0]["password"]) {
+								if (param === results[0]["log_in_password"]) {
 									// Get a list of mail for the client
-									this._server.mysql.query("select id, char_length(content) as size from mail where recipient = ?", [this._user], function (error, results, fields) {
+									this._server.mysql.query("select id, char_length(message) as size from sys_inbox where recipient = ?", [results[0]["id"]], function (error, results, fields) {
 										if (error) {
 											this._onError(error);
 										} else {
@@ -162,7 +162,7 @@ class POP3Connection extends EventEmitter {
 				if (this._maildrop[i]["deleted"]) deleteList.push(this._maildrop[i]["id"]);
 			}
 			if (deleteList.length > 0) {
-				this._server.mysql.query("delete from mail where id in (?)", [deleteList], function (error, results, fields) {
+				this._server.mysql.query("delete from sys_inbox where id in (?)", [deleteList], function (error, results, fields) {
 					if (error) {
 						this._onError(error);
 					} else {
@@ -291,12 +291,12 @@ class POP3Connection extends EventEmitter {
     }
 	
 	_getMail(id, callback) {
-		this._server.mysql.query("select content, concat(substring(dayname(date), 1, 3), ', ', day(date), ' ', substring(monthname(date), 1, 3), ' ', year(date), ' ', time(date), ' +0000')as date from mail where id = ?", [id], function (error, results, fields) {
+		this._server.mysql.query("select message, concat(substring(dayname(date), 1, 3), ', ', day(date), ' ', substring(monthname(date), 1, 3), ' ', year(date), ' ', time(date), ' +0000')as date from sys_inbox where id = ?", [id], function (error, results, fields) {
 			if (error) {
 				this._onError(error);
 			} else {
 				// Add date header
-				let mailContent = results[0]["content"];
+				let mailContent = results[0]["message"];
 				let endOfHeaders = mailContent.indexOf("\r\n\r\n") + 2;
 				mailContent = mailContent.slice(0, endOfHeaders) + "Date: " + results[0]["date"] + "\r\n" + mailContent.slice(endOfHeaders);
 				

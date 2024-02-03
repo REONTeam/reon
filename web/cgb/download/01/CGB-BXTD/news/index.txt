@@ -1,0 +1,4 @@
+http://gameboy.datacenter.ne.jp/cgb/download?name=/01/CGB-BXTD/news/config.php
+http://gameboy.datacenter.ne.jp/cgb/upload?name=/01/CGB-BXTD/news/0.entry.php
+http://gameboy.datacenter.ne.jp/cgb/ranking?name=/01/CGB-BXTD/ranking/query.php
+http://gameboy.datacenter.ne.jp/cgb/download?name=/01/CGB-BXTD/news/99.news.php
