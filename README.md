@@ -8,7 +8,7 @@ This repository holds various folders for the service, and each has its own READ
 
 - `mail/` holds the Node.js mail server by [Matze](https://github.com/Sudel-Matze)
 - `app/` holds various non-web applications, such as the Pokémon Trade Corner program by [thomasnet](https://github.com/thomasnet-mc)
-- `html/` holds the web-facing section of the service; this includes scripts for various games.
+- `web/` holds the web-facing section of the service; this includes scripts for various games.
 
 # Server Setup
 

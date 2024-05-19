@@ -1,18 +1,11 @@
 RewriteEngine on
 
 # Pokemon: Special rules for the requests with parameter
-RewriteCond "%{QUERY_STRING}" "^name=/01/CGB-BXTE/battle/room(....)\.cgb$"
-RewriteRule "^download$" "/cgb/download?name=/01/CGB-BXTE/battle/room.cgb&room=%1"
+RewriteCond "%{QUERY_STRING}" "^name=/01/CGB-BXT([A-Z])/battle/room(....)\.cgb$"
+RewriteRule "^download$" "/cgb/download?name=/01/CGB-BXT%1/battle/room.cgb&room=%2"
 
-RewriteCond "%{QUERY_STRING}" "^name=/01/CGB-BXTE/battle/leaders(....)\.cgb$"
-RewriteRule "^download$" "/cgb/download?name=/01/CGB-BXTE/battle/leaders.cgb&room=%1"
-
-RewriteCond "%{QUERY_STRING}" "^name=/01/CGB-BXTJ/battle/room(....)\.cgb$"
-RewriteRule "^download$" "/cgb/download?name=/01/CGB-BXTJ/battle/room.cgb&room=%1"
-
-RewriteCond "%{QUERY_STRING}" "^name=/01/CGB-BXTJ/battle/leaders(....)\.cgb$"
-RewriteRule "^download$" "/cgb/download?name=/01/CGB-BXTJ/battle/leaders.cgb&room=%1"
-
+RewriteCond "%{QUERY_STRING}" "^name=/01/CGB-BXT([A-Z])/battle/leaders(....)\.cgb$"
+RewriteRule "^download$" "/cgb/download?name=/01/CGB-BXT%1/battle/leaders.cgb&room=%2"
 
 # Mario Kart
 #RewriteCond "%{QUERY_STRING}" "^name=/01/AGB-AMKJ/timetrial/(..)/(.*)$"

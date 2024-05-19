@@ -1,4 +1,8 @@
 <?php
+	use PHPMailer\PHPMailer\PHPMailer;
+	use PHPMailer\PHPMailer\Exception;
+
+	require_once dirname(__DIR__)."/vendor/autoload.php";
 	require_once("DBUtil.php");
 	require_once("ConfigUtil.php");
 	require_once("TemplateUtil.php");
@@ -157,14 +161,15 @@
 		}
 		
 		private function sendUtf8Email($to, $from, $subject, $message) {
-			$utf8_subject = "=?UTF-8?B?".base64_encode($subject)."?=";
-			$utf8_message = base64_encode($message);
-			$headers = [
-				"From" => $from,
-				"Content-Type" => "text/html; charset=utf-8",
-				"Content-Transfer-Encoding" => "base64"
-			];
-			mail($to, $utf8_subject, $utf8_message, $headers);
+			$mail = new PHPMailer();
+			$mail->CharSet = PHPMailer::CHARSET_UTF8;
+			$mail->Encoding = PHPMailer::ENCODING_QUOTED_PRINTABLE;
+			$mail->isSendmail();
+			$mail->setFrom($from);
+			$mail->addAddress($to);
+			$mail->Subject = $subject;
+			$mail->msgHTML($message);
+			$mail->send();
 		}
 		
 		public function resetPassword($id, $key, $password, $passwordConfirm) {
