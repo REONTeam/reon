@@ -1,0 +1,52 @@
+services:
+
+  web:
+    build:
+      dockerfile: Dockerfile
+      target: web
+    volumes:
+      - ./config.json:/var/www/reon/config.json:ro
+    expose:
+      - 9000
+
+  nginx:
+    image: nginx:1.27.0
+    volumes:
+      - ./examples/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
+      - ./web/:/var/www/reon/web
+    ports:
+      - 7400:80
+    environment:
+      - NGINX_PORT=80
+      - NGINX_HOST="localhost gameboy.datacenter.ne.jp mgb.dion.ne.jp"
+      # Hostname and port for fastcgi_pass directive
+      - WEB_URL=web:9000
+
+  mail:
+    build:
+      dockerfile: Dockerfile
+      target: mail
+    ports:
+      - 25:25
+      - 110:110
+    volumes:
+      - ./config.json:/home/node/config.json:ro
+
+  db:
+    image: mysql:8.4.0
+    ports:
+      - 3306:3306
+    volumes:
+      - ./tables.sql:/docker-entrypoint-initdb.d/tables.sql:ro
+      - type: volume
+        source: reon_db
+        target: /var/lib/postgresql/data
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=reon
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=db
+
+volumes:
+  reon_db:
+    name: reon_db
