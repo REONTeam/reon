@@ -17,6 +17,22 @@ This repository holds various folders for the service, and each has its own READ
 3. Run tables.sql in MySQL
 4. Continue these steps later once the production server is setup.
 
+# Running Locally
+
+A `docker-compose.yml` is provided which will run all the required services. To get started, be sure to have docker available on your system.
+
+1. Copy `config.example.json` to `config.json`
+2. Run `make` to start the services
+3. Run `make account` to create an account without having to configure email delivery
+
+### `make all` - Run all the services
+Checkout http://localhost/ to see if it worked.
+
+### `make clean` - Tear down all services
+
+### `make account` - Create a REON user acccount 
+Avoids having to setup email properly
+
 # License
 
 This code is licenced under MIT.

@@ -1,5 +1,5 @@
+# Web Service
 FROM php:8.3.2-fpm as web
-
 RUN apt-get update \
     && apt-get install -y libzip-dev sendmail \
     && docker-php-ext-install zip \
@@ -15,8 +15,11 @@ RUN sed -i '/#!\/bin\/sh/aecho "$(hostname -i)\t$(hostname) $(hostname).localhos
 
 COPY --from=composer/composer:latest-bin /composer /usr/local/bin/composer
 COPY web /var/www/reon/web
-RUN cd /var/www/reon/web && composer install && chown -R www-data:www-data /var/www/reon;
+WORKDIR /var/www/reon/web
+RUN composer install && chown -R www-data:www-data /var/www/reon;
 
+
+# Mail Service
 FROM node:22.2.0 as mail
 COPY mail /home/node/app
 RUN cd /home/node/app && npm install

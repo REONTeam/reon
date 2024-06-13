@@ -15,10 +15,10 @@ services:
       - ./examples/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
       - ./web/:/var/www/reon/web
     ports:
-      - 7400:80
+      - 80:80
     environment:
       - NGINX_PORT=80
-      - NGINX_HOST="localhost gameboy.datacenter.ne.jp mgb.dion.ne.jp"
+      - NGINX_HOST="localhost gameboy.datacenter.ne.jp"
       # Hostname and port for fastcgi_pass directive
       - WEB_URL=web:9000
 
@@ -37,10 +37,11 @@ services:
     ports:
       - 3306:3306
     volumes:
+      # Run tables.sql on startup
       - ./tables.sql:/docker-entrypoint-initdb.d/tables.sql:ro
       - type: volume
         source: reon_db
-        target: /var/lib/postgresql/data
+        target: /var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_USER=reon
