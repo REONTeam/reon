@@ -6,7 +6,7 @@
 	if (SessionUtil::getInstance()->isSessionActive()) {
 		if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			if (isset($_POST["currentPassword"]) && isset($_POST["newEmail"])) {
-				$result = UserUtil::getInstance()->requestChangeEmailAction($_POST["currentPassword"], $_POST["newEmail"]);
+				$result = UserUtil::getInstance()->requestEmailChangeAction($_POST["currentPassword"], $_POST["newEmail"]);
 				echo TemplateUtil::render("/user/change_email", [
 					"result" => $result,
 					"email" => $_POST["newEmail"]
