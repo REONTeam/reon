@@ -81,7 +81,7 @@
 			$stmt->bind_param("iss", $_SESSION["user_id"], $newEmail, $key);
 			$stmt->execute();
 			
-			self::$instance->sendConfirmationEmail($_SESSION["user_id"], $key);
+			self::$instance->sendConfirmationEmail($_SESSION["user_id"], $key, $newEmail);
 			
 			return 0;
 		}
@@ -109,7 +109,7 @@
 			return filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE);
 		}
 		
-		private function sendConfirmationEmail($id, $key) {
+		private function sendConfirmationEmail($id, $key, $email) {
 			$hostname = ConfigUtil::getInstance()->getConfig()["hostname"];
 			$email_domain = ConfigUtil::getInstance()->getConfig()["email_domain"];
 			$from = "noreply@".$email_domain;
