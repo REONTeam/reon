@@ -273,7 +273,7 @@
 			$dion_ppp_id = self::$instance->generatePPPId();
 			$log_in_password = self::$instance->generateLogInPassword();
 			$db = DBUtil::getInstance()->getDB();
-			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password) values (?)");
+			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password, money_spent) values (?,?,?,?,?,0)");
 			$stmt->bind_param("sssss", $email, $password_hash, $dion_ppp_id, $reonEmail, $log_in_password);
 			$stmt->execute();
 			
