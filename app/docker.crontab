@@ -1,0 +1,3 @@
+
+0 * * * * node /app/pokemon-battle/index.js -c /app/config.json
+0 * * * * node /app/pokemon-exchange/index.js -c /app/config.json

@@ -1,13 +1,18 @@
 services:
 
+  cron:
+    build:
+      dockerfile: Dockerfile
+      target: cron
+    volumes:
+    - "./config.json:/app/config.json"
+
   web:
     build:
       dockerfile: Dockerfile
       target: web
     volumes:
       - ./config.json:/var/www/reon/config.json:ro
-    expose:
-      - 9000
 
   nginx:
     image: nginx:1.27.0
@@ -18,7 +23,7 @@ services:
       - 80:80
     environment:
       - NGINX_PORT=80
-      - NGINX_HOST="localhost gameboy.datacenter.ne.jp"
+      - NGINX_HOST="_"
       # Hostname and port for fastcgi_pass directive
       - WEB_URL=web:9000
 
@@ -30,7 +35,7 @@ services:
       - 25:25
       - 110:110
     volumes:
-      - ./config.json:/home/node/config.json:ro
+      - ./config.json:/app/config.json:ro
 
   db:
     image: mysql:8.4.0
@@ -39,14 +44,12 @@ services:
     volumes:
       # Run tables.sql on startup
       - ./tables.sql:/docker-entrypoint-initdb.d/tables.sql:ro
-      - type: volume
-        source: reon_db
-        target: /var/lib/mysql
+      - reon_db:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_USER=reon
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=db
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE
+      - MYSQL_ROOT_PASSWORD
 
 volumes:
   reon_db:
