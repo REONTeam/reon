@@ -2,7 +2,7 @@
 	require_once(CORE_PATH."/monopoly.php");
 
 	parse_str(file_get_contents("php://input"), $params);
-	if (!array_key_exists($params, "myscore") || strlen($params["myscore"]) != 8) {
+	if (!array_key_exists("myscore", $params) || strlen($params["myscore"]) != 16) {
 		//http_response_code(400); // the game explicitly says that bad data will be accepted, but not saved
 		return;
 	}

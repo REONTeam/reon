@@ -75,8 +75,11 @@
 			//http_response_code(400);
 			return;
 		}
+		if (empty($config["amoj_regist"])) {
+			$today = 0;
+		}
 		$stmt = $db->prepare("update amoj_ranking set today = ?, today2 = ? where id = ?");
-		$stmt->bind_param("iii", empty($config["amoj_regist"]) ? 0 : $today, $today, $result[0]["id"]);
+		$stmt->bind_param("iii", $today, $today2, $result[0]["id"]);
 		$stmt->execute();
 		if (substr($config["amoj_regist"], 0, 1) === "h") {
 			http_response_code(intval(substr($config["amoj_regist"], 1)));
