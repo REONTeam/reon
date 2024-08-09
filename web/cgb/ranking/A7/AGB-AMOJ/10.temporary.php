@@ -1,4 +1,5 @@
 <?php
+	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/monopoly.php");
 
 	parse_str(file_get_contents("php://input"), $params);
