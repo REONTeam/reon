@@ -9,3 +9,20 @@
   border-width: 0 0 3px 0;
   border-style: solid;
 }
+
+.crystal-ranking {
+  width: 33%;
+  float: left;
+  }
+  .crystal-ranking table {
+  width: 100%;
+  border: 1px solid;
+  }
+  .ranking-name {
+  text-align: center;
+  }
+  #country-nav li {
+  display: inline;
+  list-style: none;
+  padding: 5px;
+  }

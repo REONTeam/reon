@@ -1,0 +1,40 @@
+{% extends "main.twig" %}
+
+{% block title %}Pokemon - Rankings{% endblock %}
+{% block content %}
+	<ul id="country-nav">
+        <li><a href="?country=global">Global</a></li>
+        <li><a href="?country=j">Japan</a></li>
+        <li><a href="?country=e">US</a></li>
+        <li><a href="?country=f">France</a></li>
+        <li><a href="?country=i">Italy</a></li>
+        <li><a href="?country=s">Spain</a></li>
+        <li><a href="?country=d">Germany</a></li>
+        <li><a href="?country=u">Australia</a></li>
+        <li><a href="?country=p">EU</a></li>
+    </ul>
+
+    {% for cat in categories %}
+    <div class="crystal-ranking">
+        <table>
+            <thead>
+                <tr class="ranking-name"><th colspan="3">{{cat.name}}</th></tr>
+                <tr>
+                    <th>Name</th>
+                    <th>Region</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in cat.entries %}
+                <tr>
+                    <td>{{entry.player_name}}</td>
+                    <td>{{entry.player_region}}</td>
+                    <td>{{entry.score}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+{% endblock %}
