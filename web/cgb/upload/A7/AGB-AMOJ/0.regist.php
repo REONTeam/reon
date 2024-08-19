@@ -2,6 +2,8 @@
 	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/monopoly.php");
 
+	$config = getConfig();
+
 	$input = fopen("php://input", "rb");
 	$name = fread($input, 4);
 	$email = rtrim(fread($input, 32), "\0");
@@ -23,7 +25,7 @@
 		//http_response_code(400);
 		return;
 	}
-	if (substr($email, 8) !== "@reon.dion.ne.jp") {
+	if (substr($email, 8) !== "@".$config["email_domain_dion"]) {
 		//http_response_code(400);
 		return;
 	}
@@ -42,8 +44,6 @@
 		//http_response_code(400);
 		return;
 	}
-
-	$config = getConfig();
 
 	if ($today == 0) {
 		$db->begin_transaction();

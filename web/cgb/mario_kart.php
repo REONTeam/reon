@@ -72,8 +72,10 @@
 	}
 
 	function checkPlayerID($myid, $dion_id) {
+		$config = getConfig();
+
 		$decoded = decodePlayerID($myid);
-		if (!$decoded["valid"] || $decoded["email_svr"] !== "on") {
+		if (!$decoded["valid"] || $decoded["email_svr"] !== substr($config["email_domain_dion"], 2, 2)) {
 			return false;
 		}
 
