@@ -483,6 +483,6 @@ CREATE TABLE `agtj_ghosts` (
  `time` int(11) unsigned NOT NULL,
  `date` datetime NOT NULL,
  `id` int(11) unsigned NOT NULL,
- `input_data` blob(12124) NOT NULL,
+ `input_data` blob(12124),
  `dl_ok` datetime
 );
