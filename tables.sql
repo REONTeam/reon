@@ -465,3 +465,24 @@ CREATE TABLE `amoj_news` (
  `text` text(65535) NOT NULL,
  PRIMARY KEY (`id`)
 );
+
+# Zen Nihon GT Senshuken (AGTJ)
+CREATE TABLE `agtj_ghosts` (
+ `course` tinyint(3) unsigned NOT NULL,
+ `weather` tinyint(3) unsigned NOT NULL,
+ `car` tinyint(3) unsigned NOT NULL,
+ `trans` tinyint(3) unsigned NOT NULL,
+ `gear` tinyint(3) unsigned NOT NULL,
+ `steer` tinyint(3) unsigned NOT NULL,
+ `brake` tinyint(3) unsigned NOT NULL,
+ `tire` tinyint(3) unsigned NOT NULL,
+ `aero` tinyint(3) unsigned NOT NULL,
+ `excrs` tinyint(3) unsigned NOT NULL,
+ `handicap` smallint(5) unsigned NOT NULL,
+ `name` binary(22) NOT NULL,
+ `time` int(11) unsigned NOT NULL,
+ `date` datetime NOT NULL,
+ `id` int(11) unsigned NOT NULL,
+ `input_data` blob(12124) NOT NULL,
+ `dl_ok` datetime
+);
