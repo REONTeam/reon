@@ -7,7 +7,8 @@
 	
     $valid_countries = array("e", "f", "d", "i", "s", "u", "p", "j");
 
-    $country = in_array(strtolower($_GET["country"]), $valid_countries) ? strtolower($_GET["country"]) : "global";
+    $country = strtolower($_GET["country"] ?? '');
+    $country = in_array($country, $valid_countries) ? $country : "global";
     $pkm_util = PokemonUtil::getInstance();
 
     $db_util = DBUtil::getInstance();

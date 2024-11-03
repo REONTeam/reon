@@ -21,7 +21,7 @@
             $map = self::region_map[$region];
             return array_key_exists($id, $map) ? $map[$id] : "Unknown";
         }
-
+        
         public function getString($region, $raw_text) {
             $char_table = [];
             switch ($region) {
@@ -54,6 +54,111 @@
             return $str;
         }
 
+        public function getItemName($id) {
+            // TODO: Handle localization for user
+            return self::ItemNames[$id];
+        }
+
+        public function getSpeciesName($id) {
+            // TODO: Handle localization for user
+            return self::SpeciesNames[$id];
+        }
+        public function getMoveName($id) {
+            // TODO: Handle localization for user
+            return self::MoveNames[$id];
+        }
+
+        public function unpackMail($region, $data) {
+            $author_len = $region == 'j' ? 5 : 8;
+            $message = substr($data, 0, 0x21);
+            $author = substr($data, 0x21, $author_len);
+            $unpack_start = 0x21 + $author_len;
+            if ($region != 'j') {
+                $region = unpack("n", $data, 0x21 + $author_len)[1];
+                $region = ['e', 'f', 'd', 'i', 's'][$region];
+                $unpack_start += 2;
+            }
+            $mail = unpack("nauthor_id/Cspecies/Ctype", $data, $unpack_start);
+
+            //TODO: Detect earlier
+            if ($mail["type"] == 0) return null;
+
+            $mail["region"] = $region;
+            $mail["length"] = strlen($data);
+            
+            $mail["author"] = $this->getString($region, $author);
+            $mail["message"] = $this->getString($region, $message);
+                
+            return $mail;
+        }
+
+        public function unpackPokemon($region, $data) {
+            $pkm = unpack(
+                "Cspecies/Citem/C4move/not_id/nexp1/Cexp2/nhpEV/nattackEV/ndefenseEV/nspeedEV/nspecialEV/niv/C4pp/Cfriendship/Cpokerus/ncaughtData/Clevel"
+                ."/Cstatus/Cunused/ncurrentHP/nmaxHP/nattack/ndefense/nspeed/nspecialAttack/nspecialDefense", $data);
+    
+            $pkm["experience"] = ($pkm["exp1"] << 8) | $pkm["exp2"];
+            $pkm["ev"] = [
+                "hp" => $pkm["hpEV"],
+                "attack" => $pkm["attackEV"],
+                "defense" => $pkm["defenseEV"],
+                "speed" => $pkm["speedEV"],
+                "special" => $pkm["specialEV"],
+            ];
+            $pkm["iv"] = $iv = [
+                "defense" => $pkm["iv"] & 0xF,
+                "attack" => ($pkm["iv"] >> 4) & 0xF,
+                "special" => ($pkm["iv"] >> 8) & 0xF,
+                "speed" => ($pkm["iv"] >> 12) & 0xF,
+            ];
+            $pkm["iv"]["hp"] = (($iv["attack"] % 2) * 2^3) + (($iv["defense"] % 2) * 2^2) + (($iv["speed"] % 2) * 2^1) + (($iv["special"] % 2) * 2^0);
+            $pkm["is_shiny"] = ($iv["defense"] == 10) && ($iv["speed"] == 10) && ($iv["special"] == 10) && (($iv["attack"] & 2) == 2);
+            $pkm["met_location"] = ($pkm["caughtData"] >> 8) & 0x7f;
+            $pkm["met_level"] = $pkm["caughtData"] & 0x1f;
+            $pkm["met_time"] = ($pkm["caughtData"] >> 6) & 3;
+            $pkm["ot_gender"] = $pkm["caughtData"] >> 15;
+
+            $ot_len = $region == 'j' ? 5 : 7;
+            $nick_len = $region == 'j' ? 5 : 10;
+            $pkm["ot_name"] = $this->getString($region, substr($data, 0x30, $ot_len));
+            $pkm["name"] = $this->getString($region, substr($data, 0x30 + $ot_len, $nick_len));
+
+            $pkm["species"] = [ 
+                "id" =>  $pkm["species"],
+                "name" => $this->getSpeciesName($pkm["species"])
+            ];
+
+            $pkm["item"] = [
+                "id" =>  $pkm["item"],
+                "name" => $this->getItemName($pkm["item"])
+            ];
+
+            if ($pkm["pokerus"] == 0) {
+                $pkm["pokerus"] = null;
+            } else { 
+                $pkm["pokerus"] = [ 
+                    "strain" =>  $pkm["pokerus"] >> 4,
+                    "days" => $pkm["pokerus"] & 0xF,
+                    "cured" => $pkm["pokerus"] & 0xF == 0,
+                ];
+            }
+
+            foreach(range(1,4) as $i) {
+                $pkm["move".$i] = [
+                    "id" => $pkm["move".$i],
+                    "name" => $this->getMoveName($pkm["move".$i]),
+                    "pp" => $pkm["pp".$i] & 0x3F,
+                    "ppUps" => ($pkm["pp".$i] & 0xC) >> 6,
+                ];
+                unset($pkm["pp".$i]);
+            }
+
+            unset($pkm["exp1"], $pkm["exp2"], $pkm["caughtData"], $pkm["pokerus"], $pkm["unused"]);
+            unset($pkm["hpEV"], $pkm["attackEV"], $pkm["defenseEV"], $pkm["speedEV"], $pkm["specialEV"]);
+            
+            return $pkm;
+        }
+
         private const terminator = 0x50;
         private const int_trade_code = 0x5d;
 
@@ -69,6 +174,8 @@
         private const SPF = '　'; // Full-width space (U+3000)
         private const SPH = ' '; // Half-width space
         private const LAP = '’'; // Apostrophe
+        private const SLB = "\n"; // Single line break
+        private const DLB = "\n"; // Double line break; mainly needed for mail
 
         private static $int_trade_map = [
             'j' => 'トレーナー',
@@ -156,7 +263,7 @@
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 10-1F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 20-2F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 30-3F
-            '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 40-4F
+            '', '', '', '', '', '', '', '', '', '', '', '', '', '', self::DLB, self::SLB, // 40-4F
             '', '', '', '', '', '', '', '', '', '', '', '', '', self::TOT, '', '', // 50-5F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 60-6F
             self::LPO, self::LKE, '“', '”', '', '…', '', '', '', '┌', '─', '┐', '│', '└', '┘', self::SPH, // 70-7F
@@ -176,7 +283,7 @@
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 10-1F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 20-2F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 30-3F
-            '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 40-4F
+            '', '', '', '', '', '', '', '', '', '', '', '', '', '', self::DLB, self::SLB, // 40-4F
             '', '', '', '', '', '', '', '', '', '', '', '', '', self::TOT, '', '', // 50-5F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 60-6F
             self::LPO, self::LKE, '“', '”', '', '…', '', '', '', '┌', '─', '┐', '│', '└', '┘', self::SPH, // 70-7F
@@ -196,7 +303,7 @@
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 10-1F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 20-2F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 30-3F
-            '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 40-4F
+            '', '', '', '', '', '', '', '', '', '', '', '', '', '', self::DLB, self::SLB, // 40-4F
             '', '', '', '', '', '', '', '', '', '', '', '', '', self::TOT, '', '', // 50-5F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 60-6F
             self::LPO, self::LKE, '“', '”', '', '…', '', '', '', '┌', '─', '┐', '│', '└', '┘', self::SPH, // 70-7F
@@ -216,7 +323,7 @@
             'ヂ', 'ヅ', 'デ', 'ド', '', '', '', '', '', 'バ', 'ビ', 'ブ', 'ボ', '',  '', '', // 10-1F
             '', '', '', '', '', '', 'が', 'ぎ', 'ぐ', 'げ', 'ご', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ', // 20-2F
             'だ', 'ぢ', 'づ', 'で', 'ど', '', '', '', '',  '', 'ば', 'び', 'ぶ', 'ベ', 'ぼ', '', // 30-3F
-            'パ', 'ピ', 'プ', 'ポ', 'ぱ', 'ぴ', 'ぷ', 'ペ', 'ぽ', '', '', '', '', '', '', '', // 40-4F
+            'パ', 'ピ', 'プ', 'ポ', 'ぱ', 'ぴ', 'ぷ', 'ペ', 'ぽ', '', '', '', '', '', self::DLB, self::SLB, // 40-4F
             '', '', '', '', '', '', '', '', '', '', '', '', '', self::TOT, '', '', // 50-5F
             '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', // 60-6F
             '「', '」', '『', '』', '・', '⋯', '', '', '', '', '', '', '', '', '', self::SPF, // 70-7F
@@ -228,6 +335,110 @@
             'み', 'む', 'め', 'も', 'や', 'ゆ', 'よ', 'ら', 'リ', 'る', 'れ', 'ろ', 'わ', 'を', 'ん', 'っ', // D0-DF
             'ゃ', 'ゅ', 'ょ', 'ー', 'ﾟ', 'ﾞ', '？', '！', '。', 'ァ', 'ゥ', 'ェ', '', '', '', '♂', // E0-EF
             self::MNY, '', '．', '／', 'ォ', '♀', '０', '１', '２', '３', '４', '５', '６', '７', '８', '９', // F0-FF
+        ];
+
+        // TODO: Localize these
+        private const SpeciesNames =
+        [
+            "None",
+            "Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard",
+            "Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree",
+            "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata", "Raticate",
+            "Spearow", "Fearow", "Ekans", "Arbok", "Pikachu", "Raichu", "Sandshrew", "Sandslash",
+            "Nidoran♀", "Nidorina", "Nidoqueen", "Nidoran♂", "Nidorino", "Nidoking",
+            "Clefairy", "Clefable", "Vulpix", "Ninetales", "Jigglypuff", "Wigglytuff",
+            "Zubat", "Golbat", "Oddish", "Gloom", "Vileplume", "Paras", "Parasect", "Venonat", "Venomoth",
+            "Diglett", "Dugtrio", "Meowth", "Persian", "Psyduck", "Golduck", "Mankey", "Primeape",
+            "Growlithe", "Arcanine", "Poliwag", "Poliwhirl", "Poliwrath", "Abra", "Kadabra", "Alakazam",
+            "Machop", "Machoke", "Machamp", "Bellsprout", "Weepinbell", "Victreebel", "Tentacool", "Tentacruel",
+            "Geodude", "Graveler", "Golem", "Ponyta", "Rapidash", "Slowpoke", "Slowbro",
+            "Magnemite", "Magneton", "Farfetch'd", "Doduo", "Dodrio", "Seel", "Dewgong", "Grimer", "Muk",
+            "Shellder", "Cloyster", "Gastly", "Haunter", "Gengar", "Onix", "Drowzee", "Hypno",
+            "Krabby", "Kingler", "Voltorb", "Electrode", "Exeggcute", "Exeggutor", "Cubone", "Marowak",
+            "Hitmonlee", "Hitmonchan", "Lickitung", "Koffing", "Weezing", "Rhyhorn", "Rhydon", "Chansey",
+            "Tangela", "Kangaskhan", "Horsea", "Seadra", "Goldeen", "Seaking", "Staryu", "Starmie",
+            "Mr. Mime", "Scyther", "Jynx", "Electabuzz", "Magmar", "Pinsir", "Tauros", "Magikarp", "Gyarados",
+            "Lapras", "Ditto", "Eevee", "Vaporeon", "Jolteon", "Flareon", "Porygon", "Omanyte", "Omastar",
+            "Kabuto", "Kabutops", "Aerodactyl", "Snorlax", "Articuno", "Zapdos", "Moltres",
+            "Dratini", "Dragonair", "Dragonite", "Mewtwo", "Mew",
+
+            "Chikorita", "Bayleef", "Meganium", "Cyndaquil", "Quilava", "Typhlosion",
+            "Totodile", "Croconaw", "Feraligatr", "Sentret", "Furret", "Hoothoot", "Noctowl",
+            "Ledyba", "Ledian", "Spinarak", "Ariados", "Crobat", "Chinchou", "Lanturn", "Pichu", "Cleffa",
+            "Igglybuff", "Togepi", "Togetic", "Natu", "Xatu", "Mareep", "Flaaffy", "Ampharos", "Bellossom",
+            "Marill", "Azumarill", "Sudowoodo", "Politoed", "Hoppip", "Skiploom", "Jumpluff", "Aipom",
+            "Sunkern", "Sunflora", "Yanma", "Wooper", "Quagsire", "Espeon", "Umbreon", "Murkrow", "Slowking",
+            "Misdreavus", "Unown", "Wobbuffet", "Girafarig", "Pineco", "Forretress", "Dunsparce", "Gligar",
+            "Steelix", "Snubbull", "Granbull", "Qwilfish", "Scizor", "Shuckle", "Heracross", "Sneasel",
+            "Teddiursa", "Ursaring", "Slugma", "Magcargo", "Swinub", "Piloswine", "Corsola", "Remoraid", "Octillery",
+            "Delibird", "Mantine", "Skarmory", "Houndour", "Houndoom", "Kingdra", "Phanpy", "Donphan",
+            "Porygon2", "Stantler", "Smeargle", "Tyrogue", "Hitmontop", "Smoochum", "Elekid", "Magby", "Miltank",
+            "Blissey", "Raikou", "Entei", "Suicune", "Larvitar", "Pupitar", "Tyranitar", "Lugia", "Ho-Oh", "Celebi"
+        ];
+
+        // TODO: Localize these
+        private const ItemNames =
+        [
+            "None",
+            "Master Ball","Ultra Ball","BrightPowder","Great Ball","Poké Ball","Teru-sama","Bicycle","Moon Stone","Antidote",
+            "Burn Heal","Ice Heal","Awakening","Parlyz Heal","Full Restore","Max Potion","Hyper Potion","Super Potion",
+            "Potion","Escape Rope","Repel","Max Elixer","Fire Stone","Thunderstone","Water Stone","Teru-sama","HP Up",
+            "Protein","Iron","Carbos","Lucky Punch","Calcium","Rare Candy","X Accuracy","Leaf Stone","Metal Powder","Nugget",
+            "Poké Doll","Full Heal","Revive","Max Revive","Guard Spec.","Super Repel","Max Repel","Dire Hit","Teru-sama",
+            "Fresh Water","Soda Pop","Lemonade","X Attack","Teru-sama","X Defend","X Speed","X Special","Coin Case","Itemfinder",
+            "Teru-sama","Exp.Share","Old Rod","Good Rod","Silver Leaf","Super Rod","PP Up","Ether","Max Ether","Elixer",
+            "Red Scale","SecretPotion","S.S. Ticket","Mystery Egg","Clear Bell*","Silver Wing","Moomoo Milk","Quick Claw",
+            "PSNCureBerry","Gold Leaf","Soft Sand","Sharp Beak","PRZCureBerry","Burnt Berry","Ice Berry","Poison Barb",
+            "King's Rock","Bitter Berry","Mint Berry","Red Apricorn","TinyMushroom","Big Mushroom","SilverPowder","Blu Apricorn",
+            "Teru-sama","Amulet Coin","Ylw Apricorn","Grn Apricorn","Cleanse Tag","Mystic Water","TwistedSpoon","Wht Apricorn",
+            "Blackbelt","Blk Apricorn","Teru-sama","Pnk Apricorn","BlackGlasses","SlowpokeTail","Pink Bow","Stick","Smoke Ball",
+            "NeverMeltIce","Magnet","MiracleBerry","Pearl","Big Pearl","Everstone","Spell Tag","RageCandyBar","GS Ball",
+            "Blue Card","Miracle Seed","Thick Club","Focus Band","Teru-sama","EnergyPowder","Energy Root","Heal Powder",
+            "Revival Herb","Hard Stone","Lucky Egg","Card Key","Machine Part","Egg Ticket","Lost Item","Stardust","Star Piece",
+            "Basement Key","Pass","Teru-sama","Teru-sama","Teru-sama","Charcoal","Berry Juice","Scope Lens","Teru-sama",
+            "Teru-sama","Metal Coat","Dragon Fang","Teru-sama","Leftovers","Teru-sama","Teru-sama","Teru-sama","MysteryBerry",
+            "Dragon Scale","Berserk Gene","Teru-sama","Teru-sama","Teru-sama","Sacred Ash","Heavy Ball","Flower Mail",
+            "Level Ball","Lure Ball","Fast Ball","Teru-sama","Light Ball","Friend Ball","Moon Ball","Love Ball","Normal Box",
+            "Gorgeous Box","Sun Stone","Polkadot Bow","Teru-sama","Up-Grade","Berry","Gold Berry","SquirtBottle","Teru-sama",
+            "Park Ball","Rainbow Wing","Teru-sama","Brick Piece","Surf Mail","Litebluemail","Portraitmail","Lovely Mail",
+            "Eon Mail","Morph Mail","Bluesky Mail","Music Mail","Mirage Mail","Teru-sama","TM01","TM02","TM03","TM04","TM04",
+            "TM05","TM06","TM07","TM08","TM09","TM10","TM11","TM12","TM13","TM14","TM15","TM16","TM17","TM18","TM19","TM20",
+            "TM21","TM22","TM23","TM24","TM25","TM26","TM27","TM28","TM28","TM29","TM30","TM31","TM32","TM33","TM34","TM35",
+            "TM36","TM37","TM38","TM39","TM40","TM41","TM42","TM43","TM44","TM45","TM46","TM47","TM48","TM49","TM50","HM01",
+            "HM02","HM03","HM04","HM05","HM06","HM07","HM08","HM09","HM10","HM11","HM12"
+        ];
+
+        // TODO: Localize these
+        private const MoveNames =
+        [
+            "None",
+            "Pound", "Karate Chop", "DoubleSlap", "Comet Punch", "Mega Punch", "Pay Day", "Fire Punch", "Ice Punch", "ThunderPunch",
+            "Scratch", "ViceGrip", "Guillotine", "Razor Wind", "Swords Dance", "Cut", "Gust", "Wing Attack", "Whirlwind", "Fly",
+            "Bind", "Slam", "Vine Whip", "Stomp", "Double Kick", "Mega Kick", "Jump Kick", "Rolling Kick", "Sand-Attack", "Headbutt",
+            "Horn Attack", "Fury Attack", "Horn Drill", "Tackle", "Body Slam", "Wrap", "Take Down", "Thrash", "Double-Edge", 
+            "Tail Whip", "Poison Sting", "Twineedle", "Pin Missile", "Leer", "Bite", "Growl", "Roar", "Sing", "Supersonic", "SonicBoom",
+            "Disable", "Acid", "Ember", "Flamethrower", "Mist", "Water Gun", "Hydro Pump", "Surf", "Ice Beam", "Blizzard", "Psybeam",
+            "BubbleBeam", "Aurora Beam", "Hyper Beam", "Peck", "Drill Peck", "Submission", "Low Kick", "Counter", "Seismic Toss", 
+            "Strength", "Absorb", "Mega Drain", "Leech Seed", "Growth", "Razor Leaf", "SolarBeam", "PoisonPowder", "Stun Spore",
+            "Sleep Powder", "Petal Dance", "String Shot", "Dragon Rage", "Fire Spin", "ThunderShock", "Thunderbolt", "Thunder Wave",
+            "Thunder", "Rock Throw", "Earthquake", "Fissure", "Dig", "Toxic", "Confusion", "Psychic", "Hypnosis", "Meditate", "Agility",
+            "Quick Attack", "Rage", "Teleport", "Night Shade", "Mimic", "Screech", "Double Team", "Recover", "Harden", "Minimize",
+            "SmokeScreen", "Confuse Ray", "Withdraw", "Defense Curl", "Barrier", "Light Screen", "Haze", "Reflect", "Focus Energy",
+            "Bide", "Metronome", "Mirror Move", "Selfdestruct", "Egg Bomb", "Lick", "Smog", "Sludge", "Bone Club", "Fire Blast",
+            "Waterfall", "Clamp", "Swift", "Skull Bash", "Spike Cannon", "Constrict", "Amnesia", "Kinesis", "Softboiled", "Hi Jump Kick",
+            "Glare", "Dream Eater", "Poison Gas", "Barrage", "Leech Life", "Lovely Kiss", "Sky Attack", "Transform", "Bubble", 
+            "Dizzy Punch", "Spore", "Flash", "Psywave", "Splash", "Acid Armor", "Crabhammer", "Explosion", "Fury Swipes", "Bonemerang",
+            "Rest", "Rock Slide", "Hyper Fang", "Sharpen", "Conversion", "Tri Attack", "Super Fang", "Slash", "Substitute", "Struggle",
+            "Sketch", "Triple Kick", "Thief", "Spider Web", "Mind Reader", "Nightmare", "Flame Wheel", "Snore", "Curse", "Flail",
+            "Conversion 2", "Aeroblast", "Cotton Spore", "Reversal", "Spite", "Powder Snow", "Protect", "Mach Punch", "Scary Face",
+            "Faint Attack", "Sweet Kiss", "Belly Drum", "Sludge Bomb", "Mud-Slap", "Octazooka", "Spikes", "Zap Cannon", "Foresight",
+            "Destiny Bond", "Perish Song", "Icy Wind", "Detect", "Bone Rush", "Lock-On", "Outrage", "Sandstorm", "Giga Drain", "Endure",
+            "Charm", "Rollout", "False Swipe", "Swagger", "Milk Drink", "Spark", "Fury Cutter", "Steel Wing", "Mean Look", "Attract",
+            "Sleep Talk","Heal Bell", "Return", "Present", "Frustration", "Safeguard", "Pain Split", "Sacred Fire", "Magnitude",
+            "DynamicPunch", "Megahorn", "DragonBreath", "Baton Pass", "Encore", "Pursuit", "Rapid Spin", "Sweet Scent", "Iron Tail",
+            "Metal Claw", "Vital Throw", "Morning Sun", "Synthesis", "Moonlight", "Hidden Power", "Cross Chop", "Twister", "Rain Dance",
+            "Sunny Day", "Crunch", "Mirror Coat", "Psych Up", "ExtremeSpeed", "AncientPower", "Shadow Ball", "Future Sight", "Rock Smash",
+            "Whirlpool", "Beat Up"
         ];
     }
 ?>

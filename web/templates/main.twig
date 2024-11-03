@@ -19,7 +19,14 @@
 				
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 					<li class="nav-item"><a href="/index.php" class="nav-link{% if nav_item == 'index' %}{{ ' active' }}{% endif %}" aria-current="page">Home</a></li>
-					<li class="nav-item"><a href="#" class="nav-link{% if nav_item == 'games' %}{{ ' active' }}{% endif %}">Games</a></li>
+					<li class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle{% if nav_item == 'games' %}{{ ' active' }}{% endif %}" id="gamesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Games
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="gamesDropdown">
+							<li><a class="dropdown-item" href="/pokemon/">Pokémon Crystal</a></li>
+						</ul>
+					</li>
 					<li class="nav-item"><a href="/01/CGB-B9AJ/index.html" class="nav-link">Mobile Homepage</a></li>
 				</ul>
 				

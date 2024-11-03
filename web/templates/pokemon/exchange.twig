@@ -1,0 +1,56 @@
+{% extends "main.twig" %}
+
+{% block title %}Pokemon - Trade Corner{% endblock %}
+{% block content %}
+
+    <h1>Trade Corner</h1>
+	<ul id="country-nav">
+        <li><a href="?region=global">Global</a></li>
+        <li><a href="?region=j">Japan</a></li>
+        <li><a href="?region=int">International</a></li>
+    </ul>
+
+    {% for trade in trades %}
+    <div class="crystal-trade">
+        <abbr class="region" title="English">eng</abbr>
+        {% if trade.pokemon.is_shiny %}<span class="shiny-mark">✶</span>{% endif %}
+        <div class="trade-offer {% if trade.pokemon.is_shiny %}shiny{% endif %}">
+            <div class="media-area">
+                {% set offer_sprite_x = ((trade.offer.id - 1) % 15) * 64 %}
+                {% set offer_sprite_y = ((trade.offer.id - 1) // 15) * 64 %}
+                <span class="sprite-pokemon" style="background-position: -{{offer_sprite_x}}px -{{offer_sprite_y}}px"></span>
+                <br>
+                <span class="level-label">Lv.</span>
+                <span class="offer-level">{{trade.pokemon.level}}</span>
+                <span class="offer-gender">{{trade.offer.gender_symbol}}</span>
+                <br>
+                
+            </div>
+            
+            <div class="offer-details">
+                <span class="offer-species">{{trade.offer.name}}</span>
+                <br> 
+                <span class="label">Name</span>
+                <span class="offer-name">{{trade.pokemon.name}}</span>
+                <br> 
+                <span class="label">Trainer</span>
+                <span class="offer-trainer">{{trade.trainer_name}}</span>
+                <br>
+                <span class="label">Item</span>
+                <span class="offer-item">{% if trade.pokemon.item %}{{trade.pokemon.item.name}}{% endif %}</span>
+    
+            </div>
+        </div>
+        <hr class="trade-separator">
+        <div class="trade-request">
+            <span class="wanted-label">Wanted</span>
+            <span class="request-species">{{trade.request.name}}</span>
+            {% if trade.request.gender and trade.request.id != 29 and trade.request.id != 32 %}
+            <span class="request-gender">{{trade.request.gender_symbol}}</span>
+            {% endif %}
+        </div>
+    
+    </div>
+    {% endfor %}
+
+{% endblock %}
