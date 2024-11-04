@@ -53,7 +53,50 @@
         ];
         array_push($trades, $entry);
     }
-    
+
+    if (isset($_GET["add_fakes"])) {
+
+        $pkm = $pkm_util->fakePokemon(6);
+        $pkm["pokerus"]["cured"] = true;
+        array_push($trades,[
+            "pokemon" => $pkm,
+            "trainer_name" => "REON",
+            "game_region" => 'e',
+            "request" => [
+                "id" => 250,
+                "name" => $pkm_util->getSpeciesName(250),
+                "gender" => $genders[0],
+                "gender_symbol" => $genders_symbols[0],
+            ],
+            "offer" => [
+                "id" => $pkm["species"]["id"],
+                "name" => $pkm["species"]["name"],
+                "gender" => $genders[1],
+                "gender_symbol" => $genders_symbols[1],
+            ],
+        ]);
+
+        $pkm = $pkm_util->fakePokemon(197);
+        array_push($trades,[
+            "pokemon" => $pkm,
+            "trainer_name" => "REON",
+            "game_region" => 'e',
+            "request" => [
+                "id" => 200,
+                "name" => $pkm_util->getSpeciesName(200),
+                "gender" => $genders[2],
+                "gender_symbol" => $genders_symbols[2],
+            ],
+            "offer" => [
+                "id" => $pkm["species"]["id"],
+                "name" => $pkm["species"]["name"],
+                "gender" => $genders[2],
+                "gender_symbol" => $genders_symbols[2],
+            ],
+        ]);
+        end($trades)["pokemon"]["pokerus"]["cured"] = true;
+    }
+
     echo TemplateUtil::render("/pokemon/exchange", [
         'trades' => $trades
     ]);

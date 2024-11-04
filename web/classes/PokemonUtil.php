@@ -21,7 +21,7 @@
             $map = self::region_map[$region];
             return array_key_exists($id, $map) ? $map[$id] : "Unknown";
         }
-        
+
         public function getString($region, $raw_text) {
             $char_table = [];
             switch ($region) {
@@ -156,6 +156,34 @@
             unset($pkm["exp1"], $pkm["exp2"], $pkm["caughtData"], $pkm["pokerus"], $pkm["unused"]);
             unset($pkm["hpEV"], $pkm["attackEV"], $pkm["defenseEV"], $pkm["speedEV"], $pkm["specialEV"]);
             
+            return $pkm;
+        }
+
+        public function fakePokemon($species) {
+            // This function makes no attempt at making a legal pokemon.
+            // It will only return enough data for the UI to display something
+            $pkm = array();
+            $pkm["species"] = [ 
+                "id" =>  $species,
+                "name" => $this->getSpeciesName($species)
+            ];
+            $pkm["level"] = 100;
+            $pkm["is_shiny"] = true;
+            $pkm["ot_name"] = "REON";
+            $pkm["ot_gender"] = 1;
+            $pkm["name"] = $pkm["species"]["name"];
+            $pkm["level"] = 100;
+
+            $item = rand(0,255);
+            $pkm["item"] = [
+                "id" =>  $item,
+                "name" => $this->getItemName($item)
+            ];
+            $pkm["pokerus"] = [ 
+                "strain" =>  8,
+                "days" => 2,
+                "cured" => false,
+            ];
             return $pkm;
         }
 

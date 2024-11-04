@@ -1,6 +1,6 @@
 {% extends "main.twig" %}
 
-{% block title %}Pokemon - Trade Corner{% endblock %}
+{% block title %}Pokémon - Trade Corner{% endblock %}
 {% block content %}
 
     <h1>Trade Corner</h1>
@@ -12,8 +12,18 @@
 
     {% for trade in trades %}
     <div class="crystal-trade">
+        <div class="marks-panel">
         <abbr class="region" title="English">eng</abbr>
-        {% if trade.pokemon.is_shiny %}<span class="shiny-mark">✶</span>{% endif %}
+            {% if trade.pokemon.pokerus %}
+                {% if trade.pokemon.pokerus.cured %}
+                <abbr class="pokerus-cured-text" title="Pokérus (cured)">&#11044;</abbr>
+                {% else %}
+                <abbr class="pokerus-infected-text" title="Pokérus (infected)"><sup>P</sup><sub>K</sub>RS</abbr>
+                {% endif %}
+                <br>
+            {% endif %}
+            {% if trade.pokemon.is_shiny %}<span class="shiny-mark" title="Shiny"></span>{% endif %}
+        </div>
         <div class="trade-offer {% if trade.pokemon.is_shiny %}shiny{% endif %}">
             <div class="media-area">
                 {% set offer_sprite_x = ((trade.offer.id - 1) % 15) * 64 %}
@@ -22,9 +32,8 @@
                 <br>
                 <span class="level-label">Lv.</span>
                 <span class="offer-level">{{trade.pokemon.level}}</span>
-                <span class="offer-gender">{{trade.offer.gender_symbol}}</span>
+                <span class="offer-gender gender-{{trade.offer.gender}}">{{trade.offer.gender_symbol}}</span>
                 <br>
-                
             </div>
             
             <div class="offer-details">
@@ -33,8 +42,8 @@
                 <span class="label">Name</span>
                 <span class="offer-name">{{trade.pokemon.name}}</span>
                 <br> 
-                <span class="label">Trainer</span>
-                <span class="offer-trainer">{{trade.trainer_name}}</span>
+                <span class="label">Offerer</span>
+                <span class="offer-offerer">{{trade.trainer_name}}</span>
                 <br>
                 <span class="label">Item</span>
                 <span class="offer-item">{% if trade.pokemon.item %}{{trade.pokemon.item.name}}{% endif %}</span>
@@ -44,10 +53,11 @@
         <hr class="trade-separator">
         <div class="trade-request">
             <span class="wanted-label">Wanted</span>
-            <span class="request-species">{{trade.request.name}}</span>
-            {% if trade.request.gender and trade.request.id != 29 and trade.request.id != 32 %}
-            <span class="request-gender">{{trade.request.gender_symbol}}</span>
+            {# Only show gender when requested and not Nidoran #}
+            {% if trade.request.gender %}
+            <span class="request-gender gender-{{trade.request.gender}}">{{trade.request.gender_symbol}}</span>
             {% endif %}
+            <span class="request-species">{{trade.request.name}}</span>
         </div>
     
     </div>
