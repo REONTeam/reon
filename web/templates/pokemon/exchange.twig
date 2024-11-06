@@ -5,17 +5,17 @@
 
     <h1>Trade Corner</h1>
 	<ul id="country-nav">
-        <li><a href="?region=global">Global</a></li>
-        <li><a href="?region=j">Japan</a></li>
-        <li><a href="?region=int">International</a></li>
+        <li><a href="?region=global">{{'region.global'|trans}}</a></li>
+        <li><a href="?region=j">{{'region.country.j'|trans}}</a></li>
+        <li><a href="?region=int">{{'region.international'|trans}}</a></li>
     </ul>
 
     {% for trade in trades %}
     <div class="crystal-trade">
         <div class="marks-panel">
-        {% set region_tmpl = 'region.short.' ~ trade.game_region %}
-        {% set region_full_tmpl = 'region.' ~ trade.game_region %}
-        <abbr class="region" title="{{region_full_tmpl|trans}}">{{region_tmpl|trans}}</abbr>
+        {% set region_code_tmpl = 'region.short.' ~ trade.game_region %}
+        {% set region_lang_tmpl = 'region.language.' ~ trade.game_region %}
+        <abbr class="region" title="{{region_lang_tmpl|trans}}">{{region_code_tmpl|trans}}</abbr>
             {% if trade.pokemon.pokerus %}
                 {% if trade.pokemon.pokerus.cured %}
                 <abbr class="pokerus-cured-text" title="{{'pokemon.pokerus.cured'|trans}}">&#11044;</abbr>

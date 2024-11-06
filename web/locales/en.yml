@@ -14,23 +14,50 @@ locale:
 
 male: Male
 female: Female
+name: Name
+score: Score
+login: Login
+logout: Logout
+signup: Sign-up
+your-account: Your Account
+home: Home
+games: Games
+mobile-home: Mobile Homepage
+pokemon-crystal: Pokémon Crystal
+rankings: Rankings
+trade-corner: Trade Corner
 
 region:
-  j: Japanese
-  e: English (North America)
-  d: German
-  i: Italian
-  s: Spanish
-  p: English (Europe)
-  u: English (Australia)
-  short:
-    j: JPN
+  text: Region
+  global: Global
+  international: International
+  short: # Trade corner
     e: ENG
-    d: GER
-    i: ITA
-    s: SPA
     p: ENG
     u: ENG
+    j: JPN
+    d: GER
+    f: FRA
+    i: ITA
+    s: SPA
+  country: # Rankings
+    e: United States
+    p: Europe
+    u: Australia
+    j: Japan
+    d: Germany
+    f: France
+    i: Italy
+    s: Spain
+  language: # Trade corner (hover text)
+    e: English (United States)
+    p: English (Europe)
+    u: English (Australia)
+    j: Japanese
+    d: German
+    f: French
+    i: Italian
+    s: Spanish
 
 pokemon:
   pokerus:
