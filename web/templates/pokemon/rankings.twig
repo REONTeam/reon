@@ -29,7 +29,8 @@
                 {% for entry in cat.entries %}
                 <tr>
                     <td>{{entry.player_name}}</td>
-                    <td>{{entry.player_region}}</td>
+                    {% set p_region_tmpl = 'pokemon.prefectures.'~entry.player_region %}
+                    <td title="{{p_region_tmpl|trans}}">{{entry.player_region}}</td>
                     <td>{{entry.score}}</td>
                 </tr>
                 {% endfor %}

@@ -214,6 +214,7 @@
         ];
 
         // The order of each prefecture/state/province MUST match what is displayed in game
+        // Pulled from data/mobile/prefectures_list.asm
         private const region_map = [
             'j' => [
                 'Unknown',
@@ -222,7 +223,6 @@
                 'JP-31', 'JP-16', 'JP-42', 'JP-20', 'JP-29', 'JP-15', 'JP-28', 'JP-34', 'JP-18', 'JP-40', 'JP-07', 'JP-01', 'JP-24', 'JP-04',
                 'JP-45', 'JP-06', 'JP-35', 'JP-19'
             ],
-            // Pulled from data/mobile/prefectures_list.asm
             'e' => [
                 'Unknown',
                 'US-AL', 'US-AK', 'US-AZ', 'US-AR', 'US-CA', 'US-CO', 'US-CT', 'US-DE', 'US-FL', 'US-GA', 'US-HI', 'US-ID', 'US-IL', 'US-IN',
@@ -246,7 +246,7 @@
                 'Unknown',
                 'ES-C', 'ES-VI', 'ES-AB', 'ES-A', 'ES-AL', 'ES-O', 'ES-AV', 'ES-BA', 'ES-B', 'ES-BI', 'ES-BU', 'ES-CC', 'ES-CA', 'ES-S',
                 'ES-CS', 'ES-CR', 'ES-CO', 'ES-CU', 'ES-SS', 'ES-GI', 'ES-GR', 'ES-GU', 'ES-H', 'ES-HU', 'ES-PM', 'ES-J', 'ES-LO', 'ES-GC',
-                'ES-LE', 'ES-L', 'ES-LU', 'ES-M ', 'ES-MA', 'ES-MU', 'ES-NA', 'ES-OR', 'ES-P', 'ES-PO', 'ES-SA', 'ES-TF', 'ES-SG', 'ES-SE',
+                'ES-LE', 'ES-L', 'ES-LU', 'ES-M', 'ES-MA', 'ES-MU', 'ES-NA', 'ES-OR', 'ES-P', 'ES-PO', 'ES-SA', 'ES-TF', 'ES-SG', 'ES-SE',
                 'ES-SO', 'ES-T', 'ES-TE', 'ES-TO', 'ES-V', 'ES-VA', 'ES-ZA', 'ES-Z', 'AD-07', 'AD-02', 'AD-03', 'AD-08', 'AD-04', 'AD-05', 'AD-06'
             ],
             'i' => [
