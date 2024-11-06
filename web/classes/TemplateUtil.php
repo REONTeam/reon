@@ -37,8 +37,10 @@
 			$translator = new \Symfony\Component\Translation\Translator($locale);
 			$translator->setFallbackLocales(['en']);
 			$translator->addLoader('yaml', new \Symfony\Component\Translation\Loader\YamlFileLoader());
-			$translator->addResource('yaml',  dirname(__DIR__).'/locales/en.yml', 'en');
-			#$translator->addResource('yaml',  dirname(__DIR__).'/locales/ja.yml', 'ja');
+			$supported_locales =  ['en', 'es', 'de', 'ja', 'it', 'fr'];
+			foreach($supported_locales as $l) {
+				$translator->addResource('yaml',  dirname(__DIR__).'/locales/'.$l.'.yml', $l);
+			}
 			return $translator;
 		}
 
