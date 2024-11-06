@@ -25,6 +25,7 @@
 			$translator = self::getTranslator();
 			$twig = self::$instance->twig;
 			$twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension($translator));
+			$vars["curr_locale"] = SessionUtil::getInstance()->getLocale();
 			return $twig->render($template.".twig", $vars);
 		}
 
@@ -33,7 +34,7 @@
 		}
 
 		public static function getTranslator() {
-			$locale = SessionUtil::getInstance()->getLang();
+			$locale = SessionUtil::getInstance()->getLocale();
 			$translator = new \Symfony\Component\Translation\Translator($locale);
 			$translator->setFallbackLocales(['en']);
 			$translator->addLoader('yaml', new \Symfony\Component\Translation\Loader\YamlFileLoader());

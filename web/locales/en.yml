@@ -1,5 +1,20 @@
+# English is defined as the fallback language (see TemplateUtil.php)
+# Anything not included in another language file will pull from here instead
+
+# DO NOT TRANSLATE
+# These are used in the language pickers and should not be localized
+locale:
+  en: English
+  ja: 日本語
+  de: Deutsch
+  fr: Français
+  es: Español
+  it: Italiano
+# End do not translate section
+
 male: Male
 female: Female
+
 region:
   j: Japanese
   e: English (North America)

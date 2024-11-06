@@ -32,6 +32,19 @@
 				
 				<div class="d-flex">
 					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						<li class="nav-item dropdown">
+							<a href="#" class="nav-link dropdown-toggle" id="localeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								{% set lang_tmpl = 'locale.' ~ curr_locale %}{{ lang_tmpl|trans }}
+							</a>
+							<ul class="dropdown-menu" aria-labelledby="localeDropdown">
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('en');">{{'locale.en'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('ja');">{{'locale.ja'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('de');">{{'locale.de'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('es');">{{'locale.es'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('it');">{{'locale.it'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('fr');">{{'locale.fr'|trans}}</a></li>
+							</ul>
+						</li>
 						{% if session_active %}
 							<li class="nav-item"><a href="/user/summary.php" class="btn btn-primary me-2">Your account</a></li>
 							<li class="nav-item"><a href="/logout.php" class="btn btn-outline-primary">Logout</a></li>
@@ -52,5 +65,14 @@
 		
 		{% block body %}
 		{% endblock %}
+
+		<script>
+			function changeLocale(newLocale) {
+				var url = new URL(window.location);
+				url.searchParams.set('lang', newLocale);
+				window.location = url.toString();
+			}
+		</script>
+
 	</body>
 </html>
