@@ -51,6 +51,15 @@ services:
       - MYSQL_DATABASE
       - MYSQL_ROOT_PASSWORD
 
+  dns:
+    build:
+      dockerfile: Dockerfile
+      target: dns
+    ports:
+      - 53:53/udp
+    environment:
+      - EXTERNAL_IP
+
 volumes:
   reon_db:
     name: reon_db

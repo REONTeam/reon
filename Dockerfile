@@ -79,3 +79,11 @@ COPY app/docker.crontab /etc/crontabs/root
 # -f | Foreground
 # -l N | Set log level. Most verbose 0, default 8
 CMD ["crond", "-f", "-l", "2"]
+
+### DNS server
+
+FROM alpine:3.20 AS dns
+RUN apk --no-cache add dnsmasq
+COPY docker-dns-entry.sh /entrypoint.sh
+EXPOSE 53/udp
+ENTRYPOINT ["/entrypoint.sh"]
