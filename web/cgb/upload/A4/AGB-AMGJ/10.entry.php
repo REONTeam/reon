@@ -31,7 +31,7 @@
 	$correct = array(0x83, 0xED, 0x76, 0x45);
 	for ($i = 0; $i < 4; $i++) {
 		for ($j = $i+4; $j < 0x49; $j += 4) {
-			$check[$i] = ($check[$i] + $data[$j]) & 0xFF;
+			$check[$i] = ($check[$i] + ord($data[$j])) & 0xFF;
 		}
 		if ($check[$i] != $correct[$i]) {
 			http_response_code(400);
@@ -56,9 +56,9 @@
 	}
 
 	$name = substr($data, 50, 16);
-	$blood = unpack("C", $data[66]);
-	$gender = unpack("C", $data[67]);
-	$age = unpack("C", $data[68]);
+	$blood = unpack("C", $data[66])[1];
+	$gender = unpack("C", $data[67])[1];
+	$age = unpack("C", $data[68])[1];
 	$weight = unpack("N", substr($data, 69));
 
 	if ($blood > 3 || $gender > 1) {

@@ -17,10 +17,11 @@
 		http_response_code(400);
 		return;
 	}
+	$dion_email_local = substr($ident, 0, 8);
 	
 	$db = connectMySQL();
 	$stmt = $db->prepare("select count(*) from sys_users where dion_email_local = ?");
-	$stmt->bind_param("s", substr($ident, 0, 8));
+	$stmt->bind_param("s", $dion_email_local);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 	if ($result[0]["count(*)"] == 0) {
