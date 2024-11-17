@@ -484,5 +484,18 @@ CREATE TABLE `agtj_ghosts` (
  `date` datetime NOT NULL,
  `id` int(11) unsigned NOT NULL,
  `input_data` blob(12124),
- `dl_ok` datetime
+ `dl_ok` datetime,
+ PRIMARY KEY (`id`)
+);
+
+# Exciting Bass (AMGJ)
+CREATE TABLE `amgj_rankings` (
+ `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `ident` text(46) NOT NULL,
+ `name` binary(16) NOT NULL,
+ `blood` tinyint(3) unsigned NOT NULL,
+ `gender` tinyint(3) unsigned NOT NULL,
+ `age` tinyint(3) unsigned NOT NULL,
+ `weight` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`id`)
 );
