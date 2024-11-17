@@ -35,11 +35,14 @@
 			// this assumes that, if a file exists for course #N, files must exist for courses #(N & 0x80), #(N & 0xC0), #(N & 0xE0), ..., #(N & 0xFE).
 			// under that assumption, the greatest number of any existing course file will end up in $excrs.
 			$excrs_bit >>= 1;
-			if (realpath(__DIR__.DIRECTORY_SEPARATOR.sprintf("gtexcrs%03d.cgb", $excrs)) !== false) {
+			if (realpath(__DIR__.DIRECTORY_SEPARATOR.sprintf("100.gtexcrs%03d.cgb", $excrs)) !== false) {
 				$excrs += $excrs_bit;
 			} else {
 				$excrs -= max($excrs_bit, 1);
 			}
+		}
+		if ($excrs == 0 && realpath(__DIR__.DIRECTORY_SEPARATOR."100.gtexcrs000.cgb") === false) {
+			return -1;
 		}
 		return $excrs;
 	}

@@ -2,10 +2,16 @@
 	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/zen_nihon.php");
 
-	echo "\0";
-	$cksum = 0;
-
 	$excrs = getExtraCourse();
+
+	if ($excrs == -1) {
+		echo "\1";
+		$cksum = 1;
+		$excrs = 0;
+	} else {
+		echo "\0";
+		$cksum = 0;
+	}
 
 	$db = connectMySQL();
 	$ghosts_avail = 0x7F;
