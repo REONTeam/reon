@@ -28,12 +28,18 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
 		
 		// if a .cgb file was requested but doesn't exist, try .php instead
 		if ($realFilePath === false) $realFilePath = realpath(str_replace(".cgb", ".php", $dir.$filePath));
+		if ($realFilePath === false) $realFilePath = realpath(str_replace(".agb", ".php", $dir.$filePath));
 		
 		if ($realFilePath === false || strpos($realFilePath, $realBaseDir) !== 0) {
 			// file doesn't exist or is outiside of the base directory (directory traversal)
-			if ($type != "download" || !str_starts_with($filePath, "/01/AGB-AMKJ/")) { // mobile GP
-				http_response_code(404);
+			if ($type === "download" && str_starts_with($filePath, "/01/AGB-AMKJ/")) { // pay for mobile GP
+				return;
+			} else if ($type === "download" && str_starts_with($filePath, "/EM/AGB-AMSJ/")) { // pay for new puzzles
+				return;
+			} else if ($type === "download" && str_starts_with($filePath, "/01/AGB-ANPJ/") && str_ends_with($filePath, ".money.cgb")) { // pay for formation data
+				return;
 			}
+			http_response_code(404);
 		} else {
 			// file exists
 			if (pathinfo($realFilePath)["extension"] === "php") {
