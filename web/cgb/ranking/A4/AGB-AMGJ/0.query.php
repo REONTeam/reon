@@ -20,7 +20,7 @@
 		$overall = array();
 		$not10 = $count - 10;
 		for ($i = 0; $i < 101; $i++) {
-			$offset = $i / $not10;
+			$offset = $i * $not10 / 101;
 			$stmt = $db->prepare("select * from amgj_rankings order by weight asc limit 1 offset ?");
 			$stmt->bind_param("i", $offset);
 			$stmt->execute();
