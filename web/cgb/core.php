@@ -34,7 +34,7 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
 			// file doesn't exist or is outiside of the base directory (directory traversal)
 			if ($type === "download" && str_starts_with($filePath, "/01/AGB-AMKJ/")) { // pay for mobile GP
 				return;
-			} else if ($type === "download" && str_starts_with($filePath, "/EM/AGB-AMSJ/")) { // pay for new puzzles
+			} else if ($type === "download" && str_starts_with($filePath, "/18/AGB-AMSJ/")) { // pay for new puzzles
 				return;
 			} else if ($type === "download" && str_starts_with($filePath, "/01/AGB-ANPJ/") && str_ends_with($filePath, ".money.cgb")) { // pay for formation data
 				return;
