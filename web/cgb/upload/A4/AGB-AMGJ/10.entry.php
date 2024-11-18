@@ -59,7 +59,7 @@
 	$blood = unpack("C", $data[66])[1];
 	$gender = unpack("C", $data[67])[1];
 	$age = unpack("C", $data[68])[1];
-	$weight = unpack("N", substr($data, 69));
+	$weight = unpack("N", substr($data, 69))[1];
 
 	if ($blood > 3 || $gender > 1) {
 		http_response_code(400);
