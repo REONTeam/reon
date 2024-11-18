@@ -1,5 +1,3 @@
-CREATE SCHEMA if NOT EXISTS `db`;
-USE `db`;
 
 # System
 CREATE TABLE `sys_users` (
