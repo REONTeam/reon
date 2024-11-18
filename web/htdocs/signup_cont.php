@@ -18,7 +18,7 @@
 			$email = UserUtil::getInstance()->verifySignupRequest($_GET["id"], $_GET["key"]);
 			if (isset($email)) {
 				echo TemplateUtil::render("signup_cont", [
-					"result" => 0,
+					"result" => -1,
 					"id" => $_GET["id"],
 					"key" => $_GET["key"],
 					"email" => $email

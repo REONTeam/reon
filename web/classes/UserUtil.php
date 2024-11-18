@@ -81,7 +81,7 @@
 			$stmt->bind_param("iss", $_SESSION["user_id"], $newEmail, $key);
 			$stmt->execute();
 			
-			self::$instance->sendConfirmationEmail($_SESSION["user_id"], $key);
+			self::$instance->sendConfirmationEmail($_SESSION["user_id"], $key, $newEmail);
 			
 			return 0;
 		}
@@ -109,7 +109,7 @@
 			return filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE);
 		}
 		
-		private function sendConfirmationEmail($id, $key) {
+		private function sendConfirmationEmail($id, $key, $email) {
 			$hostname = ConfigUtil::getInstance()->getConfig()["hostname"];
 			$email_domain = ConfigUtil::getInstance()->getConfig()["email_domain"];
 			$from = "noreply@".$email_domain;
@@ -287,7 +287,7 @@
 			$dion_ppp_id = self::$instance->generatePPPId();
 			$log_in_password = self::$instance->generateLogInPassword();
 			$db = DBUtil::getInstance()->getDB();
-			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password, money_spent) values (?, ?, ?, ?, ?, 0)");
+			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password, money_spent) values (?,?,?,?,?,0)");
 			$stmt->bind_param("sssss", $email, $password_hash, $dion_ppp_id, $reonEmail, $log_in_password);
 			$stmt->execute();
 
