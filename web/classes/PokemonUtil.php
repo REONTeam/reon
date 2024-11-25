@@ -62,7 +62,7 @@
             return TemplateUtil::translate('pokemon.species.'.$id);
         }
         public function getMoveName($id) {
-            return TemplateUtil::translate('pokemon.moes.'.$id);
+            return TemplateUtil::translate('pokemon.moves.'.$id);
         }
 
         public function unpackMail($region, $data) {
