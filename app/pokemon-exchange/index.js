@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require('path');
 const mysql = require("mysql2/promise");
+const nodemailer = require("nodemailer");
 
 const config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "..", "..", "config.json")));
 const mysqlConfig = {
@@ -10,6 +11,11 @@ const mysqlConfig = {
 	database: config["mysql_database"]
 }
 const regions = ["j", "int"];
+const mailTransport = nodemailer.createTransport({
+	port: 25,
+	secure: false,
+	ignoreTLS: true
+});
 
 async function doExchange() {
 	const connection = await mysql.createConnection(mysqlConfig);
@@ -26,6 +32,7 @@ async function doExchange() {
 
 async function doExchangeForRegion(region, connection) {
 	let table = (region == "j" ? "bxtj_exchange" : "bxt_exchange");
+	// TODO: send an email for this
 	await connection.execute("delete from " + table + " where entry_time < now() - interval 7 day");
 	let [trades] = await connection.execute("select * from " + table + " order by entry_time asc");
 	let performedTrades = new Set();
@@ -40,11 +47,15 @@ async function doExchangeForRegion(region, connection) {
 				(trades[i]["offer_gender"] == trades[j]["request_gender"] || trades[j]["request_gender"] == 3) &&
 				(trades[i]["request_gender"] == trades[j]["offer_gender"] || trades[i]["request_gender"] == 3)
 			) {
-				await connection.execute("delete from " + table + " where (account_id = ? and trainer_id = ? and secret_id = ?) or (account_id = ? and trainer_id = ? and secret_id = ?)", [trades[i]["account_id"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[j]["account_id"], trades[j]["trainer_id"], trades[j]["secret_id"]]);
-				await insertExchangeEmail(region == "j" ? "j" : trades[i]["game_region"], connection, trades[i]["account_id"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[i]["offer_species"], trades[i]["request_species"], trades[i]["offer_gender"], trades[i]["request_gender"], trades[j]["trainer_name"], trades[j]["pokemon"], trades[j]["mail"]);
-				await insertExchangeEmail(region == "j" ? "j" : trades[j]["game_region"], connection, trades[j]["account_id"], trades[j]["trainer_id"], trades[j]["secret_id"], trades[j]["offer_species"], trades[j]["request_species"], trades[j]["offer_gender"], trades[j]["request_gender"], trades[i]["trainer_name"], trades[i]["pokemon"], trades[i]["mail"]);
 				performedTrades.add(i);
 				performedTrades.add(j);
+				try {
+					await sendExchangeSuccessEmail(region == "j" ? "j" : trades[i]["game_region"], trades[i]["email"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[i]["offer_species"], trades[i]["request_species"], trades[i]["offer_gender"], trades[i]["request_gender"], trades[j]["trainer_name"], trades[j]["pokemon"], trades[j]["mail"]);
+					await sendExchangeSuccessEmail(region == "j" ? "j" : trades[j]["game_region"], trades[j]["email"], trades[j]["trainer_id"], trades[j]["secret_id"], trades[j]["offer_species"], trades[j]["request_species"], trades[j]["offer_gender"], trades[j]["request_gender"], trades[i]["trainer_name"], trades[i]["pokemon"], trades[i]["mail"]);
+					await connection.execute("delete from " + table + " where (account_id = ? and trainer_id = ? and secret_id = ?) or (account_id = ? and trainer_id = ? and secret_id = ?)", [trades[i]["account_id"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[j]["account_id"], trades[j]["trainer_id"], trades[j]["secret_id"]]);
+				} catch (error) {
+					console.error(error);
+				}
 				break;
 			}
 		}
@@ -52,7 +63,7 @@ async function doExchangeForRegion(region, connection) {
 	return performedTrades.size / 2;
 }
 
-async function insertExchangeEmail(region, connection, accountId, trainerId, secretId, offerSpecies, requestSpecies, offerGender, requestGender, trainerName, pokemon, mail) {
+async function sendExchangeSuccessEmail(region, emailAddress, trainerId, secretId, offerSpecies, requestSpecies, offerGender, requestGender, trainerName, pokemon, mail) {
 	let emailContent =
 		"MIME-Version: 1.0\r\n" +
 		"From: MISSINGNO.\r\n" +
@@ -64,9 +75,15 @@ async function insertExchangeEmail(region, connection, accountId, trainerId, sec
 		"Content-Type: application/octet-stream\r\n" +
 		"Content-Transfer-Encoding: base64\r\n" +
 		"\r\n" +
-		`${Buffer.concat([trainerName, pokemon, mail]).toString("base64")}\r\n`
+		`${Buffer.concat([trainerName, pokemon, mail]).toString("base64")}\r\n\r\n`
 	;
-	await connection.execute("insert into sys_inbox (sender, recipient, message) values (?, ?, ?)", ["MISSINGNO.", accountId, Buffer.from(emailContent, "ascii")]);
+	await mailTransport.sendMail({
+		envelope: {
+			from: "system@" + config["email_domain"],
+			to: emailAddress
+		},
+		raw: emailContent
+	});
 }
 
 function toHexString(integer, size) {
