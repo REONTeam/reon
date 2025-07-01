@@ -499,3 +499,13 @@ CREATE TABLE `amgj_rankings` (
  `weight` int(11) unsigned NOT NULL,
  PRIMARY KEY (`id`)
 );
+
+# Yu-Gi-Oh! Duel Monsters 5 Expert I (AY5J)
+CREATE TABLE `ay5j_rankings` (
+ `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+ `ident` text(64) NOT NULL,
+ `name` binary(32) NOT NULL,
+ `phone_no` binary(20) NOT NULL,
+ `score` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`id`)
+);

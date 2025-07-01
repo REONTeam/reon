@@ -36,7 +36,7 @@
 
 	$db = connectMySQL();
 	$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
-	$stmt->bind_param("s", $_SESSION["userId"]);
+	$stmt->bind_param("i", $_SESSION["userId"]);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 
