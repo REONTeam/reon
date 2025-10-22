@@ -6,5 +6,8 @@
 	"mysql_user": "USER",
 	"mysql_password": "PASS",
 	"mysql_database": "db",
-	"amoj_regist": "h200"
+	"amoj_regist": "h200",
+
+	"mobile_center_name": "EXAMPLE Server!",
+	"mobile_center_numb": "#9677"
 }
