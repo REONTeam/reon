@@ -1,5 +1,6 @@
 <?php
 	use PHPMailer\PHPMailer\PHPMailer;
+	use PHPMailer\PHPMailer\SMTP;
 	use PHPMailer\PHPMailer\Exception;
 
 	require_once dirname(__DIR__)."/vendor/autoload.php";
@@ -164,7 +165,25 @@
 			$mail = new PHPMailer();
 			$mail->CharSet = PHPMailer::CHARSET_UTF8;
 			$mail->Encoding = PHPMailer::ENCODING_QUOTED_PRINTABLE;
-			$mail->isSendmail();
+
+			$smtp_host = ConfigUtil::getInstance()->getConfig()["smtp_host"];
+			if (!isset($smtp_host) || $smtp_host == "") {
+				$mail->isSendmail();
+			} else {
+				$mail->isSMTP();
+				$mail->Host = $smtp_host;
+				$mail->Port = ConfigUtil::getInstance()->getConfig()["smtp_port"];
+				$mail->SMTPAuth = ConfigUtil::getInstance()->getConfig()["smtp_auth"];
+				if ($mail->SMTPAuth) {
+					$mail->Username = ConfigUtil::getInstance()->getConfig()["smtp_user"];
+					$mail->Password = ConfigUtil::getInstance()->getConfig()["smtp_pass"];
+				}
+				switch (ConfigUtil::getInstance()->getConfig()["smtp_secure"]) {
+					case 'smtps': $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; break;
+					case 'starttls': $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; break;
+				}
+			}
+
 			$mail->setFrom($from);
 			$mail->addAddress($to);
 			$mail->Subject = $subject;
