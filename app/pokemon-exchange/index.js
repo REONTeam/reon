@@ -21,11 +21,22 @@ const mysqlConfig = {
 	database: config["mysql_database"]
 }
 const regions = ["j", "int"];
-const mailTransport = nodemailer.createTransport({
-	port: 25,
-	secure: false,
-	ignoreTLS: true
-});
+
+const mailConfig = {
+	host: config["smtp_host"],
+	port: config["smtp_port"],
+	secure: config["smtp_secure"] == "smtps",
+	ignoreTLS: config["smtp_secure"] != "starttls"
+}
+if (config["stmp_auth"]) {
+	mailConfig.auth = {
+		type: "login",
+		user: config["smtp_user"],
+		pass: config["smtp_pass"],
+	}
+}
+
+const mailTransport = nodemailer.createTransport(mailConfig);
 
 async function doExchange() {
 	const connection = await mysql.createConnection(mysqlConfig);
