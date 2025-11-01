@@ -1,10 +1,17 @@
 <?php
+	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/database.php");
 
 	function makeRankingEntry($rank, $result) {
 		$output = pack("N", $rank);
 		$output = $output.$result["name"];
+		while (strlen($output) < 8) {
+			$output = $output."\xFF";
+		}
 		$output = $output.$result["email"];
+		while (strlen($output) < 40) {
+			$output = $output."\0";
+		}
 		$output = $output.pack("C", $result["today"]);
 		$output = $output."\0\0\0";
 		$output = $output.pack("N", $result["points"]);

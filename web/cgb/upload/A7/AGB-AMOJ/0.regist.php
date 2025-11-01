@@ -1,5 +1,8 @@
 <?php
+	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/monopoly.php");
+
+	$config = getConfig();
 
 	$input = fopen("php://input", "rb");
 	$name = fread($input, 4);
@@ -22,7 +25,7 @@
 		//http_response_code(400);
 		return;
 	}
-	if (substr($email, 8) !== "@reon.dion.ne.jp") {
+	if (substr($email, 8) !== "@".$config["email_domain_dion"]) {
 		//http_response_code(400);
 		return;
 	}
@@ -33,7 +36,7 @@
 
 	$db = connectMySQL();
 	$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
-	$stmt->bind_param("s", $_SESSION["userId"]);
+	$stmt->bind_param("i", $_SESSION["userId"]);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 
@@ -41,8 +44,6 @@
 		//http_response_code(400);
 		return;
 	}
-
-	$config = getConfig();
 
 	if ($today == 0) {
 		$db->begin_transaction();
@@ -75,8 +76,11 @@
 			//http_response_code(400);
 			return;
 		}
+		if (empty($config["amoj_regist"])) {
+			$today = 0;
+		}
 		$stmt = $db->prepare("update amoj_ranking set today = ?, today2 = ? where id = ?");
-		$stmt->bind_param("iii", empty($config["amoj_regist"]) ? 0 : $today, $today, $result[0]["id"]);
+		$stmt->bind_param("iii", $today, $today2, $result[0]["id"]);
 		$stmt->execute();
 		if (substr($config["amoj_regist"], 0, 1) === "h") {
 			http_response_code(intval(substr($config["amoj_regist"], 1)));
