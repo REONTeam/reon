@@ -17,6 +17,21 @@ This repository holds various folders for the service, and each has its own READ
 3. Run tables.sql in MySQL
 4. Continue these steps later once the production server is setup.
 
+# Docker Setup
+
+A `docker-compose.yml` is provided which will run all the required services. To get started, be sure to have docker available on your system.
+
+1. Copy `config.example.json` to `config.json`
+2. Copy `example.env` to `.env` (note the `.` at the start of the file name!)
+3. Update the values in both files as needed, ensuring that the mysql options match
+   - The included compose file exposes the MySQL port, so make sure you choose secure passwords
+   - Do NOT change the `mysql_host` option in `config.json` unless you plan to use an external MySQL database
+   - MYSQL_ROOT_PASSWORD is only needed for the `db` container and is not used by the other services
+4. Run `docker compose up -d` to start the services
+5. Run `docker compose exec -w /var/www/reon/web/scripts web php add_user.php` to create an account without having to configure email delivery
+
+Your REON server should now be accessible at http://localhost/.
+
 # License
 
 This code is licenced under MIT.

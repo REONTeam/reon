@@ -283,6 +283,20 @@
 		
 		public function completeSignupAction($id, $key, $reonEmail, $password, $passwordConfirm) {
 			$email = self::$instance->verifySignupRequest($id, $key);
+
+			$result = self::$instance->createUser($email, $reonEmail, $password, $passwodConfirm);
+			if ($result > 0) {
+				return $result;
+			}
+
+			$stmt = $db->prepare("delete from sys_signup where email = ?");
+			$stmt->bind_param("s", $email);
+			$stmt->execute();
+			
+			return 0;
+		}
+
+		public function createUser($email, $reonEmail, $password, $passwordConfirm) {
 			if (!isset($email)) return 1;
 			if (!self::$instance->isDionEmailValidAndFree($reonEmail)) return 2;
 			if ($password != $passwordConfirm) return 3;
@@ -295,11 +309,7 @@
 			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password, money_spent) values (?,?,?,?,?,0)");
 			$stmt->bind_param("sssss", $email, $password_hash, $dion_ppp_id, $reonEmail, $log_in_password);
 			$stmt->execute();
-			
-			$stmt = $db->prepare("delete from sys_signup where email = ?");
-			$stmt->bind_param("s", $email);
-			$stmt->execute();
-			
+
 			return 0;
 		}
 		

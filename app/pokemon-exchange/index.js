@@ -2,8 +2,18 @@ const fs = require("fs");
 const path = require('path');
 const mysql = require("mysql2/promise");
 const nodemailer = require("nodemailer");
+const { Command } = require('commander');
+const program = new Command();
 
-const config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "..", "..", "config.json")));
+const defaultPath = path.resolve(__dirname, "..", "..", "config.json");
+
+program
+  .option('-c, --config <path>', 'Config file path.', defaultPath)
+  .parse(process.argv);
+
+const options = program.opts();
+const config = JSON.parse(fs.readFileSync(options.config));
+
 const mysqlConfig = {
 	host: config["mysql_host"],
 	user: config["mysql_user"],
@@ -11,11 +21,22 @@ const mysqlConfig = {
 	database: config["mysql_database"]
 }
 const regions = ["j", "int"];
-const mailTransport = nodemailer.createTransport({
-	port: 25,
-	secure: false,
-	ignoreTLS: true
-});
+
+const mailConfig = {
+	host: config["smtp_host"],
+	port: config["smtp_port"],
+	secure: config["smtp_secure"] == "smtps",
+	ignoreTLS: config["smtp_secure"] != "starttls"
+}
+if (config["stmp_auth"]) {
+	mailConfig.auth = {
+		type: "login",
+		user: config["smtp_user"],
+		pass: config["smtp_pass"],
+	}
+}
+
+const mailTransport = nodemailer.createTransport(mailConfig);
 
 async function doExchange() {
 	const connection = await mysql.createConnection(mysqlConfig);

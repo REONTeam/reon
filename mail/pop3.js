@@ -1,5 +1,5 @@
 const net = require("net");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const POP3Connection = require("./pop3Connection").POP3Connection;
 
 class POP3Server {
