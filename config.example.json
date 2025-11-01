@@ -6,5 +6,11 @@
 	"mysql_user": "reon",
 	"mysql_password": "password",
 	"mysql_database": "db",
-	"amoj_regist": "h200"
+	"amoj_regist": "h200",
+	"smtp_host": "mail.example.net",
+	"smtp_port": 587,
+	"smtp_auth": true,
+	"smtp_user": "USER",
+	"smtp_pass": "PASS",
+	"smtp_secure": "starttls"
 }
