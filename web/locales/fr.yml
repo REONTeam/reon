@@ -1,0 +1,764 @@
+pokemon:
+  # Given the large size of these lists, it is advised to add any new translation keys ABOVE this line
+  species:
+  - (Aucun)
+  - Bulbizarre
+  - Herbizarre
+  - Florizarre
+  - Salamèche
+  - Reptincel
+  - Dracaufeu
+  - Carapuce
+  - Carabaffe
+  - Tortank
+  - Chenipan
+  - Chrysacier
+  - Papilusion
+  - Aspicot
+  - Coconfort
+  - Dardargnan
+  - Roucool
+  - Roucoups
+  - Roucarnage
+  - Rattata
+  - Rattatac
+  - Piafabec
+  - Rapasdepic
+  - Abo
+  - Arbok
+  - Pikachu
+  - Raichu
+  - Sabelette
+  - Sablaireau
+  - Nidoran♀
+  - Nidorina
+  - Nidoqueen
+  - Nidoran♂
+  - Nidorino
+  - Nidoking
+  - Mélofée
+  - Mélodelfe
+  - Goupix
+  - Feunard
+  - Rondoudou
+  - Grodoudou
+  - Nosferapti
+  - Nosferalto
+  - Mystherbe
+  - Ortide
+  - Rafflesia
+  - Paras
+  - Parasect
+  - Mimitoss
+  - Aéromite
+  - Taupiqueur
+  - Triopikeur
+  - Miaouss
+  - Persian
+  - Psykokwak
+  - Akwakwak
+  - Férosinge
+  - Colossinge
+  - Caninos
+  - Arcanin
+  - Ptitard
+  - Têtarte
+  - Tartard
+  - Abra
+  - Kadabra
+  - Alakazam
+  - Machoc
+  - Machopeur
+  - Mackogneur
+  - Chétiflor
+  - Boustiflor
+  - Empiflor
+  - Tentacool
+  - Tentacruel
+  - Racaillou
+  - Gravalanch
+  - Grolem
+  - Ponyta
+  - Galopa
+  - Ramoloss
+  - Flagadoss
+  - Magnéti
+  - Magnéton
+  - Canarticho
+  - Doduo
+  - Dodrio
+  - Otaria
+  - Lamantine
+  - Tadmorv
+  - Grotadmorv
+  - Kokiyas
+  - Crustabri
+  - Fantominus
+  - Spectrum
+  - Ectoplasma
+  - Onix
+  - Soporifik
+  - Hypnomade
+  - Krabby
+  - Krabboss
+  - Voltorbe
+  - Électrode
+  - Noeunoeuf
+  - Noadkoko
+  - Osselait
+  - Ossatueur
+  - Kicklee
+  - Tygnon
+  - Excelangue
+  - Smogo
+  - Smogogo
+  - Rhinocorne
+  - Rhinoféros
+  - Leveinard
+  - Saquedeneu
+  - Kangourex
+  - Hypotrempe
+  - Hypocéan
+  - Poissirène
+  - Poissoroy
+  - Stari
+  - Staross
+  - M. Mime
+  - Insécateur
+  - Lippoutou
+  - Élektek
+  - Magmar
+  - Scarabrute
+  - Tauros
+  - Magicarpe
+  - Léviator
+  - Lokhlass
+  - Métamorph
+  - Évoli
+  - Aquali
+  - Voltali
+  - Pyroli
+  - Porygon
+  - Amonita
+  - Amonistar
+  - Kabuto
+  - Kabutops
+  - Ptéra
+  - Ronflex
+  - Artikodin
+  - Électhor
+  - Sulfura
+  - Minidraco
+  - Draco
+  - Dracolosse
+  - Mewtwo
+  - Mew
+  - Germignon
+  - Macronium
+  - Méganium
+  - Héricendre
+  - Feurisson
+  - Typhlosion
+  - Kaiminus
+  - Crocrodil
+  - Aligatueur
+  - Fouinette
+  - Fouinar
+  - Hoothoot
+  - Noarfang
+  - Coxy
+  - Coxyclaque
+  - Mimigal
+  - Migalos
+  - Nostenfer
+  - Loupio
+  - Lanturn
+  - Pichu
+  - Mélo
+  - Toudoudou
+  - Togepi
+  - Togetic
+  - Natu
+  - Xatu
+  - Wattouat
+  - Lainergie
+  - Pharamp
+  - Joliflor
+  - Marill
+  - Azumarill
+  - Simularbre
+  - Tarpaud
+  - Granivol
+  - Floravol
+  - Cotovol
+  - Capumain
+  - Tournegrin
+  - Héliatronc
+  - Yanma
+  - Axoloto
+  - Maraiste
+  - Mentali
+  - Noctali
+  - Cornèbre
+  - Roigada
+  - Feuforêve
+  - Zarbi
+  - Qulbutoké
+  - Girafarig
+  - Pomdepik
+  - Foretress
+  - Insolourdo
+  - Scorplane
+  - Steelix
+  - Snubbull
+  - Granbull
+  - Qwilfish
+  - Cizayox
+  - Caratroc
+  - Scarhino
+  - Farfuret
+  - Teddiursa
+  - Ursaring
+  - Limagma
+  - Volcaropod
+  - Marcacrin
+  - Cochignon
+  - Corayon
+  - Rémoraid
+  - Octillery
+  - Cadoizo
+  - Démanta
+  - Airmure
+  - Malosse
+  - Démolosse
+  - Hyporoi
+  - Phanpy
+  - Donphan
+  - Porygon2
+  - Cerfrousse
+  - Queulorior
+  - Debugant
+  - Kapoera
+  - Lippouti
+  - Élekid
+  - Magby
+  - Écrémeuh
+  - Leuphorie
+  - Raikou
+  - Entei
+  - Suicune
+  - Embrylex
+  - Ymphect
+  - Tyranocif
+  - Lugia
+  - Ho-Oh
+  - Celebi
+  items:
+  - (Aucun)
+  - Master Ball
+  - Hyper Ball
+  - Poudreclaire
+  - Super Ball
+  - Poké Ball
+  - Teru-sama (0)
+  - Bicyclette
+  - Pierre Lune
+  - Antidote
+  - Anti-Brûle
+  - Antigel
+  - Réveil
+  - Anti-Para
+  - Guérison
+  - Potion Max
+  - Hyper Potion
+  - Super Potion
+  - Potion
+  - Corde Sortie
+  - Repousse
+  - Max Élixir
+  - Pierre Feu
+  - Pierrefoudre
+  - Pierre Eau
+  - Teru-sama (1)
+  - PV Plus
+  - Proteine
+  - Fer
+  - Carbone
+  - Poing Chance
+  - Calcium
+  - Super Bonbon
+  - Précision +
+  - Pierreplante
+  - Poudre Métal
+  - Pépite
+  - Poké Poupée
+  - Total Soin
+  - Rappel
+  - Rappel Max
+  - Défense Spéc
+  - Superepousse
+  - Max Repousse
+  - Muscle +
+  - Teru-sama (2)
+  - Eau Fraîche
+  - Soda Cool
+  - Limonade
+  - Attaque +
+  - Teru-sama (3)
+  - Défense +
+  - Vitesse +
+  - Spécial +
+  - Boîte Jeton
+  - Cherch'Objet
+  - Teru-sama (4)
+  - Multi Exp
+  - Canne
+  - Super Canne
+  - Feuille Arg.
+  - Méga Canne
+  - PP Plus
+  - Huile
+  - Huile Max
+  - Élixir
+  - Écaillerouge
+  - Potionsecret
+  - Passe Bateau
+  - Œuf Mystère
+  - Glas Transp.
+  - Aile Argent
+  - Lait Meumeu
+  - Vive Griffe
+  - Baie Antidot
+  - Feuille d'Or
+  - Sable Doux
+  - Bec Pointu
+  - Baie Antipar
+  - Baie Brûlure
+  - Baie Gel
+  - Pic Venin
+  - Roche Royale
+  - Baie Amère
+  - Baie Menthe
+  - Noigrume Rge
+  - Petit Champi
+  - Gros Champi
+  - Poudre Arg.
+  - Noigrume Blu
+  - Teru-sama (5)
+  - Pièce Rune
+  - Noigrume Jne
+  - Noigrume Ver
+  - Rune Purif.
+  - Eau Mystique
+  - Cuillertordu
+  - Noigrume Blc
+  - Ceint.Noire
+  - Noigrume Noi
+  - Teru-sama (6)
+  - Noigrume Ros
+  - Lunet.Noires
+  - Queueramolos
+  - Ruban Rose
+  - Bâton
+  - Boule Fumée
+  - Glacéternel
+  - Aimant
+  - Baie Miracle
+  - Perle
+  - Grande Perle
+  - Pierre Stase
+  - Rune Sort
+  - Bonbon Rage
+  - GS Ball
+  - Carte Bleue
+  - Grain Miracl
+  - Masse Os
+  - Bandeau +
+  - Teru-sama (7)
+  - Poudrénergie
+  - Racinénergie
+  - Poudre Soin
+  - Herbe Rappel
+  - Pierre Dure
+  - Œuf Chance
+  - Carte Magn.
+  - Partie Mach.
+  - Ticket Œuf
+  - Objet perdu
+  - Pouss.Étoile
+  - Morc. Étoile
+  - Clé Sous-Sol
+  - Passe
+  - Teru-sama (8)
+  - Teru-sama (9)
+  - Teru-sama (10)
+  - Charbon
+  - Jus de Baie
+  - Lentilscope
+  - Teru-sama (11)
+  - Teru-sama (12)
+  - Peau Métal
+  - Croc Dragon
+  - Teru-sama (13)
+  - Restes
+  - Teru-sama (14)
+  - Teru-sama (15)
+  - Teru-sama (16)
+  - Baie Mystère
+  - Ecailledraco
+  - ADN Berzerk
+  - Teru-sama (17)
+  - Teru-sama (18)
+  - Teru-sama (19)
+  - Cendresacrée
+  - Masse Ball
+  - Letr Fleur
+  - Niveau Ball
+  - Appât Ball
+  - Speed Ball
+  - Teru-sama (20)
+  - Ballelumière
+  - Copain Ball
+  - Lune Ball
+  - Love Ball
+  - Coffre Nml
+  - Coffre Luxe
+  - Pierresoleil
+  - Ruban à Pois
+  - Teru-sama (21)
+  - Evolutor
+  - Baie
+  - Baie Dorée
+  - Carapuce à O
+  - Teru-sama (22)
+  - Parc Ball
+  - Arcenci'Aile
+  - Teru-sama (23)
+  - Morc. Brique
+  - Letr Surf
+  - Letrbleuciel
+  - Letrportrait
+  - Letrcharm.
+  - Letr Évoli
+  - Letr Morph
+  - Letrcielbleu
+  - Letr Musique
+  - Letr Mirage
+  - Teru-sama (24)
+  - CT01
+  - CT02
+  - CT03
+  - CT04
+  - CT04 (Inutilisé)
+  - CT05
+  - CT06
+  - CT07
+  - CT08
+  - CT09
+  - CT10
+  - CT11
+  - CT12
+  - CT13
+  - CT14
+  - CT15
+  - CT16
+  - CT17
+  - CT18
+  - CT19
+  - CT20
+  - CT21
+  - CT22
+  - CT23
+  - CT24
+  - CT25
+  - CT26
+  - CT27
+  - CT28
+  - CT28 (Inutilisé)
+  - CT29
+  - CT30
+  - CT31
+  - CT32
+  - CT33
+  - CT34
+  - CT35
+  - CT36
+  - CT37
+  - CT38
+  - CT39
+  - CT40
+  - CT41
+  - CT42
+  - CT43
+  - CT44
+  - CT45
+  - CT46
+  - CT47
+  - CT48
+  - CT49
+  - CT50
+  - CS01
+  - CS02
+  - CS03
+  - CS04
+  - CS05
+  - CS06
+  - CS07
+  - CS08 (Inutilisé)
+  - CS09 (Inutilisé)
+  - CS10 (Inutilisé)
+  - CS11 (Inutilisé)
+  - CS12 (Inutilisé)
+  moves:
+  - (Aucun)
+  - Écras’Face
+  - Poing Karaté
+  - Torgnoles
+  - Poing Comète
+  - Ultimapoing
+  - Jackpot
+  - Poing Feu
+  - Poing Glace
+  - Poing Éclair
+  - Griffe
+  - Force Poigne
+  - Guillotine
+  - Coupe-Vent
+  - Danse Lames
+  - Coupe
+  - Tornade
+  - Cru-Ailes
+  - Cyclone
+  - Vol
+  - Étreinte
+  - Souplesse
+  - Fouet Lianes
+  - Écrasement
+  - Double Pied
+  - Ultimawashi
+  - Pied Sauté
+  - Mawashi Geri
+  - Jet de Sable
+  - Coup d’Boule
+  - Koud’Korne
+  - Furie
+  - Empal’Korne
+  - Charge
+  - Plaquage
+  - Ligotage
+  - Bélier
+  - Mania
+  - Damoclès
+  - Mimi-Queue
+  - Dard-Venin
+  - Double Dard
+  - Dard-Nuée
+  - Groz’Yeux
+  - Morsure
+  - Rugissement
+  - Hurlement
+  - Berceuse
+  - Ultrason
+  - Sonic Boom
+  - Entrave
+  - Acide
+  - Flammèche
+  - Lance-Flammes
+  - Brume
+  - Pistolet à O
+  - Hydrocanon
+  - Surf
+  - Laser Glace
+  - Blizzard
+  - Rafale Psy
+  - Bulles d’O
+  - Onde Boréale
+  - Ultralaser
+  - Picpic
+  - Bec Vrille
+  - Sacrifice
+  - Balayage
+  - Riposte
+  - Frappe Atlas
+  - Force
+  - Vole-Vie
+  - Méga-Sangsue
+  - Vampigraine
+  - Croissance
+  - Tranch’Herbe
+  - Lance-Soleil
+  - Poudre Toxik
+  - Para-Spore
+  - Poudre Dodo
+  - Danse Fleurs
+  - Sécrétion
+  - Draco-Rage
+  - Danse Flammes
+  - Éclair
+  - Tonnerre
+  - Cage Éclair
+  - Fatal-Foudre
+  - Jet-Pierres
+  - Séisme
+  - Abîme
+  - Tunnel
+  - Toxik
+  - Choc Mental
+  - Psyko
+  - Hypnose
+  - Yoga
+  - Hâte
+  - Vive-Attaque
+  - Frénésie
+  - Téléport
+  - Ombre Nocturne
+  - Copie
+  - Grincement
+  - Reflet
+  - Soin
+  - Armure
+  - Lilliput
+  - Brouillard
+  - Onde Folie
+  - Repli
+  - Boul’Armure
+  - Bouclier
+  - Mur Lumière
+  - Buée Noire
+  - Protection
+  - Puissance
+  - Patience
+  - Métronome
+  - Mimique
+  - Destruction
+  - Bombe Œuf
+  - Léchouille
+  - Purédpois
+  - Détritus
+  - Massd’Os
+  - Déflagration
+  - Cascade
+  - Claquoir
+  - Météores
+  - Coud’Krâne
+  - Picanon
+  - Constriction
+  - Amnésie
+  - Télékinésie
+  - E-Coque
+  - Pied Voltige
+  - Regard Médusant
+  - Dévorêve
+  - Gaz Toxik
+  - Pilonnage
+  - Vampirisme
+  - Grobisou
+  - Piqué
+  - Morphing
+  - Écume
+  - Uppercut
+  - Spore
+  - Flash
+  - Vague Psy
+  - Trempette
+  - Acidarmure
+  - Pince-Masse
+  - Explosion
+  - Combo-Griffe
+  - Osmerang
+  - Repos
+  - Éboulement
+  - Croc de Mort
+  - Affûtage
+  - Conversion
+  - Triplattaque
+  - Croc Fatal
+  - Tranche
+  - Clonage
+  - Lutte
+  - Gribouille
+  - Triple Pied
+  - Larcin
+  - Toile
+  - Lire-Esprit
+  - Cauchemar
+  - Roue de Feu
+  - Ronflement
+  - Malédiction
+  - Gigotage
+  - Conversion 2
+  - Aéroblast
+  - Spore Coton
+  - Contre
+  - Dépit
+  - Poudreuse
+  - Abri
+  - Mach Punch
+  - Grimace
+  - Feinte
+  - Doux Baiser
+  - Cognobidon
+  - Bombe Beurk
+  - Coud’Boue
+  - Octazooka
+  - Picots
+  - Élecanon
+  - Clairvoyance
+  - Lien du Destin
+  - Requiem
+  - Vent Glace
+  - Détection
+  - Charge Os
+  - Verrouillage
+  - Colère
+  - Tempête de Sable
+  - Giga-Sangsue
+  - Ténacité
+  - Charme
+  - Roulade
+  - Faux-Chage
+  - Vantardise
+  - Lait à Boire
+  - Étincelle
+  - Taillade
+  - Ailes d’Acier
+  - Regard Noir
+  - Attraction
+  - Blabla Dodo
+  - Glas de Soin
+  - Retour
+  - Cadeau
+  - Frustration
+  - Rune Protect
+  - Balance
+  - Feu Sacré
+  - Ampleur
+  - Dynamo-Poing
+  - Mégacorne
+  - Draco-Souffle
+  - Relais
+  - Encore
+  - Poursuite
+  - Tour Rapide
+  - Doux Parfum
+  - Queue de Fer
+  - Griffe Acier
+  - Corps Perdu
+  - Aurore
+  - Synthèse
+  - Rayon Lune
+  - Puissance Cachée
+  - Coup Croix
+  - Ouragan
+  - Danse Pluie
+  - Zénith
+  - Mâchouille
+  - Voile Miroir
+  - Boost
+  - Vitesse Extrême
+  - Pouvoir Antique
+  - Ball’Ombre
+  - Prescience
+  - Éclate-Roc
+  - Siphon
+  - Baston
