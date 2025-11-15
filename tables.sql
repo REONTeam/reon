@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS `reon`;
+USE `reon`;
 
 # System
 CREATE TABLE `sys_users` (
@@ -8,40 +10,44 @@ CREATE TABLE `sys_users` (
  `dion_email_local` varchar(8) NOT NULL,
  `log_in_password` varchar(8) NOT NULL,
  `money_spent` int(11) NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 CREATE TABLE `sys_email_change` (
  `user_id` int(11) unsigned NOT NULL,
  `new_email` varchar(254) NOT NULL,
  `secret` varchar(48) NOT NULL,
- `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`user_id`)
 );
 CREATE TABLE `sys_password_reset` (
  `user_id` int(11) unsigned NOT NULL,
  `secret` varchar(48) NOT NULL,
- `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`user_id`)
 );
 CREATE TABLE `sys_signup` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
  `email` varchar(254) NOT NULL,
  `secret` varchar(48) NOT NULL,
- `time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `sys_inbox` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
  `sender` varchar(254) NOT NULL,
  `recipient` int(11) unsigned NOT NULL,
- `date` timestamp NOT NULL DEFAULT current_timestamp(),
  `message` blob NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, 
  PRIMARY KEY (`id`)
 );
 
 # Pokemon Crystal (BXTJ)
 CREATE TABLE `bxtj_exchange` (
- `entry_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Current time at entry.',
  `email` VARCHAR(30) NOT NULL COMMENT 'DION email',
  `account_id` INT(11) UNSIGNED NOT NULL,
  `trainer_id` SMALLINT(5) UNSIGNED NOT NULL COMMENT 'Trainer ID',
@@ -53,6 +59,7 @@ CREATE TABLE `bxtj_exchange` (
  `trainer_name` BINARY(5) NOT NULL COMMENT 'Name of player',
  `pokemon` BINARY(58) NOT NULL COMMENT 'Pokémon',
  `mail` BINARY(42) NOT NULL COMMENT 'Held mail of Pokémon',
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
 )
 COMMENT='Pokémon Trade Corner information'
@@ -77,6 +84,8 @@ CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_records` (
  `num_turns_required` smallint(5) unsigned NOT NULL,
  `damage_taken` smallint(5) unsigned NOT NULL,
  `num_fainted_pokemon` tinyint(3) unsigned NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_trainers` (
@@ -91,6 +100,8 @@ CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_trainers` (
  `message_start` binary(12) NOT NULL,
  `message_win` binary(12) NOT NULL,
  `message_lose` binary(12) NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`no`,`room`,`level`)
 );
 CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_leaders` (
@@ -98,6 +109,8 @@ CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_leaders` (
  `name` binary(5) NOT NULL,
  `room` int(11) unsigned NOT NULL,
  `level` tinyint(1) unsigned NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `bxtj_ranking` (
@@ -137,6 +150,8 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_records` (
  `num_turns_required` smallint(5) unsigned NOT NULL,
  `damage_taken` smallint(5) unsigned NOT NULL,
  `num_fainted_pokemon` tinyint(3) unsigned NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_trainers` (
@@ -151,6 +166,8 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_trainers` (
  `message_start` binary(8) NOT NULL,
  `message_win` binary(8) NOT NULL,
  `message_lose` binary(8) NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`no`,`room`,`level`)
 );
 CREATE TABLE IF NOT EXISTS `bxte_battle_tower_leaders` (
@@ -158,6 +175,8 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_leaders` (
  `name` binary(7) NOT NULL,
  `room` int(11) unsigned NOT NULL,
  `level` tinyint(1) unsigned NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 CREATE TABLE IF NOT EXISTS `bxte_ranking` (
@@ -287,7 +306,6 @@ CREATE TABLE IF NOT EXISTS `bxtu_ranking` (
 
 # Pokemon Crystal general
 CREATE TABLE `bxt_exchange` (
- `entry_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Current time at entry.',
  `email` VARCHAR(30) NOT NULL COMMENT 'DION email',
  `account_id` INT(11) UNSIGNED NOT NULL,
  `game_region` CHAR(1) NOT NULL,
@@ -300,6 +318,7 @@ CREATE TABLE `bxt_exchange` (
  `trainer_name` BINARY(7) NOT NULL COMMENT 'Name of player',
  `pokemon` BINARY(65) NOT NULL COMMENT 'Pokémon',
  `mail` BINARY(47) NOT NULL COMMENT 'Held mail of Pokémon',
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, 
  UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
 )
 COMMENT='Pokémon Trade Corner information'
@@ -310,6 +329,8 @@ CREATE TABLE IF NOT EXISTS `bxt_ranking_categories` (
  `name` varchar(80) NOT NULL,
  `ram_address` binary(2) NOT NULL,
  `size` tinyint(1) unsigned NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 # values by hacky
@@ -369,12 +390,18 @@ CREATE TABLE IF NOT EXISTS `bxt_news` (
  `message_f` varbinary(100) NOT NULL,
  `message_i` varbinary(100) NOT NULL,
  `message_s` varbinary(100) NOT NULL,
+ `message_p` varbinary(100) NOT NULL,
+ `message_u` varbinary(100) NOT NULL,
  `news_binary_j` blob NOT NULL,
  `news_binary_e` blob NOT NULL,
  `news_binary_d` blob NOT NULL,
  `news_binary_f` blob NOT NULL,
  `news_binary_i` blob NOT NULL,
+ `news_binary_p` blob NOT NULL,
+ `news_binary_u` blob NOT NULL,
  `news_binary_s` blob NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 
@@ -382,6 +409,8 @@ CREATE TABLE IF NOT EXISTS `bxt_news` (
 CREATE TABLE `amkj_user_map` (
  `player_id` binary(16) NOT NULL,
  `user_id` int(11),
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`player_id`)
 );
 CREATE TABLE IF NOT EXISTS `amkj_rule` (
@@ -406,6 +435,8 @@ CREATE TABLE IF NOT EXISTS `amkj_rule` (
  `course` tinyint(2) NOT NULL,
  `num_attempts` tinyint(2) NOT NULL,
  `message` text DEFAULT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 CREATE TABLE `amkj_ghosts` (
@@ -423,6 +454,8 @@ CREATE TABLE `amkj_ghosts` (
  `phone_number` binary(12) NOT NULL,
  `postal_code` binary(8) NOT NULL,
  `address` binary(128) NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 CREATE TABLE `amkj_ghosts_mobilegp` (
@@ -441,6 +474,8 @@ CREATE TABLE `amkj_ghosts_mobilegp` (
  `phone_number` binary(12) NOT NULL,
  `postal_code` binary(8) NOT NULL,
  `address` binary(128) NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 
@@ -456,10 +491,14 @@ CREATE TABLE `amoj_ranking` (
  `age` tinyint(3) unsigned NOT NULL,
  `state` tinyint(3) unsigned NOT NULL,
  `today2` tinyint(3) unsigned NOT NULL DEFAULT 0,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
 CREATE TABLE `amoj_news` (
  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
  `text` text(65535) NOT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
  PRIMARY KEY (`id`)
 );
