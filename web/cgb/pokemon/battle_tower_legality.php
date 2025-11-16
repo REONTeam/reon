@@ -129,8 +129,9 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
                 num_trainers_defeated,
                 num_turns_required,
                 damage_taken,
-                num_fainted_pokemon
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                num_fainted_pokemon,
+                account_id
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     $stmt = $db->prepare($sql);
     if (!$stmt) {
@@ -140,7 +141,7 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
     }
 
     $stmt->bind_param(
-        "iisiissssssssiiii",
+        "iisiissssssssiiiii",
         $data['room'],
         $data['level'],
         $data['email'],
@@ -157,7 +158,8 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
         $data['num_trainers_defeated'],
         $data['num_turns_required'],
         $data['damage_taken'],
-        $data['num_fainted_pokemon']
+        $data['num_fainted_pokemon'],
+        $_SESSION["userId"]
     );
 
     if (!$stmt->execute()) {
