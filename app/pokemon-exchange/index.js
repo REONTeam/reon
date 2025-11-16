@@ -54,8 +54,8 @@ async function doExchange() {
 async function doExchangeForRegion(region, connection) {
 	let table = (region == "j" ? "bxtj_exchange" : "bxt_exchange");
 	// TODO: send an email for this
-	await connection.execute("delete from " + table + " where entry_time < now() - interval 7 day");
-	let [trades] = await connection.execute("select * from " + table + " order by entry_time asc");
+	await connection.execute("delete from " + table + " where timestamp < now() - interval 7 day");
+	let [trades] = await connection.execute("select * from " + table + " order by timestamp asc");
 	let performedTrades = new Set();
 	
 	for (let i = 0; i < trades.length; i++) {
