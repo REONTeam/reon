@@ -59,8 +59,8 @@ CREATE TABLE `bxtj_exchange` (
  `trainer_name` BINARY(5) NOT NULL COMMENT 'Name of player',
  `pokemon` BINARY(58) NOT NULL COMMENT 'Pokémon',
  `mail` BINARY(42) NOT NULL COMMENT 'Held mail of Pokémon',
- `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
+ `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 )
 COMMENT='Pokémon Trade Corner information'
 COLLATE='utf8mb4_general_ci'
@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS `bxtj_battle_tower_records` (
  `num_turns_required` smallint(5) unsigned NOT NULL,
  `damage_taken` smallint(5) unsigned NOT NULL,
  `num_fainted_pokemon` tinyint(3) unsigned NOT NULL,
+ `account_id` int(11) unsigned NOT NULL,
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
  PRIMARY KEY (`id`)
@@ -126,8 +127,8 @@ CREATE TABLE IF NOT EXISTS `bxtj_ranking` (
  `player_zip` smallint(3) NOT NULL,
  `player_message` binary(12) NOT NULL,
  `score` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`),
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
 # Pokemon Crystal (BXTE)
@@ -150,6 +151,7 @@ CREATE TABLE IF NOT EXISTS `bxte_battle_tower_records` (
  `num_turns_required` smallint(5) unsigned NOT NULL,
  `damage_taken` smallint(5) unsigned NOT NULL,
  `num_fainted_pokemon` tinyint(3) unsigned NOT NULL,
+ `account_id` int(11) unsigned NOT NULL,
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
  PRIMARY KEY (`id`)
@@ -192,8 +194,8 @@ CREATE TABLE IF NOT EXISTS `bxte_ranking` (
  `player_zip` binary(3) NOT NULL,
  `player_message` binary(8) NOT NULL,
  `score` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`),
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
 # Pokemon Crystal (BXTD)
@@ -210,8 +212,8 @@ CREATE TABLE IF NOT EXISTS `bxtd_ranking` (
  `player_zip` binary(3) NOT NULL,
  `player_message` binary(8) NOT NULL,
  `score` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`),
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
 # Pokemon Crystal (BXTF)
@@ -228,8 +230,8 @@ CREATE TABLE IF NOT EXISTS `bxtf_ranking` (
  `player_zip` binary(3) NOT NULL,
  `player_message` binary(8) NOT NULL,
  `score` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`),
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
 # Pokemon Crystal (BXTI)
@@ -246,8 +248,8 @@ CREATE TABLE IF NOT EXISTS `bxti_ranking` (
  `player_zip` binary(3) NOT NULL,
  `player_message` binary(8) NOT NULL,
  `score` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`),
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
 # Pokemon Crystal (BXTP)
@@ -264,8 +266,8 @@ CREATE TABLE IF NOT EXISTS `bxtp_ranking` (
  `player_zip` binary(3) NOT NULL,
  `player_message` binary(8) NOT NULL,
  `score` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`),
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
 # Pokemon Crystal (BXTS)
@@ -282,8 +284,8 @@ CREATE TABLE IF NOT EXISTS `bxts_ranking` (
  `player_zip` binary(3) NOT NULL,
  `player_message` binary(8) NOT NULL,
  `score` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`),
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
 # Pokemon Crystal (BXTU)
@@ -300,8 +302,8 @@ CREATE TABLE IF NOT EXISTS `bxtu_ranking` (
  `player_zip` binary(3) NOT NULL,
  `player_message` binary(8) NOT NULL,
  `score` int(11) unsigned NOT NULL,
+ PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`),
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`)
 );
 
 # Pokemon Crystal general
@@ -319,7 +321,6 @@ CREATE TABLE `bxt_exchange` (
  `pokemon` BINARY(65) NOT NULL COMMENT 'Pokémon',
  `mail` BINARY(47) NOT NULL COMMENT 'Held mail of Pokémon',
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, 
- UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
 )
 COMMENT='Pokémon Trade Corner information'
 COLLATE='utf8mb4_general_ci'
@@ -329,6 +330,7 @@ CREATE TABLE IF NOT EXISTS `bxt_ranking_categories` (
  `name` varchar(80) NOT NULL,
  `ram_address` binary(2) NOT NULL,
  `size` tinyint(1) unsigned NOT NULL,
+ UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`),
  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
  PRIMARY KEY (`id`)
