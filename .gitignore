@@ -8,3 +8,6 @@ web/vendor
 .env
 web/locales/raw/
 docker-compose.yml
+
+**/bin/
+**/obj/
