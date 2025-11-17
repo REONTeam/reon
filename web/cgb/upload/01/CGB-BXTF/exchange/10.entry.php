@@ -1,6 +1,6 @@
 <?php
 	// SPDX-License-Identifier: MIT
-	require_once(CORE_PATH."/pokemon/trade_corner.php");
+	require_once(CORE_PATH."/pokemon/trade_corner_legality.php");
 	
 	process_trade_request("f", "php://input");
 	echo("Pokémon uploaded successfully!\n");
