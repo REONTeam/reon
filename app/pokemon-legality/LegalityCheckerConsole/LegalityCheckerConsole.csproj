@@ -5,6 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <PropertyGroup>
+    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64;linux-musl-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="PKHeX.Core" Version="25.11.7" />
   </ItemGroup>

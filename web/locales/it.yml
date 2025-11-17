@@ -1,0 +1,764 @@
+pokemon:
+  # Given the large size of these lists, it is advised to add any new translation keys ABOVE this line
+  species:
+  - (None)
+  - Bulbasaur
+  - Ivysaur
+  - Venusaur
+  - Charmander
+  - Charmeleon
+  - Charizard
+  - Squirtle
+  - Wartortle
+  - Blastoise
+  - Caterpie
+  - Metapod
+  - Butterfree
+  - Weedle
+  - Kakuna
+  - Beedrill
+  - Pidgey
+  - Pidgeotto
+  - Pidgeot
+  - Rattata
+  - Raticate
+  - Spearow
+  - Fearow
+  - Ekans
+  - Arbok
+  - Pikachu
+  - Raichu
+  - Sandshrew
+  - Sandslash
+  - Nidoran♀
+  - Nidorina
+  - Nidoqueen
+  - Nidoran♂
+  - Nidorino
+  - Nidoking
+  - Clefairy
+  - Clefable
+  - Vulpix
+  - Ninetales
+  - Jigglypuff
+  - Wigglytuff
+  - Zubat
+  - Golbat
+  - Oddish
+  - Gloom
+  - Vileplume
+  - Paras
+  - Parasect
+  - Venonat
+  - Venomoth
+  - Diglett
+  - Dugtrio
+  - Meowth
+  - Persian
+  - Psyduck
+  - Golduck
+  - Mankey
+  - Primeape
+  - Growlithe
+  - Arcanine
+  - Poliwag
+  - Poliwhirl
+  - Poliwrath
+  - Abra
+  - Kadabra
+  - Alakazam
+  - Machop
+  - Machoke
+  - Machamp
+  - Bellsprout
+  - Weepinbell
+  - Victreebel
+  - Tentacool
+  - Tentacruel
+  - Geodude
+  - Graveler
+  - Golem
+  - Ponyta
+  - Rapidash
+  - Slowpoke
+  - Slowbro
+  - Magnemite
+  - Magneton
+  - Farfetch’d
+  - Doduo
+  - Dodrio
+  - Seel
+  - Dewgong
+  - Grimer
+  - Muk
+  - Shellder
+  - Cloyster
+  - Gastly
+  - Haunter
+  - Gengar
+  - Onix
+  - Drowzee
+  - Hypno
+  - Krabby
+  - Kingler
+  - Voltorb
+  - Electrode
+  - Exeggcute
+  - Exeggutor
+  - Cubone
+  - Marowak
+  - Hitmonlee
+  - Hitmonchan
+  - Lickitung
+  - Koffing
+  - Weezing
+  - Rhyhorn
+  - Rhydon
+  - Chansey
+  - Tangela
+  - Kangaskhan
+  - Horsea
+  - Seadra
+  - Goldeen
+  - Seaking
+  - Staryu
+  - Starmie
+  - Mr. Mime
+  - Scyther
+  - Jynx
+  - Electabuzz
+  - Magmar
+  - Pinsir
+  - Tauros
+  - Magikarp
+  - Gyarados
+  - Lapras
+  - Ditto
+  - Eevee
+  - Vaporeon
+  - Jolteon
+  - Flareon
+  - Porygon
+  - Omanyte
+  - Omastar
+  - Kabuto
+  - Kabutops
+  - Aerodactyl
+  - Snorlax
+  - Articuno
+  - Zapdos
+  - Moltres
+  - Dratini
+  - Dragonair
+  - Dragonite
+  - Mewtwo
+  - Mew
+  - Chikorita
+  - Bayleef
+  - Meganium
+  - Cyndaquil
+  - Quilava
+  - Typhlosion
+  - Totodile
+  - Croconaw
+  - Feraligatr
+  - Sentret
+  - Furret
+  - Hoothoot
+  - Noctowl
+  - Ledyba
+  - Ledian
+  - Spinarak
+  - Ariados
+  - Crobat
+  - Chinchou
+  - Lanturn
+  - Pichu
+  - Cleffa
+  - Igglybuff
+  - Togepi
+  - Togetic
+  - Natu
+  - Xatu
+  - Mareep
+  - Flaaffy
+  - Ampharos
+  - Bellossom
+  - Marill
+  - Azumarill
+  - Sudowoodo
+  - Politoed
+  - Hoppip
+  - Skiploom
+  - Jumpluff
+  - Aipom
+  - Sunkern
+  - Sunflora
+  - Yanma
+  - Wooper
+  - Quagsire
+  - Espeon
+  - Umbreon
+  - Murkrow
+  - Slowking
+  - Misdreavus
+  - Unown
+  - Wobbuffet
+  - Girafarig
+  - Pineco
+  - Forretress
+  - Dunsparce
+  - Gligar
+  - Steelix
+  - Snubbull
+  - Granbull
+  - Qwilfish
+  - Scizor
+  - Shuckle
+  - Heracross
+  - Sneasel
+  - Teddiursa
+  - Ursaring
+  - Slugma
+  - Magcargo
+  - Swinub
+  - Piloswine
+  - Corsola
+  - Remoraid
+  - Octillery
+  - Delibird
+  - Mantine
+  - Skarmory
+  - Houndour
+  - Houndoom
+  - Kingdra
+  - Phanpy
+  - Donphan
+  - Porygon2
+  - Stantler
+  - Smeargle
+  - Tyrogue
+  - Hitmontop
+  - Smoochum
+  - Elekid
+  - Magby
+  - Miltank
+  - Blissey
+  - Raikou
+  - Entei
+  - Suicune
+  - Larvitar
+  - Pupitar
+  - Tyranitar
+  - Lugia
+  - Ho-Oh
+  - Celebi
+  items:
+  - (None)
+  - Master Ball
+  - Ultra Ball
+  - Luminpolvere
+  - Mega Ball
+  - Poké Ball
+  - Teru-sama (0)
+  - Bicicletta
+  - Pietralunare
+  - Antidoto
+  - Antiscottatura
+  - Antigelo
+  - Sveglia
+  - Antiparalisi
+  - Ricarica Totale
+  - Pozione Max
+  - Iper Pozione
+  - Super Pozione
+  - Pozione
+  - Fune di Fuga
+  - Repellente
+  - Elisir Max
+  - Pietrafocaia
+  - Pietratuono
+  - Pietraidrica
+  - Teru-sama (1)
+  - PS Su
+  - Proteina
+  - Ferro
+  - Carburante
+  - Fortunpugno
+  - Calcio
+  - Caramella Rara
+  - Precisione X
+  - Pietrafoglia
+  - Metalpolvere
+  - Pepita
+  - Pokébambola
+  - Cura Totale
+  - Revitalizzante
+  - Revitalizz. Max
+  - Superguardia
+  - Super Repellente
+  - Repellente Max
+  - Supercolpo
+  - Teru-sama (2)
+  - Acqua Fresca
+  - Gassosa
+  - Lemonsucco
+  - Attacco X
+  - Teru-sama (3)
+  - Difesa X
+  - Velocità X
+  - Special X
+  - Salvadanaio
+  - Ricerca Strumenti
+  - Teru-sama (4)
+  - Condiv. Esp
+  - Amo Vecchio
+  - Amo Buono
+  - Fogliargento
+  - Super Amo
+  - PP-Su
+  - Etere
+  - Etere Max
+  - Elisir
+  - Squama Rossa
+  - Poz.Segreta
+  - Biglietto Nave
+  - Uovo Mistero
+  - Campana Chiara
+  - Aladargento
+  - Latte Mumu
+  - Rapidartigli
+  - Baccantiveleno
+  - Fogliadoro
+  - Sabbiasoffice
+  - Beccaffilato
+  - Baccantipar.
+  - Bacca Bruc.
+  - Bacca Ghiac.
+  - Velenaculeo
+  - Roccia Di Re
+  - Bacca Amara
+  - Bacca Menta
+  - Ghicoc.Rossa
+  - Minifungo
+  - Grande Fungo
+  - Argenpolvere
+  - Ghicocca Blu
+  - Teru-sama (5)
+  - Monetamuleto
+  - Ghicoc.Gial.
+  - Ghicoc.Verde
+  - Velopuro
+  - Acquamagica
+  - Cucchiaiotorto
+  - Ghicoc.Bnca
+  - Cinturanera
+  - Ghicoc.Nera
+  - Teru-sama (6)
+  - Ghicoc.Rosa
+  - Occhialineri
+  - Codaslowpoke
+  - Fiocco Rosa
+  - Gambo
+  - Palla Fumo
+  - Gelomai
+  - Calamita
+  - Bacca Mirac.
+  - Perla
+  - Grande Perla
+  - Pietrastante
+  - Spettrotarga
+  - Iramella
+  - GS Ball
+  - Carta Blu
+  - Miracolseme
+  - Ossospesso
+  - Bandana
+  - Teru-sama (7)
+  - Polvenergia
+  - Radicenergia
+  - Polvocura
+  - Vitalerba
+  - Pietradura
+  - Fortunuovo
+  - Apriporta
+  - Pezzo macch.
+  - Bigl.Uovo
+  - Strumento Perso
+  - Polvostella
+  - Pezzo Stella
+  - Chiave sotterr.
+  - Abbonamento
+  - Teru-sama (8)
+  - Teru-sama (9)
+  - Teru-sama (10)
+  - Carbonella
+  - Succodibacca
+  - Mirino
+  - Teru-sama (11)
+  - Teru-sama (12)
+  - Metalcoperta
+  - Dentedidrago
+  - Teru-sama (13)
+  - Avanzi
+  - Teru-sama (14)
+  - Teru-sama (15)
+  - Teru-sama (16)
+  - Bacca Mist.
+  - Squama Drago
+  - Genefurioso
+  - Teru-sama (17)
+  - Teru-sama (18)
+  - Teru-sama (19)
+  - Ceneremagica
+  - Peso Ball
+  - Messaggio Fiore
+  - Level Ball
+  - Esca Ball
+  - Rapid Ball
+  - Teru-sama (20)
+  - Elettropalla
+  - Friend Ball
+  - Luna Ball
+  - Love Ball
+  - Scat. Normale
+  - Scat. Lusso
+  - Pietrasolare
+  - Fiocco Pois
+  - Teru-sama (21)
+  - Upgrade
+  - Bacca
+  - Bacca Oro
+  - Annaffiatoio
+  - Teru-sama (22)
+  - Parco Ball
+  - Ala d'Iride
+  - Teru-sama (23)
+  - Mattoncino
+  - Messaggio Surf
+  - Messaggio Azzurro
+  - Messaggio Ritratto
+  - Messaggio Dolce
+  - Messaggio Eon
+  - Messaggio Morph
+  - Messaggio Cielo
+  - Messaggio Musica
+  - Messaggio Visione
+  - Teru-sama (24)
+  - MT01
+  - MT02
+  - MT03
+  - MT04
+  - MT04 (Unused)
+  - MT05
+  - MT06
+  - MT07
+  - MT08
+  - MT09
+  - MT10
+  - MT11
+  - MT12
+  - MT13
+  - MT14
+  - MT15
+  - MT16
+  - MT17
+  - MT18
+  - MT19
+  - MT20
+  - MT21
+  - MT22
+  - MT23
+  - MT24
+  - MT25
+  - MT26
+  - MT27
+  - MT28
+  - MT28 (Unused)
+  - MT29
+  - MT30
+  - MT31
+  - MT32
+  - MT33
+  - MT34
+  - MT35
+  - MT36
+  - MT37
+  - MT38
+  - MT39
+  - MT40
+  - MT41
+  - MT42
+  - MT43
+  - MT44
+  - MT45
+  - MT46
+  - MT47
+  - MT48
+  - MT49
+  - MT50
+  - MN01
+  - MN02
+  - MN03
+  - MN04
+  - MN05
+  - MN06
+  - MN07
+  - MN08 (Unused)
+  - MN09 (Unused)
+  - MN10 (Unused)
+  - MN11 (Unused)
+  - MN12 (Unused)
+  moves:
+  - (None)
+  - Botta
+  - Colpokarate
+  - Doppiasberla
+  - Cometapugno
+  - Megapugno
+  - Giornopaga
+  - Fuocopugno
+  - Gelopugno
+  - Tuonopugno
+  - Graffio
+  - Presa
+  - Ghigliottina
+  - Ventagliente
+  - Danzaspada
+  - Taglio
+  - Raffica
+  - Attacco d’Ala
+  - Turbine
+  - Volo
+  - Legatutto
+  - Schianto
+  - Frustata
+  - Pestone
+  - Doppiocalcio
+  - Megacalcio
+  - Calciosalto
+  - Calciorullo
+  - Turbosabbia
+  - Bottintesta
+  - Incornata
+  - Furia
+  - Perforcorno
+  - Azione
+  - Corposcontro
+  - Avvolgibotta
+  - Riduttore
+  - Colpo
+  - Sdoppiatore
+  - Colpocoda
+  - Velenospina
+  - Doppio Ago
+  - Missilspillo
+  - Fulmisguardo
+  - Morso
+  - Ruggito
+  - Boato
+  - Canto
+  - Supersuono
+  - Sonicboom
+  - Inibitore
+  - Acido
+  - Braciere
+  - Lanciafiamme
+  - Nebbia
+  - Pistolacqua
+  - Idropompa
+  - Surf
+  - Geloraggio
+  - Bora
+  - Psicoraggio
+  - Bollaraggio
+  - Raggiaurora
+  - Iper Raggio
+  - Beccata
+  - Perforbecco
+  - Sottomissione
+  - Colpo Basso
+  - Contrattacco
+  - Movim. Sismico
+  - Forza
+  - Assorbimento
+  - Megassorbimento
+  - Parassiseme
+  - Crescita
+  - Foglielama
+  - Solarraggio
+  - Velenpolvere
+  - Paralizzante
+  - Sonnifero
+  - Petalodanza
+  - Millebave
+  - Ira di Drago
+  - Turbofuoco
+  - Tuonoshock
+  - Fulmine
+  - Tuononda
+  - Tuono
+  - Sassata
+  - Terremoto
+  - Abisso
+  - Fossa
+  - Tossina
+  - Confusione
+  - Psichico
+  - Ipnosi
+  - Meditazione
+  - Agilità
+  - Attacco Rapido
+  - Ira
+  - Teletrasporto
+  - Ombra Notturna
+  - Mimica
+  - Stridio
+  - Doppioteam
+  - Ripresa
+  - Rafforzatore
+  - Minimizzato
+  - Muro di Fumo
+  - Stordiraggio
+  - Ritirata
+  - Ricciolscudo
+  - Barriera
+  - Schermoluce
+  - Nube
+  - Riflesso
+  - Focalenergia
+  - Pazienza
+  - Metronomo
+  - Speculmossa
+  - Autodistruzione
+  - Uovobomba
+  - Leccata
+  - Smog
+  - Fango
+  - Ossoclava
+  - Fuocobomba
+  - Cascata
+  - Tenaglia
+  - Comete
+  - Capocciata
+  - Sparalance
+  - Limitazione
+  - Amnesia
+  - Cinèsi
+  - Covauova
+  - Calcinvolo
+  - Sguardo Feroce
+  - Mangiasogni
+  - Velenogas
+  - Sferattacco
+  - Sanguisuga
+  - Demonbacio
+  - Aeroattacco
+  - Trasformazione
+  - Bolla
+  - Stordipugno
+  - Spora
+  - Flash
+  - Psiconda
+  - Splash
+  - Scudo Acido
+  - Martellata
+  - Esplosione
+  - Sfuriate
+  - Ossomerang
+  - Riposo
+  - Frana
+  - Iperzanna
+  - Affilatore
+  - Conversione
+  - Tripletta
+  - Superzanna
+  - Lacerazione
+  - Sostituto
+  - Scontro
+  - Schizzo
+  - Triplocalcio
+  - Furto
+  - Ragnatela
+  - Leggimente
+  - Incubo
+  - Ruotafuoco
+  - Russare
+  - Maledizione
+  - Flagello
+  - Conversione2
+  - Aerocolpo
+  - Cotonspora
+  - Contropiede
+  - Dispetto
+  - Polneve
+  - Protezione
+  - Pugnorapido
+  - Visotruce
+  - Finta
+  - Dolcebacio
+  - Panciamburo
+  - Fangobomba
+  - Fangosberla
+  - Octazooka
+  - Punte
+  - Elettrocannone
+  - Preveggenza
+  - Destinobbligato
+  - Ultimocanto
+  - Ventogelato
+  - Individua
+  - Ossoraffica
+  - Localizza
+  - Oltraggio
+  - Terrempesta
+  - Gigassorbimento
+  - Resistenza
+  - Fascino
+  - Rotolamento
+  - Falsofinale
+  - Bullo
+  - Buonlatte
+  - Scintilla
+  - Tagliofuria
+  - Alacciaio
+  - Malosguardo
+  - Attrazione
+  - Sonnolalia
+  - Rintoccasana
+  - Ritorno
+  - Regalino
+  - Frustrazione
+  - Salvaguardia
+  - Malcomune
+  - Magifuoco
+  - Magnitudo
+  - Dinamipugno
+  - Megacorno
+  - Dragospiro
+  - Staffetta
+  - Ripeti
+  - Inseguimento
+  - Rapigiro
+  - Profumino
+  - Codacciaio
+  - Ferrartigli
+  - Vitaltiro
+  - Mattindoro
+  - Sintesi
+  - Lucelunare
+  - Introforza
+  - Incrocolpo
+  - Tornado
+  - Pioggiadanza
+  - Giornodisole
+  - Sgranocchio
+  - Specchiovelo
+  - Psicamisù
+  - Extrarapido
+  - Forzantica
+  - Palla Ombra
+  - Divinazione
+  - Spaccaroccia
+  - Mulinello
+  - Picchiaduro

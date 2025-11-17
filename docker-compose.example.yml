@@ -13,6 +13,9 @@ services:
       target: web
     volumes:
       - ./config.json:/var/www/reon/config.json:ro
+      - ./web/:/var/www/reon/web
+    tmpfs:
+      - /tmp/reon
 
   nginx:
     image: nginx:1.27.0
