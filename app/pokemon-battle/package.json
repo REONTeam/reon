@@ -10,7 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "commander": "^12.1.0",
-    "mysql2": "^3.5.2"
+    "commander": "^14.0.2",
+    "mysql2": "^3.15.3"
   }
 }
