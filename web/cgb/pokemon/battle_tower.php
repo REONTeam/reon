@@ -42,7 +42,7 @@
 		}
 		$inExpr = implode(',', $inParts);
 
-		$sql = "SELECT name, class, pokemon1, pokemon2, pokemon3, "
+		$sql = "SELECT player_name AS name, class, pokemon1, pokemon2, pokemon3, "
 			 . "message_start, message_win, message_lose "
 			 . "FROM bxt_battle_tower_trainers "
 			 . "WHERE game_region IN ($inExpr) AND room = ? AND level = ? "
@@ -103,7 +103,7 @@
 		}
 		$inExpr = implode(',', $inParts);
 
-		$sql = "SELECT HEX(name) AS `hex(name)` "
+		$sql = "SELECT HEX(player_name) AS `hex(name)` "
 			 . "FROM bxt_battle_tower_leaders "
 			 . "WHERE game_region IN ($inExpr) AND room = ? AND level = ? "
 			 . "ORDER BY id DESC LIMIT 30";

@@ -46,6 +46,7 @@ CREATE TABLE `sys_inbox` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+#AMKJ
 CREATE TABLE `amkj_user_map` (
   `player_id` binary(16) NOT NULL,
   `user_id` int(11) DEFAULT NULL,
@@ -79,7 +80,6 @@ CREATE TABLE `amkj_rule` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-#AMKJ
 CREATE TABLE `amkj_ghosts` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT
   `player_id` binary(16) NOT NULL,
@@ -189,7 +189,7 @@ CREATE TABLE `bxt_battle_tower_trainers` (
   `no` tinyint(1) UNSIGNED NOT NULL,
   `room` int(10) UNSIGNED NOT NULL,
   `level` tinyint(1) UNSIGNED NOT NULL,
-  `name` binary(7) NOT NULL,
+  `player_name` binary(7) NOT NULL,
   `class` tinyint(1) NOT NULL,
   `pokemon1` binary(59) NOT NULL,
   `pokemon2` binary(59) NOT NULL,
@@ -204,7 +204,7 @@ CREATE TABLE `bxt_battle_tower_trainers` (
 CREATE TABLE `bxt_battle_tower_leaders` (
   `game_region` char(1) NOT NULL,
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT
-  `name` binary(7) NOT NULL,
+  `player_name` binary(7) NOT NULL,
   `room` int(11) UNSIGNED NOT NULL,
   `level` tinyint(1) UNSIGNED NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
