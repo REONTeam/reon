@@ -1,27 +1,27 @@
 {% extends "main.twig" %}
 
-{% block title %}Login{% endblock %}
+{% block title %}{{'login'|trans}}{% endblock %}
 {% block content %}
 	<div class="d-flex">
 		<div class="card m-auto">
 			<form method="post" class="card-body">
 				<fieldset>
-					<legend>Login to your REON account</legend>
+					<legend>{{'auth.login-to-reon'|trans}}</legend>
 					{% if login_fail %}
 						<div class="alert alert-danger" role="alert">
-							Incorrect email or password
+							{{'auth.invalid-email-pass'|trans}}
 						</div>
 					{% endif %}
 					<div class="mb-3">
-						<label for="email" class="form-label">Email address</label>
+						<label for="email" class="form-label">{{'email-addr'|trans}}</label>
 						<input type="email" id="email" name="email" required class="form-control">
 					</div>
 					<div class="mb-3">
-						<label for="password" class="form-label">Password</label>
+						<label for="password" class="form-label">{{'password'|trans}}</label>
 						<input type="password" id="password" name="password" required class="form-control">
 					</div>
-					<button type="submit" class="btn btn-primary me-2">Login</button>
-					<a href="/forgot_password.php" class="btn btn-outline-primary">Forgot password</a>
+					<button type="submit" class="btn btn-primary me-2">{{'login'|trans}}</button>
+					<a href="/forgot_password.php" class="btn btn-outline-primary">{{'forgot-password'|trans}}</a>
 				</fieldset>
 			</form>
 		</div>

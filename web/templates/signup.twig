@@ -1,38 +1,38 @@
 {% extends "main.twig" %}
 
-{% block title %}Signup{% endblock %}
+{% block title %}{{'signup'|trans}}{% endblock %}
 {% block content %}
 	<div class="d-flex">
 		{% if result != 0 %}
 			<div class="card m-auto">
 				<form method="post" accept-charset="utf-8" class="card-body">
 					<fieldset>
-						<legend>Sign-up to REON</legend>
+						<legend>{{'auth.signup-to-reon'|trans}}</legend>
 						<div class="mb-3">
-							<label for="email" class="form-label">Email address</label>
+							<label for="email" class="form-label">{{'email-addr'|trans}}</label>
 							<input id="email" type="email" name="email" required class="form-control{% if result == 2 %}{{ " is-invalid" }}{% endif %}" value="{{ email|e }}">
 							<div class="invalid-feedback">
-								Invalid email
+								{{'invalid-email'|trans}}
 							</div>
 						</div>
 						<div class="mb-3">
 							<div class="form-check">
 								<label for="agree" class="form-check-label">
-									I agree to the terms of use and the privacy policy
+									{{'auth.i-agree-terms'|trans}}
 								</label>
 								<input id="agree" type="checkbox" name="agree" required class="form-check-input{% if result == 1 %}{{ " is-invalid" }}{% endif %}">
 								<div class="invalid-feedback">
-									You must agree
+									{{'auth.you-must-agree'|trans}}
 								</div>
 							</div>
 						</div>
-						<button type="submit" class="btn btn-primary">Continue</button>
+						<button type="submit" class="btn btn-primary">{{'continue'|trans}}</button>
 					</fieldset>
 				</form>
 			</div>
 		{% else %}
 			<div class="alert alert-success m-auto">
-				If not yet registered, an email containing a link to continue your registration was sent to the specified email address.
+				{{'auth.registration-email-sent'|trans}}
 			</div>
 		{% endif %}
 	</div>

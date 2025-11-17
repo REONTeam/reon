@@ -12,20 +12,104 @@ locale:
   it: Italiano
 # End do not translate section
 
+# Common/Global strings
 male: Male
 female: Female
 name: Name
 score: Score
+home: Home
+games: Games
+mobile-home: Mobile Homepage
+welcome-alpha: Welcome to the alpha test!
+
+# Common form elements
+send: Send
+continue: Continue
+reset: Reset
+reveal: Reveal
+
+# Navigation
 login: Login
 logout: Logout
 signup: Sign-up
 your-account: Your Account
-home: Home
-games: Games
-mobile-home: Mobile Homepage
+forgot-password: Forgot password
+
+# Common form fields
+email-addr: Email address
+password: Password
+current-password: Current password
+new-password: New password
+confirm-password: Confirm password
+confirm-new-password: Confirm new password
+new-email: New email
+
+# Common validation messages
+invalid-email: Invalid email
+password-invalid: Password invalid
+passwords-dont-match: The passwords don't match
+wrong-password: Wrong password
+link-invalid-expired: This link is invalid or has expired.
+
+# Auth pages
+auth:
+  login-to-reon: Login to your REON account
+  invalid-email-pass: Incorrect email or password
+  signup-to-reon: Sign-up to REON
+  i-agree-terms: I agree to the terms of use and the privacy policy
+  you-must-agree: You must agree
+  registration-email-sent: If not yet registered, an email containing a link to continue your registration was sent to the specified email address.
+  registration-complete: Your registration is complete.
+  reon-email: REON email address
+  reon-email-invalid: REON email invalid or taken
+
+# Password reset pages
+password-reset:
+  title: Reset your password
+  this-email-not-registered: This email isn't registered
+  email-sent-recently: An email was sent less than 5 minutes ago
+  email-sent: If registered, an email containing a link to reset your password was sent to the specified email address.
+  success: Your password was reset successfully.
+
+# User account pages
+account:
+  your-reon-account: Your REON account
+  account-details: Account details
+  change-email: Change email
+  change-password: Change password
+  stats: Stats
+  emails-in-inbox: Emails in inbox
+  money-spent: Money spent
+  dion-account-details: DION account details
+  dion-id: DION ID
+  log-in-password: Log-In Password
+  reroll-log-in-password: Reroll Log-In Password
+  reroll-confirm-message: Are you sure you want to do this?
+  reroll-warning: You will have to change your password in all games.
+  change-email-address: Change your email address
+  email-confirm-sent: If not yet registered, an email containing a link to confirm this change was sent to the specified email address.
+  email-changed-success: Your email was changed successfully.
+  change-your-password: Change your password
+  password-changed-success: Your password was changed successfully.
+
+# Index/Home page
+index:
+  what-is-reon: What is REON?
+  reon-description: REON is something.
+  reon-lorem: Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  what-is-mobile-adapter: What is the Mobile Adapter?
+  mobile-adapter-description: The Mobile Adapter was a thing.
+
+# Pokemon game section
 pokemon-crystal: Pokémon Crystal
 rankings: Rankings
 trade-corner: Trade Corner
+
+pokemon-pages:
+  index-description: Cute little critters and stuff
+  rankings-description: How big did you say that magikarp was?
+  trade-corner-description: Look at all those caterpie and weedle!
+
 
 region:
   text: Region
