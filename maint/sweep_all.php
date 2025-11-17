@@ -81,12 +81,18 @@ function sweep_exchange(PDO $pdo, string $t, array $banned) {
 }
 
 function sweep_bt_named(PDO $pdo, string $t, string $idcol, array $banned) {
-    if (!table_has($pdo, $t, [$idcol,'name'])) {
-        echo "Skip name-ban: $t
+    // Prefer player_name column if present; fall back to legacy `name`
+    $col = 'player_name';
+    if (!table_has($pdo, $t, [$idcol, $col])) {
+        if (!table_has($pdo, $t, [$idcol,'name'])) {
+            echo "Skip name-ban: $t
 "; return;
+        }
+        $col = 'name';
     }
+
     $enc = region_table_to_encoding($t);
-    $sel = $pdo->query("SELECT `$idcol` AS id, `name` FROM `$t`");
+    $sel = $pdo->query("SELECT `$idcol` AS id, `$col` AS name FROM `$t`");
     $del = $pdo->prepare("DELETE FROM `$t` WHERE `$idcol`=:id LIMIT 1");
     $sc = 0; $rm = 0;
     while ($r = $sel->fetch()) {

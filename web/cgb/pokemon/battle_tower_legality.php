@@ -118,7 +118,7 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
                 email,
                 trainer_id,
                 secret_id,
-                name,
+                player_name,
                 class,
                 pokemon1,
                 pokemon2,

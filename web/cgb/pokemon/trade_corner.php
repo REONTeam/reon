@@ -8,14 +8,14 @@
 
 		// Now, begin adding the new trade data...
 		if ($region == "j") {
-			$stmt = $db->prepare("REPLACE INTO `bxtj_exchange` (account_id, trainer_id, secret_id, email, offer_gender, offer_species, request_gender, request_species, trainer_name, pokemon, mail) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+			$stmt = $db->prepare("REPLACE INTO `bxtj_exchange` (account_id, trainer_id, secret_id, email, offer_gender, offer_species, request_gender, request_species, player_name, pokemon, mail) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
 			//var_dump($db->error);
 			// Bind the parameters. REMEMBER: Pokémon Species are the DECIMAL index, not hex!
-			$stmt->bind_param("iiisiiiisss", $_SESSION["userId"], $decoded_data["trainer_id"], $decoded_data["secret_id"], $decoded_data["email"], $decoded_data["offer_gender"], $decoded_data["offer_species"], $decoded_data["req_gender"], $decoded_data["req_species"], $decoded_data["trainer_name"], $decoded_data["pokemon"], $decoded_data["mail"]);
+			$stmt->bind_param("iiisiiiisss", $_SESSION["userId"], $decoded_data["trainer_id"], $decoded_data["secret_id"], $decoded_data["email"], $decoded_data["offer_gender"], $decoded_data["offer_species"], $decoded_data["req_gender"], $decoded_data["req_species"], $decoded_data["player_name"], $decoded_data["pokemon"], $decoded_data["mail"]);
 			$stmt->execute();
 		} else {
-			$stmt = $db->prepare("REPLACE INTO `bxt_exchange` (account_id, game_region, trainer_id, secret_id, email, offer_gender, offer_species, request_gender, request_species, trainer_name, pokemon, mail) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-			$stmt->bind_param("isiisiiiisss", $_SESSION["userId"], $region, $decoded_data["trainer_id"], $decoded_data["secret_id"], $decoded_data["email"], $decoded_data["offer_gender"], $decoded_data["offer_species"], $decoded_data["req_gender"], $decoded_data["req_species"], $decoded_data["trainer_name"], $decoded_data["pokemon"], $decoded_data["mail"]);
+			$stmt = $db->prepare("REPLACE INTO `bxt_exchange` (account_id, game_region, trainer_id, secret_id, email, offer_gender, offer_species, request_gender, request_species, player_name, pokemon, mail) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+			$stmt->bind_param("isiisiiiisss", $_SESSION["userId"], $region, $decoded_data["trainer_id"], $decoded_data["secret_id"], $decoded_data["email"], $decoded_data["offer_gender"], $decoded_data["offer_species"], $decoded_data["req_gender"], $decoded_data["req_species"], $decoded_data["player_name"], $decoded_data["pokemon"], $decoded_data["mail"]);
 			$stmt->execute();
 		}
 	}
@@ -39,8 +39,8 @@
 		$decData["offer_species"] = unpack("C", fread($postdata, 0x1))[1]; // $23 Offered Pokémon’s species
 		$decData["req_gender"] = unpack("C", fread($postdata, 0x1))[1]; // $24 Requested Pokémon’s gender
 		$decData["req_species"] = unpack("C", fread($postdata, 0x1))[1]; // $25 Requested Pokémon’s species
-		$decData["trainer_name"] = $full ? fread($postdata, $region == "j" ? 0x5 : 0x7) : NULL; // $26 Name of trainer who requests the trade
-		$decData["pokemon"] = $full ? fread($postdata, $region == "j" ? 0x3A : 0x41) : NULL; // $2B Pokémon data
+		$decData["player_name"] = $full ? fread($postdata, $region == "j" ? 0x5 : 0x7) : NULL; // $26 Name of trainer who requests the trade
+		$decData["pokemon"] = $full ? fread($postdata, $region == "j" ? 0x3F : 0x41) : NULL; // $2B Pokémon data
 		$decData["mail"] = $full ? fread($postdata, $region == "j" ? 0x2A : 0x2F) : NULL; // $65 Held mail data
 		return $decData;
 	}

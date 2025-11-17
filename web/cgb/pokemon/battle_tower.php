@@ -48,7 +48,7 @@
 	function battleTowerSubmitRecord($inputStream, $bxte = false) {
 		$data = decodeBattleTowerRecord($inputStream, $bxte);
 		$db = connectMySQL();
-		$stmt = $db->prepare("insert into ".($bxte ? "bxte" : "bxtj")."_battle_tower_records (room, level, email, trainer_id, secret_id, name, class, pokemon1, pokemon2, pokemon3, message_start, message_win, message_lose, num_trainers_defeated, num_turns_required, damage_taken, num_fainted_pokemon) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		$stmt = $db->prepare("insert into ".($bxte ? "bxte" : "bxtj")."_battle_tower_records (room, level, email, trainer_id, secret_id, player_name, class, pokemon1, pokemon2, pokemon3, message_start, message_win, message_lose, num_trainers_defeated, num_turns_required, damage_taken, num_fainted_pokemon) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 		$stmt->bind_param("iisiissssssssiiii", $data["room"], $data["level"], $data["email"], $data["trainer_id"], $data["secret_id"], $data["name"], $data["class"], $data["pokemon1"], $data["pokemon2"], $data["pokemon3"], $data["message_start"], $data["message_win"], $data["message_lose"], $data["num_trainers_defeated"], $data["num_turns_required"], $data["damage_taken"], $data["num_fainted_pokemon"]);
 		return $stmt->execute();
 	}

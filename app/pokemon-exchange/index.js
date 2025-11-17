@@ -71,8 +71,8 @@ async function doExchangeForRegion(region, connection) {
 				performedTrades.add(i);
 				performedTrades.add(j);
 				try {
-					await sendExchangeSuccessEmail(region == "j" ? "j" : trades[i]["game_region"], trades[i]["email"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[i]["offer_species"], trades[i]["request_species"], trades[i]["offer_gender"], trades[i]["request_gender"], trades[j]["trainer_name"], trades[j]["pokemon"], trades[j]["mail"]);
-					await sendExchangeSuccessEmail(region == "j" ? "j" : trades[j]["game_region"], trades[j]["email"], trades[j]["trainer_id"], trades[j]["secret_id"], trades[j]["offer_species"], trades[j]["request_species"], trades[j]["offer_gender"], trades[j]["request_gender"], trades[i]["trainer_name"], trades[i]["pokemon"], trades[i]["mail"]);
+					await sendExchangeSuccessEmail(region == "j" ? "j" : trades[i]["game_region"], trades[i]["email"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[i]["offer_species"], trades[i]["request_species"], trades[i]["offer_gender"], trades[i]["request_gender"], trades[j]["player_name"], trades[j]["pokemon"], trades[j]["mail"]);
+					await sendExchangeSuccessEmail(region == "j" ? "j" : trades[j]["game_region"], trades[j]["email"], trades[j]["trainer_id"], trades[j]["secret_id"], trades[j]["offer_species"], trades[j]["request_species"], trades[j]["offer_gender"], trades[j]["request_gender"], trades[i]["player_name"], trades[i]["pokemon"], trades[i]["mail"]);
 					await connection.execute("delete from " + table + " where (account_id = ? and trainer_id = ? and secret_id = ?) or (account_id = ? and trainer_id = ? and secret_id = ?)", [trades[i]["account_id"], trades[i]["trainer_id"], trades[i]["secret_id"], trades[j]["account_id"], trades[j]["trainer_id"], trades[j]["secret_id"]]);
 				} catch (error) {
 					console.error(error);
