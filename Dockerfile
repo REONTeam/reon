@@ -15,14 +15,12 @@ RUN dotnet build "LegalityCheckerConsole.csproj" --no-restore -c Release --frame
 
 ### Web Service
 FROM php:${PHP_VERSION}-alpine AS web-deps
-ARG COMPOSER_VERSION="1.8.5"
 
 WORKDIR /app
 
 RUN apk update \
  && apk add git unzip \
- && curl https://getcomposer.org/download/$COMPOSER_VERSION/composer.phar --output /usr/bin/composer \
- && chmod u+x /usr/bin/composer
+ && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 COPY web/composer.json composer.json
 COPY web/composer.lock composer.lock
@@ -42,6 +40,36 @@ COPY --from=web-deps /app /var/www/reon/web
 RUN mkdir -p /var/www/reon/web/tmp \
     && chown www-data:www-data /var/www/reon/web/tmp
 ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
+
+### Database Migration Service
+FROM php:${PHP_VERSION}-alpine AS migrate
+WORKDIR /var/www/reon
+
+# Install MySQL client for database connectivity
+RUN docker-php-ext-install mysqli pdo_mysql \
+    && docker-php-ext-enable mysqli pdo_mysql
+
+# Copy composer dependencies and phinx
+COPY --from=web-deps /app /var/www/reon/web
+
+# Copy migration files and config
+COPY phinx.php /var/www/reon/phinx.php
+COPY db/ /var/www/reon/db/
+
+# Create migration entrypoint script
+RUN echo '#!/bin/sh' > /migrate.sh && \
+    echo 'set -e' >> /migrate.sh && \
+    echo 'echo "Waiting for database to be ready..."' >> /migrate.sh && \
+    echo 'until php -r "new PDO(\"mysql:host=\${MYSQL_HOST};dbname=\${MYSQL_DATABASE}\", \"\${MYSQL_USER}\", \"\${MYSQL_PASSWORD}\");" 2>/dev/null; do' >> /migrate.sh && \
+    echo '  echo "Database is unavailable - sleeping"' >> /migrate.sh && \
+    echo '  sleep 2' >> /migrate.sh && \
+    echo 'done' >> /migrate.sh && \
+    echo 'echo "Database is up - running migrations"' >> /migrate.sh && \
+    echo '/var/www/reon/web/vendor/bin/phinx migrate' >> /migrate.sh && \
+    echo 'echo "Migrations completed successfully"' >> /migrate.sh && \
+    chmod +x /migrate.sh
+
+CMD ["/migrate.sh"]
 
 
 ### Mail Service

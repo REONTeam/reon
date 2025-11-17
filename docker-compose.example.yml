@@ -1,11 +1,49 @@
 services:
 
+  db:
+    image: mysql:8.4.0
+    ports:
+      - 3306:3306
+    volumes:
+      # Run tables.sql on startup (only for fresh databases)
+      #- ./tables.sql:/docker-entrypoint-initdb.d/tables.sql:ro
+      - reon_db:/var/lib/mysql
+    environment:
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE
+      - MYSQL_ROOT_PASSWORD
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "$$MYSQL_USER", "-p$$MYSQL_PASSWORD"]
+      timeout: 5s
+      retries: 10
+      interval: 3s
+
+  migrate:
+    build:
+      dockerfile: Dockerfile
+      target: migrate
+    volumes:
+      - ./config.json:/var/www/reon/config.json:ro
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_DATABASE
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   cron:
     build:
       dockerfile: Dockerfile
       target: cron
     volumes:
     - "./config.json:/app/config.json"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
   web:
     build:
@@ -16,6 +54,9 @@ services:
       - ./web/:/var/www/reon/web
     tmpfs:
       - /tmp/reon
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
   nginx:
     image: nginx:1.27.0
@@ -29,6 +70,8 @@ services:
       - NGINX_HOST="_"
       # Hostname and port for fastcgi_pass directive
       - WEB_URL=web:9000
+    depends_on:
+      - web
 
   mail:
     build:
@@ -39,20 +82,9 @@ services:
       - 110:110
     volumes:
       - ./config.json:/app/config.json:ro
-
-  db:
-    image: mysql:8.4.0
-    ports:
-      - 3306:3306
-    volumes:
-      # Run tables.sql on startup
-      - ./tables.sql:/docker-entrypoint-initdb.d/tables.sql:ro
-      - reon_db:/var/lib/mysql
-    environment:
-      - MYSQL_USER
-      - MYSQL_PASSWORD
-      - MYSQL_DATABASE
-      - MYSQL_ROOT_PASSWORD
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
 
   dns:
     build:
