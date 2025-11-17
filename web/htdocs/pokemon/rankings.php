@@ -5,7 +5,8 @@
 	require_once("../../classes/PokemonUtil.php");
 	session_start();
 	
-    $valid_countries = array("e", "f", "d", "i", "s", "u", "p", "j");
+    $int_countries = array("e", "f", "d", "i", "s", "u", "p");
+    $valid_countries = array_merge($int_countries, ["j"]);
 
     $country = strtolower($_GET["country"] ?? '');
     $country = in_array($country, $valid_countries) ? $country : "global";
@@ -28,17 +29,17 @@
     for ($i=1; $i <= 3; $i++) {
         $max_rows = 20;
         if ($country != "global") {
-            $stmt = $db->prepare("select account_id, trainer_id, player_name, '{$country}' player_country, player_region, player_zip, score, timestamp from bxt{$country}_ranking where news_id = ? and category_id = ? and score > 0 order by score desc, timestamp asc limit ".$max_rows);
+            $stmt = $db->prepare("select game_region, account_id, trainer_id, player_name, player_region, player_zip, score, timestamp from bxt_ranking where ".
+            " game_region = '".$country."' and news_id = ? and category_id = ? and score > 0 order by score desc, timestamp asc limit ".$max_rows);
         } else {
-            $stmt = $db->prepare("select account_id, trainer_id, player_name, player_country, player_region, player_zip, score from (".
-                join(" union all ", array_map(fn($c): string => "select '{$c}' player_country, news_id, category_id, account_id, trainer_id, player_name, player_region, player_zip, score, timestamp from bxt{$c}_ranking", $valid_countries))
-                ." ) rankings where news_id = ? and category_id = ? order by score desc, timestamp asc limit ".$max_rows);
+            $stmt = $db->prepare("select game_region, news_id, category_id, account_id, trainer_id, player_name, player_region, player_zip, score, timestamp from bxt_ranking where game_region in ( ".
+                join(", ", array_map(fn($c): string => "'".$c."'", $int_countries))." ) and news_id = ? and category_id = ? order by score desc, timestamp asc limit ".$max_rows);
         }
         $stmt->bind_param("ii",$categories["news_id"], $categories["category_".$i."_id"]);
         $stmt->execute();
         $data = DBUtil::fancy_get_result($stmt);
         foreach ($data as &$entry) {
-            $pc = $entry['player_country'];
+            $pc = $entry['game_region'];
             $entry["player_name"] = $pkm_util->getString($pc, $entry['player_name']);
             $entry["player_zip"] = $pc == "j" ? $entry['player_zip'] : $pkm_util->getString($pc, $entry['player_zip']);
             $entry["player_region"] = $pkm_util->getSubregion($pc, $entry['player_region']);

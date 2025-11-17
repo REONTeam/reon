@@ -1,5 +1,17 @@
 ARG NODE_VERSION=22.2.0
 ARG PHP_VERSION=8.3
+ARG DOTNET_VERSION=9.0
+
+### Legality checker
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS pokemon-legality
+ARG DOTNET_VERSION
+WORKDIR /src
+COPY "app/pokemon-legality/LegalityCheckerConsole/LegalityCheckerConsole.csproj" /src/
+RUN dotnet restore "LegalityCheckerConsole.csproj"
+COPY "app/pokemon-legality/LegalityCheckerConsole/." .
+RUN dotnet build "LegalityCheckerConsole.csproj" --no-restore -c Release --framework net${DOTNET_VERSION} -r linux-musl-x64 --self-contained -o /app/pokemon-legality
 
 ### Web Service
 FROM php:${PHP_VERSION}-alpine AS web-deps
@@ -25,9 +37,11 @@ FROM php:${PHP_VERSION}-fpm-alpine as web
 WORKDIR /var/www
 RUN docker-php-ext-install mysqli \
     && docker-php-ext-enable mysqli
+COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
 COPY --from=web-deps /app /var/www/reon/web
 RUN mkdir -p /var/www/reon/web/tmp \
     && chown www-data:www-data /var/www/reon/web/tmp
+ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
 
 
 ### Mail Service
@@ -72,6 +86,9 @@ COPY --from=battle-deps /app/node_modules ./pokemon-battle/node_modules
 
 COPY app/pokemon-exchange pokemon-exchange
 COPY --from=exchange-deps /app/node_modules ./pokemon-exchange/node_modules
+
+COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
+ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
 
 COPY app/docker.crontab /etc/crontabs/root
 

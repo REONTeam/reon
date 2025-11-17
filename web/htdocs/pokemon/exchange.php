@@ -19,14 +19,11 @@
 
     $max_rows = 20;
 
-    $sql_jp = "select account_id, trainer_id, secret_id, 'j' game_region, offer_species, offer_gender, request_species, request_gender, trainer_name, entry_time, pokemon, mail from bxtj_exchange";
-    $sql_int = "select account_id, trainer_id, secret_id, game_region, offer_species, offer_gender, request_species, request_gender, trainer_name, entry_time, pokemon, mail from bxt_exchange";
-
     $stmt = $db->prepare(
-        ($region == 'j' || $region == 'global' ? $sql_jp : '').
-        ($region == 'global' ? ' UNION ALL ' : '').
-        ($region == 'int' || $region == 'global' ? $sql_int : '').
-        " order by entry_time desc"
+        "select account_id, trainer_id, secret_id, game_region, offer_species, offer_gender, request_species, request_gender, player_name, timestamp, pokemon, mail from bxt_exchange ".
+        ($region == 'j' ? "where game_region == 'j'" : '').
+        ($region == 'int' ? "where game_region != 'j'" : '').
+        " order by timestamp desc"
     );
     
     $genders = [null, "male", "female", null];
@@ -36,7 +33,7 @@
     $data = DBUtil::fancy_get_result($stmt);
     foreach ($data as &$entry) {
         $pc = $entry['game_region'];
-        $entry["trainer_name"] = $pkm_util->getString($pc, $entry['trainer_name']);
+        $entry["player_name"] = $pkm_util->getString($pc, $entry['player_name']);
         $entry["pokemon"] = $pkm_util->unpackPokemon($pc, $entry["pokemon"]);
         //$entry["mail"] = $pkm_util->unpackMail($pc, $entry["mail"]);
         $entry["request"] = [
@@ -60,7 +57,7 @@
         $pkm["pokerus"]["cured"] = true;
         array_push($trades,[
             "pokemon" => $pkm,
-            "trainer_name" => "REON",
+            "player_name" => "REON",
             "game_region" => 'e',
             "request" => [
                 "id" => 250,
@@ -79,7 +76,7 @@
         $pkm = $pkm_util->fakePokemon(197);
         array_push($trades,[
             "pokemon" => $pkm,
-            "trainer_name" => "REON",
+            "player_name" => "REON",
             "game_region" => 'e',
             "request" => [
                 "id" => 200,
