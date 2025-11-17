@@ -33,7 +33,7 @@ COPY web /app
 
 RUN composer dump-autoload --optimize
 
-FROM php:${PHP_VERSION}-fpm-alpine as web
+FROM php:${PHP_VERSION}-fpm-alpine AS web
 WORKDIR /var/www
 RUN docker-php-ext-install mysqli \
     && docker-php-ext-enable mysqli
@@ -52,7 +52,7 @@ WORKDIR /app
 COPY mail/package.json mail/package-lock.json* ./
 RUN npm ci
 
-FROM node:${NODE_VERSION}-alpine as mail
+FROM node:${NODE_VERSION}-alpine AS mail
 WORKDIR /app
 COPY --from=mail-deps /app/node_modules ./node_modules
 COPY mail /app
@@ -64,12 +64,12 @@ ENTRYPOINT ["/app/entrypoint.sh"]
 
 ### Cron jobs
 
-FROM node:${NODE_VERSION}-alpine as battle-deps
+FROM node:${NODE_VERSION}-alpine AS battle-deps
 WORKDIR /app
 COPY app/pokemon-battle/package.json app/pokemon-battle/package-lock.json* ./
 RUN npm ci
 
-FROM node:${NODE_VERSION}-alpine as exchange-deps
+FROM node:${NODE_VERSION}-alpine AS exchange-deps
 WORKDIR /app
 COPY app/pokemon-exchange/package.json app/pokemon-exchange/package-lock.json* ./
 RUN npm ci
