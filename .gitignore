@@ -6,3 +6,5 @@ app/*/node_modules
 web/tmp
 web/vendor
 .env
+web/locales/raw/
+docker-compose.yml
