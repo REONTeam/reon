@@ -108,11 +108,16 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
         }
     }
 
-    // DB insert
+    // DB insert into unified international table
     $db = connectMySQL();
-    $table = $bxte ? "bxte_battle_tower_records" : "bxtj_battle_tower_records";
 
-    $sql = "INSERT INTO {$table} (
+    // Determine source game_region from upload context:
+    //  - $bxte = true  => non-Japanese / English family => 'e'
+    //  - $bxte = false => Japanese                      => 'j'
+    $game_region = $bxte ? 'e' : 'j';
+
+    $sql = "INSERT INTO bxt_battle_tower_records (
+                game_region,
                 room,
                 level,
                 email,
@@ -131,7 +136,7 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
                 damage_taken,
                 num_fainted_pokemon,
                 account_id
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     $stmt = $db->prepare($sql);
     if (!$stmt) {
@@ -140,8 +145,10 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
         exit("Failed to prepare Battle Tower insert");
     }
 
+    // Types: s + iisiissssssssiiiii (match battle_tower.php)
     $stmt->bind_param(
-        "iisiissssssssiiiii",
+        "siisiissssssssiiiii",
+        $game_region,
         $data['room'],
         $data['level'],
         $data['email'],

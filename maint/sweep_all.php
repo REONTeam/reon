@@ -188,7 +188,7 @@ function sweep_bt(PDO $pdo, string $t, string $idcol, array $banned, array $BATT
 }
 
 # GTC tables (if present)
-foreach (['bxtj_exchange','bxt_exchange','bxtk_exchange','bxte_exchange','bxts_exchange','bxtp_exchange','bxtu_exchange'] as $t) {
+foreach (['bxt_exchange'] as $t) {
     sweep_exchange($pdo, $t, $banned);
 }
 
@@ -230,4 +230,3 @@ function sweep_ranking_table(PDO $pdo, string $t, array $banned) {
   }
   echo "$t ranking scanned=$sc deleted=$rm\n";
 }
-
