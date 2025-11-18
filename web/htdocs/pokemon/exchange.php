@@ -1,0 +1,100 @@
+<?php
+	require_once("../../classes/TemplateUtil.php");
+	require_once("../../classes/DBUtil.php");
+	require_once("../../classes/SessionUtil.php");
+	require_once("../../classes/PokemonUtil.php");
+	session_start();
+	
+    $valid_regions = array("j", "int");
+
+    $region = strtolower($_GET["region"] ?? '');
+    $region = in_array($region, $valid_regions) ? $region : "global";
+    $pkm_util = PokemonUtil::getInstance();
+
+    $db_util = DBUtil::getInstance();
+    
+    $db = $db_util->getDB();
+
+    $trades = array();
+
+    $max_rows = 20;
+
+    $stmt = $db->prepare(
+        "select account_id, trainer_id, secret_id, game_region, offer_species, offer_gender, request_species, request_gender, player_name, timestamp, pokemon, mail from bxt_exchange ".
+        ($region == 'j' ? "where game_region == 'j'" : '').
+        ($region == 'int' ? "where game_region != 'j'" : '').
+        " order by timestamp desc"
+    );
+    
+    $genders = [null, "male", "female", null];
+    $genders_symbols = [null, "♂", "♀", null];
+
+    $stmt->execute();
+    $data = DBUtil::fancy_get_result($stmt);
+    foreach ($data as &$entry) {
+        $pc = $entry['game_region'];
+        $entry["player_name"] = $pkm_util->getString($pc, $entry['player_name']);
+        $entry["pokemon"] = $pkm_util->unpackPokemon($pc, $entry["pokemon"]);
+        //$entry["mail"] = $pkm_util->unpackMail($pc, $entry["mail"]);
+        $entry["request"] = [
+            "id" => $entry["request_species"],
+            "name" => $pkm_util->getSpeciesName($entry["request_species"]),
+            "gender" => $genders[$entry["request_gender"]],
+            "gender_symbol" => $genders_symbols[$entry["request_gender"]],
+        ];
+        $entry["offer"] = [
+            "id" => $entry["offer_species"],
+            "name" => $pkm_util->getSpeciesName($entry["offer_species"]),
+            "gender" => $genders[$entry["offer_gender"]],
+            "gender_symbol" => $genders_symbols[$entry["offer_gender"]],
+        ];
+        array_push($trades, $entry);
+    }
+
+    if (isset($_GET["add_fakes"])) {
+
+        $pkm = $pkm_util->fakePokemon(6);
+        $pkm["pokerus"]["cured"] = true;
+        array_push($trades,[
+            "pokemon" => $pkm,
+            "player_name" => "REON",
+            "game_region" => 'e',
+            "request" => [
+                "id" => 250,
+                "name" => $pkm_util->getSpeciesName(250),
+                "gender" => $genders[0],
+                "gender_symbol" => $genders_symbols[0],
+            ],
+            "offer" => [
+                "id" => $pkm["species"]["id"],
+                "name" => $pkm["species"]["name"],
+                "gender" => $genders[1],
+                "gender_symbol" => $genders_symbols[1],
+            ],
+        ]);
+
+        $pkm = $pkm_util->fakePokemon(197);
+        array_push($trades,[
+            "pokemon" => $pkm,
+            "player_name" => "REON",
+            "game_region" => 'e',
+            "request" => [
+                "id" => 200,
+                "name" => $pkm_util->getSpeciesName(200),
+                "gender" => $genders[2],
+                "gender_symbol" => $genders_symbols[2],
+            ],
+            "offer" => [
+                "id" => $pkm["species"]["id"],
+                "name" => $pkm["species"]["name"],
+                "gender" => $genders[2],
+                "gender_symbol" => $genders_symbols[2],
+            ],
+        ]);
+        end($trades)["pokemon"]["pokerus"]["cured"] = true;
+    }
+
+    echo TemplateUtil::render("/pokemon/exchange", [
+        'trades' => $trades
+    ]);
+	

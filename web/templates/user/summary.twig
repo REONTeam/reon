@@ -1,6 +1,6 @@
 {% extends "main.twig" %}
 
-{% block title %}Summary{% endblock %}
+{% block title %}{{'your-account'|trans}}{% endblock %}
 
 {% block head %}
 	<script src="/js/user/summary.js"></script>
@@ -14,36 +14,36 @@
 {% endblock %}
 
 {% block content %}
-	<h1>Your REON account</h1>
+	<h1>{{'account.your-reon-account'|trans}}</h1>
 	<div class="row">
 		<div class="col-lg-6">
 			<div class="card">
 				<div class="card-header">
-					Account details
+					{{'account.account-details'|trans}}
 				</div>
 				<div class="card-body">
 					<div class="mb-3">
-						<label for="email" class="form-label">Email</label>
+						<label for="email" class="form-label">{{'email-addr'|trans}}</label>
 						<input id="email" type="text" readonly class="form-control" value="{{ email|e }}">
 					</div>
 					<hr>
-					<a href="change_email.php" class="btn btn-primary">Change email</a>
-					<a href="change_password.php" class="btn btn-primary">Change password</a>
+					<a href="change_email.php" class="btn btn-primary">{{'account.change-email'|trans}}</a>
+					<a href="change_password.php" class="btn btn-primary">{{'account.change-password'|trans}}</a>
 				</div>
 			</div>
 		</div>
 		<div class="col-lg-6">
 			<div class="card">
 				<div class="card-header">
-					Stats
+					{{'account.stats'|trans}}
 				</div>
 				<div class="card-body">
 					<div class="mb-3">
-						<label for="inboxSize" class="form-label">Emails in inbox</label>
+						<label for="inboxSize" class="form-label">{{'account.emails-in-inbox'|trans}}</label>
 						<input id="inboxSize" type="text" readonly class="form-control-plaintext" value="{{ inbox_size }}">
 					</div>
 					<div class="mb-3">
-						<label for="moneySpent" class="form-label">Money spent</label>
+						<label for="moneySpent" class="form-label">{{'account.money-spent'|trans}}</label>
 						<input id="moneySpent" type="text" readonly class="form-control-plaintext" value="{{ money_spent }}">
 					</div>
 				</div>
@@ -54,32 +54,32 @@
 		<div class="col-lg-6">
 			<div class="card">
 				<div class="card-header">
-					DION account details
+					{{'account.dion-account-details'|trans}}
 				</div>
 				<div class="card-body">
 					<div class="mb-3">
-						<label for="dionPppId" class="form-label">DION ID</label>
+						<label for="dionPppId" class="form-label">{{'account.dion-id'|trans}}</label>
 						<input id="dionPppId" type="text" readonly class="form-control" value="{{ dion_ppp_id|e }}">
 					</div>
 					<div class="mb-3">
-						<label for="dionEmail" class="form-label">Email</label>
+						<label for="dionEmail" class="form-label">{{'email-addr'|trans}}</label>
 						<input id="dionEmail" type="text" readonly class="form-control" value="{{ dion_email|e }}">
 					</div>
 					<div class="mb-3">
-						<label for="dionPassword" class="form-label js-only">Log-In Password</label>
+						<label for="dionPassword" class="form-label js-only">{{'account.log-in-password'|trans}}</label>
 						<div class="input-group js-only">
 							<input id="dionPassword" type="text" readonly class="form-control" value="&lt;hidden&gt;" data-password="{{ log_in_password|e }}" aria-describedby="dionPasswordRevealButton">
-							<button id="dionPasswordRevealButton" type="button" class="btn btn-outline-primary">Reveal</button>
+							<button id="dionPasswordRevealButton" type="button" class="btn btn-outline-primary">{{'reveal'|trans}}</button>
 						</div>
 						<noscript>
-							<label for="dionPasswordNoJs" class="form-label">Log-In Password</label>
+							<label for="dionPasswordNoJs" class="form-label">{{'account.log-in-password'|trans}}</label>
 							<input id="dionPasswordNoJs" type="text" readonly class="form-control" value="{{ log_in_password|e }}">
 						</noscript>
 					</div>
 					<hr>
-					<button type="button" class="btn btn-primary js-only" data-bs-toggle="modal" data-bs-target="#confirmPasswordRerollModal">Reroll Log-In Password</button>
+					<button type="button" class="btn btn-primary js-only" data-bs-toggle="modal" data-bs-target="#confirmPasswordRerollModal">{{'account.reroll-log-in-password'|trans}}</button>
 					<noscript>
-						<a href="reroll_password.php" class="btn btn-primary">Reroll Log-In Password</a>
+						<a href="reroll_password.php" class="btn btn-primary">{{'account.reroll-log-in-password'|trans}}</a>
 					</noscript>
 				</div>
 			</div>
@@ -92,15 +92,15 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h1 id="confirmPasswordRerollModalLabel" class="modal-title fs-5">Reroll Log-In Password</h1>
+					<h1 id="confirmPasswordRerollModalLabel" class="modal-title fs-5">{{'account.reroll-log-in-password'|trans}}</h1>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					Are you sure you want to do this?<br>
-					You will have to change your password in all games.
+					{{'account.reroll-confirm-message'|trans}}<br>
+					{{'account.reroll-warning'|trans}}
 				</div>
 				<div class="modal-footer">
-					<a href="reroll_password.php" class="btn btn-primary">Reroll Log-In Password</a>
+					<a href="reroll_password.php" class="btn btn-primary">{{'account.reroll-log-in-password'|trans}}</a>
 				</div>
 			</div>
 		</div>

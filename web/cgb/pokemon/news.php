@@ -1,7 +1,8 @@
 <?php
 // SPDX-License-Identifier: MIT
-require_once(CORE_PATH."/database.php");
-require_once(CORE_PATH."/pokemon/func.php");
+require_once(CORE_PATH . "/database.php");
+require_once(CORE_PATH . "/pokemon/func.php");
+require_once(__DIR__ . "/../../scripts/bxt_legality_policy.php");
 
 function get_sram_structure($region) {
 	return array(
@@ -49,69 +50,124 @@ function get_sram_structure($region) {
 }
 
 function get_news_parameters($region) {
-	$db = connectMySQL();
-	$stmt = $db->prepare("select id, ranking_category_1, ranking_category_2, ranking_category_3, message_".$region.", md5(news_binary_".$region."), octet_length(news_binary_".$region.") from bxt_news order by id desc limit 1");
-	$stmt->execute();
-	return fancy_get_result($stmt)[0];
+    $db = connectMySQL();
+    $stmt = $db->prepare(
+        "select id,
+                ranking_category_1,
+                ranking_category_2,
+                ranking_category_3,
+                message,
+                md5(news_binary) as md5_news_binary,
+                octet_length(news_binary) as octet_length_news_binary
+           from bxt_news
+          where game_region = ?
+          order by id desc
+          limit 1"
+    );
+    $stmt->bind_param("s", $region);
+    $stmt->execute();
+    $rows = fancy_get_result($stmt);
+    if (!$rows || count($rows) === 0) {
+        return null;
+    }
+    $row = $rows[0];
+
+    // Backwards compatibility: other code still expects region-suffixed keys.
+    $row["message_" . $region] = $row["message"];
+    $row["md5(news_binary_" . $region . ")"] = $row["md5_news_binary"];
+    $row["octet_length(news_binary_" . $region . ")"] = $row["octet_length_news_binary"];
+
+    return $row;
 }
+
 
 function get_news_parameters_bin($region) {
-	$news_param = get_news_parameters($region);
-	$category_info = get_ranking_category_info($news_param);
-	
-	// news id, for now a hash of the news binary
-	$out = hex2bin(substr($news_param["md5(news_binary_".$region.")"], 0, 24));
-	
-	// message displayed in the lower text box before actually downloading the news
-	if ($news_param["message_".$region] != "") {
-		$out .= $news_param["message_".$region];
-	} else {
-		$out .= hex2bin("5050"); // this prevents glitches when no message is set
-	}
-	$out .= hex2bin("50");
-	
-	// address to store rankings data at
-	$out .= pack("v", 0xA000 + $news_param["octet_length(news_binary_".$region.")"]);
-	
-	// size of records for each rankings table
-	$out .= pack("v", sizeof($category_info) * 2 * 3);
-	foreach ($category_info as $category) {
-		$out .= pack("v", ($region == "j" ? 24 : 20) + $category["size"]);
-		$out .= pack("v", ($region == "j" ? 24 : 20) + $category["size"]);
-		$out .= pack("v", ($region == "j" ? 24 : 20) + $category["size"]);
-	}
-	
-	$sram = get_sram_structure($region);
-	
-	// rankings submit configuration
-	foreach (["trainer_id", "secret_id", "name", "gender", "age", "region", "zip", "message"] as $param) {
-		$out .= pack("C", $sram[$param]["bank"]).pack("v", $sram[$param]["address"]).pack("C", $sram[$param]["size"]);
-	}
-	for ($i = 0; $i < sizeof($category_info); $i++) {
-		$out .= pack("C", 5).$category_info[$i]["ram_address"].pack("C", $category_info[$i]["size"]);
-	}
-	$out .= hex2bin("FF");
-	
-	// rankings query configuration
-	foreach (["region", "zip"] as $param) {
-		$out .= $param.hex2bin("50").pack("C", $sram[$param]["bank"]).pack("v", $sram[$param]["address"]).pack("C", $sram[$param]["size"]);
-	}
-	foreach (["trainer_id", "secret_id"] as $param) {
-		$out .= "my_".$param.hex2bin("50").pack("C", $sram[$param]["bank"]).pack("v", $sram[$param]["address"]).pack("C", $sram[$param]["size"]);
-	}
-	$out .= "my_account_id".hex2bin("50").pack("C", 0).pack("v", 0xDE02).pack("C", 4);
-	$out .= hex2bin("50");
-	
-	//return bin2hex($out);
-	return $out;
+    $news_param    = get_news_parameters($region);
+    $category_info = get_ranking_category_info($news_param);
+
+    // news id, for now a hash of the news binary (first 12 bytes of MD5)
+    $out = hex2bin(substr($news_param["md5(news_binary_" . $region . ")"], 0, 24));
+
+    // message displayed in the lower text box before actually downloading the news
+    if ($news_param["message_" . $region] != "") {
+        $out .= $news_param["message_" . $region];
+    } else {
+        // minimal placeholder to avoid glitches when no message is set
+        $out .= "\x50\x50";
+    }
+    // terminator
+    $out .= "\x50";
+
+    // address to store rankings data at
+    $out .= pack("v", 0xA000 + $news_param["octet_length(news_binary_" . $region . ")"]);
+
+    // size of records for each rankings table
+    $out .= pack("v", sizeof($category_info) * 2 * 3);
+    foreach ($category_info as $category) {
+        $base = ($region == "j" ? 24 : 20) + $category["size"];
+        $out .= pack("v", $base);
+        $out .= pack("v", $base);
+        $out .= pack("v", $base);
+    }
+
+    // rankings submit configuration
+    $sram = get_sram_structure($region);
+    foreach (["trainer_id", "secret_id", "name", "gender", "age", "region", "zip", "message"] as $param) {
+        $out .= pack("C", $sram[$param]["bank"])
+              . pack("v", $sram[$param]["address"])
+              . pack("C", $sram[$param]["size"]);
+    }
+    foreach ($category_info as $category) {
+        $out .= pack("C", 5)
+              . $category["ram_address"]
+              . pack("C", $category["size"]);
+    }
+    $out .= "\xFF";
+
+    // rankings query configuration
+    foreach (["region", "zip"] as $param) {
+        $out .= $param
+              . "\x50"
+              . pack("C", $sram[$param]["bank"])
+              . pack("v", $sram[$param]["address"])
+              . pack("C", $sram[$param]["size"]);
+    }
+    foreach (["trainer_id", "secret_id"] as $param) {
+        $out .= "my_" . $param
+              . "\x50"
+              . pack("C", $sram[$param]["bank"])
+              . pack("v", $sram[$param]["address"])
+              . pack("C", $sram[$param]["size"]);
+    }
+    $out .= "my_account_id"
+          . "\x50"
+          . pack("C", 0)
+          . pack("v", 0xDE02)
+          . pack("C", 4);
+    $out .= "\x50";
+
+    return $out;
 }
 
+
 function get_news_file($region) {
-	$db = connectMySQL();
-	$stmt = $db->prepare("select news_binary_".$region." from bxt_news order by id desc limit 1");
-	$stmt->execute();
-	return fancy_get_result($stmt)[0]["news_binary_".$region];
+    $db = connectMySQL();
+    $stmt = $db->prepare(
+        "select news_binary
+           from bxt_news
+          where game_region = ?
+          order by id desc
+          limit 1"
+    );
+    $stmt->bind_param("s", $region);
+    $stmt->execute();
+    $rows = fancy_get_result($stmt);
+    if (!$rows || count($rows) === 0) {
+        return null;
+    }
+    return $rows[0]["news_binary"];
 }
+
 
 function get_ranking_category_info($news_param) {
 	$category_ids = [$news_param["ranking_category_1"], $news_param["ranking_category_2"], $news_param["ranking_category_3"]];
@@ -124,159 +180,319 @@ function get_ranking_category_info($news_param) {
 }
 
 function set_ranking($region, $content, $length) {
-	$sram = get_sram_structure($region);
-	$news_param = get_news_parameters($region);
-	$category_info = get_ranking_category_info($news_param);
-	
-	// sanity check
-	$expected_data_size = 0;
-	foreach (["trainer_id", "secret_id", "name", "gender", "age", "region", "zip", "message"] as $param) {
-		$expected_data_size += $sram[$param]["size"];
-	}
-	foreach ($category_info as $key => $category) {
-		$expected_data_size += $category["size"];
-	}
-	if ($length != $expected_data_size) return; 
-	
-	$post_data = fopen($content, "rb");
-	$trainer_id = unpack("n", fread($post_data, $sram["trainer_id"]["size"]))[1];
-	$secret_id = unpack("n", fread($post_data, $sram["secret_id"]["size"]))[1];
-	$name = fread($post_data, $sram["name"]["size"]);
-	$gender = unpack("C", fread($post_data, $sram["gender"]["size"]))[1];
-	$age = unpack("C", fread($post_data, $sram["age"]["size"]))[1];
-	$pregion = unpack("C", fread($post_data, $sram["region"]["size"]))[1];
-	$zip = $region == "j" ? unpack("n", fread($post_data, $sram["zip"]["size"]))[1] : fread($post_data, $sram["zip"]["size"]);
-	$message = fread($post_data, $sram["message"]["size"]);
-	
-	$db = connectMySQL();
-	foreach ($category_info as $key => $category) {
-		$score = fread($post_data, $category["size"]);
-		if ($category["size"] == 1) {
-			$score = unpack("C", $score)[1];
-		} else if ($category["size"] == 2) {
-			$score = unpack("n", $score)[1];
-		} else if ($category["size"] == 3) {
-			$score = hex2bin("00").$score;
-			$score = unpack("N", $score)[1];
-			//$score = unpack("ca/ab/cc", $score);
-			//$score = $score["a"] + ($score["b"] << 8) + ($score["c"] << 16);
-		} else {
-			$score = unpack("N", $score)[1];
-		}
-		
-		$stmt = $db->prepare("select score from bxt".$region."_ranking where news_id = ? and category_id = ? and account_id = ? and trainer_id = ? and secret_id = ?");
-		$stmt->bind_param("iiiii", $news_param["id"], $category["id"], $_SESSION["userId"], $trainer_id, $secret_id);
-		$stmt->execute();
-		$result = fancy_get_result($stmt);
-		// if there is a previous record for this player with a score equals (or greater for cheaters) than the submitted score, then do an update to update their information without touching the timestamp of their submission
-		// otherwise do insert replace which will update the timestamp
-		if (array_key_exists(0, $result) && $result[0]["score"] >= $score) {
-			$stmt = $db->prepare("update bxt".$region."_ranking set player_name = ?, player_gender = ?, player_age = ?, player_region = ?, player_zip = ?, player_message = ? where news_id = ? and category_id = ? and account_id = ? and trainer_id = ? and secret_id = ?");
-			$stmt->bind_param("siii".($region == "j" ? "i" : "s")."siiiii", $name, $gender, $age, $pregion, $zip, $message, $news_param["id"], $category["id"], $_SESSION["userId"], $trainer_id, $secret_id);
-			$stmt->execute();
-		} else {
-			$stmt = $db->prepare("replace into bxt".$region."_ranking (news_id, category_id, account_id, trainer_id, secret_id, player_name, player_gender, player_age, player_region, player_zip, player_message, score) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
-			$stmt->bind_param("iiiiisiii".($region == "j" ? "i" : "s")."si", $news_param["id"], $category["id"], $_SESSION["userId"], $trainer_id, $secret_id, $name, $gender, $age, $pregion, $zip, $message, $score);
-			$stmt->execute();
-		}
-	}
-	return pack("N", $_SESSION["userId"]);
+    $sram          = get_sram_structure($region);
+    $news_param    = get_news_parameters($region);
+    $category_info = get_ranking_category_info($news_param);
+
+    // sanity check
+    $expected_data_size = 0;
+    foreach (["trainer_id", "secret_id", "name", "gender", "age", "region", "zip", "message"] as $param) {
+        $expected_data_size += $sram[$param]["size"];
+    }
+    foreach ($category_info as $category) {
+        $expected_data_size += $category["size"];
+    }
+    if ($length != $expected_data_size) {
+        return;
+    }
+
+    $post_data = fopen($content, "rb");
+    $trainer_id = unpack("n", fread($post_data, $sram["trainer_id"]["size"]))[1];
+    $secret_id  = unpack("n", fread($post_data, $sram["secret_id"]["size"]))[1];
+    $name       = fread($post_data, $sram["name"]["size"]);
+    $gender     = unpack("C", fread($post_data, $sram["gender"]["size"]))[1];
+    $age        = unpack("C", fread($post_data, $sram["age"]["size"]))[1];
+    $pregion    = unpack("C", fread($post_data, $sram["region"]["size"]))[1];
+
+    if ($region == "j") {
+        // J: zip is numeric; convert to packed bytes (will be stored as BINARY)
+        $zip_num = unpack("n", fread($post_data, $sram["zip"]["size"]))[1];
+        $zip     = pack("n", $zip_num);
+    } else {
+        // non-J: already binary bytes
+        $zip = fread($post_data, $sram["zip"]["size"]);
+    }
+
+    $message    = fread($post_data, $sram["message"]["size"]);
+if (!isset($_SESSION["userId"])) {
+        return;
+    }
+
+    $db = connectMySQL();
+    foreach ($category_info as $category) {
+        $score_raw = fread($post_data, $category["size"]);
+        if ($category["size"] == 1) {
+            $score = unpack("C", $score_raw)[1];
+        } else if ($category["size"] == 2) {
+            $score = unpack("n", $score_raw)[1];
+        } else if ($category["size"] == 3) {
+            $score = unpack("N", "\x00" . $score_raw)[1];
+        } else {
+            $score = unpack("N", $score_raw)[1];
+        }
+
+        // Look up any existing score for this account/trainer/secret in this category and region
+        $stmt = $db->prepare(
+            "select score
+               from bxt_ranking
+              where game_region = ?
+                and news_id = ?
+                and category_id = ?
+                and account_id = ?
+                and trainer_id = ?
+                and secret_id = ?"
+        );
+        // 1 string + 5 ints  => "siiiii"
+        $stmt->bind_param(
+            "siiiii",
+            $region,
+            $news_param["id"],
+            $category["id"],
+            $_SESSION["userId"],
+            $trainer_id,
+            $secret_id
+        );
+        $stmt->execute();
+        $result = fancy_get_result($stmt);
+
+        if (count($result) > 0 && $result[0]["score"] >= $score) {
+            // Existing score is better or equal; do not replace
+            continue;
+        }
+
+        if (count($result) > 0) {
+            // Update existing row with new better score and metadata
+            $stmt = $db->prepare(
+                "update bxt_ranking
+                    set player_name    = ?,
+                        player_gender  = ?,
+                        player_age     = ?,
+                        player_region  = ?,
+                        player_zip     = ?,
+                        player_message = ?,
+                        score          = ?
+                  where game_region = ?
+                    and news_id      = ?
+                    and category_id  = ?
+                    and account_id   = ?
+                    and trainer_id   = ?
+                    and secret_id    = ?"
+            );
+            // params:
+            //  name(s), gender(i), age(i), pregion(i), zip(s), message(s), score(i),
+            //  region(s), news_id(i), category_id(i), account_id(i), trainer_id(i), secret_id(i)
+            //  => 13 args, types "siiissisiiiii"
+            $stmt->bind_param(
+                "siiissisiiiii",
+                $name,
+                $gender,
+                $age,
+                $pregion,
+                $zip,
+                $message,
+                $score,
+                $region,
+                $news_param["id"],
+                $category["id"],
+                $_SESSION["userId"],
+                $trainer_id,
+                $secret_id
+            );
+            $stmt->execute();
+        } else {
+            // Insert new row
+            $stmt = $db->prepare(
+                "insert into bxt_ranking
+                 (game_region,
+                  news_id, category_id, account_id, trainer_id, secret_id,
+                  player_name, player_gender, player_age, player_region, player_zip,
+                  player_message, score)
+                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            );
+            // params:
+            //  region(s),
+            //  news_id(i), category_id(i), account_id(i), trainer_id(i), secret_id(i),
+            //  name(s), gender(i), age(i), pregion(i), zip(s), message(s), score(i)
+            //  => 13 args, types "siiiiisiiissi"
+            $stmt->bind_param(
+                "siiiiisiiissi",
+                $region,
+                $news_param["id"],
+                $category["id"],
+                $_SESSION["userId"],
+                $trainer_id,
+                $secret_id,
+                $name,
+                $gender,
+                $age,
+                $pregion,
+                $zip,
+                $message,
+                $score
+            );
+            $stmt->execute();
+        }
+    }
+
+    return pack("N", $_SESSION["userId"]);
 }
 
+
+
 function get_ranking($region, $post_string) {
-	parse_str($post_string, $post_data);
-	$news_param = get_news_parameters($region);
-	$category_info = get_ranking_category_info($news_param);
-	
-	$out = "";
-	$db = connectMySQL();
-	foreach ($category_info as $key => $category) {
-		// national ranking
-		$stmt = $db->prepare("select count(*) from bxt".$region."_ranking where news_id = ? and category_id = ?");
-		$stmt->bind_param("ii", $news_param["id"], $category["id"]);
-		$stmt->execute();
-		$total_ranked = fancy_get_result($stmt)[0]["count(*)"];
-		
-		if (isset($post_data["my_trainer_id"]) && isset($post_data["my_secret_id"]) && isset($post_data["my_account_id"])) {
-			$my_trainer_id = hexdec($post_data["my_trainer_id"]);
-			$my_secret_id = hexdec($post_data["my_secret_id"]);
-			$my_account_id  = hexdec($post_data["my_account_id"]);
-			$stmt = $db->prepare("select score, timestamp from bxt".$region."_ranking where news_id = ? and category_id = ? and account_id = ? and trainer_id = ? and secret_id = ?");
-			$stmt->bind_param("iiiii", $news_param["id"], $category["id"], $my_account_id, $my_trainer_id, $my_secret_id);
-			$stmt->execute();
-			$result = fancy_get_result($stmt);
-			if (array_key_exists(0, $result)) {
-				$my_score = $result[0]["score"];
-				$my_timestamp = $result[0]["timestamp"];
-				$stmt = $db->prepare("select count(*) from bxt".$region."_ranking where news_id = ? and category_id = ? and (score > ? or (score = ? and timestamp < ?))");
-				$stmt->bind_param("iiiis", $news_param["id"], $category["id"], $my_score, $my_score, $my_timestamp);
-				$stmt->execute();
-				$my_rank = fancy_get_result($stmt)[0]["count(*)"] + 1;
-			} else {
-				$my_score = 0xFFFFFFFF;
-				$my_rank = 0xFFFFFFFF;
-			}
-		} else {
-			$my_score = 0xFFFFFFFF;
-			$my_rank = 0xFFFFFFFF;
-		}
-		
-		$stmt = $db->prepare("select player_name, player_region, player_age, player_gender, player_message, score from bxt".$region."_ranking where news_id = ? and category_id = ? order by score desc, timestamp limit 10");
-		$stmt->bind_param("ii", $news_param["id"], $category["id"]);
-		$stmt->execute();
-		$top10 = fancy_get_result($stmt);
-		
-		$out .= make_ranking_table($region, $category, $top10, $total_ranked, $my_rank);
-		
-		// regional ranking
-		if (isset($post_data["region"])) {
-			$pregion = hexdec($post_data["region"]);
-			$stmt = $db->prepare("select count(*) from bxt".$region."_ranking where news_id = ? and category_id = ? and player_region = ?");
-			$stmt->bind_param("iii", $news_param["id"], $category["id"], $pregion);
-			$stmt->execute();
-			$total_ranked = fancy_get_result($stmt)[0]["count(*)"];
-			
-			if ($my_score != 0xFFFFFFFF) {
-				$stmt = $db->prepare("select count(*) from bxt".$region."_ranking where news_id = ? and category_id = ? and (score > ? or (score = ? and timestamp < ?)) and player_region = ?");
-				$stmt->bind_param("iiiisi", $news_param["id"], $category["id"], $my_score, $my_score, $my_timestamp, $pregion);
-				$stmt->execute();
-				$my_rank = fancy_get_result($stmt)[0]["count(*)"] + 1;
-			}
-			
-			$stmt = $db->prepare("select player_name, player_region, player_age, player_gender, player_message, score from bxt".$region."_ranking where news_id = ? and category_id = ? and player_region = ? order by score desc, timestamp limit 10");
-			$stmt->bind_param("iii", $news_param["id"], $category["id"], $pregion);
-			$stmt->execute();
-			$top10 = fancy_get_result($stmt);
-			
-			$out .= make_ranking_table($region, $category, $top10, $total_ranked, $my_rank);
-		}
-		
-		// zip code ranking
-		if (isset($post_data["zip"])) {
-			$zip = $region == "j" ? hexdec($post_data["zip"]) : hex2bin($post_data["zip"]);
-			$stmt = $db->prepare("select count(*) from bxt".$region."_ranking where news_id = ? and category_id = ? and player_zip = ?");
-			$stmt->bind_param("ii".($region == "j" ? "i" : "s"), $news_param["id"], $category["id"], $zip);
-			$stmt->execute();
-			$total_ranked = fancy_get_result($stmt)[0]["count(*)"];
-			
-			if ($my_score != 0xFFFFFFFF) {
-				$stmt = $db->prepare("select count(*) from bxt".$region."_ranking where news_id = ? and category_id = ? and (score > ? or (score = ? and timestamp < ?)) and player_zip = ?");
-				$stmt->bind_param("iiiis".($region == "j" ? "i" : "s"), $news_param["id"], $category["id"], $my_score, $my_score, $my_timestamp, $zip);
-				$stmt->execute();
-				$my_rank = fancy_get_result($stmt)[0]["count(*)"] + 1;
-			}
-			
-			$stmt = $db->prepare("select player_name, player_region, player_age, player_gender, player_message, score from bxt".$region."_ranking where news_id = ? and category_id = ? and player_zip = ? order by score desc, timestamp limit 10");
-			$stmt->bind_param("ii".($region == "j" ? "i" : "s"), $news_param["id"], $category["id"], $zip);
-			$stmt->execute();
-			$top10 = fancy_get_result($stmt);
-			
-			$out .= make_ranking_table($region, $category, $top10, $total_ranked, $my_rank);
-		}
-	}
-	//return bin2hex($out);
-	return $out;
+    parse_str($post_string, $post_data);
+    $news_param    = get_news_parameters($region);
+    $category_info = get_ranking_category_info($news_param);
+
+    $out = "";
+    $db  = connectMySQL();
+
+    foreach ($category_info as $key => $category) {
+        // national ranking (all records in this game_region for this news+category)
+        $stmt = $db->prepare(
+            "select count(*)
+               from bxt_ranking
+              where game_region = ?
+                and news_id     = ?
+                and category_id = ?"
+        );
+        // region(s), news_id(i), category_id(i) => "sii"
+        $stmt->bind_param("sii", $region, $news_param["id"], $category["id"]);
+        $stmt->execute();
+        $total_ranked = fancy_get_result($stmt)[0]["count(*)"];
+
+        $my_score = 0xFFFFFFFF;
+        $my_rank  = 0xFFFFFFFF;
+
+        if (isset($post_data["my_trainer_id"]) &&
+            isset($post_data["my_secret_id"])  &&
+            isset($post_data["my_account_id"])) {
+
+            $my_trainer_id = hexdec($post_data["my_trainer_id"]);
+            $my_secret_id  = hexdec($post_data["my_secret_id"]);
+            $my_account_id = hexdec($post_data["my_account_id"]);
+
+            $stmt = $db->prepare(
+                "select score, timestamp
+                   from bxt_ranking
+                  where game_region = ?
+                    and news_id     = ?
+                    and category_id = ?
+                    and account_id  = ?
+                    and trainer_id  = ?
+                    and secret_id   = ?"
+            );
+            // region(s), news_id(i), category_id(i), account_id(i), trainer_id(i), secret_id(i)
+            // => "siiiii"
+            $stmt->bind_param(
+                "siiiii",
+                $region,
+                $news_param["id"],
+                $category["id"],
+                $my_account_id,
+                $my_trainer_id,
+                $my_secret_id
+            );
+            $stmt->execute();
+            $result = fancy_get_result($stmt);
+
+            if (count($result) > 0) {
+                $my_score     = $result[0]["score"];
+                $my_timestamp = $result[0]["timestamp"];
+
+                $stmt = $db->prepare(
+                    "select count(*)
+                       from bxt_ranking
+                      where game_region = ?
+                        and news_id     = ?
+                        and category_id = ?
+                        and (score > ? or (score = ? and timestamp < ?))"
+                );
+                // region(s), news_id(i), category_id(i), score(i), score(i), timestamp(s)
+                // => "siiiis"
+                $stmt->bind_param(
+                    "siiiis",
+                    $region,
+                    $news_param["id"],
+                    $category["id"],
+                    $my_score,
+                    $my_score,
+                    $my_timestamp
+                );
+                $stmt->execute();
+                $my_rank = fancy_get_result($stmt)[0]["count(*)"] + 1;
+            }
+        }
+
+        // national top 10 for this region
+        $stmt = $db->prepare(
+            "select player_name,
+                    player_region,
+                    player_gender,
+                    player_age,
+                    player_zip,
+                    player_message,
+                    score
+               from bxt_ranking
+              where game_region = ?
+                and news_id     = ?
+                and category_id = ?
+              order by score desc, timestamp
+              limit 10"
+        );
+        // region(s), news_id(i), category_id(i) => "sii"
+        $stmt->bind_param("sii", $region, $news_param["id"], $category["id"]);
+        $stmt->execute();
+        $top10 = fancy_get_result($stmt);
+
+        $out .= make_ranking_table($region, $category, $top10, $total_ranked, $my_rank);
+
+        // regional ranking (within same game_region but filtered by player_region)
+        if (isset($post_data["region"])) {
+            $pregion = hexdec($post_data["region"]);
+
+            $stmt = $db->prepare(
+                "select count(*)
+                   from bxt_ranking
+                  where game_region  = ?
+                    and news_id      = ?
+                    and category_id  = ?
+                    and player_region = ?"
+            );
+            // region(s), news_id(i), category_id(i), pregion(i) => "siii"
+            $stmt->bind_param("siii", $region, $news_param["id"], $category["id"], $pregion);
+            $stmt->execute();
+            $total_ranked = fancy_get_result($stmt)[0]["count(*)"];
+
+            $stmt = $db->prepare(
+                "select player_name,
+                        player_region,
+                        player_gender,
+                        player_age,
+                        player_zip,
+                        player_message,
+                        score
+                   from bxt_ranking
+                  where game_region  = ?
+                    and news_id      = ?
+                    and category_id  = ?
+                    and player_region = ?
+                  order by score desc, timestamp
+                  limit 10"
+            );
+            // region(s), news_id(i), category_id(i), pregion(i) => "siii"
+            $stmt->bind_param("siii", $region, $news_param["id"], $category["id"], $pregion);
+            $stmt->execute();
+            $top10 = fancy_get_result($stmt);
+
+            $out .= make_ranking_table($region, $category, $top10, $total_ranked, $my_rank);
+        }
+    }
+
+    // return bin2hex($out);
+    return $out;
 }
+
 
 function make_ranking_table($region, $category, $top10, $total_ranked, $my_rank) {
 	$out = pack("N", $total_ranked);

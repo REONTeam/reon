@@ -1,15 +1,15 @@
 {% extends "main.twig" %}
 
-{% block title %}Confirm email address{% endblock %}
+{% block title %}{{'account.change-email'|trans}}{% endblock %}
 {% block content %}
 	<div class="d-flex">
 		{% if result == 0 %}
 			<div class="alert alert-success m-auto">
-				Your email was changed successfully.
+				{{'account.email-changed-success'|trans}}
 			</div>
 		{% elseif result == 1 %}
 			<div class="alert alert-danger m-auto">
-				This link is invalid or has expired.
+				{{'link-invalid-expired'|trans}}
 			</div>
 		{% endif %}
 	</div>

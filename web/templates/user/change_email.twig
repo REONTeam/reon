@@ -1,34 +1,34 @@
 {% extends "main.twig" %}
 
-{% block title %}Confirm email address{% endblock %}
+{% block title %}{{'account.change-email'|trans}}{% endblock %}
 {% block content %}
 	<div class="d-flex">
 		{% if result != 0 %}
 			<div class="card m-auto">
 				<form method="post" accept-charset="utf-8" class="card-body">
 					<fieldset>
-						<legend>Change your email address</legend>
+						<legend>{{'account.change-email-address'|trans}}</legend>
 						<div class="mb-3">
-							<label for="currentPassword" class="form-label">Current password</label>
+							<label for="currentPassword" class="form-label">{{'current-password'|trans}}</label>
 							<input id="currentPassword" name="currentPassword" type="password" required class="form-control{% if result == 1 %}{{ " is-invalid" }}{% endif %}">
 							<div class="invalid-feedback">
-								Wrong password
+								{{'wrong-password'|trans}}
 							</div>
 						</div>
 						<div class="mb-3">
-							<label for="newEmail" class="form-label">New email</label>
+							<label for="newEmail" class="form-label">{{'new-email'|trans}}</label>
 							<input id="newEmail" name="newEmail" type="email" required class="form-control{% if result == 2 %}{{ " is-invalid" }}{% endif %}" value="{{ email|e }}">
 							<div class="invalid-feedback">
-								Email invalid
+								{{'invalid-email'|trans}}
 							</div>
 						</div>
-						<button type="submit" class="btn btn-primary">Send</button>
+						<button type="submit" class="btn btn-primary">{{'send'|trans}}</button>
 					</fieldset>
 				</form>
 			</div>
 		{% else %}
 			<div class="alert alert-success m-auto">
-				If not yet registered, an email containing a link to confirm this change was sent to the specified email address.
+				{{'account.email-confirm-sent'|trans}}
 			</div>
 		{% endif %}
 	</div>

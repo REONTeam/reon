@@ -18,19 +18,39 @@
 				</a>
 				
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-					<li class="nav-item"><a href="/index.php" class="nav-link{% if nav_item == 'index' %}{{ ' active' }}{% endif %}" aria-current="page">Home</a></li>
-					<li class="nav-item"><a href="#" class="nav-link{% if nav_item == 'games' %}{{ ' active' }}{% endif %}">Games</a></li>
-					<li class="nav-item"><a href="/01/CGB-B9AJ/index.html" class="nav-link">Mobile Homepage</a></li>
+					<li class="nav-item"><a href="/index.php" class="nav-link{% if nav_item == 'index' %}{{ ' active' }}{% endif %}" aria-current="page">{{'home'|trans}}</a></li>
+					<li class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle{% if nav_item == 'games' %}{{ ' active' }}{% endif %}" id="gamesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							{{'games'|trans}}
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="gamesDropdown">
+							<li><a class="dropdown-item" href="/pokemon/">{{'pokemon-crystal'|trans}}</a></li>
+						</ul>
+					</li>
+					<li class="nav-item"><a href="/01/CGB-B9AJ/index.html" class="nav-link">{{'mobile-home'|trans}}</a></li>
 				</ul>
 				
 				<div class="d-flex">
 					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						<li class="nav-item dropdown">
+							<a href="#" class="nav-link dropdown-toggle" id="localeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								{% set lang_tmpl = 'locale.' ~ curr_locale %}{{ lang_tmpl|trans }}
+							</a>
+							<ul class="dropdown-menu" aria-labelledby="localeDropdown">
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('en');">{{'locale.en'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('ja');">{{'locale.ja'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('de');">{{'locale.de'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('es');">{{'locale.es'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('it');">{{'locale.it'|trans}}</a></li>
+								<li><a class="dropdown-item" href="#" onclick="changeLocale('fr');">{{'locale.fr'|trans}}</a></li>
+							</ul>
+						</li>
 						{% if session_active %}
-							<li class="nav-item"><a href="/user/summary.php" class="btn btn-primary me-2">Your account</a></li>
-							<li class="nav-item"><a href="/logout.php" class="btn btn-outline-primary">Logout</a></li>
+							<li class="nav-item"><a href="/user/summary.php" class="btn btn-primary me-2">{{'your-account'|trans}}</a></li>
+							<li class="nav-item"><a href="/logout.php" class="btn btn-outline-primary">{{'logout'|trans}}</a></li>
 						{% else %}
-							<li class="nav-item"><a href="/login.php" class="btn btn-outline-primary me-2">Login</a></li>
-							<li class="nav-item"><a href="/signup.php" class="btn btn-primary">Sign-up</a></li>
+							<li class="nav-item"><a href="/login.php" class="btn btn-outline-primary me-2">{{'login'|trans}}</a></li>
+							<li class="nav-item"><a href="/signup.php" class="btn btn-primary">{{'signup'|trans}}</a></li>
 						{% endif %}
 					</ul>
 				</div>
@@ -38,12 +58,21 @@
 		</header>
 		
 		<div class="container-xxl">
-			<marquee>Welcome to the alpha test!</marquee>
+			<marquee>{{'welcome-alpha'|trans}}</marquee>
 		</div>
 		
 		<main id="content" class="container-xxl mt-3 my-md-4">{% block content %}Default Content{% endblock %}</main>
 		
 		{% block body %}
 		{% endblock %}
+
+		<script>
+			function changeLocale(newLocale) {
+				var url = new URL(window.location);
+				url.searchParams.set('lang', newLocale);
+				window.location = url.toString();
+			}
+		</script>
+
 	</body>
 </html>

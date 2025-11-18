@@ -1,0 +1,33 @@
+server {
+    listen ${NGINX_PORT};
+    server_name ${NGINX_HOST};
+
+    gzip on;
+    access_log /var/log/nginx/reon.access.log;
+    error_log /var/log/nginx/reon.error.log debug;
+
+
+    root /var/www/reon/web/htdocs;
+    index  index.php index.html index.htm;
+    
+
+    location /cgb/ {
+        try_files $uri $uri/ @extensionless-php;
+    }
+
+    # Pass the PHP scripts to FastCGI server
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_index index.php;
+        fastcgi_pass ${WEB_URL};
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location @extensionless-php {
+        rewrite ^(.*)$ $1.php last;
+    }
+}

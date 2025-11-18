@@ -23,6 +23,25 @@
 			return;
 		}
 		
+		public function setLocale($locale) {
+			$_SESSION["locale"] = $lang;
+			// TODO: Persist to user prefs if signed in
+			return;
+		}
+
+		public function getLocale() {
+			// TODO: Initial value from user prefs if signed in
+			if(isset($_GET["lang"])) {
+				$_SESSION["locale"] = $_GET["lang"];
+			}
+			elseif (!isset($_SESSION["locale"])) {
+				if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && strlen($_SERVER['HTTP_ACCEPT_LANGUAGE'])>0) {
+					$_SESSION["locale"] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+				}
+			}
+			return $_SESSION["locale"];
+		}
+		
 		public function destroySession() {
 			session_unset();
 			session_destroy();

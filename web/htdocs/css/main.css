@@ -9,3 +9,247 @@
   border-width: 0 0 3px 0;
   border-style: solid;
 }
+
+.crystal-ranking {
+  width: 33%;
+  float: left;
+}
+.crystal-ranking table {
+  width: 100%;
+  border: 1px solid;
+}
+.ranking-name {
+  text-align: center;
+}
+#country-nav li {
+  display: inline;
+  list-style: none;
+  padding: 5px;
+}
+
+.crystal-trade {
+  float: left;
+  border: 1px solid gray;
+  border-radius: 5px;
+  margin: 5px;
+  width: 250px;
+  position: relative;
+  line-height: 1.3;
+}
+.crystal-trade td, .crystal-trade th {
+  padding: 2px;
+}
+.crystal-trade .trade-offer {
+  display: flex;
+  padding: 6px;
+}
+
+.crystal-trade .trade-separator {
+  border-top: 1px solid;
+  margin: 0px;
+}
+.crystal-trade .trade-request {
+  padding: 6px;
+}
+
+.crystal-trade .marks-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-right: calc(3.5em *.7);
+  line-height: .9em;
+  padding-top: calc(1.7em * .7);
+  padding-right: 3px;
+  text-align: right;
+  vertical-align: middle;
+}
+
+.crystal-trade .region {
+  font-size: .7em;
+  text-transform: uppercase;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  display: inline-block;
+  color: gray;
+  padding: 1px 3px;
+  text-decoration: none;
+  border: solid lightslategray;
+  border-width: 0 0 1px 1px;
+  border-bottom-left-radius: 3px;
+  width: 3.2em;
+  text-align: center;
+}
+.crystal-trade .gender-male,
+.crystal-trade .gender-female {
+  --icon-size: 0.8em;
+  display: inline-block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: calc(var(--icon-size));
+  cursor: help;
+  color: transparent;
+  vertical-align: middle;
+}
+
+.crystal-trade .gender-male  {
+  background-color: #0070f8;
+  mask-image: url('/images/crystal/gender-male.svg');
+}
+
+.crystal-trade .gender-female  {
+  background-color: #e82010;
+  mask-image: url('/images/crystal/gender-female.svg');
+}
+
+.crystal-trade .request-gender {
+  margin-left: calc(var(--icon-size) * -1);
+}
+
+.crystal-trade .shiny-mark,
+.crystal-trade .pokerus-cured,
+.crystal-trade .pokerus-infected  {
+  --icon-size: 0.8em;
+  display: inline-block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: calc(var(--icon-size));
+  cursor: help;
+}
+
+:root {
+  --pokerus-color-gen3: #b040f0;
+  --pokerus-color-home: #ff07c1;
+}
+
+.crystal-trade .shiny-mark {
+  background-color: #c08028;
+  mask-image: url('/images/crystal/shiny.svg');
+}
+
+.crystal-trade .pokerus-cured {
+  background-color: var(--pokerus-color-home);
+  mask-image: url('/images/crystal/pokerus-cured.svg');
+}
+
+.crystal-trade .pokerus-infected {
+  background-color: var(--pokerus-color-home);
+  mask-image: url('/images/crystal/pokerus-infected.svg');
+}
+
+.pokerus-infected-text,
+.pokerus-cured-text {
+  display: inline-block;
+  color: white;
+  background: var(--pokerus-color-gen3);
+  text-decoration: none;
+  border-radius: 3px;
+  position: relative;
+  top: -2px;
+  right: -1px;
+  font-size: 0.6em;
+  font-weight: bold;
+  cursor: help;
+  width: 3.3em;
+  text-align: center;
+}
+
+.pokerus-infected-text[title],
+.pokerus-cured-text[title] {
+  /* Needed because some browser default styles are specific */
+  text-decoration: none;
+}
+
+.pokerus-infected-text sup,
+.pokerus-infected-text sub {
+  font-size: 0.85em;
+}
+.pokerus-infected-text sup {
+  top: -0.2em;
+}
+.pokerus-infected-text sub {
+  bottom: -.15em;
+}
+
+.crystal-trade .region {
+  font-size: .7em;
+  text-transform: uppercase;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  display: inline-block;
+  color: gray;
+  padding: 1px 3px;
+  text-decoration: none;
+  border: solid lightslategray;
+  border-width: 0 0 1px 1px;
+  border-bottom-left-radius: 3px;
+  width: 3.2em;
+  text-align: center;
+}
+
+.crystal-trade .offer-details {
+  padding-left: 10px;
+}
+
+.crystal-trade .offer-species {
+  font-size: 1.2em;
+  min-width: 80px;
+  display: inline-block
+}
+
+
+.crystal-trade .offer-name,
+.crystal-trade .offer-item,
+.crystal-trade .offer-trainer,
+.crystal-trade .offer-offerer {
+  font-size: .9em;
+}
+
+.crystal-trade .trade-offer .media-area {
+  line-height: .9;
+}
+
+.crystal-trade .sprite-pokemon {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+  /*background: url('https://placehold.co/64x64');*/
+  background: url('/images/crystal/pokemon-normal.png');
+  image-rendering: pixelated;
+}
+
+.crystal-trade .shiny .sprite-pokemon {
+  background: url('/images/crystal/pokemon-shiny.png');
+}
+
+.crystal-trade .level-label,
+.crystal-trade .offer-level {
+  font-size: .8em;
+}
+
+.crystal-trade .label {
+  font-size: .7em;
+  font-style: italic;
+  color: gray;
+  text-transform: lowercase;
+  display: inline-block;
+  width: 40px;
+}
+
+.crystal-trade .wanted-label {
+  font-size: .8em;
+  text-transform: lowercase;
+  font-style: italic;
+  color: gray;
+  min-width: 64px;
+  display: inline-block;
+}
+
+.crystal-trade .request-species {
+  padding-left: 7px;
+}

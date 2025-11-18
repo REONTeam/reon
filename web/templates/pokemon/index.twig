@@ -1,0 +1,12 @@
+{% extends "main.twig" %}
+{% set nav_item = "games" %}
+
+{% block title %}{{'pokemon-crystal'|trans}}{% endblock %}
+{% block content %}
+	<h1>{{'pokemon-crystal'|trans}}</h1>
+	<p>{{'pokemon-pages.index-description'|trans}}</p>
+	<h2><a href="rankings.php">{{'rankings'|trans}}</a></h2>
+	<p>{{'pokemon-pages.rankings-description'|trans}}</p>
+	<h2><a href="exchange.php">{{'trade-corner'|trans}}</a></h2>
+	<p>{{'pokemon-pages.trade-corner-description'|trans}}</p>
+{% endblock %}

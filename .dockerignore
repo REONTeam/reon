@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+.git
+node_modules/
+web/tmp
+web/vendor
+docker-compose*

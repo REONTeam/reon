@@ -1,5 +1,6 @@
 <?php
 	use PHPMailer\PHPMailer\PHPMailer;
+	use PHPMailer\PHPMailer\SMTP;
 	use PHPMailer\PHPMailer\Exception;
 
 	require_once dirname(__DIR__)."/vendor/autoload.php";
@@ -164,7 +165,25 @@
 			$mail = new PHPMailer();
 			$mail->CharSet = PHPMailer::CHARSET_UTF8;
 			$mail->Encoding = PHPMailer::ENCODING_QUOTED_PRINTABLE;
-			$mail->isSendmail();
+
+			$smtp_host = ConfigUtil::getInstance()->getConfig()["smtp_host"];
+			if (!isset($smtp_host) || $smtp_host == "") {
+				$mail->isSendmail();
+			} else {
+				$mail->isSMTP();
+				$mail->Host = $smtp_host;
+				$mail->Port = ConfigUtil::getInstance()->getConfig()["smtp_port"];
+				$mail->SMTPAuth = ConfigUtil::getInstance()->getConfig()["smtp_auth"];
+				if ($mail->SMTPAuth) {
+					$mail->Username = ConfigUtil::getInstance()->getConfig()["smtp_user"];
+					$mail->Password = ConfigUtil::getInstance()->getConfig()["smtp_pass"];
+				}
+				switch (ConfigUtil::getInstance()->getConfig()["smtp_secure"]) {
+					case 'smtps': $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; break;
+					case 'starttls': $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; break;
+				}
+			}
+
 			$mail->setFrom($from);
 			$mail->addAddress($to);
 			$mail->Subject = $subject;
@@ -264,6 +283,20 @@
 		
 		public function completeSignupAction($id, $key, $reonEmail, $password, $passwordConfirm) {
 			$email = self::$instance->verifySignupRequest($id, $key);
+
+			$result = self::$instance->createUser($email, $reonEmail, $password, $passwodConfirm);
+			if ($result > 0) {
+				return $result;
+			}
+
+			$stmt = $db->prepare("delete from sys_signup where email = ?");
+			$stmt->bind_param("s", $email);
+			$stmt->execute();
+			
+			return 0;
+		}
+
+		public function createUser($email, $reonEmail, $password, $passwordConfirm) {
 			if (!isset($email)) return 1;
 			if (!self::$instance->isDionEmailValidAndFree($reonEmail)) return 2;
 			if ($password != $passwordConfirm) return 3;
@@ -276,11 +309,7 @@
 			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password, money_spent) values (?,?,?,?,?,0)");
 			$stmt->bind_param("sssss", $email, $password_hash, $dion_ppp_id, $reonEmail, $log_in_password);
 			$stmt->execute();
-			
-			$stmt = $db->prepare("delete from sys_signup where email = ?");
-			$stmt->bind_param("s", $email);
-			$stmt->execute();
-			
+
 			return 0;
 		}
 		
