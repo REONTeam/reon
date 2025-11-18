@@ -24,7 +24,7 @@ jobs:
           - name: dns
           - name: cron
           - name: web
-          - name: migration
+          - name: migrate
 
     runs-on: ubuntu-latest
     permissions:
