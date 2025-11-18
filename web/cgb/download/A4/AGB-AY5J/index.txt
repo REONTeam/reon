@@ -1,0 +1,2 @@
+http://gameboy.datacenter.ne.jp/cgb/upload?name=/A4/AGB-AY5J/0.register.agb
+http://gameboy.datacenter.ne.jp/cgb/ranking?name=/A4/AGB-AY5J/check.agb

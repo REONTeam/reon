@@ -71,49 +71,27 @@
 		);
 	}
 
-	function checkPlayerID($myid, $dion_id) {
+	function checkPlayerID($myid, $user_id) {
+		$config = getConfig();
+
 		$decoded = decodePlayerID($myid);
-		if (!$decoded["valid"] || $decoded["email_svr"] !== "on") {
+		if (!$decoded["valid"] || $decoded["email_svr"] !== substr($config["email_domain_dion"], 2, 2)) {
 			return false;
 		}
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select dion_ppp_id from sys_users where dion_email_local = ?");
-		$stmt->bind_param("s", $decoded["email_id"]);
+		$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
+		$stmt->bind_param("i", $user_id);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		if (sizeof($result) == 0) {
 			return false;
 		}
 		
-		if (!is_null($dion_id) && !in_array(array("dion_ppp_id" => $dion_id), $result)) {
+		if ($result[0]["dion_email_local"] !== $decoded["email_id"]) {
 			return false;
 		}
-		if (sizeof($result) == 1) {
-			$dion_id = $result[0]["dion_ppp_id"];
-		}
-
-		$stmt = $db->prepare("select user_id from amkj_user_map where player_id = ?");
-		$stmt->bind_param("s", $myid);
-		$stmt->execute();
-		$result = fancy_get_result($stmt);
-		if (sizeof($result) == 1) {
-			if (is_null($result[0]["user_id"])) {
-				if (!is_null($dion_id)) {
-					$stmt = $db->prepare("update amkj_user_map set user_id = ? where player_id = ?");
-					$stmt->bind_param("ss", $dion_id, $myid);
-					$stmt->execute();
-				}
-				return true;
-			}
-			if (!is_null($dion_id) && $result[0]["user_id"] != $dion_id) {
-				return false;
-			}
-			return true;
-		}
-		$stmt = $db->prepare("insert into amkj_user_map values (?,?)");
-		$stmt->bind_param("ss", $myid, $dion_id);
-		$stmt->execute();
+		
 		return true;
 	}
 
@@ -183,7 +161,7 @@
 		
 		$stmt = $db->prepare("select count(*) from amkj_ghosts where course = ? and (time < ? or (time = ? and id <= ?))");
 		$stmt->bind_param("iiii", $course, $time, $time, $id);
-		$stmt->execute;
+		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
 		return array(
@@ -212,7 +190,7 @@
 		
 		$stmt = $db->prepare("select count(*) from amkj_ghosts where course = ? and state = ? and (time < ? or (time = ? and id <= ?))");
 		$stmt->bind_param("iiiii", $course, $state, $time, $time, $id);
-		$stmt->execute;
+		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
 		return array(
@@ -240,7 +218,7 @@
 		
 		$stmt = $db->prepare("select count(*) from amkj_ghosts where course = ? and driver = ? and (time < ? or (time = ? and id <= ?))");
 		$stmt->bind_param("iiiii", $course, $driver, $time, $time, $id);
-		$stmt->execute;
+		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
 		return array(
@@ -269,7 +247,7 @@
 		
 		$stmt = $db->prepare("select count(*) from amkj_ghosts_mobilegp where gp_id = ? and (time < ? or (time = ? and id <= ?))");
 		$stmt->bind_param("iiiii", $gp_id, $time, $time, $id);
-		$stmt->execute;
+		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
 		return array(
@@ -343,7 +321,7 @@
 
 		$db = connectMySQL();
 		$stmt = $db->prepare("select * from amkj_ghosts where course = ? and time < ? order by time desc limit 1");
-		$stmt->bind_param("ii", $course, $ghostrank);
+		$stmt->bind_param("ii", $course, $ghostscore);
 		$stmt->execute();
 
 		return makeGhostDownload(fancy_get_result($stmt), $course);
@@ -501,7 +479,7 @@
 	
 	function getRivals($course, $myid) {
 		$myrank = getOwnRank($course, $myid);
-		if ($myrank <= 11) {
+		if ($myrank["rank"] <= 11) {
 			return array();
 		}
 		$myrankOffset = $myrank["rank"] - 12;
@@ -536,7 +514,7 @@
 	function getTop10State($course, $state) {
 		$db = connectMySQL();
 		$stmt = $db->prepare("select player_id, name, driver, time from amkj_ghosts where course = ? and state = ? order by time asc limit 11");
-		$stmt->bind_param("i", $course, $state);
+		$stmt->bind_param("ii", $course, $state);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		
@@ -550,7 +528,7 @@
 	function getTop10Driver($course, $driver) {
 		$db = connectMySQL();
 		$stmt = $db->prepare("select player_id, name, driver, time from amkj_ghosts where course = ? and driver = ? order by time asc limit 11");
-		$stmt->bind_param("i", $course, $driver);
+		$stmt->bind_param("ii", $course, $driver);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		
@@ -582,10 +560,10 @@
 			return;
 		}
 		$myid = hex2bin($params["myid"]);
-		if (!checkPlayerID($myid, null)) {
+		/*if (!checkPlayerID($myid, null)) {
 			http_response_code(400);
 			return;
-		}
+		}*/
 		$state = hexdec($params["state"]);
 		$driver = hexdec($params["driver"]);
 		$rk = array();
@@ -746,7 +724,7 @@
 		
 		// Validate sent player ID
 		if (!checkPlayerID($data["player_id"], $_SESSION['userId'])) {
-			// Player ID claimed by a different user
+			// Player ID invalid (eg email mismatch)
 			http_response_code(400);
 			return;
 		}
