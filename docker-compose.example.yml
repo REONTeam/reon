@@ -25,11 +25,6 @@ services:
       target: migrate
     volumes:
       - ./config.json:/var/www/reon/config.json:ro
-    environment:
-      - MYSQL_HOST=db
-      - MYSQL_USER
-      - MYSQL_PASSWORD
-      - MYSQL_DATABASE
     depends_on:
       db:
         condition: service_healthy

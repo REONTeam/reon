@@ -56,21 +56,7 @@ COPY --from=web-deps /app /var/www/reon/web
 COPY phinx.php /var/www/reon/phinx.php
 COPY db/ /var/www/reon/db/
 
-# Create migration entrypoint script
-RUN echo '#!/bin/sh' > /migrate.sh && \
-    echo 'set -e' >> /migrate.sh && \
-    echo 'echo "Waiting for database to be ready..."' >> /migrate.sh && \
-    echo 'until php -r "new PDO(\"mysql:host=\${MYSQL_HOST};dbname=\${MYSQL_DATABASE}\", \"\${MYSQL_USER}\", \"\${MYSQL_PASSWORD}\");" 2>/dev/null; do' >> /migrate.sh && \
-    echo '  echo "Database is unavailable - sleeping"' >> /migrate.sh && \
-    echo '  sleep 2' >> /migrate.sh && \
-    echo 'done' >> /migrate.sh && \
-    echo 'echo "Database is up - running migrations"' >> /migrate.sh && \
-    echo '/var/www/reon/web/vendor/bin/phinx migrate' >> /migrate.sh && \
-    echo 'echo "Migrations completed successfully"' >> /migrate.sh && \
-    chmod +x /migrate.sh
-
-CMD ["/migrate.sh"]
-
+CMD ["/var/www/reon/web/vendor/bin/phinx", "migrate"]
 
 ### Mail Service
 FROM node:${NODE_VERSION}-alpine AS mail-deps
