@@ -1,7 +1,7 @@
 CREATE DATABASE IF NOT EXISTS `reon`;
 USE `reon`;
 
-#System
+# System
 CREATE TABLE `sys_users` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT
   `email` varchar(254) NOT NULL,
@@ -141,94 +141,140 @@ CREATE TABLE `amoj_news` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-#BXT_
+# Pokemon Crystal
+CREATE TABLE `bxt_battle_tower_records` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `game_region` char(1) NOT NULL,
+  `room` int(10) UNSIGNED NOT NULL,
+  `level` tinyint(2) UNSIGNED NOT NULL COMMENT 'Battle tower level',
+  `level_decode` varchar(16) DEFAULT NULL,
+  `trainer_id` smallint(5) UNSIGNED NOT NULL COMMENT 'Trainer ID',
+  `secret_id` smallint(5) UNSIGNED NOT NULL COMMENT 'Secret ID',
+  `player_name` binary(7) NOT NULL COMMENT 'Name of trainer',
+  `player_name_decode` varchar(32) DEFAULT NULL,
+  `class` tinyint(3) UNSIGNED NOT NULL COMMENT 'Class of trainer',
+  `class_decode` varchar(32) DEFAULT NULL,
+  `pokemon1` binary(59) NOT NULL COMMENT 'Pokémon',
+  `pokemon1_decode` text DEFAULT NULL,
+  `pokemon2` binary(59) NOT NULL COMMENT 'Pokémon',
+  `pokemon2_decode` text DEFAULT NULL,
+  `pokemon3` binary(59) NOT NULL COMMENT 'Pokémon',
+  `pokemon3_decode` text DEFAULT NULL,
+  `message_start` binary(12) NOT NULL,
+  `message_start_decode` text DEFAULT NULL,
+  `message_win` binary(12) NOT NULL,
+  `message_win_decode` text DEFAULT NULL,
+  `message_lose` binary(12) NOT NULL,
+  `message_lose_decode` text DEFAULT NULL,
+  `num_trainers_defeated` tinyint(3) UNSIGNED NOT NULL,
+  `num_turns_required` smallint(5) UNSIGNED NOT NULL,
+  `damage_taken` smallint(5) UNSIGNED NOT NULL,
+  `num_fainted_pokemon` tinyint(3) UNSIGNED NOT NULL,  
+  `account_id` int(11) UNSIGNED NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `bxt_battle_tower_trainers` (
+  `game_region` char(1) NOT NULL,
+  `trainer_id` smallint(5) UNSIGNED NOT NULL COMMENT 'Trainer ID',
+  `secret_id` smallint(5) UNSIGNED NOT NULL COMMENT 'Secret ID',
+  `player_name` binary(7) NOT NULL COMMENT 'Name of trainer',
+  `player_name_decode` varchar(32) DEFAULT NULL,
+  `class` tinyint(3) UNSIGNED NOT NULL COMMENT 'Class of trainer',
+  `class_decode` varchar(32) DEFAULT NULL,
+  `pokemon1` binary(59) NOT NULL COMMENT 'Pokémon',
+  `pokemon1_decode` text DEFAULT NULL,
+  `pokemon2` binary(59) NOT NULL COMMENT 'Pokémon',
+  `pokemon2_decode` text DEFAULT NULL,
+  `pokemon3` binary(59) NOT NULL COMMENT 'Pokémon',
+  `pokemon3_decode` text DEFAULT NULL,
+  `message_start` binary(12) NOT NULL,
+  `message_start_decode` text DEFAULT NULL,
+  `message_win` binary(12) NOT NULL,
+  `message_win_decode` text DEFAULT NULL,
+  `message_lose` binary(12) NOT NULL,
+  `message_lose_decode` text DEFAULT NULL,
+  `account_id` int(11) UNSIGNED NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `bxt_battle_tower_leaders` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `game_region` char(1) NOT NULL,
+  `player_name` binary(7) NOT NULL,
+  `player_name_decode` varchar(32) DEFAULT NULL,
+  `room` int(11) UNSIGNED NOT NULL,
+  `level` tinyint(1) UNSIGNED NOT NULL,
+  `level_decode` varchar(16) DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 CREATE TABLE `bxt_exchange` (
   `game_region` char(1) NOT NULL,
   `trainer_id` smallint(5) UNSIGNED NOT NULL COMMENT 'Trainer ID',
   `secret_id` smallint(5) UNSIGNED NOT NULL COMMENT 'Secret ID',
   `offer_gender` tinyint(1) UNSIGNED NOT NULL COMMENT 'Gender of Pokémon',
+  `offer_gender_decode` varchar(16) DEFAULT NULL,
   `offer_species` tinyint(3) UNSIGNED NOT NULL COMMENT 'Decimal Pokémon ID.',
+  `offer_species_decode` varchar(32) DEFAULT NULL,
   `request_gender` tinyint(1) UNSIGNED NOT NULL,
+  `request_gender_decode` varchar(16) DEFAULT NULL,
   `request_species` tinyint(3) UNSIGNED NOT NULL,
+  `request_species_decode` varchar(32) DEFAULT NULL,
   `player_name` binary(7) NOT NULL COMMENT 'Name of player',
+  `player_name_decode` varchar(32) DEFAULT NULL,
   `pokemon` binary(65) NOT NULL COMMENT 'Pokémon',
+  `pokemon_decode` text DEFAULT NULL,
   `mail` binary(47) NOT NULL COMMENT 'Held mail of Pokémon',
+  `mail_decode` text DEFAULT NULL,
   `account_id` int(11) UNSIGNED NOT NULL,
   `email` varchar(30) NOT NULL COMMENT 'DION email',
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  UNIQUE KEY `UNIQUE` (`account_id`,`trainer_id`,`secret_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Pokémon Trade Corner information';
+  PRIMARY KEY (`id`)
+  UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE `bxt_battle_tower_records` (
+CREATE TABLE `bxt_news` (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `game_region` char(1) NOT NULL,
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT
-  `room` int(10) UNSIGNED NOT NULL,
-  `level` tinyint(1) UNSIGNED NOT NULL,
+  `ranking_category_1` tinyint(2) UNSIGNED DEFAULT NULL,
+  `ranking_category_1_decode` varchar(80) DEFAULT NULL,
+  `ranking_category_2` tinyint(2) UNSIGNED DEFAULT NULL,
+  `ranking_category_2_decode` varchar(80) DEFAULT NULL,
+  `ranking_category_3` tinyint(2) UNSIGNED DEFAULT NULL,
+  `ranking_category_3_decode` varchar(80) DEFAULT NULL,
+  `message` binary(12) NOT NULL,
+  `message_decode` text DEFAULT NULL,
+  `news_binary` blob NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `bxt_ranking` (
+  `game_region` char(1) NOT NULL,
+  `news_id` int(11) UNSIGNED NOT NULL,
+  `category_id` tinyint(2) UNSIGNED NOT NULL,
+  `category_id_decode` varchar(80) DEFAULT NULL,
+  `score` int(11) UNSIGNED NOT NULL,
   `trainer_id` smallint(5) UNSIGNED NOT NULL,
   `secret_id` smallint(5) UNSIGNED NOT NULL,
   `player_name` binary(7) NOT NULL,
-  `class` tinyint(1) NOT NULL,
-  `pokemon1` binary(59) NOT NULL,
-  `pokemon2` binary(59) NOT NULL,
-  `pokemon3` binary(59) NOT NULL,
-  `message_start` binary(12) NOT NULL,
-  `message_win` binary(12) NOT NULL,
-  `message_lose` binary(12) NOT NULL,
-  `num_trainers_defeated` tinyint(3) UNSIGNED NOT NULL,
-  `num_turns_required` smallint(5) UNSIGNED NOT NULL,
-  `damage_taken` smallint(5) UNSIGNED NOT NULL,
-  `num_fainted_pokemon` tinyint(3) UNSIGNED NOT NULL,
+  `player_name_decode` varchar(32) DEFAULT NULL,
+  `player_gender` tinyint(1) UNSIGNED NOT NULL,
+  `player_gender_decode` varchar(16) DEFAULT NULL,
+  `player_age` tinyint(3) UNSIGNED NOT NULL,
+  `player_region` tinyint(3) UNSIGNED NOT NULL,
+  `player_region_decode` varchar(64) DEFAULT NULL,
+  `player_zip` varbinary(3) NOT NULL,
+  `player_zip_decode` varchar(16) DEFAULT NULL,
+  `player_message` binary(12) NOT NULL,
+  `player_message_decode` text DEFAULT NULL,
   `account_id` int(11) UNSIGNED NOT NULL,
-  `email` varchar(30) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-# EX Monopoly (AMOJ)
-CREATE TABLE `amoj_ranking` (
- `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
- `name` binary(4) NOT NULL,
- `email` varchar(32) NOT NULL,
- `today` tinyint(3) unsigned NOT NULL DEFAULT 0,
- `points` int(11) unsigned NOT NULL,
- `money` int(11) unsigned NOT NULL,
- `gender` tinyint(3) unsigned NOT NULL,
- `age` tinyint(3) unsigned NOT NULL,
- `state` tinyint(3) unsigned NOT NULL,
- `today2` tinyint(3) unsigned NOT NULL DEFAULT 0,
- PRIMARY KEY (`id`)
-);
-CREATE TABLE `amoj_news` (
- `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
- `text` text(65535) NOT NULL,
- PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `bxt_battle_tower_trainers` (
-  `game_region` char(1) NOT NULL,
-  `no` tinyint(1) UNSIGNED NOT NULL,
-  `room` int(10) UNSIGNED NOT NULL,
-  `level` tinyint(1) UNSIGNED NOT NULL,
-  `player_name` binary(7) NOT NULL,
-  `class` tinyint(1) NOT NULL,
-  `pokemon1` binary(59) NOT NULL,
-  `pokemon2` binary(59) NOT NULL,
-  `pokemon3` binary(59) NOT NULL,
-  `message_start` binary(12) NOT NULL,
-  `message_win` binary(12) NOT NULL,
-  `message_lose` binary(12) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`no`,`game_region`,`room`,`level`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE `bxt_battle_tower_leaders` (
-  `game_region` char(1) NOT NULL,
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT
-  `player_name` binary(7) NOT NULL,
-  `room` int(11) UNSIGNED NOT NULL,
-  `level` tinyint(1) UNSIGNED NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `bxt_ranking_categories` (
@@ -240,79 +286,49 @@ CREATE TABLE `bxt_ranking_categories` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE `bxt_news` (
-  `game_region` char(1) NOT NULL,
-  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT
-  `ranking_category_1` tinyint(2) UNSIGNED DEFAULT NULL,
-  `ranking_category_2` tinyint(2) UNSIGNED DEFAULT NULL,
-  `ranking_category_3` tinyint(2) UNSIGNED DEFAULT NULL,
-  `message` varbinary(100) NOT NULL,
-  `news_binary` blob NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE `bxt_ranking` (
-  `game_region` char(1) NOT NULL,
-  `news_id` int(11) UNSIGNED NOT NULL,
-  `category_id` tinyint(2) UNSIGNED NOT NULL,
-  `trainer_id` smallint(5) UNSIGNED NOT NULL,
-  `secret_id` smallint(5) UNSIGNED NOT NULL,
-  `player_name` binary(7) NOT NULL,
-  `player_gender` tinyint(1) UNSIGNED NOT NULL,
-  `player_age` tinyint(3) UNSIGNED NOT NULL,
-  `player_region` tinyint(3) UNSIGNED NOT NULL,
-  `player_zip` binary(3) NOT NULL,
-  `player_message` binary(12) NOT NULL,
-  `score` int(11) UNSIGNED NOT NULL,
-  `account_id` int(11) UNSIGNED NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`game_region`,`news_id`,`category_id`,`account_id`,`trainer_id`,`secret_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 INSERT IGNORE INTO `bxt_ranking_categories` (`id`, `name`, `ram_address`, `size`) VALUES
-(0, 'Play time when last entered the Hall of Fame', 0x01A0, 4),
-(1, 'Step count when last entered the Hall of Fame', 0x05A0, 4),
-(2, 'Number of times the party was healed when last entered the Hall of Fame', 0x09A0, 3),
-(3, 'Number of battles when last entered the Hall of Fame', 0x0DA0, 3),
-(4, 'Step count', 0x10A0, 4),
-(5, 'Number of Battle Tower wins', 0x14A0, 2),
-(6, 'Number of times TMs and HMs have been taught', 0x18A0, 3),
-(7, 'Number of battles', 0x1BA0, 3),
-(8, 'Number of wild Pokémon battles', 0x1EA0, 3),
-(9, 'Number of Trainer battles', 0x21A0, 3),
-(10, 'Unused', 0x24A0, 3),
-(11, 'Number of Hall of Fame inductions', 0x27A0, 3),
-(12, 'Number of wild Pokémon caught', 0x2AA0, 3),
-(13, 'Number of hooked Pokémon encounters', 0x2DA0, 3),
-(14, 'Number of Eggs hatched', 0x30A0, 3),
-(15, 'Number of Pokémon evolved', 0x33A0, 3),
-(16, 'Number of Berries and Apricorns picked', 0x36A0, 3),
-(17, 'Number of times the party is healed', 0x39A0, 3),
-(18, 'Number of times Mystery Gift is used', 0x3CA0, 3),
-(19, 'Number of trades', 0x3FA0, 3),
-(20, 'Number of uses of field move Fly', 0x42A0, 3),
-(21, 'Number of uses of field move Surf', 0x45A0, 3),
-(22, 'Number of uses of field move Waterfall', 0x48A0, 3),
-(23, 'Number of times the player whited out', 0x4BA0, 3),
-(24, 'Number of Lucky Number Show prizes won', 0x4EA0, 3),
-(25, 'Number of Phone calls made and received', 0x51A0, 3),
-(26, 'Unused', 0x54A0, 3),
-(27, 'Number of Colosseum battles', 0x57A0, 3),
-(28, 'Number of times players Pokémon used Splash', 0x5AA0, 3),
-(29, 'Number of tree Pokémon encounters', 0x5DA0, 3),
-(30, 'Unused', 0x60A0, 3),
-(31, 'Number of Colosseum wins', 0x63A0, 3),
-(32, 'Number of Colosseum losses', 0x66A0, 3),
-(33, 'Number of Colosseum ties', 0x69A0, 3),
-(34, 'Number of times players Pokémon used SelfDestruct or Explosion', 0x6CA0, 3),
-(35, 'Current streak of consecutive slot machine wins', 0x6FA0, 2),
-(36, 'Longest streak of consecutive slot machine wins', 0x71A0, 2),
-(37, 'Total coins won from slot machines', 0x73A0, 4),
-(38, 'Total money earned from battles (including Pay Day)', 0x77A0, 4),
-(39, 'Largest Magikarp measured', 0x7BA0, 2),
-(40, 'Smallest Magikarp measured', 0x7DA0, 2),
-(41, 'Bug-Catching Contest high score', 0x7FA0, 2);
+(0, 'LAST HOF RECORD', 0x01A0, 4),
+(1, 'LAST HOF STEPS', 0x05A0, 4),
+(2, 'LAST HOF HEALED', 0x09A0, 3),
+(3, 'LAST HOF BATTLES', 0x0DA0, 3),
+(4, 'STEPS WALKED', 0x10A0, 4),
+(5, 'BATTLE TOWER WINS', 0x14A0, 2),
+(6, 'TMs/HMs TAUGHT', 0x18A0, 3),
+(7, 'POKéMON BATTLES', 0x1BA0, 3),
+(8, 'POKéMON ENCOUNTER', 0x1EA0, 3),
+(9, 'TRAINER BATTLES', 0x21A0, 3),
+(10, 'UNUSED', 0x24A0, 3),
+(11, 'HOF ENTRIES', 0x27A0, 3),
+(12, 'POKéMON CAUGHT', 0x2AA0, 3),
+(13, 'POKéMON HOOKED', 0x2DA0, 3),
+(14, 'EGGS HATCHED', 0x30A0, 3),
+(15, 'POKéMON EVOLVED', 0x33A0, 3),
+(16, 'FRUIT PICKED', 0x36A0, 3),
+(17, 'PARTY HEALED', 0x39A0, 3),
+(18, 'MYSTERY GIFT USED', 0x3CA0, 3),
+(19, 'TRADES COMPLETED', 0x3FA0, 3),
+(20, 'FLY USED', 0x42A0, 3),
+(21, 'SURF USED', 0x45A0, 3),
+(22, 'WATERFALL USED', 0x48A0, 3),
+(23, 'TIMES WHITED OUT', 0x4BA0, 3),
+(24, 'LUCKY NUMBER WINS', 0x4EA0, 3),
+(25, 'TOTAL PHONE CALLS', 0x51A0, 3),
+(26, 'UNUSED', 0x54A0, 3),
+(27, 'COLOSSEUM BATTLES', 0x57A0, 3),
+(28, 'SPLASH USED', 0x5AA0, 3),
+(29, 'HEADBUTT USED', 0x5DA0, 3),
+(30, 'UNUSED', 0x60A0, 3),
+(31, 'COLOSSEUM WINS', 0x63A0, 3),
+(32, 'COLOSSEUM LOSSES', 0x66A0, 3),
+(33, 'COLOSSEUM DRAWS', 0x69A0, 3),
+(34, 'SELF-KO MOVE USED', 0x6CA0, 3),
+(35, 'SLOT WIN STREAK', 0x6FA0, 2),
+(36, 'BEST SLOT STREAK', 0x71A0, 2),
+(37, 'SLOT COINS WON', 0x73A0, 4),
+(38, 'TOTAL MONEY', 0x77A0, 4),
+(39, 'LARGEST MAGIKARP', 0x7BA0, 2),
+(40, 'SMALLEST MAGIKARP', 0x7DA0, 2),
+(41, 'BUG CONTEST SCORE', 0x7FA0, 2);
 
 # Zen Nihon GT Senshuken (AGTJ)
 CREATE TABLE `agtj_ghosts` (
