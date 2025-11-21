@@ -1,132 +1,104 @@
 <?php
-// SPDX-License-Identifier: MIT
-//
-// BXT international config.
-//
-// This file centralises how different game-region codes are allowed
-// to interact with one another in the REON BXT stack.
-//
-// game_region is the last letter of the game ID:
-//   BXTE -> 'e' (English)
-//   BXTF -> 'f' (French)
-//   BXTD -> 'd' (German)
-//   BXTS -> 's' (Spanish)
-//   BXTI -> 'i' (Italian)
-//   BXTP -> 'p' (Europe)
-//   BXTU -> 'u' (Australia)
-//   BXTJ -> 'j' (Japanese)
-//
-// Rules:
-//   - Every upload always writes into the unified tables:
-//       bxt_exchange
-//       bxt_battle_tower_records
-//       bxt_battle_tower_leaders
-//       bxt_battle_tower_trainers
-//   - The game_region column stores the source game.
-//   - By default a game only interacts with its own game_region.
-//   - The groups below optionally allow cross-region interaction
-//     on a per-feature basis (Trade Corner vs. Battle Tower).
-//
-// Configuration format
-// --------------------
-// $BXT_REGION_GROUPS['trade_corner'] : array of region-groups.
-// $BXT_REGION_GROUPS['battle_tower'] : array of region-groups.
-//
-// Each group is an array of one-letter region codes.  Two regions
-// are allowed to link internationally for a given feature if they
-// appear together in at least one group for that feature.
-//
-// If a region does not appear in any group for a feature, it will
-// only ever interact with itself.
-//
-// Default:
-//   - All non-Japanese games are grouped together for both
-//     Trade Corner and Battle Tower.
-//   - Japanese ('j') is isolated by default but can be added
-//     to any group if desired.
+/**
+ * Battle eXchange Tower (BXT) global configuration.
+ * Global configuration for BXT regions and helpers.
+ */
 
-$BXT_REGION_GROUPS = [
-    'trade_corner' => [
-        // Default: everything except Japanese can trade with each other
-        ['e','f','d','s','i','p','u'],
+$bxt_config = [
+    // Global display override: at most one region code, e.g. ['e']
+    'global_table_display' => ['e'],
+
+    // Map full Game IDs to one-letter region codes.
+    'game_region_map' => [
+        'CGB-BXTE' => 'e', // English
+        'CGB-BXTF' => 'f', // French
+        'CGB-BXTD' => 'd', // German
+        'CGB-BXTS' => 's', // Spanish
+        'CGB-BXTI' => 'i', // Italian
+        'CGB-BXTJ' => 'j', // Japanese
+        'CGB-BXTP' => 'p', // Europe (multi-language)
+        'CGB-BXTU' => 'u', // Australia
     ],
-    'battle_tower' => [
-        // Default: everything except Japanese can pull from each other's uploads
-        ['e','f','d','s','i','p','u'],
+
+    // Region-linking groups per feature.
+    'region_groups' => [
+        'trade_corner' => [
+            ['e','f','d','s','i','p','u'], // International pool
+            ['j'],                         // JP-only pool
+        ],
+        'battle_tower' => [
+            ['e','f','d','s','i','p','u'],
+            ['j'],
+        ],
+        'news' => [
+            ['e'],
+			['f'],
+			['d'],
+			['s'],
+			['i'],
+			['p'],
+			['u'],
+            ['j'],
+        ],
     ],
 ];
 
-/**
- * Normalise a full game ID (e.g. BXTE, BXTP, BXTJ) into the
- * one-letter game_region code used in the DB.
- */
-function bxt_region_from_game_id(string $gameId): string {
-    $gameId = strtoupper(trim($gameId));
-    if ($gameId === '') {
-        return 'e';
+// Convenience mirror used by older decode helpers that expect this symbol.
+if (!isset($BXT_GLOBAL_TABLE_DISPLAY)) {
+    $BXT_GLOBAL_TABLE_DISPLAY = $bxt_config['global_table_display'];
+}
+
+// -------- Helper functions --------
+
+if (!function_exists('bxt_get_config_array')) {
+    /**
+     * Get the immutable BXT configuration array.
+     *
+     * @return array<string,mixed>
+     */
+    function bxt_get_config_array(): array {
+        global $bxt_config;
+        return (isset($bxt_config) && is_array($bxt_config)) ? $bxt_config : [];
     }
-    // BXTE -> 'E'
-    $suffix = substr($gameId, -1);
-    $suffix = strtolower($suffix);
-    // Only allow known letters; default to 'e' as a safe fall-back.
-    if (!in_array($suffix, ['e','f','d','s','i','j','p','u'], true)) {
-        return 'e';
-    }
-    return $suffix;
 }
 
 /**
- * Return all regions that the given region is allowed to link with
- * for a given feature. This always includes the region itself.
- *
- * $feature is 'trade_corner' or 'battle_tower'.
+ * Map a full Game ID (e.g. CGB-BXTE) to its one-letter region code (e,f,d,s,i,j,p,u).
+ * Falls back to $default (or 'e') if unknown.
  */
-function bxt_get_allowed_regions_for_feature(string $feature, string $region): array {
-    global $BXT_REGION_GROUPS;
-
-    $region = strtolower($region);
-    $allowed = [$region];
-
-    if (!isset($BXT_REGION_GROUPS[$feature])) {
-        return array_values(array_unique($allowed));
-    }
-
-    foreach ($BXT_REGION_GROUPS[$feature] as $group) {
-        if (!is_array($group)) {
-            continue;
+if (!function_exists('bxt_get_region_for_gameid')) {
+    function bxt_get_region_for_gameid(string $gameId, string $default = 'e'): string {
+        $cfg = bxt_get_config_array();
+        if (isset($cfg['game_region_map'][$gameId])) {
+            return strtolower((string)$cfg['game_region_map'][$gameId]);
         }
-        // Normalise group entries
-        $groupNorm = array_map('strtolower', $group);
-        if (in_array($region, $groupNorm, true)) {
-            $allowed = array_merge($allowed, $groupNorm);
+        return strtolower($default);
+    }
+}
+
+if (!function_exists('bxt_regions_linked_for_feature')) {
+    function bxt_regions_linked_for_feature(string $feature, string $region): array {
+        $cfg = bxt_get_config_array();
+        $region = strtolower($region);
+
+        if (!isset($cfg['region_groups'][$feature]) ||
+            !is_array($cfg['region_groups'][$feature])) {
+            return [$region];
         }
+
+        foreach ($cfg['region_groups'][$feature] as $pool) {
+            if (!is_array($pool)) {
+                continue;
+            }
+            if (in_array($region, $pool, true)) {
+                // Normalise to lower-case one-letter codes
+                return array_values(array_map('strtolower', $pool));
+            }
+        }
+
+        // Region not present in any configured pool -> isolated
+        return [$region];
     }
-
-    return array_values(array_unique($allowed));
 }
 
-/**
- * Generic helper: can region A link with region B for a given feature?
- */
-function bxt_regions_can_link(string $feature, string $regionA, string $regionB): bool {
-    $regionA = strtolower($regionA);
-    $regionB = strtolower($regionB);
-    if ($regionA === $regionB) {
-        return true;
-    }
-    $allowedA = bxt_get_allowed_regions_for_feature($feature, $regionA);
-    return in_array($regionB, $allowedA, true);
-}
-
-/**
- * Shorthand wrappers for the two features we currently care about.
- */
-
-function bxt_trade_regions_can_link(string $regionA, string $regionB): bool {
-    return bxt_regions_can_link('trade_corner', $regionA, $regionB);
-}
-
-function bxt_bt_regions_can_link(string $regionA, string $regionB): bool {
-    return bxt_regions_can_link('battle_tower', $regionA, $regionB);
-}
-
+?>

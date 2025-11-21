@@ -10,8 +10,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "commander": "^14.0.2",
-    "mysql2": "^3.15.3",
-    "nodemailer": "^7.0.10"
+    "commander": "^12.1.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.5.2",
+    "nodemailer": "^6.9.16"
   }
 }

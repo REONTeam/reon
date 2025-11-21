@@ -1,186 +1,184 @@
 <?php
-	// SPDX-License-Identifier: MIT
-	require_once(CORE_PATH."/database.php");
-	require_once(CORE_PATH."/pokemon/func.php");
-	require_once(CORE_PATH."/pokemon/battle_tower_trainers.php");
-	require_once(CORE_PATH."/pokemon/bxt_config.php");
-	
-	function battleTowerGetRoomCount() {
-		$num_rooms_per_level = 20; // change number of available rooms here
-		return pack("n",$num_rooms_per_level * 10);
-	}
-	
-	/**
-	 * Fetch a Battle Tower room for a given region + room number.
-	 *
-	 * Behaviour:
-	 *  - All uploaded trainers live in bxt_battle_tower_trainers with a
-	 *    game_region column.
-	 *  - We compute the set of allowed source regions for the requesting
-	 *    region using bxt_get_allowed_regions_for_feature('battle_tower', $region).
-	 *  - We randomly pick up to 7 trainers across those regions for the
-	 *    requested room/level.
-	 *  - If there are fewer than 7, we pad with placeholder trainers for
-	 *    the requesting region.
-	 */
-	function battleTowerGetRoom($region, $roomNo) {
-		$region = strtolower($region);
-		$room = roomNoToRoom($roomNo);   // selected room (0 = room 001, 1 = room 002...)
-		$level = roomNoToLevel($roomNo); // selected level (0 = L:10, 9 = L:100)
-		
-		$db = connectMySQL();
+require_once __DIR__ . '/func.php';
+require_once(CORE_PATH."/database.php");
+require_once(CORE_PATH."/pokemon/func.php");
+require_once(CORE_PATH."/pokemon/battle_tower_trainers.php");
+require_once(CORE_PATH."/pokemon/bxt_config.php");
 
-		$sourceRegions = bxt_get_allowed_regions_for_feature('battle_tower', $region);
-		if (empty($sourceRegions)) {
-			$sourceRegions = [$region];
-		}
+/**
+ * Return the number of available Battle Tower rooms (as a 16-bit big-endian integer).
+ *
+ * Protocol: rooms.cgb is just:
+ *   u16 room_count
+ * There is NO list of room IDs in this file.
+ */
+function battleTowerGetRoomCount($region = null) {
+    // Number of rooms per level (1–20).
+    $num_rooms_per_level = 20;
 
-		// Build a safe IN (...) list for game_region.
-		$inParts = [];
-		foreach ($sourceRegions as $r) {
-			$inParts[] = "'" . $db->real_escape_string(strtolower($r)) . "'";
-		}
-		$inExpr = implode(',', $inParts);
+    // 10 levels (10,20,...,100)
+    $levels = 10;
 
-		$sql = "SELECT player_name AS name, class, pokemon1, pokemon2, pokemon3, "
-			 . "message_start, message_win, message_lose "
-			 . "FROM bxt_battle_tower_trainers "
-			 . "WHERE game_region IN ($inExpr) AND room = ? AND level = ? "
-			 . "ORDER BY RAND() LIMIT 7";
+    $region = $region ? strtolower($region) : 'e';
 
-		$stmt = $db->prepare($sql);
-		if (!$stmt) {
-			// Fall back to pure placeholders if the table is missing
-			$result = [];
-			for ($i = 0; $i < 7; $i++) {
-				$result[] = getBattleTowerPlaceholderTrainerForRegion($region, $level, $i);
-			}
-			$bxte = ($region !== 'j');
-			return encodeBattleTowerRoomData($result, $bxte);
-		}
+    $total_rooms = $num_rooms_per_level * $levels;
 
-		$stmt->bind_param("ii", $room, $level);
-		$stmt->execute();
-		$result = fancy_get_result($stmt);
+    // Crystal expects just a 16-bit big-endian count in rooms.cgb
+    return pack("n", $total_rooms);
+}
 
-		// Pad to 7 entries with placeholders if needed
-		$have = is_array($result) ? count($result) : 0;
-		if (!is_array($result)) {
-			$result = [];
-		}
-		for ($i = $have; $i < 7; $i++) {
-			$result[] = getBattleTowerPlaceholderTrainerForRegion($region, $level, $i);
-		}
 
-		$bxte = ($region !== 'j');
-		return encodeBattleTowerRoomData($result, $bxte);
-	}
-	
-	/**
-	 * Fetch Battle Tower leaders list for a given room/level.
-	 *
-	 * For consistency with the original interface, $bxte decides the
-	 * *requesting* region: false => Japanese ('j'), true => English
-	 * ('e' and friends).  From that region we compute the allowed set
-	 * of source regions and then read from the unified leaders table.
-	 */
-	function battleTowerGetLeaders($roomNo, $bxte = false) {
-		$room = roomNoToRoom($roomNo);
-		$level = roomNoToLevel($roomNo);
-		
-		// Requesting region: 'j' for BXTJ, 'e' for all non-J.
-		$region = $bxte ? 'e' : 'j';
+/**
+ * Build one room: 7 trainers → encoded binary room blob.
+ */
+function battleTowerGetRoom($region, $roomNo) {
+    $region = strtolower($region);
 
-		$db = connectMySQL();
-		$sourceRegions = bxt_get_allowed_regions_for_feature('battle_tower', $region);
-		if (empty($sourceRegions)) {
-			$sourceRegions = [$region];
-		}
+    $room  = roomNoToRoom($roomNo);
+    $level = roomNoToLevel($roomNo);
 
-		$inParts = [];
-		foreach ($sourceRegions as $r) {
-			$inParts[] = "'" . $db->real_escape_string(strtolower($r)) . "'";
-		}
-		$inExpr = implode(',', $inParts);
+    $db = connectMySQL();
 
-		$sql = "SELECT HEX(player_name) AS `hex(name)` "
-			 . "FROM bxt_battle_tower_leaders "
-			 . "WHERE game_region IN ($inExpr) AND room = ? AND level = ? "
-			 . "ORDER BY id DESC LIMIT 30";
+        if (function_exists('bxt_regions_linked_for_feature')) {
+        $sourceRegions = bxt_regions_linked_for_feature('battle_tower', $region);
+    } else {
+        $sourceRegions = [$region];
+    }
 
-		$stmt = $db->prepare($sql);
-		if (!$stmt) {
-			// No table: return an empty list, the game will fall back to its local data.
-			return encodeLeaderList([], $bxte);
-		}
-		$stmt->bind_param("ii", $room, $level);
-		$stmt->execute();
-		return encodeLeaderList(fancy_get_result($stmt), $bxte);
-	}
-	
-	/**
-	 * Raw Battle Tower record insert (no legality / policy checks).
-	 * In normal operation battleTowerSubmitRecord_legality() in
-	 * battle_tower_legality.php should be used instead.
-	 */
-	function battleTowerSubmitRecord($inputStream, $bxte = false) {
-		$data = decodeBattleTowerRecord($inputStream, $bxte);
-		$db = connectMySQL();
 
-		$region = $bxte ? 'e' : 'j';
+    $inParts = [];
+    foreach ($sourceRegions as $r) {
+        $inParts[] = "'" . $db->real_escape_string(strtolower($r)) . "'";
+    }
+    $inExpr = implode(',', $inParts);
 
-		$sql = "INSERT INTO bxt_battle_tower_records (
-				game_region,
-				room,
-				level,
-				trainer_id,
-				secret_id,
-				player_name,
-				class,
-				pokemon1,
-				pokemon2,
-				pokemon3,
-				message_start,
-				message_win,
-				message_lose,
-				num_trainers_defeated,
-				num_turns_required,
-				damage_taken,
-				num_fainted_pokemon,
-				account_id,
-				email
-			) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    $sql = "SELECT player_name AS name, class, pokemon1, pokemon2, pokemon3,
+                   message_start, message_win, message_lose
+            FROM bxt_battle_tower_trainers
+            WHERE game_region IN ($inExpr)
+            ORDER BY RAND() LIMIT 7";
 
-		$stmt = $db->prepare($sql);
-		if (!$stmt) {
-			return false;
-		}
+    $stmt = $db->prepare($sql);
+    if (!$stmt) {
+        $result = [];
+        for ($i = 0; $i < 7; $i++) {
+            $result[] = getBattleTowerPlaceholderTrainerForRegion($region, $level, $i);
+        }
+        $bxte = ($region !== 'j');
+        return encodeBattleTowerRoomData($result, $bxte);
+    }
 
-		// Types: s + iisiissssssssiiiii
-		$stmt->bind_param(
-			"siisiissssssssiiiii",
-			$region,
-			$data['room'],
-			$data['level'],
-			$data['email'],
-			$data['trainer_id'],
-			$data['secret_id'],
-			$data['name'],
-			$data['class'],
-			$data['pokemon1'],
-			$data['pokemon2'],
-			$data['pokemon3'],
-			$data['message_start'],
-			$data['message_win'],
-			$data['message_lose'],
-			$data['num_trainers_defeated'],
-			$data['num_turns_required'],
-			$data['damage_taken'],
-			$data['num_fainted_pokemon'],
-			isset($_SESSION['userId']) ? $_SESSION['userId'] : 0
-		);
+    $stmt->execute();
+    $result = fancy_get_result($stmt);
 
-		return $stmt->execute();
-	}
-	
+    if (!is_array($result)) {
+        $result = [];
+    }
+    $count = count($result);
+
+    for ($i = $count; $i < 7; $i++) {
+        $result[] = getBattleTowerPlaceholderTrainerForRegion($region, $level, $i);
+    }
+
+    $bxte = ($region !== 'j');
+    return encodeBattleTowerRoomData($result, $bxte);
+}
+
+/**
+ * Leaders list: 30 max leader names per room/level.
+ */
+function battleTowerGetLeaders($region, $roomNo, $bxte = false) {
+    $room  = roomNoToRoom($roomNo);
+    $level = roomNoToLevel($roomNo);
+
+    $region = strtolower($region);
+
+    $db = connectMySQL();
+
+        if (function_exists('bxt_regions_linked_for_feature')) {
+        $sourceRegions = bxt_regions_linked_for_feature('battle_tower', $region);
+    } else {
+        $sourceRegions = [$region];
+    }
+
+
+    $inParts = [];
+    foreach ($sourceRegions as $r) {
+        $inParts[] = "'" . $db->real_escape_string(strtolower($r)) . "'";
+    }
+    $inExpr = implode(',', $inParts);
+
+    $sql = "SELECT HEX(name) AS `hex(name)`
+            FROM bxt_battle_tower_leaders
+            WHERE game_region IN ($inExpr)
+              AND room = ?
+              AND level = ?
+            ORDER BY id DESC
+            LIMIT 30";
+
+    $stmt = $db->prepare($sql);
+    if (!$stmt) {
+        return encodeLeaderList([], $bxte);
+    }
+
+    $stmt->bind_param("ii", $room, $level);
+    $stmt->execute();
+    $result = fancy_get_result($stmt);
+
+    if ($bxte === null) {
+        $bxte = ($region !== 'j');
+    }
+    return encodeLeaderList($result, $bxte);
+}
+
+/**
+ * Raw record insertion. Uses decodeBattleTowerRecord() directly.
+ */
+function battleTowerSubmitRecord($inputStream, $bxte = false) {
+    $data = decodeBattleTowerRecord($inputStream, $bxte);
+    $db = connectMySQL();
+
+    $region = $bxte ? 'e' : 'j';
+
+    $sql = "INSERT INTO bxt_battle_tower_records (
+                game_region,
+                room,
+                level,
+                trainer_id,
+                secret_id,
+                player_name,
+                class,
+                pokemon1,
+                pokemon2,
+                pokemon3,
+                message_start,
+                message_win,
+                message_lose,
+                account_id
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+    $stmt = $db->prepare($sql);
+    if (!$stmt) {
+        return false;
+    }
+
+    $stmt->bind_param(
+        "siisiissssssi",
+        $region,
+        $data['level'],
+        $data['trainer_id'],
+        $data['secret_id'],
+        $data['name'],
+        $data['class'],
+        $data['pokemon1'],
+        $data['pokemon2'],
+        $data['pokemon3'],
+        $data['message_start'],
+        $data['message_win'],
+        $data['message_lose'],
+        isset($_SESSION['userId']) ? $_SESSION['userId'] : 0
+    );
+
+    return $stmt->execute();
+}
 ?>

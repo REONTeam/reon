@@ -1,11 +1,81 @@
 <?php
+ini_set('log_errors', 1);
+error_log('REON_DEBUG_BT_LEG_FILE_LOADED');
 // SPDX-License-Identifier: MIT
 
 require_once(CORE_PATH . "/database.php");
 require_once(CORE_PATH . "/pokemon/func.php");
+require_once(__DIR__ . "/../../scripts/bxt_decode_helpers.php");
 require_once(__DIR__ . "/../../scripts/bxt_legality_check.php");
 require_once(__DIR__ . "/../../scripts/bxt_legality_policy.php");
 require_once(CORE_PATH . "/pokemon/battle_tower.php");
+
+/**
+ * Decode a player's Easy Chat message blob for a specific game_region.
+ * Input from the DB is a binary(12) field containing six 16-bit Easy Chat
+ * phrase codes in game order. We convert to hex and delegate to the shared
+ * per-region Easy Chat decoder.
+ */
+function bxt_decode_player_message_for_region($game_region, $raw_binary) {
+    if ($raw_binary === null || $raw_binary === '') {
+        return '';
+    }
+
+    // Convert binary to uppercase hex string
+    $bytes = unpack('C*', $raw_binary);
+    $hex   = '';
+    foreach ($bytes as $b) {
+        $hex .= strtoupper(str_pad(dechex($b), 2, '0', STR_PAD_LEFT));
+    }
+
+    // Determine whether a global display override is active.
+    // Easy Chat messages are special:
+    // - primary text is decoded using the override language (if set)
+    // - original language text is appended in parentheses.
+    $primary_region   = $game_region;
+    $secondary_region = null;
+
+    if (function_exists('bxt_get_global_override_region')) {
+        $override = bxt_get_global_override_region();
+        if (is_string($override) && $override !== '') {
+            $ov = strtolower($override[0]);
+            if ($ov !== '' && $ov !== strtolower((string)$game_region)) {
+                $primary_region   = $ov;
+                $secondary_region = $game_region;
+            }
+        }
+    }
+
+    // Decode primary language text
+    $primary = bxt_decode_easy_chat_for_region($primary_region, $hex);
+    if ($primary === null) {
+        $primary = '';
+    }
+
+    // Optionally decode original language text
+    $secondary = '';
+    if ($secondary_region !== null) {
+        $secondary = bxt_decode_easy_chat_for_region($secondary_region, $hex);
+        if ($secondary === null) {
+            $secondary = '';
+        }
+    }
+
+    // Format result according to availability:
+    // - override set and both decodes: "override (original)"
+    // - only one decode: just that text
+    // - nothing decoded: fall back to raw hex
+    if ($primary !== '' && $secondary !== '' && $primary !== $secondary) {
+        return $primary . ' (' . $secondary . ')';
+    } elseif ($primary !== '') {
+        return $primary;
+    } elseif ($secondary !== '') {
+        return $secondary;
+    }
+
+    return $hex;
+}
+
 
 /**
  * Battle Tower legality wrapper for submitted records.
@@ -14,7 +84,11 @@ require_once(CORE_PATH . "/pokemon/battle_tower.php");
  * - Inserts directly into bxtj/bxte tables
  * If anything fails, returns HTTP 400 and logs a detailed reason.
  */
-function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
+function battleTowerSubmitRecord_legality($inputStream, $game_region) {
+    // Normalise region + determine decode variant (BXTE vs BXTJ layout)
+    $game_region = strtolower($game_region);
+    $bxte = ($game_region !== 'j');
+
     // Decode
     $data = decodeBattleTowerRecord($inputStream, $bxte);
 
@@ -33,15 +107,19 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
     }
     $banned = bxt_load_banned_words($bannedFile);
 
+    // Load allowed-word whitelist
+    $allowedFile = dirname($bannedFile) . "/allowed_words.txt";
+    $allowed = bxt_load_allowed_words($allowedFile);
+
     // Encoding table for name/messages
     $enc_hint = $bxte ? 'BXTE' : 'BXTJ';
     $table_id = bxt_encoding_table_id($enc_hint);
 
-    $check_msg = function (string $raw, string $label) use ($banned, $table_id) {
+    $check_msg = function (string $raw, string $label) use ($banned, $allowed, $table_id) {
         if ($raw === '') return;
         $txt = bxt_decode_text_table($raw, $table_id);
         if ($txt === '') return;
-        if (bxt_contains_banned($txt, $banned)) {
+        if (bxt_contains_banned($txt, $banned, $allowed)) {
             error_log("bt_legality_error: banned text in {$label}: '{$txt}'");
             http_response_code(400);
             exit("Banned text in {$label}");
@@ -95,13 +173,13 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
             exit("Illegal Pokémon in {$label}");
         }
 
-        if (!bxt_policy_allow_nickname($details, $banned)) {
+        if (!bxt_policy_allow_nickname($details, $banned, $allowed)) {
             error_log("bt_legality_error: banned nickname in {$label}");
             http_response_code(400);
             exit("Banned nickname in {$label}");
         }
 
-        if (!bxt_policy_allow_ot($details, $banned)) {
+        if (!bxt_policy_allow_ot($details, $banned, $allowed)) {
             error_log("bt_legality_error: banned OT in {$label}");
             http_response_code(400);
             exit("Banned OT in {$label}");
@@ -111,33 +189,59 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
     // DB insert into unified international table
     $db = connectMySQL();
 
-    // Determine source game_region from upload context:
-    //  - $bxte = true  => non-Japanese / English family => 'e'
-    //  - $bxte = false => Japanese                      => 'j'
-    $game_region = $bxte ? 'e' : 'j';
+    // Build decoded mirror columns for Battle Tower records
+    // level_decode uses the shared 'tower_level' table
+    $level_decode = bxt_decode_simple_table('tower_level', $data['level']);
+
+    // player_name_decode: JP vs EN collapse as per spec
+    $player_name_decode = bxt_decode_player_name_for_region($game_region, $data['name']);
+
+    // class_decode: decode via per-game trainer_class table
+    $trainer_class_decode = bxt_decode_trainer_class_for_region($game_region, $data['class']);
+
+    // Pokémon decode: summarized legality view per slot
+    $pokemon1_decode = bxt_summarize_pk2_blob($data['pokemon1']);
+    $pokemon2_decode = bxt_summarize_pk2_blob($data['pokemon2']);
+    $pokemon3_decode = bxt_summarize_pk2_blob($data['pokemon3']);
+
+    // Easy Chat messages -> decode via language-specific easy_chat table
+    $message_start_decode = bxt_decode_player_message_for_region($game_region, $data['message_start']);
+    $message_win_decode   = bxt_decode_player_message_for_region($game_region, $data['message_win']);
+    $message_lose_decode  = bxt_decode_player_message_for_region($game_region, $data['message_lose']);
+
+    $db = connectMySQL();
 
     $sql = "INSERT INTO bxt_battle_tower_records (
-                game_region,
-                room,
-                level,
-                email,
-                trainer_id,
-                secret_id,
-                player_name,
-                class,
-                pokemon1,
-                pokemon2,
-                pokemon3,
-                message_start,
-                message_win,
-                message_lose,
-                num_trainers_defeated,
-                num_turns_required,
-                damage_taken,
-                num_fainted_pokemon,
-                account_id
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            game_region,
+            room,
+            level,
+            level_decode,
+            trainer_id,
+            secret_id,
+            player_name,
+            player_name_decode,
+            class,
+            class_decode,
+            pokemon1,
+            pokemon1_decode,
+            pokemon2,
+            pokemon2_decode,
+            pokemon3,
+            pokemon3_decode,
+            message_start,
+            message_start_decode,
+            message_win,
+            message_win_decode,
+            message_lose,
+            message_lose_decode,
+            num_trainers_defeated,
+            num_turns_required,
+            damage_taken,
+            num_fainted_pokemon,
+            account_id
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
+    error_log('REON_DEBUG battle_tower_legality: before_prepare');
     $stmt = $db->prepare($sql);
     if (!$stmt) {
         error_log("bt_legality_error: failed to prepare insert: " . $db->error);
@@ -145,35 +249,45 @@ function battleTowerSubmitRecord_legality($inputStream, $bxte = false) {
         exit("Failed to prepare Battle Tower insert");
     }
 
-    // Types: s + iisiissssssssiiiii (match battle_tower.php)
+    // Types: s i i s i i s s i s s s s s s s s s s s s i i i i i
     $stmt->bind_param(
-        "siisiissssssssiiiii",
+        "siisiississsssssssssssiiiii",
         $game_region,
         $data['room'],
         $data['level'],
-        $data['email'],
+        $level_decode,
         $data['trainer_id'],
         $data['secret_id'],
         $data['name'],
+        $player_name_decode,
         $data['class'],
+        $trainer_class_decode,
         $data['pokemon1'],
+        $pokemon1_decode,
         $data['pokemon2'],
+        $pokemon2_decode,
         $data['pokemon3'],
+        $pokemon3_decode,
         $data['message_start'],
+        $message_start_decode,
         $data['message_win'],
+        $message_win_decode,
         $data['message_lose'],
-        $data['num_trainers_defeated'],
-        $data['num_turns_required'],
-        $data['damage_taken'],
-        $data['num_fainted_pokemon'],
-        $_SESSION["userId"]
+		$message_lose_decode,
+		$data['num_trainers_defeated'],
+		$data['num_turns_required'],
+		$data['damage_taken'],
+		$data['num_fainted_pokemon'],
+		$_SESSION["userId"]
     );
 
+
     if (!$stmt->execute()) {
-        error_log("bt_legality_error: failed to insert record: " . $stmt->error);
+        error_log("bt_legality_error: failed to execute insert: " . $stmt->error);
         http_response_code(500);
-        exit("Failed to insert Battle Tower record");
+        exit("Failed to execute Battle Tower insert");
     }
 
+    error_log('bxt_debug_bt_execute_ok rows=' . $stmt->affected_rows);
     return true;
 }
