@@ -521,11 +521,18 @@ function bxt_decode_mail_for_region($game_region, $raw_binary) {
             $out .= $table[$hex];
         }
 
-        // Insert a space after offset 0x20 (33 decimal) for readability,
-        // for every language.
-        if ($i === 0x20) {
-            $out .= ' ';
-        }
+		// Region-specific readability spacing
+		if ($eff === 'j') {
+			// Japanese mail: insert a space after byte index 0x1B (27 decimal)
+			if ($i === 0x1B) {
+				$out .= ' ';
+			}
+		} else {
+			// All other regions: space after 0x20 (33 decimal)
+			if ($i === 0x20) {
+				$out .= ' ';
+			}
+		}
 
         $i++;
     }

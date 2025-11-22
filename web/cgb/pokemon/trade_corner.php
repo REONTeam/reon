@@ -1,10 +1,11 @@
 <?php
 ini_set('log_errors', 1);
-error_log('REON_DEBUG_TRADE_CORNER_FILE_LOADED');
+error_log('BXT_DEBUG_TRADE_CORNER_FILE_LOADED account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
 // SPDX-License-Identifier: MIT
 
 require_once(CORE_PATH . "/database.php");
 require_once(__DIR__ . '/../../scripts/bxt_decode_helpers.php');
+require_once(__DIR__ . '/../../scripts/bxt_value_validation.php');
 require_once(CORE_PATH . "/pokemon/bxt_config.php");
 require_once(__DIR__ . '/../../scripts/bxt_legality_check.php');
 require_once(__DIR__ . "/../../scripts/bxt_legality_policy.php");
@@ -18,14 +19,14 @@ require_once(__DIR__ . "/../../scripts/bxt_legality_policy.php");
 function process_trade_request($region, $request_data) {
     $region = strtolower($region);
 
-    error_log('REON_DEBUG process_trade_request: entry region=' . $region . ' raw_len=' . strlen($request_data));
+    error_log('BXT_DEBUG process_trade_request: entry account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' region=' . $region . ' raw_len=' . strlen($request_data));
 
     $decoded_data = decode_exchange($region, $request_data, true);
     if (!is_array($decoded_data)) {
-        error_log('REON_DEBUG process_trade_request: decode_exchange returned non-array');
+        error_log('BXT_DEBUG process_trade_request: decode_exchange returned non-array account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
         return;
     } else {
-        error_log('REON_DEBUG process_trade_request: decoded keys=' . implode(',', array_keys($decoded_data)));
+        error_log('BXT_DEBUG process_trade_request: decoded keys=' . implode(',', array_keys($decoded_data)) . ' account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
     }
 
         // Load banned / allowed word lists
@@ -65,7 +66,7 @@ function process_trade_request($region, $request_data) {
     try {
         list($ok_leg, $details) = legality_check_pk2_bytes_with_details(
             $decoded_data["pokemon"],
-            function ($msg) { error_log('REON_DEBUG trade_corner_pkm_legality_summary: ' . $msg); }
+            function ($msg) { error_log('BXT_DEBUG trade_corner_pkm_legality_summary: account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' ' . $msg); }
         );
         if (!$ok_leg) {
             error_log('trade_corner_gateway: illegal Pokémon blob');
@@ -83,16 +84,35 @@ function process_trade_request($region, $request_data) {
             }
         }
     } catch (\Throwable $e) {
-        error_log('REON_DEBUG trade_corner_pkm_legality_summary_exception: ' . $e->getMessage());
+        error_log('BXT_DEBUG trade_corner_pkm_legality_summary_exception: account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' ' . $e->getMessage());
         $pokemon_decode = null;
     }
 
-    $db = connectMySQL(); // Connect to DION Database
+    
+    // Server-side sanity validation of exchange payload
+    $validation_errors = [];
+    if (!bxt_validate_exchange_row(
+        $region,
+        $decoded_data["trainer_id"],
+        $decoded_data["secret_id"],
+        $decoded_data["offer_gender"],
+        $decoded_data["req_gender"],
+        $decoded_data["offer_species"],
+        $decoded_data["pokemon"],
+        $decoded_data["mail"],
+        $validation_errors
+    )) {
+        error_log('trade_corner_gateway: value validation failed: ' . json_encode($validation_errors));
+        http_response_code(400);
+        exit("Invalid exchange payload");
+    }
+
+$db = connectMySQL(); // Connect to DION Database
 
     // All regions now write into the unified `bxt_exchange` table.
     // Region differences are tracked via the `game_region` column.
     error_log('bxt_debug_trade_before_prepare region=' . $region);
-    error_log('REON_DEBUG process_trade_request: before_prepare');
+    error_log('BXT_DEBUG process_trade_request: before_prepare account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
 
     $stmt = $db->prepare(
         "REPLACE INTO `bxt_exchange` (" .
@@ -106,7 +126,7 @@ function process_trade_request($region, $request_data) {
         ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
     );
     if (!$stmt) {
-        error_log('REON_DEBUG process_trade_request: stmt_prepare_failed ' . $db->error);
+        error_log('BXT_DEBUG process_trade_request: stmt_prepare_failed account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' ' . $db->error);
         http_response_code(500);
         exit('Failed to prepare statement');
     }
@@ -141,11 +161,11 @@ function process_trade_request($region, $request_data) {
     );
 
     if (!$stmt->execute()) {
-        error_log('REON_DEBUG process_trade_request: execute_failed ' . $stmt->error);
+        error_log('BXT_DEBUG process_trade_request: execute_failed account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' ' . $stmt->error);
         http_response_code(500);
         exit('Failed to insert into bxt_exchange');
     }
-    error_log('REON_DEBUG process_trade_request: execute_ok');
+    error_log('BXT_DEBUG process_trade_request: execute_ok account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
 }
 
 /**
@@ -163,12 +183,12 @@ function process_cancel_request($region, $request_data) {
         }
     }
 
-    error_log('REON_DEBUG process_cancel_request: entry region=' . $region . ' raw_len=' . strlen($request_data));
+    error_log('BXT_DEBUG process_cancel_request: entry account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' region=' . $region . ' raw_len=' . strlen($request_data));
 
     // Decode only the header; no Pokémon/mail blobs required for cancellation.
     $decoded_data = decode_exchange($region, $request_data, false);
     if (!is_array($decoded_data)) {
-        error_log('REON_DEBUG process_cancel_request: decode_exchange returned non-array');
+        error_log('BXT_DEBUG process_cancel_request: decode_exchange returned non-array account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
         http_response_code(400);
         exit('Invalid cancel payload');
     }
@@ -177,7 +197,7 @@ function process_cancel_request($region, $request_data) {
     $secretId  = $decoded_data["secret_id"] ?? null;
 
     if ($trainerId === null || $secretId === null) {
-        error_log('REON_DEBUG process_cancel_request: missing trainer_id or secret_id');
+        error_log('BXT_DEBUG process_cancel_request: missing trainer_id or secret_id account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
         http_response_code(400);
         exit('Missing identifiers for cancellation');
     }
@@ -199,7 +219,7 @@ function process_cancel_request($region, $request_data) {
            AND account_id = ?"
     );
     if (!$stmt) {
-        error_log('REON_DEBUG process_cancel_request: stmt_prepare_failed ' . $db->error);
+        error_log('BXT_DEBUG process_cancel_request: stmt_prepare_failed account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' ' . $db->error);
         http_response_code(500);
         exit('Failed to prepare cancel statement');
     }
@@ -213,12 +233,12 @@ function process_cancel_request($region, $request_data) {
     );
 
     if (!$stmt->execute()) {
-        error_log('REON_DEBUG process_cancel_request: execute_failed ' . $stmt->error);
+        error_log('BXT_DEBUG process_cancel_request: execute_failed account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' ' . $stmt->error);
         http_response_code(500);
         exit('Failed to cancel Trade Corner offer');
     }
 
-    error_log('REON_DEBUG process_cancel_request: execute_ok affected_rows=' . $stmt->affected_rows);
+    error_log('BXT_DEBUG process_cancel_request: execute_ok affected_rows=' . $stmt->affected_rows . ' account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
 }
 
 /**
@@ -300,7 +320,7 @@ function tradeCornerListOffers(string $region, int $limit = 100): array
 
     $stmt = $db->prepare($sql);
     if (!$stmt) {
-        error_log('REON_DEBUG tradeCornerListOffers: stmt_prepare_failed ' . $db->error);
+        error_log('BXT_DEBUG tradeCornerListOffers: stmt_prepare_failed account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' ' . $db->error);
         return [];
     }
 

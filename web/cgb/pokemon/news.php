@@ -5,6 +5,7 @@ require_once(CORE_PATH . "/pokemon/func.php");
 require_once(__DIR__ . "/../../scripts/bxt_legality_policy.php");
 require_once(CORE_PATH . "/pokemon/bxt_config.php");
 require_once(__DIR__ . "/../../scripts/bxt_decode_helpers.php");
+require_once(__DIR__ . "/../../scripts/bxt_value_validation.php");
 
 
 /**
@@ -298,6 +299,16 @@ function set_ranking($region, $content, $length) {
     }
     $category_info = get_ranking_category_info($news_param);
 
+    error_log(
+        'BXT_DEBUG_NEWS_SET_RANKING_HEADER: ' .
+        'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+        ' region=' . $region .
+        ' news_region=' . $news_region .
+        ' length=' . $length .
+        ' news_id=' . (isset($news_param['id']) ? $news_param['id'] : 'null') .
+        ' categories=' . count($category_info)
+    );
+
     // sanity check
     $expected_data_size = 0;
     foreach (["trainer_id", "secret_id", "name", "gender", "age", "region", "zip", "message"] as $param) {
@@ -307,6 +318,15 @@ function set_ranking($region, $content, $length) {
         $expected_data_size += $category["size"];
     }
     if ($length != $expected_data_size) {
+        error_log(
+            'BXT_DEBUG_NEWS_SET_RANKING_LENGTH_MISMATCH: ' .
+            'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+            ' region=' . $region .
+            ' news_region=' . $news_region .
+            ' length=' . $length .
+            ' expected=' . $expected_data_size .
+            ' news_id=' . (isset($news_param['id']) ? $news_param['id'] : 'null')
+        );
         return;
     }
 
@@ -349,6 +369,14 @@ function set_ranking($region, $content, $length) {
     }
 
     if ($decoded_name !== '' && bxt_contains_banned($decoded_name, $banned, $allowed)) {
+        error_log(
+            'BXT_DEBUG_NEWS_SET_RANKING_BANNED_NAME: ' .
+            'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+            ' region=' . $region .
+            ' trainer_id=' . $trainer_id .
+            ' secret_id=' . $secret_id .
+            ' decoded_name=' . $decoded_name
+        );
         // Reject ranking by banned player name but return success sentinel
         return pack("N", $_SESSION["userId"] ?? 0);
     }
@@ -383,6 +411,23 @@ if ($region == "j") {
 
     $message = fread($post_data, $sram["message"]["size"]);
 
+    error_log(
+        'BXT_DEBUG_NEWS_SET_RANKING_PLAYER: ' .
+        'region=' . $region .
+        ' news_region=' . $news_region .
+        ' news_id=' . (isset($news_param['id']) ? $news_param['id'] : 'null') .
+        ' trainer_id=' . $trainer_id .
+        ' secret_id=' . $secret_id .
+        ' gender=' . $gender .
+        ' gender_decode=' . $player_gender_decode .
+        ' age=' . $age .
+        ' pregion=' . $pregion .
+        ' name_hex=' . bin2hex($name) .
+        ' zip_raw_hex=' . bin2hex($zip) .
+        ' zip_decode=' . (isset($player_zip_decode) ? $player_zip_decode : '') .
+        ' message_hex=' . bin2hex($message)
+    );
+
     if (!isset($_SESSION["userId"])) {
         return;
     }
@@ -400,7 +445,52 @@ if ($region == "j") {
             $score = unpack("N", $score_raw)[1];
         }
 
-        // Look up any existing score for this account/trainer/secret in this category and region
+        
+        // Server-side sanity validation of ranking payload
+        $validation_errors = [];
+        if (!bxt_validate_ranking_row(
+            $region,
+            $category["id"],
+            $trainer_id,
+            $secret_id,
+            $gender,
+            $age,
+            $pregion,
+            $zip,
+            $message,
+            $score,
+            $validation_errors
+        )) {
+            error_log(
+                'BXT_DEBUG_NEWS_SET_RANKING_CATEGORY_INVALID: ' .
+                'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+                ' region=' . $region .
+                ' news_region=' . $news_region .
+                ' news_id=' . $news_param["id"] .
+                ' category_id=' . $category["id"] .
+                ' trainer_id=' . $trainer_id .
+                ' secret_id=' . $secret_id .
+                ' score=' . $score .
+                ' errors=' . json_encode($validation_errors)
+            );
+            // Reject this category entry but continue processing others
+            continue;
+        }
+
+        error_log(
+            'BXT_DEBUG_NEWS_SET_RANKING_CATEGORY_OK: ' .
+            'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+            ' region=' . $region .
+            ' news_region=' . $news_region .
+            ' news_id=' . $news_param["id"] .
+            ' category_id=' . $category["id"] .
+            ' trainer_id=' . $trainer_id .
+            ' secret_id=' . $secret_id .
+            ' score=' . $score
+        );
+
+// Look up any existing score for this account/trainer/secret in this category and region
+// Look up any existing score for this account/trainer/secret in this category and region
         $stmt = $db->prepare(
             "select score
                from bxt_ranking
@@ -800,6 +890,92 @@ function get_ranking($region, $post_string) {
 
             $out .= make_ranking_table($region, $category, $top10, $total_ranked, $my_rank);
         }
+
+        // area ranking: pooled across gameRegions, filtered by player_region and player_zip
+        if (isset($post_data["region"]) && isset($post_data["zip"])) {
+            $pregion = hexdec($post_data["region"]);
+            $zip_hex = preg_replace('/[^0-9A-Fa-f]/', '', $post_data["zip"]);
+            $pzip    = "";
+            if ($zip_hex !== "" && (strlen($zip_hex) % 2) === 0) {
+                $pzip = hex2bin($zip_hex);
+            }
+            if ($pzip !== "") {
+                if (strlen($pzip) > 3) {
+                    $pzip = substr($pzip, 0, 3);
+                }
+
+                // 1) pooled count
+                $total_ranked = 0;
+                foreach ($gameRegions as $gr) {
+                    $stmt = $db->prepare(
+                        "select count(*)
+                           from bxt_ranking
+                          where game_region   = ?
+                            and news_id       = ?
+                            and category_id   = ?
+                            and player_region = ?
+                            and player_zip    = ?"
+                    );
+                    if (!$stmt) {
+                        continue;
+                    }
+                    // region(s), news_id(i), category_id(i), pregion(i), pzip(s) => "siiis"
+                    $stmt->bind_param("siiis", $gr, $news_param["id"], $category["id"], $pregion, $pzip);
+                    $stmt->execute();
+                    $rows = fancy_get_result($stmt);
+                    if ($rows && count($rows) > 0) {
+                        $total_ranked += (int)$rows[0]["count(*)"];
+                    }
+                }
+
+                // 2) pooled top 10
+                $top_all = [];
+                foreach ($gameRegions as $gr) {
+                    $stmt = $db->prepare(
+                        "select player_name,
+                                player_region,
+                                player_gender,
+                                player_age,
+                                player_zip,
+                                player_message,
+                                score,
+                                timestamp
+                           from bxt_ranking
+                          where game_region   = ?
+                            and news_id       = ?
+                            and category_id   = ?
+                            and player_region = ?
+                            and player_zip    = ?
+                          order by score desc, timestamp
+                          limit 10"
+                    );
+                    if (!$stmt) {
+                        continue;
+                    }
+                    // region(s), news_id(i), category_id(i), pregion(i), pzip(s) => "siiis"
+                    $stmt->bind_param("siiis", $gr, $news_param["id"], $category["id"], $pregion, $pzip);
+                    $stmt->execute();
+                    $rows = fancy_get_result($stmt);
+                    if ($rows) {
+                        $top_all = array_merge($top_all, $rows);
+                    }
+                }
+
+                usort($top_all, function ($a, $b) {
+                    if ($a["score"] == $b["score"]) {
+                        if ($a["timestamp"] == $b["timestamp"]) {
+                            return 0;
+                        }
+                        return ($a["timestamp"] < $b["timestamp"]) ? -1 : 1;
+                    }
+                    return ($a["score"] > $b["score"]) ? -1 : 1;
+                });
+                $top10 = array_slice($top_all, 0, 10);
+
+                $out .= make_ranking_table($region, $category, $top10, $total_ranked, $my_rank);
+            }
+        }
+
     }
 
     return $out;
@@ -812,13 +988,30 @@ function make_ranking_table($region, $category, $top10, $total_ranked, $my_rank)
 	$out .= pack("N", $my_rank);
 	$out .= pack("n", sizeof($top10));
 	foreach ($top10 as $player) {
-		$out .= $player["player_name"];
+		// Player name in ranking records:
+		// - Saved as BINARY(7) in the database (padded with 0x00).
+		// - Protocol uses 7 bytes for non-J, 5 bytes for J plus 2 extra bytes we append below.
+		$name = $player["player_name"];
+		if ($region === "j") {
+			$name = substr($name, 0, 5);
+		} else {
+			$name = substr($name, 0, 7);
+		}
+		$out .= $name;
 		if ($region == "j") $out .= hex2bin("5000"); // japanese version has a 6th byte for the name plus a completely unused byte
 		$out .= pack("C", $player["player_region"]);
 		$out .= pack("n", 0); // unused 2 bytes
 		$out .= pack("C", $player["player_age"]);
 		$out .= pack("C", $player["player_gender"]);
-		$out .= $player["player_message"];
+
+		// Ranking protocol message width:
+		// - Japanese (j): 12 bytes
+		// - Non-Japanese: 8 bytes (DB column may be wider, we trim here)
+		$message = $player["player_message"];
+		if ($region !== "j") {
+			$message = substr($message, 0, 8);
+		}
+		$out .= $message;
 		if ($category["size"] == 1) {
 			$score = pack("C", $player["score"]);
 		} else if ($category["size"] == 2) {

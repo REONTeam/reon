@@ -159,7 +159,20 @@ function decodeBattleTowerRecord($stream, $bxte = false) {
 		$decData["num_fainted_pokemon"] = $raw_fainted;
 	}
 
-	return $decData;
+	// Debug summary for Battle Tower record decode
+error_log(
+	'BXT_DEBUG_BT_DECODE: account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+	' bxte=' . ($bxte ? '1' : '0') .
+	' room=' . (isset($decData['room']) ? $decData['room'] : 'null') .
+	' level=' . (isset($decData['level']) ? $decData['level'] : 'null') .
+	' trainer_id=' . (isset($decData['trainer_id']) ? $decData['trainer_id'] : 'null') .
+	' secret_id=' . (isset($decData['secret_id']) ? $decData['secret_id'] : 'null') .
+	' email=' . (isset($decData['email']) ? $decData['email'] : '') .
+	' name_hex=' . (isset($decData['name']) ? bin2hex($decData['name']) : '')
+);
+
+return $decData;
+
 }
 
 function roomNoToRoom($roomNo) {

@@ -1,11 +1,12 @@
 <?php
 ini_set('log_errors', 1);
-error_log('REON_DEBUG_BT_LEG_FILE_LOADED');
+error_log('BXT_DEBUG_BT_LEG_FILE_LOADED account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
 // SPDX-License-Identifier: MIT
 
 require_once(CORE_PATH . "/database.php");
 require_once(CORE_PATH . "/pokemon/func.php");
 require_once(__DIR__ . "/../../scripts/bxt_decode_helpers.php");
+require_once(__DIR__ . "/../../scripts/bxt_value_validation.php");
 require_once(__DIR__ . "/../../scripts/bxt_legality_check.php");
 require_once(__DIR__ . "/../../scripts/bxt_legality_policy.php");
 require_once(CORE_PATH . "/pokemon/battle_tower.php");
@@ -100,6 +101,20 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
         }
     }
 
+    // Extra safety: ensure exactly 3 Pokémon slots and no unexpected extras
+    $extraSlots = [];
+    foreach (array_keys($data) as $key) {
+        if (preg_match('/^pokemon[0-9]+$/', (string)$key) && !in_array($key, ['pokemon1', 'pokemon2', 'pokemon3'], true)) {
+            $extraSlots[] = $key;
+        }
+    }
+    if (!empty($extraSlots)) {
+        error_log('bt_legality_error: unexpected Pokémon slots: ' . implode(',', $extraSlots));
+        http_response_code(400);
+        exit('Exactly 3 Pokémon are required');
+    }
+
+
     // Load banned-word list
     $bannedFile = realpath(__DIR__ . "/../../../maint/banned_words.txt");
     if ($bannedFile === false) {
@@ -155,6 +170,9 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
         'pokemon3' => 'slot 3',
     ];
 
+    // Enforce unique species across all three slots
+    $speciesSeen = [];
+
     foreach ($slotNames as $key => $label) {
         $blob = $data[$key];
 
@@ -184,10 +202,47 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
             http_response_code(400);
             exit("Banned OT in {$label}");
         }
+
+        // Enforce unique species: no duplicate Pokémon species across the team
+        $speciesKey = null;
+        if (isset($details['speciesId']) && $details['speciesId'] !== null) {
+            $speciesKey = 'id:' . (int)$details['speciesId'];
+        } elseif (isset($details['species']) && $details['species'] !== null && $details['species'] !== '') {
+            $speciesKey = 'name:' . strtolower((string)$details['species']);
+        }
+
+        if ($speciesKey !== null) {
+            if (isset($speciesSeen[$speciesKey])) {
+                error_log("bt_legality_error: duplicate species in {$label} (matches {$speciesSeen[$speciesKey]})");
+                http_response_code(400);
+                exit('Duplicate Pokémon species not allowed');
+            }
+            $speciesSeen[$speciesKey] = $label;
+        }
     }
 
     // DB insert into unified international table
-    $db = connectMySQL();
+    
+    // Server-side sanity validation of Battle Tower record payload
+    $validation_errors = [];
+    if (!bxt_validate_battle_tower_record_row(
+        $game_region,
+        $data['message_start'],
+        $data['message_win'],
+        $data['message_lose'],
+        $data['num_trainers_defeated'],
+        $data['num_turns_required'],
+        $data['damage_taken'],
+        $data['num_fainted_pokemon'],
+        $data['level'],
+        $validation_errors
+    )) {
+        error_log('bt_legality_error: value validation failed: ' . json_encode($validation_errors));
+        http_response_code(400);
+        exit('Invalid Battle Tower record payload');
+    }
+
+$db = connectMySQL();
 
     // Build decoded mirror columns for Battle Tower records
     // level_decode uses the shared 'tower_level' table
@@ -241,7 +296,7 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
             account_id
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    error_log('REON_DEBUG battle_tower_legality: before_prepare');
+    error_log('BXT_DEBUG battle_tower_legality: before_prepare account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
     $stmt = $db->prepare($sql);
     if (!$stmt) {
         error_log("bt_legality_error: failed to prepare insert: " . $db->error);

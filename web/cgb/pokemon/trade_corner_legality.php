@@ -1,6 +1,6 @@
 <?php
 ini_set('log_errors', 1);
-error_log('REON_DEBUG_TRADE_CORNER_LEG_FILE_LOADED');
+error_log('BXT_DEBUG_TRADE_CORNER_LEG_FILE_LOADED account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
 // SPDX-License-Identifier: MIT
 
 require_once(CORE_PATH . "/database.php");

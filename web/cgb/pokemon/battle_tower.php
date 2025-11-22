@@ -135,50 +135,81 @@ function battleTowerGetLeaders($region, $roomNo, $bxte = false) {
  * Raw record insertion. Uses decodeBattleTowerRecord() directly.
  */
 function battleTowerSubmitRecord($inputStream, $bxte = false) {
-    $data = decodeBattleTowerRecord($inputStream, $bxte);
-    $db = connectMySQL();
+error_log(
+    'BXT_DEBUG_BT_SUBMIT: entry ' .
+    'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+    ' stream=' . $inputStream .
+    ' bxte=' . ($bxte ? '1' : '0')
+);
 
-    $region = $bxte ? 'e' : 'j';
-
-    $sql = "INSERT INTO bxt_battle_tower_records (
-                game_region,
-                room,
-                level,
-                trainer_id,
-                secret_id,
-                player_name,
-                class,
-                pokemon1,
-                pokemon2,
-                pokemon3,
-                message_start,
-                message_win,
-                message_lose,
-                account_id
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
-
-    $stmt = $db->prepare($sql);
-    if (!$stmt) {
-        return false;
-    }
-
-    $stmt->bind_param(
-        "siisiissssssi",
-        $region,
-        $data['level'],
-        $data['trainer_id'],
-        $data['secret_id'],
-        $data['name'],
-        $data['class'],
-        $data['pokemon1'],
-        $data['pokemon2'],
-        $data['pokemon3'],
-        $data['message_start'],
-        $data['message_win'],
-        $data['message_lose'],
-        isset($_SESSION['userId']) ? $_SESSION['userId'] : 0
-    );
-
-    return $stmt->execute();
+$data = decodeBattleTowerRecord($inputStream, $bxte);
+if (!is_array($data)) {
+    error_log('BXT_DEBUG_BT_SUBMIT: decodeBattleTowerRecord returned non-array account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
+    return false;
 }
+
+$db = connectMySQL();
+
+$region = $bxte ? 'e' : 'j';
+
+error_log(
+    'BXT_DEBUG_BT_SUBMIT: decoded ' .
+    ' account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+    ' region=' . $region .
+    ' room=' . (isset($data['room']) ? $data['room'] : 'null') .
+    ' level=' . (isset($data['level']) ? $data['level'] : 'null') .
+    ' trainer_id=' . (isset($data['trainer_id']) ? $data['trainer_id'] : 'null') .
+    ' secret_id=' . (isset($data['secret_id']) ? $data['secret_id'] : 'null')
+);
+
+$sql = "INSERT INTO bxt_battle_tower_records (
+            game_region,
+            room,
+            level,
+            trainer_id,
+            secret_id,
+            player_name,
+            class,
+            pokemon1,
+            pokemon2,
+            pokemon3,
+            message_start,
+            message_win,
+            message_lose,
+            account_id
+        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+$stmt = $db->prepare($sql);
+if (!$stmt) {
+    error_log('BXT_DEBUG_BT_SUBMIT: stmt_prepare_failed account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' ' . $db->error);
+    return false;
+}
+
+$stmt->bind_param(
+    "siisiissssssi",
+    $region,
+    $data['room'],
+    $data['level'],
+    $data['trainer_id'],
+    $data['secret_id'],
+    $data['name'],
+    $data['class'],
+    $data['pokemon1'],
+    $data['pokemon2'],
+    $data['pokemon3'],
+    $data['message_start'],
+    $data['message_win'],
+    $data['message_lose'],
+    isset($_SESSION['userId']) ? $_SESSION['userId'] : 0
+);
+
+if (!$stmt->execute()) {
+    error_log('BXT_DEBUG_BT_SUBMIT: execute_failed account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' ' . $stmt->error);
+    return false;
+}
+
+error_log('BXT_DEBUG_BT_SUBMIT: execute_ok account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
+return true;
+}
+
 ?>
