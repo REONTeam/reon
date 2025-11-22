@@ -466,6 +466,41 @@ gbwars:
     rs: Red Star
     wm: White Moon
     neutral: Neutral
+    
+mario-kart:
+  title: Mario Kart
+  drivers:
+    - Mario
+    - Luigi
+    - Bowser
+    - Peach
+    - Donkey Kong
+    - Wario
+    - Toad
+    - Yoshi
+  tracks:
+    - Peach Circuit
+    - Shy Guy Beach
+    - Riverside Park
+    - Bowser Castle 1
+    - Mario Circuit
+    - Boo Lake
+    - Cheese Land
+    - Bowser Castle 2
+    - Luigi Circuit
+    - Sky Garden
+    - Cheep-Cheep Island
+    - Sunset Wilds
+    - Snow Land
+    - Ribbon Road
+    - Yoshi Desert
+    - Bowser Castle 3
+    - Lakeside Park
+    - Broken Pier
+    - Bowser Castle 4
+    - Rainbow Road
+    - Mobile GP
+
 pokemon:
   pokerus:
     cured: POKÉRUS (Cured)

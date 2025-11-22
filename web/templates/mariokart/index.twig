@@ -1,0 +1,36 @@
+{% extends "main.twig" %}
+
+{% block title %}Mario Kart{% endblock %}
+{% block content %}
+
+    <table class="mariokart-rankings">
+        <thead>
+            <th>Course</th>
+            <th>Player</th>
+            <th>Driver</th>
+            <th>Time</th>
+            <th>Date Set</th>
+        </thead>
+        <tbody>
+    {% for i in 0..19 %}
+        <tr>
+            {% set ghost = ghosts[i] %}
+            {% set course = 'mario-kart.tracks.' ~ i %}
+            {% set driver = 'mario-kart.drivers.' ~ ghost.driver %}
+            <th>{{course|trans}}</th>
+            {% if ghost %}
+            <td>{{ghost.player_name}}</td>
+            <td>{{driver|trans}}</td>
+            <td>{{ghost.formatted_time}}</td>
+            <td>{{ghost.timestamp|date('Y-m-d')}}</td>
+            {% else %}
+            <td><em>no record</em></td>
+            <td><em>n/a</em></td>
+            <td><em>n/a</em></td>
+            <td><em>n/a</em></td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

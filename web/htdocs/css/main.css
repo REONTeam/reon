@@ -253,3 +253,21 @@
 .crystal-trade .request-species {
   padding-left: 7px;
 }
+
+.mariokart-rankings td,
+.mariokart-rankings th {
+  padding: 5px 15px;
+  border: 1px solid #d3d3d38f;
+}
+
+.mariokart-rankings thead > tr {
+  background: lightgray;
+}
+
+.mariokart-rankings tbody > tr:nth-child(2n) {
+  background-color: #d3d3d333;
+}
+
+.mariokart-rankings thead th {
+  font-style: italic;
+}
