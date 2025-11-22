@@ -15,14 +15,12 @@ RUN dotnet build "LegalityCheckerConsole.csproj" --no-restore -c Release --frame
 
 ### Web Service
 FROM php:${PHP_VERSION}-alpine AS web-deps
-ARG COMPOSER_VERSION="1.8.5"
 
 WORKDIR /app
 
 RUN apk update \
  && apk add git unzip \
- && curl https://getcomposer.org/download/$COMPOSER_VERSION/composer.phar --output /usr/bin/composer \
- && chmod u+x /usr/bin/composer
+ && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 COPY web/composer.json composer.json
 COPY web/composer.lock composer.lock
@@ -43,6 +41,22 @@ RUN mkdir -p /var/www/reon/web/tmp \
     && chown www-data:www-data /var/www/reon/web/tmp
 ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
 
+### Database Migration Service
+FROM php:${PHP_VERSION}-alpine AS migrate
+WORKDIR /var/www/reon
+
+# Install MySQL client for database connectivity
+RUN docker-php-ext-install mysqli pdo_mysql \
+    && docker-php-ext-enable mysqli pdo_mysql
+
+# Copy composer dependencies and phinx
+COPY --from=web-deps /app /var/www/reon/web
+
+# Copy migration files and config
+COPY phinx.php /var/www/reon/phinx.php
+COPY db/ /var/www/reon/db/
+
+CMD ["/var/www/reon/web/vendor/bin/phinx", "migrate"]
 
 ### Mail Service
 FROM node:${NODE_VERSION}-alpine AS mail-deps
@@ -89,6 +103,8 @@ COPY --from=exchange-deps /app/node_modules ./pokemon-exchange/node_modules
 
 COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
 ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
+
+COPY app/bxt_config_loader.js /app/
 
 COPY app/docker.crontab /etc/crontabs/root
 
