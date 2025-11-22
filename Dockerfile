@@ -104,6 +104,8 @@ COPY --from=exchange-deps /app/node_modules ./pokemon-exchange/node_modules
 COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
 ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
 
+COPY app/bxt_config_loader.js /app/
+
 COPY app/docker.crontab /etc/crontabs/root
 
 # source: `docker run --rm -it alpine  crond -h`
