@@ -1,8 +1,29 @@
 const fs = require("fs");
 const path = require("path");
-const mysql = require("mysql2/promise");
+const mysql = require("mysql");
 const nodemailer = require("nodemailer");
+
+function createMySqlConnection(config) {
+    return new Promise((resolve, reject) => {
+        const conn = mysql.createConnection(config);
+        conn.connect(err => {
+            if (err) return reject(err);
+            resolve(conn);
+        });
+    });
+}
+
+function execute(conn, sql, params) {
+    return new Promise((resolve, reject) => {
+        conn.query(sql, params || [], (err, results, fields) => {
+            if (err) return reject(err);
+            resolve([results, fields]);
+        });
+    });
+}
+
 const { Command } = require("commander");
+const { loadBxtConfig } = require("../bxt_config_loader");
 const program = new Command();
 
 const defaultPath = path.resolve(__dirname, "..", "..", "config.json");
@@ -12,7 +33,10 @@ program
   .parse(process.argv);
 
 const options = program.opts();
-const config = JSON.parse(fs.readFileSync(options.config));
+const config = JSON.parse(fs.readFileSync(options.config, "utf8"));
+
+const phpConfigPath = path.resolve(__dirname, "..", "..", "web", "cgb", "pokemon", "bxt_config.php");
+const bxtConfig = loadBxtConfig(phpConfigPath);
 
 // Database connection
 const dbConfig = {
@@ -39,23 +63,89 @@ if (config["stmp_auth"]) {
 }
 const mailTransport = nodemailer.createTransport(mailConfig);
 
-// Trade Corner international region groups.
-//
-// Two offers are allowed to trade if either:
-//   - their game_region is identical, OR
-//   - they appear together in at least one entry in TRADE_REGION_GROUPS.
-//
-// By default, all non-Japanese regions can trade with each other,
-// while Japanese ('j') is isolated unless explicitly added.
-const TRADE_REGION_GROUPS = [
-    ["e","f","d","s","i","p","u"],
-];
+// -------- Trade Corner config wiring --------
 
+// Global Trade Corner feature toggle from PHP config.
+const TRADE_CORNER_ENABLED = !!bxtConfig.trade_corner_enabled;
+
+/**
+ * Parse region_groups['trade_corner'] directly from the PHP bxt_config.php so that
+ * JavaScript sees exactly the same grouping the PHP layer uses.
+ *
+ * This parser does NOT try to JSON-parse the PHP; it just scans for
+ *   'trade' => [
+ *       ['e','f',...],
+ *       ['j'],
+ *   ],
+ * within the region_groups block and extracts each ['...'] array.
+ */
+function loadTradeRegionGroupsFromPhpConfig(phpPath) {
+    try {
+        const php = fs.readFileSync(phpPath, "utf8");
+
+        let tradeKey = "'trade_corner' => [";
+        let start = php.indexOf(tradeKey);
+        if (start === -1) {
+            // Backwards-compatibility: older configs may still use 'trade'.
+            tradeKey = "'trade' => [";
+            start = php.indexOf(tradeKey);
+        }
+        if (start === -1) {
+            return [];
+        }
+
+        // Heuristic end: up to the start of the next feature in region_groups.
+        // In your config this is 'battle_tower', immediately after the trade block.
+        let end = php.indexOf("'battle_tower'", start);
+        if (end === -1) {
+            // Fallback: just take a small slice after 'trade' block.
+            end = start + 512;
+            if (end > php.length) end = php.length;
+        }
+
+        const block = php.slice(start, end);
+
+        const groups = [];
+        const arrayRegex = /\[([^\]]+)\]/g;
+        let m;
+        while ((m = arrayRegex.exec(block)) !== null) {
+            const inner = m[1];
+            const codes = [];
+            const codeRegex = /'([^']+)'/g;
+            let m2;
+            while ((m2 = codeRegex.exec(inner)) !== null) {
+                codes.push(String(m2[1]));
+            }
+            if (codes.length) {
+                groups.push(codes);
+            }
+        }
+
+        return groups;
+    } catch (e) {
+        console.error("Failed to load trade region groups from PHP config:", e);
+        return [];
+    }
+}
+
+// Region groups now come ONLY from the PHP file.
+const TRADE_REGION_GROUPS = loadTradeRegionGroupsFromPhpConfig(phpConfigPath);
+// Uncomment for debugging if needed:
+// console.log("TRADE_REGION_GROUPS:", JSON.stringify(TRADE_REGION_GROUPS));
+
+/**
+ * Determine if two regions are allowed to trade.
+ * True if:
+ *   - regions match, OR
+ *   - both appear in at least one entry of TRADE_REGION_GROUPS.
+ */
 function regionCanTrade(a, b) {
     if (!a || !b) return false;
     a = String(a).toLowerCase();
     b = String(b).toLowerCase();
+
     if (a === b) return true;
+
     for (const group of TRADE_REGION_GROUPS) {
         if (!Array.isArray(group)) continue;
         const g = group.map(x => String(x).toLowerCase());
@@ -65,20 +155,35 @@ function regionCanTrade(a, b) {
 }
 
 async function doExchange() {
-    const connection = await mysql.createConnection(dbConfig);
+    const connection = await createMySqlConnection(dbConfig);
     try {
-        await connection.beginTransaction();
+        // Global feature toggle check: if Trade Corner is disabled, do nothing.
+        if (!TRADE_CORNER_ENABLED) {
+            console.log("Trade Corner is disabled (TRADE_CORNER_ENABLED = false); skipping exchange run.");
+            await new Promise((resolve, reject) =>
+                connection.end(err => (err ? reject(err) : resolve()))
+            );
+            return;
+        }
+
+        await new Promise((resolve, reject) =>
+            connection.beginTransaction(err => (err ? reject(err) : resolve()))
+        );
 
         const table = "bxt_exchange";
 
         // Expire old trades
-        await connection.execute(
+        await execute(
+            connection,
             "DELETE FROM " + table + " WHERE timestamp < NOW() - INTERVAL 7 DAY"
         );
 
-        const [trades] = await connection.execute(
+        const [allTrades] = await execute(
+            connection,
             "SELECT * FROM " + table + " ORDER BY timestamp ASC"
         );
+
+        const trades = allTrades;
 
         let performedTrades = new Set();
         let numTrades = 0;
@@ -112,9 +217,9 @@ async function doExchange() {
                             a["request_species"],
                             b["offer_gender"],
                             a["request_gender"],
-                            b["player_name"],
-                            b["pokemon"],
-                            b["mail"]
+                            a["player_name"],
+                            a["pokemon"],
+                            a["mail"]
                         );
                         await sendExchangeSuccessEmail(
                             b["game_region"],
@@ -125,16 +230,18 @@ async function doExchange() {
                             b["request_species"],
                             a["offer_gender"],
                             b["request_gender"],
-                            a["player_name"],
-                            a["pokemon"],
-                            a["mail"]
+                            b["player_name"],
+                            b["pokemon"],
+                            b["mail"]
                         );
 
-                        await connection.execute(
+                        await execute(
+                            connection,
                             "DELETE FROM " + table + " WHERE email = ? AND account_id = ? AND trainer_id = ? AND secret_id = ? LIMIT 1",
                             [b["email"], b["account_id"], b["trainer_id"], b["secret_id"]]
                         );
-                        await connection.execute(
+                        await execute(
+                            connection,
                             "DELETE FROM " + table + " WHERE email = ? AND account_id = ? AND trainer_id = ? AND secret_id = ? LIMIT 1",
                             [a["email"], a["account_id"], a["trainer_id"], a["secret_id"]]
                         );
@@ -148,16 +255,22 @@ async function doExchange() {
             }
         }
 
-        await connection.commit();
+        await new Promise((resolve, reject) =>
+            connection.commit(err => (err ? reject(err) : resolve()))
+        );
         console.log(`Finished exchange; performed ${numTrades} trade(s)`);
     } catch (e) {
         console.error("Exchange failed, rolling back:", e);
         try {
-            await connection.rollback();
+            await new Promise((resolve, reject) =>
+                connection.rollback(err => (err ? reject(err) : resolve()))
+            );
         } catch (_) {}
     } finally {
         try {
-            await connection.end();
+            await new Promise((resolve, reject) =>
+                connection.end(err => (err ? reject(err) : resolve()))
+            );
         } catch (_) {}
     }
 }

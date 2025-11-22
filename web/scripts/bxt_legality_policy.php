@@ -18,13 +18,69 @@ function bxt_load_banned_words(string $path): array {
     return $cache;
 }
 
-function bxt_contains_banned(string $text, array $banned): bool {
+
+function bxt_load_allowed_words(string $path): array {
+    static $cache = null;
+    if ($cache !== null) return $cache;
+    $cache = [];
+    if (!is_file($path)) return $cache;
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $ln) {
+        $ln = trim($ln);
+        if ($ln === '' || $ln[0] === '#') continue;
+        $cache[] = mb_strtolower($ln, 'UTF-8');
+    }
+    return $cache;
+}
+
+
+function bxt_contains_banned(string $text, array $banned, array $allowed = []): bool {
     $t = mb_strtolower($text, 'UTF-8');
+
+    // Pre-compute allowed word spans (start/end offsets in characters)
+    $allowedSpans = [];
+    if (!empty($allowed)) {
+        foreach ($allowed as $aw) {
+            if ($aw === '') continue;
+            $awLower = mb_strtolower($aw, 'UTF-8');
+            $pos = 0;
+            $lenAw = mb_strlen($awLower, 'UTF-8');
+            if ($lenAw === 0) continue;
+            while (($idx = mb_stripos($t, $awLower, $pos, 'UTF-8')) !== false) {
+                $allowedSpans[] = [$idx, $idx + $lenAw];
+                $pos = $idx + 1;
+            }
+        }
+    }
+
+    // Scan for banned substrings, ignoring those fully inside any allowed span
     foreach ($banned as $w) {
         if ($w === '') continue;
-        if (mb_stripos($t, $w, 0, 'UTF-8') !== false)
-            return true;
+        $wLower = mb_strtolower($w, 'UTF-8');
+        $lenBw  = mb_strlen($wLower, 'UTF-8');
+        if ($lenBw === 0) continue;
+
+        $pos = 0;
+        while (($idx = mb_stripos($t, $wLower, $pos, 'UTF-8')) !== false) {
+            $start = $idx;
+            $end   = $idx + $lenBw;
+
+            $whitelisted = false;
+            foreach ($allowedSpans as $span) {
+                if ($start >= $span[0] && $end <= $span[1]) {
+                    $whitelisted = true;
+                    break;
+                }
+            }
+
+            if (!$whitelisted) {
+                return true;
+            }
+
+            $pos = $idx + 1;
+        }
     }
+
     return false;
 }
 
@@ -78,19 +134,19 @@ function battle_tower_cap(int $idx): int {
     return ($idx + 1) * 10;
 }
 
-function bxt_policy_allow_nickname(array $details, array $banned): bool {
+function bxt_policy_allow_nickname(array $details, array $banned, array $allowed = []): bool {
     $nick = $details['nickname'] ?? '';
     if ($nick === '') return true;
-    return !bxt_contains_banned($nick, $banned);
+    return !bxt_contains_banned($nick, $banned, $allowed);
 }
 
-function bxt_policy_allow_ot(array $details, array $banned): bool {
+function bxt_policy_allow_ot(array $details, array $banned, array $allowed = []): bool {
     $ot = $details['trainerOT'] ?? '';
     if ($ot === '') return true;
-    return !bxt_contains_banned($ot, $banned);
+    return !bxt_contains_banned($ot, $banned, $allowed);
 }
 
-function bxt_policy_allow_mail_table(string $mail_raw, string $table_id, array $banned): bool {
+function bxt_policy_allow_mail_table(string $mail_raw, string $table_id, array $banned, array $allowed = []): bool {
     if ($mail_raw === '') return true;
 
     // Decode using the configured table
@@ -99,7 +155,7 @@ function bxt_policy_allow_mail_table(string $mail_raw, string $table_id, array $
     // If decoding produced nothing meaningful, allow it
     if ($txt === '') return true;
 
-    return !bxt_contains_banned($txt, $banned);
+    return !bxt_contains_banned($txt, $banned, $allowed);
 }
 
 

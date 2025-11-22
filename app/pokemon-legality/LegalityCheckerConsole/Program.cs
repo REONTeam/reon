@@ -344,6 +344,7 @@ private static PK2 LoadPk2(byte[] data)
             public string msg { get; set; } = string.Empty;
         }
 
+        
         private sealed class ResultDto
         {
             public bool   ok        { get; set; }
@@ -354,15 +355,48 @@ private static PK2 LoadPk2(byte[] data)
             public string trainerOT { get; set; } = string.Empty;
             public int    TID       { get; set; }
             public int    SID       { get; set; }
-            public string language  { get; set; } = string.Empty;
-            public string version   { get; set; } = string.Empty;
-            public bool   shiny     { get; set; }
-            public int    heldItem  { get; set; }
-            public bool   isEgg     { get; set; }
-            public IssueDto[] issues { get; set; } = Array.Empty<IssueDto>();
+            public string language      { get; set; } = string.Empty;
+            public string languageName  { get; set; } = string.Empty;
+            public string version       { get; set; } = string.Empty;
+            public bool   shiny         { get; set; }
+            public int    heldItem      { get; set; }
+            public bool   isEgg         { get; set; }
+
+            // Extended details used by the PHP summarizer for pokemon_decode
+            public int    gender        { get; set; }
+            public int    friendship    { get; set; }
+            public uint   exp           { get; set; }
+
+            public int    metLocation   { get; set; }
+            public int    metLevel      { get; set; }
+            public int    timeOfDay     { get; set; }
+
+            // IVs
+            public int    ivHP          { get; set; }
+            public int    ivATK         { get; set; }
+            public int    ivDEF         { get; set; }
+            public int    ivSPA         { get; set; }
+            public int    ivSPD         { get; set; }
+            public int    ivSPE         { get; set; }
+
+            // Battle stats
+            public int    statHP        { get; set; }
+            public int    statATK       { get; set; }
+            public int    statDEF       { get; set; }
+            public int    statSPA       { get; set; }
+            public int    statSPD       { get; set; }
+            public int    statSPE       { get; set; }
+
+            // Moves
+            public int    move1         { get; set; }
+            public int    move2         { get; set; }
+            public int    move3         { get; set; }
+            public int    move4         { get; set; }
+
+            public IssueDto[] issues    { get; set; } = Array.Empty<IssueDto>();
         }
 
-        private static int Main(string[] args)
+private static int Main(string[] args)
         {
             if (args.Length != 1)
             {
@@ -396,22 +430,56 @@ private static PK2 LoadPk2(byte[] data)
                 var pk = LoadPk2(raw);
                 var la = new LegalityAnalysis(pk);
 
+                
+                // Compute full stats for summary output (pokemon_decode, Battle Tower, etc.)
+                var stats = pk.GetStats(pk.PersonalInfo);
+
                 var dto = new ResultDto
                 {
-                    ok        = la.Valid,
-                    speciesId = pk.Species,
-                    species   = ((Species)pk.Species).ToString(),
-                    level     = pk.CurrentLevel,
-                    nickname  = pk.Nickname,
-                    trainerOT = pk.OriginalTrainerName,
-                    TID       = pk.TID16,
-                    SID       = pk.SID16,
-                    language  = pk.Language.ToString(),
-                    version   = pk.Version.ToString(),
-                    shiny     = pk.IsShiny,
-                    heldItem  = pk.HeldItem,
-                    isEgg     = pk.IsEgg,
-                    issues    = la.Results
+                    ok           = la.Valid,
+                    speciesId    = pk.Species,
+                    species      = ((Species)pk.Species).ToString(),
+                    level        = pk.CurrentLevel,
+                    nickname     = pk.Nickname,
+                    trainerOT    = pk.OriginalTrainerName,
+                    TID          = pk.TID16,
+                    SID          = pk.SID16,
+                    language     = pk.Language.ToString(),
+                    languageName = pk.Language.ToString(),
+                    version      = pk.Version.ToString(),
+                    shiny        = pk.IsShiny,
+                    heldItem     = pk.HeldItem,
+                    isEgg        = pk.IsEgg,
+
+                    gender       = pk.Gender,
+                    friendship   = pk.CurrentFriendship,
+                    exp          = pk.EXP,
+
+                    metLocation  = pk.MetLocation,
+                    metLevel     = pk.MetLevel,
+                    timeOfDay    = pk.MetTimeOfDay,
+
+                    ivHP         = pk.IV_HP,
+                    ivATK        = pk.IV_ATK,
+                    ivDEF        = pk.IV_DEF,
+                    ivSPA        = pk.IV_SPA,
+                    ivSPD        = pk.IV_SPD,
+                    ivSPE        = pk.IV_SPE,
+
+                    // PKHeX.GetStats returns H/A/B/S/C/D -> HP/ATK/DEF/SPE/SPA/SPD
+                    statHP       = stats[0],
+                    statATK      = stats[1],
+                    statDEF      = stats[2],
+                    statSPA      = stats[4],
+                    statSPD      = stats[5],
+                    statSPE      = stats[3],
+
+                    move1        = pk.Move1,
+                    move2        = pk.Move2,
+                    move3        = pk.Move3,
+                    move4        = pk.Move4,
+
+                    issues       = la.Results
                         .Select(r => new IssueDto
                         {
                             id  = r.Identifier.ToString(),
@@ -425,6 +493,8 @@ private static PK2 LoadPk2(byte[] data)
                 {
                     WriteIndented = false
                 });
+
+
 
                 Console.Out.WriteLine(json);
 

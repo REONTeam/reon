@@ -3,19 +3,88 @@
 
 // Note: $result should have 7 entries. If not, the game will not accept the file.
 function encodeBattleTowerRoomData($result, $bxte = false) {
+	// Encode a 7-trainer Battle Tower room in the on-wire format
+	// expected by the mobile client. The layout differs for Japanese
+	// vs. non-Japanese regions:
+	//
+	//  JP ('j'):
+	//    name:          5 bytes
+	//    class:         1 byte
+	//    pokemon1..3:   3 × 54 bytes
+	//    messages:      3 × 12 bytes
+	//    struct size:   204 bytes
+	//
+	//  non-JP ('e','f','d','s','i',...):
+	//    name:          7 bytes
+	//    class:         1 byte
+	//    pokemon1..3:   3 × 59 bytes
+	//    messages:      3 ×  8 bytes (EASY_CHAT_MESSAGE_LENGTH)
+	//    struct size:   209 bytes
+	//
+	// Our unified DB stores larger superset blobs (typically 7-byte
+	// names, 65-byte pokemon*, and 12-byte messages). Here we trim
+	// or pad each field to the exact protocol lengths.
 	$output = "";
+	$isJP   = !$bxte;
+
+	$nameLen = $isJP ? 5 : 10;
+	$monLen  = $isJP ? 54 : 59;
+	$msgLen  = $isJP ? 12 : 8;
+
 	for ($i = 0; $i < sizeof($result); $i++) {
-		$output .= $result[$i]["name"]; // $00 Trainer name
-		$output .= pack("C", $result[$i]["class"]); // $05 Trainer class
-		$output .= $result[$i]["pokemon1"]; // $06 1st Pokemon
-		$output .= $result[$i]["pokemon2"]; // $3c 2nd Pokemon
-		$output .= $result[$i]["pokemon3"]; // $72 3rd Pokemon
-		$output .= $result[$i]["message_start"]; // $ae Easy Chat message for when the battle starts
-		$output .= $result[$i]["message_win"]; // $ba Easy Chat message for winning a battle
-		$output .= $result[$i]["message_lose"]; // $c6 Easy Chat message for losing a battle
+		$row = $result[$i];
+
+		// Trainer name: prefer 'name', fall back to 'player_name'.
+		$name = "";
+		if (isset($row["name"])) {
+			$name = $row["name"];
+		} elseif (isset($row["player_name"])) {
+			$name = $row["player_name"]; // legacy alias
+		}
+		if (!is_string($name)) {
+			$name = "";
+		}
+		$name = substr($name, 0, $nameLen);
+		if (strlen($name) < $nameLen) {
+			$name = str_pad($name, $nameLen, "\0", STR_PAD_RIGHT);
+		}
+
+		// Trainer class: single byte.
+		$class = isset($row["class"]) ? (int)$row["class"] : 0;
+
+		// Helper to trim/pad a blob to a fixed length.
+		$fixBlob = function ($value, $len) {
+			if (!is_string($value)) {
+				$value = "";
+			}
+			$value = substr($value, 0, $len);
+			if (strlen($value) < $len) {
+				$value = str_pad($value, $len, "\0", STR_PAD_RIGHT);
+			}
+			return $value;
+		};
+
+		$p1 = $fixBlob(isset($row["pokemon1"]) ? $row["pokemon1"] : null, $monLen);
+		$p2 = $fixBlob(isset($row["pokemon2"]) ? $row["pokemon2"] : null, $monLen);
+		$p3 = $fixBlob(isset($row["pokemon3"]) ? $row["pokemon3"] : null, $monLen);
+
+		$m_start = $fixBlob(isset($row["message_start"]) ? $row["message_start"] : null, $msgLen);
+		$m_win   = $fixBlob(isset($row["message_win"])   ? $row["message_win"]   : null, $msgLen);
+		$m_lose  = $fixBlob(isset($row["message_lose"])  ? $row["message_lose"]  : null, $msgLen);
+
+		$output .= $name;                // Trainer name
+		$output .= pack("C", $class);   // Trainer class
+		$output .= $p1;                  // 1st Pokémon blob
+		$output .= $p2;                  // 2nd Pokémon blob
+		$output .= $p3;                  // 3rd Pokémon blob
+		$output .= $m_start;             // Start message
+		$output .= $m_win;               // Win message
+		$output .= $m_lose;              // Lose message
 	}
+
 	return $output;
 }
+
 
 function encodeLeaderList($result, $bxte = false) {
 	$output = "";
