@@ -172,8 +172,33 @@ CREATE TABLE `bxt_battle_tower_records` (
   `num_fainted_pokemon` tinyint(3) UNSIGNED NOT NULL,  
   `account_id` int(11) UNSIGNED NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  INDEX `idx_limit_24h` (`account_id`, `trainer_id`, `secret_id`, `timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+DELIMITER //
+
+CREATE TRIGGER bxt_battle_tower_records_limit_5_per_24h
+BEFORE INSERT ON bxt_battle_tower_records
+FOR EACH ROW
+BEGIN
+    DECLARE i INT;
+
+    SELECT COUNT(*)
+      INTO i
+      FROM bxt_battle_tower_records
+     WHERE account_id = NEW.account_id
+       AND trainer_id = NEW.trainer_id
+       AND secret_id = NEW.secret_id
+       AND `timestamp` >= NOW() - INTERVAL 24 HOUR;
+
+    IF i >= 5 THEN
+        SIGNAL SQLSTATE '45000'
+          SET MESSAGE_TEXT = 'Limit of 5 entries per 24 hours exceeded';
+    END IF;
+END//
+
+DELIMITER ;
 
 CREATE TABLE `bxt_battle_tower_trainers` (
   `game_region` char(1) NOT NULL,
@@ -197,7 +222,7 @@ CREATE TABLE `bxt_battle_tower_trainers` (
   `message_lose_decode` text DEFAULT NULL,
   `account_id` int(11) UNSIGNED NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`no`,`room`,`level`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `bxt_battle_tower_leaders` (
@@ -233,9 +258,32 @@ CREATE TABLE `bxt_exchange` (
   `account_id` int(11) UNSIGNED NOT NULL,
   `email` varchar(30) NOT NULL COMMENT 'DION email',
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-  UNIQUE INDEX `UNIQUE` (`account_id`, `trainer_id`, `secret_id`)
+  INDEX idx_limit_2h (account_id, trainer_id, secret_id, timestamp);
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+DELIMITER //
+
+CREATE TRIGGER bxt_exchange_limit_1_per_2h
+BEFORE INSERT ON bxt_exchange
+FOR EACH ROW
+BEGIN
+    DECLARE i INT;
+
+    SELECT COUNT(*)
+      INTO i
+      FROM bxt_exchange
+     WHERE account_id = NEW.account_id
+       AND trainer_id = NEW.trainer_id
+       AND secret_id = NEW.secret_id
+       AND `timestamp` >= NOW() - INTERVAL 2 HOUR;
+
+    IF i >= 1 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Limit of 1 entry per 2 hours exceeded';
+    END IF;
+END//
+
+DELIMITER ;
 
 CREATE TABLE `bxt_news` (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -274,7 +322,7 @@ CREATE TABLE `bxt_ranking` (
   `player_message_decode` text DEFAULT NULL,
   `account_id` int(11) UNSIGNED NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`news_id`, `category_id`, `account_id`, `trainer_id`, `secret_id`),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `bxt_ranking_categories` (
