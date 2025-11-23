@@ -153,6 +153,7 @@ final class InitialSchema extends AbstractMigration
         $table = $this->table('bxtj_ranking', ['id' => false, 'primary_key' => ['news_id', 'category_id', 'account_id', 'trainer_id', 'secret_id']]);
         $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
               ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
+              ->addColumn('score', 'integer', ['signed' => false, 'limit' => 11])			  
               ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
               ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
               ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
@@ -162,7 +163,6 @@ final class InitialSchema extends AbstractMigration
               ->addColumn('player_region', 'integer', ['signed' => false, 'limit' => 3])
               ->addColumn('player_zip', 'integer', ['limit' => 3])
               ->addColumn('player_message', 'binary', ['limit' => 12])
-              ->addColumn('score', 'integer', ['signed' => false, 'limit' => 11])
               ->addColumn('timestamp', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
               ->create();
     }
