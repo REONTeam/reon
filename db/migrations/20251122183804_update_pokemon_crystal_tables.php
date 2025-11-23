@@ -134,9 +134,6 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
             if (!$table->hasColumn('mail_decode')) {
                 $table->addColumn('mail_decode', 'text', ['null' => true, 'after' => 'mail']);
             }
-            if (!$table->hasIndex(['account_id', 'trainer_id', 'secret_id', 'timestamp'])) {
-                $table->addIndex(['account_id', 'trainer_id', 'secret_id', 'timestamp'], ['name' => 'idx_limit_2h']);
-            }
             $table->save();
         }
 
@@ -266,37 +263,6 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
             $this->output->writeln('<warning>Warning: Could not create trigger bxt_battle_tower_records_limit_5_per_24h</warning>');
             $this->output->writeln('<warning>Error: ' . $e->getMessage() . '</warning>');
             $this->output->writeln('<warning>Rate limiting for battle tower records must be implemented in application code</warning>');
-        }
-
-        try {
-            // Add trigger for bxt_exchange (1 per 2 hours limit)
-            $this->execute("DROP TRIGGER IF EXISTS bxt_exchange_limit_1_per_2h");
-
-            $this->execute("
-                CREATE DEFINER=CURRENT_USER TRIGGER bxt_exchange_limit_1_per_2h
-                BEFORE INSERT ON bxt_exchange
-                FOR EACH ROW
-                BEGIN
-                    DECLARE i INT;
-
-                    SELECT COUNT(*)
-                      INTO i
-                      FROM bxt_exchange
-                     WHERE account_id = NEW.account_id
-                       AND trainer_id = NEW.trainer_id
-                       AND secret_id = NEW.secret_id
-                       AND `timestamp` >= NOW() - INTERVAL 2 HOUR;
-
-                    IF i >= 1 THEN
-                        SIGNAL SQLSTATE '45000'
-                            SET MESSAGE_TEXT = 'Limit of 1 entry per 2 hours exceeded';
-                    END IF;
-                END
-            ");
-        } catch (\Exception $e) {
-            $this->output->writeln('<warning>Warning: Could not create trigger bxt_exchange_limit_1_per_2h</warning>');
-            $this->output->writeln('<warning>Error: ' . $e->getMessage() . '</warning>');
-            $this->output->writeln('<warning>Rate limiting for exchange must be implemented in application code</warning>');
         }
     }
 }
