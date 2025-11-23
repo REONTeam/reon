@@ -1348,58 +1348,69 @@ if (!function_exists('bxt_validate_ranking_score')) {
         // Ranges per category, inclusive.
         // Categories not present in this map are treated as invalid.
         static $ranges = [
-            0 => [0, 66045],
-            1 => [0, 4294967295],
-            2 => [0, 4294967295],
-            3 => [0, 16777215],
-            4 => [0, 16777215],
-            5 => [0, 16777215],
-            6 => [0, 65536],
-            7 => [0, 16777215],
-            8 => [0, 16777215],
-            9 => [0, 65535],
-            10 => [0, 65535],
-            11 => [0, 65535],
-            12 => [0, 16777215],
-            13 => [0, 16777215],
-            14 => [0, 16777215],
-            15 => [0, 65535],
-            16 => [0, 65535],
-            17 => [0, 65535],
-            18 => [0, 65535],
-            19 => [0, 65535],
-            20 => [0, 65535],
-            21 => [0, 65535],
-            22 => [0, 4294967295],
-            23 => [0, 4294967295],
-            24 => [0, 4294967295],
-            25 => [0, 4294967295],
-            26 => [0, 4294967295],
-            27 => [0, 4294967295],
-            28 => [0, 4294967295],
-            29 => [0, 4294967295],
-            30 => [0, 4294967295],
-            31 => [0, 4294967295],
-            32 => [0, 4294967295],
-            33 => [0, 4294967295],
-            34 => [0, 16777215],
-            35 => [0, 65535],
-            36 => [0, 65535],
-            37 => [0, 4294967295],
-            38 => [0, 4294967295],
-            39 => [0, 0], [190, 1785], // Smallest to largest possible MAGIKARP size.
-            40 => [0, 0], [190, 1785], // Smallest to largest possible MAGIKARP size.
-            41 => [0, 0], [132, 387], //BUG CATCHING SCORE // Min: Weedle Lv.7 (22 Min HP * 4 (88 pts) + Half of all DVs (min) rounded down are even (0 pts), + Sum of non-HP stats: 9, 9, 7, 7, 12 (44 pts) + No item + 1/8th of current HP, worst case is 1 (0 pts). = 132 // Max: Scyther Lv.14 (47 Max HP * 4 (188 pts) + Half of all DVs (max) rounded down are even (29 pts) + Sum of non-HP stats: 40, 31, 24, 31, 38 (164 pts) + Holding Bitter Berry (1 pt) + 1/8th of the current HP, best case is 47 (5 pts) = 387
+            0 => [[0, 66045]],
+            1 => [[0, 4294967295]],
+            2 => [[0, 4294967295]],
+            3 => [[0, 16777215]],
+            4 => [[0, 16777215]],
+            5 => [[0, 16777215]],
+            6 => [[0, 65536]],
+            7 => [[0, 16777215]],
+            8 => [[0, 16777215]],
+            9 => [[0, 65535]],
+            10 => [[0, 65535]],
+            11 => [[0, 65535]],
+            12 => [[0, 16777215]],
+            13 => [[0, 16777215]],
+            14 => [[0, 16777215]],
+            15 => [[0, 65535]],
+            16 => [[0, 65535]],
+            17 => [[0, 65535]],
+            18 => [[0, 65535]],
+            19 => [[0, 65535]],
+            20 => [[0, 65535]],
+            21 => [[0, 65535]],
+            22 => [[0, 4294967295]],
+            23 => [[0, 4294967295]],
+            24 => [[0, 4294967295]],
+            25 => [[0, 4294967295]],
+            26 => [[0, 4294967295]],
+            27 => [[0, 4294967295]],
+            28 => [[0, 4294967295]],
+            29 => [[0, 4294967295]],
+            30 => [[0, 4294967295]],
+            31 => [[0, 4294967295]],
+            32 => [[0, 4294967295]],
+            33 => [[0, 4294967295]],
+            34 => [[0, 16777215]],
+            35 => [[0, 65535]],
+            36 => [[0, 65535]],
+            37 => [[0, 4294967295]],
+            38 => [[0, 4294967295]],
+            39 => [[0, 0], [190, 1785]], // Smallest to largest possible MAGIKARP size.
+            40 => [[0, 0], [190, 1785]], // Smallest to largest possible MAGIKARP size.
+            41 => [[0, 0], [132, 387]], // BUG CATCHING SCORE // Min: Weedle Lv.7 (22 Min HP * 4 (88 pts) + Half of all DVs (min) rounded down are even (0 pts), + Sum of non-HP stats: 9, 9, 7, 7, 12 (44 pts) + No item + 1/8th of current HP, worst case is 1 (0 pts). = 132 // Max: Scyther Lv.14 (47 Max HP * 4 (188 pts) + Half of all DVs (max) rounded down are even (29 pts) + Sum of non-HP stats: 40, 31, 24, 31, 38 (164 pts) + Holding Bitter Berry (1 pt) + 1/8th of the current HP, best case is 47 (5 pts) = 387
         ];
 
         if (!array_key_exists($category_id, $ranges)) {
             $errors_local[] = 'score: unknown category_id ' . $category_id;
         } else {
-            list($min, $max) = $ranges[$category_id];
-            if ($score < $min || $score > $max) {
-                $errors_local[] = 'score: out of range ' . $score . ' for category ' . $category_id . ' (expected ' . $min . '-' . $max . ')';
+            $valid = false;
+            $expected_ranges = [];
+            foreach ($ranges[$category_id] as $range) {
+                list($min, $max) = $range;
+                $expected_ranges[] = $min . '-' . $max;
+                if ($score >= $min && $score <= $max) {
+                    $valid = true;
+                    break;
+                }
+            }
+
+            if (!$valid) {
+                $errors_local[] = 'score: out of range ' . $score . ' for category ' . $category_id . ' (expected ' . implode(' or ', $expected_ranges) . ')';
             }
         }
+
 
         if ($errors_local) {
             if (is_array($errors)) {
