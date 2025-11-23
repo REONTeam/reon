@@ -10,6 +10,7 @@ $pass = getenv('REON_SWEEP_PASS') ?: 'password';
 
 $BATTLE_TOWER_ALLOWED_CLASS_IDS = [47,22,23,24,30,32,36,37,38,40,41,43,44,48,50,52,54,27,58,49,59,65,56,45,20,57,25,29,33,34,39,53,60,62,28];
 $banned = bxt_load_banned_words(__DIR__ . '/banned_words.txt');
+$allowed = bxt_load_allowed_words(__DIR__ . '/allowed_words.txt');
 
 try {
     $pdo = new PDO($dsn, $user, $pass, [
@@ -63,9 +64,9 @@ function sweep_exchange(PDO $pdo, string $t, array $banned) {
             if (!$ok) $illegal = true;
             else if ((int)($det['speciesId'] ?? 0) > 251) $illegal = true;
             else if (!empty($det['isEgg'])) $illegal = true;
-            else if (!bxt_policy_allow_nickname($det, $banned)) $illegal = true;
-            else if (!bxt_policy_allow_ot($det, $banned)) $illegal = true;
-            else if (!bxt_policy_allow_mail_table($r['mail'] ?? '', $enc, $banned)) $illegal = true;
+            else if (!bxt_policy_allow_nickname($det, $banned, $allowed)) $illegal = true;
+            else if (!bxt_policy_allow_ot($det, $banned, $allowed)) $illegal = true;
+            else if (!bxt_policy_allow_mail_table($r['mail'] ?? '', $enc, $banned, $allowed)) $illegal = true;
         } catch (Throwable $e) {
             $illegal = true;
         }
@@ -98,7 +99,7 @@ function sweep_bt_named(PDO $pdo, string $t, string $idcol, array $banned) {
     while ($r = $sel->fetch()) {
         $sc++;
         $txt = bxt_decode_text_table((string)$r['name'], $enc);
-        if ($txt !== '' && bxt_contains_banned($txt, $banned)) {
+        if ($txt !== '' && bxt_contains_banned($txt, $banned, $allowed)) {
             $del->execute([':id' => $r['id']]);
             $rm++;
             echo "Deleted $t." . $r['id'] . " (banned name)
@@ -133,7 +134,7 @@ function sweep_bt(PDO $pdo, string $t, string $idcol, array $banned, array $BATT
                 if (!$ok) { $illegal = true; break; }
                 if ((int)($det['speciesId'] ?? 0) > 251) { $illegal = true; break; }
                 if (!empty($det['isEgg'])) { $illegal = true; break; }
-                if (!bxt_policy_allow_nickname($det, $banned)) { $illegal = true; break; }
+                if (!bxt_policy_allow_nickname($det, $banned, $allowed)) { $illegal = true; break; }
                 $lvl = (int)($det['level'] ?? 0);
                 if ($lvl > $cap) { $illegal = true; break; }
                 $helds[] = (int)($det['heldItem'] ?? -1);

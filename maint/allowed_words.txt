@@ -1,0 +1,6 @@
+#International
+#Japanese
+#Mirror of the Japanese word list converted into escape sequences
+#Hacky solution to LegalityCheckerConsole outputting raw Japanese for PKhex string comparisons, but easier than forcing the console to output Japanese.
+#Used for JP Pokemon blob checks against the banned word list in Trade Corner and Battle Tower, which don't utilize the bxt_encoding.json
+#No Need to worry about latin alphabet overlap because '\' does not exist is a character in Crystal.
