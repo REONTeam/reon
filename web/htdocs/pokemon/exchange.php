@@ -21,7 +21,7 @@
 
     $stmt = $db->prepare(
         "select account_id, trainer_id, secret_id, game_region, offer_species, offer_gender, request_species, request_gender, player_name, timestamp, pokemon, mail from bxt_exchange ".
-        ($region == 'j' ? "where game_region == 'j'" : '').
+        ($region == 'j' ? "where game_region = 'j'" : '').
         ($region == 'int' ? "where game_region != 'j'" : '').
         " order by timestamp desc"
     );
