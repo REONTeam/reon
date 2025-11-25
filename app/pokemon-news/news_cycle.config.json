@@ -1,0 +1,197 @@
+{
+  "news_cycle": {
+    "articles_dir": "articles",
+    "region_folder_map": {
+      "j": "j",
+      "e": "e",
+      "f": "f",
+      "d": "d",
+      "s": "s",
+      "i": "i",
+      "p": "p",
+      "u": "u"
+    },
+    "region_message_encoding": {
+      "j": "jp",
+      "e": "en",
+      "f": "fr_de",
+      "d": "fr_de",
+      "s": "es_it",
+      "i": "es_it",
+      "p": "en",
+      "u": "en"
+    },
+    "region_ranking_prefix": {
+      "e": "btxe_btxp_btxu",
+      "p": "btxe_btxp_btxu",
+      "u": "btxe_btxp_btxu",
+      "f": "btxf",
+      "d": "btxd",
+      "s": "btxs",
+      "i": "btxi",
+      "j": "btxj"
+    },
+    "schedule": {
+      "j": {
+        "january_jp.bin": {
+          "date": "01-01",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        },
+        "february_jp.bin": {
+          "date": "11-01",
+          "slot": 1,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        }
+      },
+      "e": {
+        "january_en.bin": {
+          "date": "01-01",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        },
+        "february_en.bin": {
+          "date": "11-01",
+          "slot": 1,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        }
+      },
+      "f": {
+        "january_fr.bin": {
+          "date": "01-01",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        },
+        "february_fr.bin": {
+          "date": "11-01",
+          "slot": 1,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        }
+      },
+      "d": {
+        "january_de.bin": {
+          "date": "01-01",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        },
+        "february_de.bin": {
+          "date": "11-01",
+          "slot": 1,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        }
+      },
+      "s": {
+        "january_es.bin": {
+          "date": "01-01",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        },
+        "february_es.bin": {
+          "date": "11-01",
+          "slot": 1,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        }
+      },
+      "i": {
+        "january_it.bin": {
+          "date": "01-01",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        },
+        "february_it.bin": {
+          "date": "11-01",
+          "slot": 1,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        }
+      },
+      "p": {
+        "january_eu.bin": {
+          "date": "01-01",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        },
+        "february_eu.bin": {
+          "date": "11-01",
+          "slot": 1,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        }
+      },
+      "u": {
+        "january_au.bin": {
+          "date": "01-01",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        },
+        "february_au.bin": {
+          "date": "11-01",
+          "slot": 1,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ]
+        }
+      }
+    }
+  }
+}
