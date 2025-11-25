@@ -280,6 +280,47 @@ function loadRotationConfig(rootDir) {
  *     effective scheduled date.
  *   - Per-job state is stored under cycleState.rotation[jobId].
  */
+
+function parseTimeOfDay(str) {
+  if (!str || typeof str !== "string") return null;
+  const m = str.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return null;
+  const hour = Number(m[1]);
+  const minute = Number(m[2]);
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) return null;
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+  return { hour, minute };
+}
+
+function normalizeRepeat(spec) {
+  if (!spec || typeof spec !== "string") return "daily";
+  const s = spec.toLowerCase().trim();
+
+  if (s === "daily") return "daily";
+  if (s === "bidaily" || s === "bi-daily" || s === "every-2-days" || s === "every2days") {
+    return "bidaily";
+  }
+  if (s === "weekly") return "weekly";
+  if (s === "biweekly" || s === "bi-weekly") return "biweekly";
+
+  // Fallback to daily if unknown
+  return "daily";
+}
+
+function repeatKindToDays(kind) {
+  switch (kind) {
+    case "bidaily":
+      return 2;
+    case "weekly":
+      return 7;
+    case "biweekly":
+      return 14;
+    case "daily":
+    default:
+      return 1;
+  }
+}
+
 function processFileRotations(rootDir, rotationCfg, cycleState, todayDate) {
   if (
     !rotationCfg ||
@@ -294,9 +335,11 @@ function processFileRotations(rootDir, rotationCfg, cycleState, todayDate) {
     cycleState.rotation = {};
   }
   const rotationState = cycleState.rotation;
+  const now = new Date();
 
   for (const job of rotationCfg.jobs) {
     if (!job) continue;
+    if (job.disabled) continue;
 
     const jobId =
       typeof job.id === "string" && job.id.length
@@ -307,49 +350,215 @@ function processFileRotations(rootDir, rotationCfg, cycleState, todayDate) {
             job.filename || job.source || job.file || "",
           ].join("|");
 
-    let scheduleSpec = null;
-    if (typeof job.date === "string" || (job.date && typeof job.date === "object")) {
-      scheduleSpec = job.date;
-    } else if (
+    const hasDate =
+      typeof job.date === "string" ||
+      (job.date && typeof job.date === "object") ||
       typeof job.schedule === "string" ||
-      (job.schedule && typeof job.schedule === "object")
-    ) {
-      scheduleSpec = job.schedule;
-    }
+      (job.schedule && typeof job.schedule === "object");
 
-    if (!scheduleSpec) continue;
+    const timeSpec =
+      (typeof job.time === "string" && job.time) ||
+      (job.schedule &&
+        typeof job.schedule === "object" &&
+        typeof job.schedule.time === "string" &&
+        job.schedule.time) ||
+      null;
 
-    const parsed = parseScheduleEntry(scheduleSpec);
-    if (!parsed) continue;
+    const timeOfDay = parseTimeOfDay(timeSpec);
 
-    let candidateDate = null;
-    if (parsed.kind === "full" && parsed.date) {
-      const d = parsed.date;
-      if (d > todayDate) continue;
-      candidateDate = d;
-    } else if (parsed.kind === "md") {
-      const year = todayDate.getFullYear();
-      let d = new Date(year, parsed.month - 1, parsed.day);
-      if (d > todayDate) {
-        d = new Date(year - 1, parsed.month - 1, parsed.day);
+    // ───────────────────────────────────────────────
+    // Branch 1: jobs WITH explicit date (backwards-compatible)
+    // ───────────────────────────────────────────────
+    if (hasDate) {
+      let scheduleSpec = null;
+      if (typeof job.date === "string" || (job.date && typeof job.date === "object")) {
+        scheduleSpec = job.date;
+      } else if (
+        typeof job.schedule === "string" ||
+        (job.schedule && typeof job.schedule === "object")
+      ) {
+        scheduleSpec = job.schedule;
       }
-      candidateDate = d;
-    } else {
-      // Ignore slot-based entries for rotation.
+
+      if (!scheduleSpec) continue;
+
+      const parsed = parseScheduleEntry(scheduleSpec);
+      if (!parsed) continue;
+
+      let candidateDate = null;
+      if (parsed.kind === "full" && parsed.date) {
+        const d = parsed.date;
+        if (d > todayDate) continue;
+        candidateDate = d;
+      } else if (parsed.kind === "md") {
+        const year = todayDate.getFullYear();
+        let d = new Date(year, parsed.month - 1, parsed.day);
+        if (d > todayDate) {
+          d = new Date(year - 1, parsed.month - 1, parsed.day);
+        }
+        candidateDate = d;
+      } else {
+        // Slot-based or unsupported for rotation
+        continue;
+      }
+
+      if (!candidateDate || candidateDate > todayDate) {
+        continue;
+      }
+
+      // Time gate: if a time was given, do not run before that time
+      if (timeOfDay) {
+        const scheduledDateTime = new Date(
+          candidateDate.getFullYear(),
+          candidateDate.getMonth(),
+          candidateDate.getDate(),
+          timeOfDay.hour,
+          timeOfDay.minute,
+          0,
+          0
+        );
+        if (now < scheduledDateTime) {
+          continue;
+        }
+      }
+
+      const stateForJob = rotationState[jobId];
+      if (stateForJob && stateForJob.lastApplied) {
+        const lastApplied = new Date(stateForJob.lastApplied);
+        if (!Number.isNaN(lastApplied.getTime()) && lastApplied >= candidateDate) {
+          continue;
+        }
+      }
+
+      let srcPath = job.source || job.source_file || job.file;
+      if (!srcPath) continue;
+
+      if (!path.isAbsolute(srcPath)) {
+        const base =
+          (typeof job.source_root === "string" && job.source_root.length
+            ? job.source_root
+            : rotationCfg.source_root) || rootDir;
+        srcPath = path.resolve(base, srcPath);
+      }
+
+      let destDir = job.dest_dir || job.destination_dir || job.target_dir;
+      if (!destDir) continue;
+
+      if (!path.isAbsolute(destDir)) {
+        destDir = path.resolve(rootDir, destDir);
+      }
+
+      const filename =
+        job.filename && typeof job.filename === "string" && job.filename.length
+          ? job.filename
+          : path.basename(srcPath);
+      const destPath = path.join(destDir, filename);
+
+      try {
+        if (!fs.existsSync(srcPath) || !fs.statSync(srcPath).isFile()) {
+          console.warn(
+            `[rotation] job=${jobId}: source file missing, skipping (${srcPath})`
+          );
+          continue;
+        }
+
+        fs.mkdirSync(destDir, { recursive: true });
+
+        let destUpToDate = false;
+        if (fs.existsSync(destPath)) {
+          const stat = fs.statSync(destPath);
+          if (stat && stat.mtime && stat.mtime >= candidateDate) {
+            destUpToDate = true;
+          }
+        }
+
+        if (destUpToDate) {
+          console.log(
+            `[rotation] job=${jobId}: destination already up to date at ${destPath}`
+          );
+          rotationState[jobId] = {
+            lastApplied: candidateDate.toISOString().slice(0, 10),
+            src: srcPath,
+            dest: destPath,
+          };
+          continue;
+        }
+
+        fs.copyFileSync(srcPath, destPath);
+        console.log(`[rotation] job=${jobId}: copied ${srcPath} -> ${destPath}`);
+        rotationState[jobId] = {
+          lastApplied: candidateDate.toISOString().slice(0, 10),
+          src: srcPath,
+          dest: destPath,
+        };
+      } catch (e) {
+        console.error(
+          `[rotation] job=${jobId}: failed to copy ${srcPath} -> ${destPath}:`,
+          e
+        );
+      }
+
       continue;
     }
 
-    if (!candidateDate || candidateDate > todayDate) {
-      continue;
-    }
+    // ───────────────────────────────────────────────
+    // Branch 2: jobs WITHOUT any date
+    //   → recurring based on repeat + optional time
+    // ───────────────────────────────────────────────
+
+    const repeatSpec =
+      (typeof job.repeat === "string" && job.repeat) ||
+      (job.schedule &&
+        typeof job.schedule === "object" &&
+        typeof job.schedule.repeat === "string" &&
+        job.schedule.repeat) ||
+      null;
+
+    const repeatKind = normalizeRepeat(repeatSpec);
+    const repeatDays = repeatKindToDays(repeatKind);
 
     const stateForJob = rotationState[jobId];
+    let lastAppliedDateTime = null;
     if (stateForJob && stateForJob.lastApplied) {
-      const lastApplied = new Date(stateForJob.lastApplied);
-      if (!Number.isNaN(lastApplied.getTime()) && lastApplied >= candidateDate) {
+      const d = new Date(stateForJob.lastApplied);
+      if (!Number.isNaN(d.getTime())) {
+        lastAppliedDateTime = d;
+      }
+    }
+
+    let ready = false;
+    if (!lastAppliedDateTime) {
+      ready = true;
+    } else {
+      const earliestNext = new Date(
+        lastAppliedDateTime.getTime() + repeatDays * 24 * 60 * 60 * 1000
+      );
+      if (now >= earliestNext) {
+        ready = true;
+      }
+    }
+
+    if (!ready) {
+      continue;
+    }
+
+    // Time gate for recurring jobs:
+    if (timeOfDay) {
+      const todayAtTime = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+        timeOfDay.hour,
+        timeOfDay.minute,
+        0,
+        0
+      );
+      if (now < todayAtTime) {
         continue;
       }
     }
+
+    const candidateDate = toDateOnly(now);
 
     let srcPath = job.source || job.source_file || job.file;
     if (!srcPath) continue;
@@ -398,7 +607,7 @@ function processFileRotations(rootDir, rotationCfg, cycleState, todayDate) {
           `[rotation] job=${jobId}: destination already up to date at ${destPath}`
         );
         rotationState[jobId] = {
-          lastApplied: candidateDate.toISOString().slice(0, 10),
+          lastApplied: now.toISOString(),
           src: srcPath,
           dest: destPath,
         };
@@ -408,7 +617,7 @@ function processFileRotations(rootDir, rotationCfg, cycleState, todayDate) {
       fs.copyFileSync(srcPath, destPath);
       console.log(`[rotation] job=${jobId}: copied ${srcPath} -> ${destPath}`);
       rotationState[jobId] = {
-        lastApplied: candidateDate.toISOString().slice(0, 10),
+        lastApplied: now.toISOString(),
         src: srcPath,
         dest: destPath,
       };
@@ -421,10 +630,6 @@ function processFileRotations(rootDir, rotationCfg, cycleState, todayDate) {
   }
 }
 
-/**
- * Decode a buffer of single-byte character codes using bxt_encoding.json.
- * `tableName` is "jp" or "en".
- */
 function decodeMessageBytes(buf, encoding, tableName) {
   const table = encoding[tableName];
   if (!table) return null;

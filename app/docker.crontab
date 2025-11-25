@@ -1,4 +1,4 @@
 # BusyBox cron doesn't support 0/15, so we have to list each minute
 0,15,30,45 * * * * node /app/pokemon-battle/index.js -c /app/config.json
 0,15,30,45 * * * * node /app/pokemon-exchange/index.js -c /app/config.json
-0,15,30,45 * * * * node /app/pokemon-news/index.js -c /app/config.json
+0,15,30,45 * * * * node /app/auto-schedule/index.js -c /app/config.json

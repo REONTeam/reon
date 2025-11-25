@@ -8,6 +8,47 @@
         "dest_dir": "app/auto-schedule/files/example_target/example.bin",
         "filename": "january_en.bin",
         "date": "01-15"
+      },
+      {
+        "id": "example_job_with_date_and_time",
+        "source": "app/auto-schedule/files/example/example.bin",
+        "dest_dir": "app/auto-schedule/files/example_target",
+        "filename": "january_en.bin",
+        "date": "01-15",
+        "time": "03:00",
+        "disabled": true
+      },
+      {
+        "id": "daily_job_with_time_only",
+        "source": "app/auto-schedule/files/example/example2.bin",
+        "dest_dir": "app/auto-schedule/files/example_target",
+        "time": "04:30",
+        "repeat": "daily",
+        "disabled": true
+      },
+      {
+        "id": "bidaily_example",
+        "source": "app/auto-schedule/files/example/example3.bin",
+        "dest_dir": "app/auto-schedule/files/example_target",
+        "time": "02:00",
+        "repeat": "bi-daily",
+        "disabled": true
+      },
+      {
+        "id": "weekly_example",
+        "source": "app/auto-schedule/files/example/example4.bin",
+        "dest_dir": "app/auto-schedule/files/example_target",
+        "time": "05:00",
+        "repeat": "weekly",
+        "disabled": true
+      },
+      {
+        "id": "biweekly_example",
+        "source": "app/auto-schedule/files/example/example5.bin",
+        "dest_dir": "app/auto-schedule/files/example_target",
+        "time": "01:15",
+        "repeat": "bi-weekly",
+        "disabled": true
       }
     ]
   }
