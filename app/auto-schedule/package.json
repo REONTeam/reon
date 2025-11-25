@@ -1,5 +1,5 @@
 {
-  "name": "pokemon-news",
+  "name": "auto-schedule",
   "version": "1.0.0",
   "description": "Application to update Pokémon news blobs in bxt_news based on dated article folders; intended for cronjob use.",
   "main": "index.js",

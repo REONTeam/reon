@@ -1,15 +1,15 @@
 {
   "news_cycle": {
-    "articles_dir": "articles",
+    "articles_dir": "files",
     "region_folder_map": {
-      "j": "j",
-      "e": "e",
-      "f": "f",
-      "d": "d",
-      "s": "s",
-      "i": "i",
-      "p": "p",
-      "u": "u"
+      "j": "bxt/j",
+      "e": "bxt/e",
+      "f": "bxt/f",
+      "d": "bxt/d",
+      "s": "bxt/s",
+      "i": "bxt/i",
+      "p": "bxt/p",
+      "u": "bxt/u"
     },
     "region_message_encoding": {
       "j": "jp",

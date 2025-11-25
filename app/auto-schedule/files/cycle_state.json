@@ -1,0 +1,35 @@
+{
+  "news": {
+    "j": {
+      "lastSlot": 0
+    },
+    "e": {
+      "lastSlot": 0
+    },
+    "f": {
+      "lastSlot": 0
+    },
+    "d": {
+      "lastSlot": 0
+    },
+    "s": {
+      "lastSlot": 0
+    },
+    "i": {
+      "lastSlot": 0
+    },
+    "p": {
+      "lastSlot": 0
+    },
+    "u": {
+      "lastSlot": 0
+    }
+  },
+  "rotation": {
+    "example_job": {
+      "lastApplied": "2025-01-15",
+      "src": "C:\\xampp\\htdocs\\reon\\app\\auto-schedule\\files\\bxt\\e\\january_en.bin",
+      "dest": "C:\\xampp\\htdocs\\reon\\web\\cgb\\pokemon\\some_target_folder\\january_en.bin"
+    }
+  }
+}
