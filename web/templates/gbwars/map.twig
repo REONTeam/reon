@@ -1,0 +1,181 @@
+{% extends "main.twig" %}
+
+{% block title %}{{ map.map_name }} - {{'gameboy-wars'|trans}}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/css/gbwars.css">
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.php">{{'gameboy-wars'|trans}}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Map #{{ map.map_id }}</li>
+    </ol>
+</nav>
+
+<div class="map-detail-header">
+    <h1>{{ map.map_name }}</h1>
+    <div class="map-badges">
+        <span class="badge bg-secondary">#{{ map.map_id }}</span>
+        <span class="badge bg-info">{{ map.width }}x{{ map.height }}</span>
+        <span class="badge bg-success">{{ map.price_yen }}&#165;</span>
+        {% if isOfficial %}
+            <span class="badge bg-warning text-dark">Official Map</span>
+        {% else %}
+            <span class="badge bg-primary">REON Map</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="map-container-wrapper">
+    <div class="map-canvas-container position-relative flex-grow-1">
+        <div id="mapContainer"></div>
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="map-sidebar">
+        <div class="map-info-card">
+            <h5>Map Information</h5>
+            <div class="info-row">
+                <span class="info-label">ID</span>
+                <span class="info-value">#{{ map.map_id }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Size</span>
+                <span class="info-value">{{ map.width }} x {{ map.height }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Price</span>
+                <span class="info-value">{{ map.price_yen }}&#165;</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Downloads</span>
+                <span class="info-value">{{ map.download_count }}</span>
+            </div>
+            {% if map.category_e %}
+            <div class="info-row">
+                <span class="info-label">Category</span>
+                <span class="info-value">{{ map.category_e }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="map-info-card">
+            <h5>Zoom</h5>
+            <div class="zoom-controls">
+                <button class="btn btn-outline-secondary zoom-btn active" data-zoom="16" title="16x16">1x</button>
+                <button class="btn btn-outline-secondary zoom-btn" data-zoom="32" title="32x32">2x</button>
+            </div>
+        </div>
+
+        <div class="map-info-card">
+            <h5>Units (<span id="unitCount">0</span>)</h5>
+            <div id="unitList" class="unit-list">
+                <div class="text-muted">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/gbwars/map-renderer.js"></script>
+<script>
+    const mapId = '{{ map.map_id }}';
+    const currentLocale = '{{ curr_locale | default("en") }}';
+    let renderer;
+
+    async function initMap() {
+        const container = document.getElementById('mapContainer');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Create renderer
+        renderer = new GBWarsMapRenderer({ tileSize: 16 });
+        renderer.init(container);
+
+        try {
+            // Load localized strings and tilesets in parallel
+            await Promise.all([
+                renderer.loadStrings(currentLocale),
+                renderer.loadTilesets(
+                    '/images/gbwars/terrain_16x16.png',
+                    '/images/gbwars/units_16x16.png',
+                    '/images/gbwars/cursor.png',
+                    '/images/gbwars/water.png'
+                )
+            ]);
+
+            // Fetch map data
+            const response = await fetch(`api/map.php?id=${encodeURIComponent(mapId)}`);
+            if (!response.ok) {
+                throw new Error('Failed to load map data');
+            }
+
+            const mapData = await response.json();
+            renderer.setMapData(mapData);
+
+            // Update unit list
+            updateUnitList(mapData.units);
+
+            // Hide loading overlay
+            loadingOverlay.style.display = 'none';
+
+        } catch (error) {
+            console.error('Error loading map:', error);
+            loadingOverlay.innerHTML = `
+                <div class="text-danger text-center">
+                    <div class="mb-2">Failed to load map</div>
+                    <small>${error.message}</small>
+                </div>
+            `;
+        }
+    }
+
+    function updateUnitList(units) {
+        const unitList = document.getElementById('unitList');
+        const unitCount = document.getElementById('unitCount');
+
+        unitCount.textContent = units.length;
+
+        if (units.length === 0) {
+            unitList.innerHTML = '<div class="text-muted">No units on this map</div>';
+            return;
+        }
+
+        let html = '';
+
+        for (const unit of units) {
+            const name = renderer.getUnitName(unit.type);
+            const faction = (unit.type % 2 === 0) ? 'rs' : 'wm';
+
+            html += `
+                <div class="unit-item ${faction}-unit">
+                    <span class="unit-name">${name}</span>
+                    <span class="unit-pos">(${unit.x}, ${unit.y})</span>
+                </div>
+            `;
+        }
+
+        unitList.innerHTML = html;
+    }
+
+    // Zoom controls
+    document.querySelectorAll('.zoom-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const zoom = parseInt(btn.dataset.zoom);
+
+            // Update active state
+            document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            renderer.setZoom(zoom);
+        });
+    });
+
+    // Initialize on page load
+    initMap();
+</script>
+{% endblock %}

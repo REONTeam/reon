@@ -33,12 +33,16 @@ RUN composer dump-autoload --optimize
 
 FROM php:${PHP_VERSION}-fpm-alpine AS web
 WORKDIR /var/www
-RUN docker-php-ext-install mysqli \
-    && docker-php-ext-enable mysqli
+RUN apk add --no-cache libpng libpng-dev \
+    && docker-php-ext-install mysqli gd \
+    && docker-php-ext-enable mysqli gd \
+    && apk del libpng-dev
 COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
 COPY --from=web-deps /app /var/www/reon/web
 RUN mkdir -p /var/www/reon/web/tmp \
-    && chown www-data:www-data /var/www/reon/web/tmp
+    && chown www-data:www-data /var/www/reon/web/tmp \
+    && find /var/www/reon/web/htdocs -type f -exec chmod 644 {} \; \
+    && find /var/www/reon/web/htdocs -type d -exec chmod 755 {} \;
 ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
 
 ### Database Migration Service

@@ -1,0 +1,227 @@
+/**
+ * Game Boy Wars 3 - Stylesheet
+ */
+
+/* ==========================================================================
+   Map Gallery (index page)
+   ========================================================================== */
+
+.map-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.map-card {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.map-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    color: inherit;
+}
+
+.map-preview {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.map-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.map-info {
+    padding: 15px;
+}
+
+.map-info h5 {
+    margin-bottom: 8px;
+}
+
+.map-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--bs-secondary);
+}
+
+.map-meta .map-id {
+    font-family: monospace;
+    background: var(--bs-tertiary-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.map-meta .map-price {
+    color: var(--bs-success);
+    font-weight: bold;
+}
+
+/* ==========================================================================
+   Map Detail Page
+   ========================================================================== */
+
+.map-detail-header {
+    margin-bottom: 2rem;
+}
+
+.map-detail-header h1 {
+    margin-bottom: 0.5rem;
+}
+
+.map-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.map-container-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 992px) {
+    .map-container-wrapper {
+        flex-direction: row;
+    }
+}
+
+.map-canvas-container {
+    background: #111;
+    border-radius: 8px;
+    padding: 16px;
+    overflow: auto;
+    max-width: 100%;
+}
+
+#mapContainer {
+    margin: 0 auto;
+    display: block;
+}
+
+.map-sidebar {
+    min-width: 280px;
+    max-width: 320px;
+}
+
+.map-info-card {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.map-info-card h5 {
+    border-bottom: 1px solid var(--bs-border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+}
+
+.info-label {
+    color: var(--bs-secondary);
+}
+
+.info-value {
+    font-weight: 500;
+}
+
+/* Zoom controls */
+.zoom-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.zoom-controls label {
+    margin-right: 0.5rem;
+    color: var(--bs-secondary);
+}
+
+.zoom-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.zoom-btn.active {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+}
+
+/* Unit list */
+.unit-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.unit-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+    background: var(--bs-tertiary-bg);
+    font-size: 0.9rem;
+}
+
+.unit-item .unit-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.5rem;
+    image-rendering: pixelated;
+}
+
+.unit-item .unit-pos {
+    color: var(--bs-secondary);
+    margin-left: auto;
+    font-family: monospace;
+    font-size: 0.8rem;
+}
+
+/* Faction colors */
+.rs-unit { border-left: 3px solid #c00; }
+.wm-unit { border-left: 3px solid #00c; }
+
+/* Loading overlay */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}

@@ -26,10 +26,11 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
 		$realBaseDir = realpath($dir);
 		$realFilePath = realpath($dir.$filePath);
 		
-		// if a .cgb file was requested but doesn't exist, try .php instead
+		// if a .cgb/.agb/.txt file was requested but doesn't exist, try .php instead
 		if ($realFilePath === false) $realFilePath = realpath(str_replace(".cgb", ".php", $dir.$filePath));
 		if ($realFilePath === false) $realFilePath = realpath(str_replace(".agb", ".php", $dir.$filePath));
-		
+		if ($realFilePath === false) $realFilePath = realpath(str_replace(".txt", ".php", $dir.$filePath));
+
 		if ($realFilePath === false || strpos($realFilePath, $realBaseDir) !== 0) {
 			// file doesn't exist or is outiside of the base directory (directory traversal)
 			if ($type === "download" && str_starts_with($filePath, "/01/AGB-AMKJ/")) { // pay for mobile GP
@@ -39,6 +40,15 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
 			} else if ($type === "download" && str_starts_with($filePath, "/01/AGB-ANPJ/") && str_ends_with($filePath, ".money.cgb")) { // pay for formation data
 				return;
 			}
+
+			// Game Boy Wars 3
+			if ($type === "download" && preg_match('#^/18/CGB-BWW([JE])/(.+)$#', $filePath, $matches)) {
+				require_once dirname($realBaseDir) . "/gbwars/routes.php";
+				if (handleGbwarsRoute(strtolower($matches[1]), $matches[2])) {
+					return;
+				}
+			}
+
 			http_response_code(404);
 		} else {
 			// file exists
