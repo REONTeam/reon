@@ -14,6 +14,17 @@ class GameboyWars3Util {
     ];
 
     /**
+     * Map category text at offset 0x10-0x18 (in full file with header)
+     * This is 0x0E-0x16 in stored data without header.
+     * Displayed on the third line of the map details box in-game.
+     * Keys are Japanese text (encoded when writing), values are English translations.
+     */
+    private static array $mapCategories = [
+        'j' => 'オフィシャルマップ',
+        'e' => 'Official Map',
+    ];
+
+    /**
      * Game Boy Wars 3 character encoding map (byte -> UTF-8)
      * Derived from gbwars3-en decompilation char_main.inc
      */
@@ -177,11 +188,63 @@ class GameboyWars3Util {
     }
 
     /**
-     * Map signature bytes required at offset 0x10-0x18 (in full file with header)
-     * This is 0x0E-0x16 in stored data without header.
-     * All working maps have this exact sequence - appears to be validation signature.
+     * Get the map category text for a locale
+     *
+     * @param string $locale Locale code ('ja' or 'en')
+     * @return string Category text
      */
-    private const MAP_SIGNATURE = "\xB5\xCC\xF8\xBC\xFC\xD9\xCF\xFF\xF4";
+    public static function getMapCategory(string $locale = 'j'): string {
+        return self::$mapCategories[$locale] ?? self::$mapCategories['j'];
+    }
+
+    /**
+     * Translate a category from Japanese to English
+     *
+     * @param string|null $category Japanese category text
+     * @return string|null English translation, or original if not found
+     */
+    public static function translateCategory(?string $category): ?string {
+        if ($category === null) {
+            return null;
+        }
+        // Check if it matches the known Japanese category
+        if ($category === self::$mapCategories['j']) {
+            return self::$mapCategories['e'];
+        }
+        // Return original if no translation found
+        return $category;
+    }
+
+    /**
+     * Decode a map number from BCD format
+     *
+     * @param int $high High byte (hundreds)
+     * @param int $low Low byte (units and tens)
+     * @return int|null Decoded map number, or null if invalid/empty
+     */
+    public static function decodeMapNumber(int $high, int $low): ?int {
+        if ($high === 0 && $low === 0) {
+            return null; // User-made maps have no number
+        }
+        // BCD format: high byte is hundreds digit as hex, low byte is tens+units
+        // e.g., 0x0A 0x03 = 10*100 + 03 = 1003
+        return ($high * 100) + $low;
+    }
+
+    /**
+     * Encode a map number to BCD format
+     *
+     * @param int|null $number Map number (0-9999), or null for user-made maps
+     * @return array [high, low] bytes
+     */
+    public static function encodeMapNumber(?int $number): array {
+        if ($number === null || $number <= 0) {
+            return [0, 0];
+        }
+        $high = intdiv($number, 100); // Hundreds (as decimal value, stored as hex)
+        $low = $number % 100;         // Tens and units
+        return [$high, $low];
+    }
 
     /**
      * Create map data for storage (without header - header added dynamically on serve)
@@ -198,9 +261,11 @@ class GameboyWars3Util {
      * @param array $units Array of unit data ['x' => int, 'y' => int, 'unit_id' => int]
      * @param int $price Map price in yen (default 10)
      * @param int $mapIndex Map index/variant byte (default 1)
+     * @param int|null $mapNumber Official map number (null for user-made maps)
+     * @param string|null $category Category text (null uses default "Official Map" for numbered maps)
      * @return string Binary map data without header
      */
-    public static function createMapData(string $name, int $width, int $height, array $tiles, array $units = [], int $price = 10, int $mapIndex = 1): string {
+    public static function createMapData(string $name, int $width, int $height, array $tiles, array $units = [], int $price = 10, int $mapIndex = 1, ?int $mapNumber = null, ?string $category = null): string {
         if ($width < 20 || $width > 50 || $height < 20 || $height > 50) {
             throw new InvalidArgumentException("Map dimensions must be 20-50");
         }
@@ -211,15 +276,14 @@ class GameboyWars3Util {
         $name = str_pad($name, 12, "\x00");
 
         // Build map data (starting from offset 0x02 - no header bytes)
-        // Full file layout:
+        // Full file layout (with 2-byte header):
         //   0x00-0x01: Header (added on serve, not stored)
         //   0x02-0x03: Size sum
         //   0x04:      Data checksum
-        //   0x05-0x0F: Zeros
-        //   0x10-0x18: Signature (B5 CC F8 BC FC D9 CF FF F4)
-        //   0x19-0x1D: Zeros
-        //   0x1E:      Price (yen)
-        //   0x1F:      Map index
+        //   0x05-0x0F: Zeros (11 bytes)
+        //   0x10-0x18: Category text (9 bytes, e.g., "オフィシャルマップ")
+        //   0x19-0x1D: Zeros (5 bytes)
+        //   0x1E-0x1F: Map number (BCD format, e.g., 0x0A 0x03 = 1003)
         //   0x20-0x2B: Map name (12 bytes)
         //   0x2C:      Width
         //   0x2D:      Height
@@ -228,23 +292,33 @@ class GameboyWars3Util {
         // Stored data (without 2-byte header) starts at offset 0x02 of full file:
         //   0x00-0x01: Size sum
         //   0x02:      Data checksum
-        //   0x03-0x0D: Zeros
-        //   0x0E-0x16: Signature
-        //   0x17-0x1B: Zeros
-        //   0x1C:      Price
-        //   0x1D:      Map index
-        //   0x1E-0x29: Map name
+        //   0x03-0x0D: Zeros (11 bytes)
+        //   0x0E-0x16: Category text (9 bytes)
+        //   0x17-0x1B: Zeros (5 bytes)
+        //   0x1C-0x1D: Map number (BCD format)
+        //   0x1E-0x29: Map name (12 bytes)
         //   0x2A:      Width
         //   0x2B:      Height
         //   0x2C+:     Tile data
 
+        // Encode map number to BCD
+        [$mapNumHigh, $mapNumLow] = self::encodeMapNumber($mapNumber);
+
+        // Get category text (default to "Official Map" if map number is set)
+        if ($category === null && $mapNumber !== null) {
+            $category = self::$mapCategories['j'];
+        }
+        $categoryEncoded = $category !== null
+            ? self::encodeMapName($category, 9)
+            : str_repeat("\x00", 9);
+
         $data = "\x00\x00"; // 0x00-0x01: Placeholder for size sum
         $data .= "\x00"; // 0x02: Placeholder for checksum
         $data .= str_repeat("\x00", 0x0B); // 0x03-0x0D: Zeros (11 bytes)
-        $data .= self::MAP_SIGNATURE; // 0x0E-0x16: Signature (9 bytes)
+        $data .= $categoryEncoded; // 0x0E-0x16: Category text (9 bytes)
         $data .= str_repeat("\x00", 0x05); // 0x17-0x1B: Zeros (5 bytes)
-        $data .= chr($price & 0xFF); // 0x1C: Price
-        $data .= chr($mapIndex & 0xFF); // 0x1D: Map index
+        $data .= chr($mapNumHigh); // 0x1C: Map number high byte (BCD hundreds)
+        $data .= chr($mapNumLow); // 0x1D: Map number low byte (BCD tens+units)
         $data .= $name; // 0x1E-0x29: Map name (12 bytes)
         $data .= chr($width); // 0x2A: Width
         $data .= chr($height); // 0x2B: Height
@@ -287,10 +361,19 @@ class GameboyWars3Util {
      *
      * @param string $data Raw map binary data
      * @param bool $hasHeader Whether the data includes the 2-byte header
-     * @return array Parsed map data
+     * @return array Parsed map data including category and map_number
      */
     public static function parseMapFile(string $data, bool $hasHeader = true): array {
         $offset = $hasHeader ? 0 : -2; // Adjust if no header
+
+        // Parse category text (0x10-0x18 in full file, 0x0E-0x16 in headerless)
+        $categoryRaw = substr($data, 0x10 + $offset, 9);
+        $category = self::decodeMapName($categoryRaw);
+
+        // Parse map number (0x1E-0x1F in full file, 0x1C-0x1D in headerless)
+        $mapNumHigh = ord($data[0x1E + $offset]);
+        $mapNumLow = ord($data[0x1F + $offset]);
+        $mapNumber = self::decodeMapNumber($mapNumHigh, $mapNumLow);
 
         $name = substr($data, 0x20 + $offset, 12);
         $name = rtrim($name, "\x00");
@@ -322,6 +405,8 @@ class GameboyWars3Util {
             'height' => $height,
             'tiles' => $tiles,
             'units' => $units,
+            'category' => $category ?: null,
+            'map_number' => $mapNumber,
         ];
     }
 
