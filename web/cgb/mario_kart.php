@@ -738,7 +738,7 @@
 			$stmt->execute();
 			
 			// Insert new record
-			$stmt = $db->prepare("insert into amkj_ghosts (player_id, course_no, driver, name, state, unk18, course, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			$stmt = $db->prepare("insert into amkj_ghosts (player_id, course_no, name, state, unk18, course, driver, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			$stmt->bind_param("iisiiiiisssss", $data["player_id"], $data["course_no"], $data["name"], $data["state"], $data["unk18"], $data["course"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
 			$stmt->execute();
 			
