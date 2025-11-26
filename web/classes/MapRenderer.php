@@ -138,8 +138,8 @@ class MapRenderer
         $image = imagecreatetruecolor($imgWidth, $imgHeight);
         $tileset = self::getTileset($tileSize);
 
-        // Fill background with sea color (for edges exposed by stagger)
-        $seaColor = imagecolorallocate($image, 0, 112, 192);
+        // Fill background with black (for edges exposed by stagger)
+        $seaColor = imagecolorallocate($image, 0, 0, 0);
         imagefill($image, 0, 0, $seaColor);
 
         // Render each tile

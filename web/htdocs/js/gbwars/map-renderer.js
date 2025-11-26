@@ -284,8 +284,8 @@ class GBWarsMapRenderer {
         // Disable image smoothing for crisp pixel art
         ctx.imageSmoothingEnabled = false;
 
-        // Fill with sea color for edges
-        ctx.fillStyle = '#0070C0';
+        // Fill with black for edges
+        ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, this.terrainCanvas.width, this.terrainCanvas.height);
 
         // Render tiles
