@@ -14,11 +14,40 @@ class GBWarsMapRenderer {
         // Source tileset sizes (fixed based on tileset images)
         this.terrainSrcSize = 16;  // terrain_16x16.png uses 16px tiles
         this.unitSrcSize = 16;     // units_16x16.png uses 16px tiles
+        this.cursorSrcSize = 24;   // cursor.png uses 22px tiles
+        this.waterSrcSize = 16;    // water.png uses 16px tiles
 
         // Tileset images
         this.terrainTileset = null;
         this.unitTileset = null;
+        this.cursorTileset = null;
+        this.waterTileset = null;
         this.tilesetsLoaded = false;
+
+        // Animation settings
+        this.waterAnimationFrame = 0;
+        this.cursorAnimationFrame = 0;
+        this.waterAnimationInterval = null;
+        this.cursorAnimationInterval = null;
+
+        // Water animation: 3 frames, 4 terrain types
+        this.waterAnimationSpeed = 450; // ms per frame
+        this.waterAnimationFrames = 3;
+        this.waterTileRows = {
+            0x2A: 0,  // Shoal -> row 0
+            0x29: 1,  // Sea -> row 1
+            0x28: 2,  // River -> row 2
+            0x22: 3,  // Bridge -> row 3
+            0x23: 3,  // Bridge variant -> row 3
+        };
+
+        // Cursor animation: 2 frames, 2 types (hover and select)
+        this.cursorAnimationSpeed = 250; // ms per frame
+        this.cursorAnimationFrames = 2;
+        this.cursorRows = {
+            hover: 0,   // Top row
+            select: 1,  // Bottom row
+        };
 
         // Map data
         this.mapData = null;
@@ -32,8 +61,9 @@ class GBWarsMapRenderer {
         // Tooltip element
         this.tooltip = null;
 
-        // Hover state
+        // Hover/selection state
         this.hoveredTile = null;
+        this.selectedTile = null;
 
         // Localized names (loaded from API)
         this.terrainNames = {};
@@ -119,7 +149,7 @@ class GBWarsMapRenderer {
     /**
      * Load tileset images
      */
-    async loadTilesets(terrainUrl, unitUrl) {
+    async loadTilesets(terrainUrl, unitUrl, cursorUrl, waterUrl) {
         const loadImage = (url) => {
             return new Promise((resolve, reject) => {
                 const img = new Image();
@@ -130,9 +160,11 @@ class GBWarsMapRenderer {
         };
 
         try {
-            [this.terrainTileset, this.unitTileset] = await Promise.all([
+            [this.terrainTileset, this.unitTileset, this.cursorTileset, this.waterTileset] = await Promise.all([
                 loadImage(terrainUrl),
-                loadImage(unitUrl)
+                loadImage(unitUrl),
+                loadImage(cursorUrl),
+                loadImage(waterUrl)
             ]);
             this.tilesetsLoaded = true;
         } catch (e) {
@@ -148,8 +180,9 @@ class GBWarsMapRenderer {
         this.container = container;
         this.container.style.position = 'relative';
 
-        // Create canvas layers
+        // Create canvas layers (order matters: terrain, water, units, overlay)
         this.terrainCanvas = this.createCanvas('terrain-layer');
+        this.waterCanvas = this.createCanvas('water-layer');
         this.unitCanvas = this.createCanvas('unit-layer');
         this.overlayCanvas = this.createCanvas('overlay-layer');
 
@@ -174,6 +207,7 @@ class GBWarsMapRenderer {
         // Add event listeners
         this.overlayCanvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         this.overlayCanvas.addEventListener('mouseleave', () => this.hideTooltip());
+        this.overlayCanvas.addEventListener('click', (e) => this.handleClick(e));
     }
 
     /**
@@ -227,7 +261,7 @@ class GBWarsMapRenderer {
         this.container.style.height = canvasHeight + 'px';
 
         // Size all canvases
-        [this.terrainCanvas, this.unitCanvas, this.overlayCanvas].forEach(canvas => {
+        [this.terrainCanvas, this.waterCanvas, this.unitCanvas, this.overlayCanvas].forEach(canvas => {
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
             canvas.style.width = canvasWidth + 'px';
@@ -235,7 +269,9 @@ class GBWarsMapRenderer {
         });
 
         this.renderTerrain();
+        this.renderWater();
         this.renderUnits();
+        this.startAnimations();
     }
 
     /**
@@ -300,6 +336,74 @@ class GBWarsMapRenderer {
                 srcX, srcY, this.unitSrcSize, this.unitSrcSize,
                 destX, destY, this.tileSize, this.tileSize
             );
+        }
+    }
+
+    /**
+     * Render water animation layer
+     */
+    renderWater() {
+        const ctx = this.waterCanvas.getContext('2d');
+        ctx.clearRect(0, 0, this.waterCanvas.width, this.waterCanvas.height);
+        ctx.imageSmoothingEnabled = false;
+
+        const { width, height, tiles } = this.mapData;
+
+        for (let y = 0; y < height; y++) {
+            const rowOffset = (y % 2 === 1) ? this.staggerOffset : 0;
+
+            for (let x = 0; x < width; x++) {
+                const tileIndex = y * width + x;
+                const tileId = tiles[tileIndex] || 0x20;
+
+                // Check if this is a water tile
+                if (tileId in this.waterTileRows) {
+                    const row = this.waterTileRows[tileId];
+                    const srcX = this.waterAnimationFrame * this.waterSrcSize;
+                    const srcY = row * this.waterSrcSize;
+                    const destX = x * this.tileSize + rowOffset;
+                    const destY = y * this.tileSize;
+
+                    ctx.drawImage(
+                        this.waterTileset,
+                        srcX, srcY, this.waterSrcSize, this.waterSrcSize,
+                        destX, destY, this.tileSize, this.tileSize
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * Start animation loops (water and cursor run independently)
+     */
+    startAnimations() {
+        this.stopAnimations();
+
+        // Water animation
+        this.waterAnimationInterval = setInterval(() => {
+            this.waterAnimationFrame = (this.waterAnimationFrame + 1) % this.waterAnimationFrames;
+            this.renderWater();
+        }, this.waterAnimationSpeed);
+
+        // Cursor animation
+        this.cursorAnimationInterval = setInterval(() => {
+            this.cursorAnimationFrame = (this.cursorAnimationFrame + 1) % this.cursorAnimationFrames;
+            this.renderOverlay();
+        }, this.cursorAnimationSpeed);
+    }
+
+    /**
+     * Stop animations
+     */
+    stopAnimations() {
+        if (this.waterAnimationInterval) {
+            clearInterval(this.waterAnimationInterval);
+            this.waterAnimationInterval = null;
+        }
+        if (this.cursorAnimationInterval) {
+            clearInterval(this.cursorAnimationInterval);
+            this.cursorAnimationInterval = null;
         }
     }
 
@@ -375,34 +479,98 @@ class GBWarsMapRenderer {
     }
 
     /**
-     * Highlight a tile
+     * Handle click on map
      */
-    highlightTile(tile) {
+    handleClick(event) {
+        const rect = this.overlayCanvas.getBoundingClientRect();
+        const pixelX = event.clientX - rect.left;
+        const pixelY = event.clientY - rect.top;
+
+        const tile = this.pixelToTile(pixelX, pixelY);
+
+        if (!tile) {
+            this.selectedTile = null;
+            this.renderOverlay();
+            return;
+        }
+
+        // Toggle selection
+        if (this.selectedTile &&
+            this.selectedTile.x === tile.x &&
+            this.selectedTile.y === tile.y) {
+            this.selectedTile = null;
+        } else {
+            this.selectedTile = tile;
+        }
+
+        this.renderOverlay();
+    }
+
+    /**
+     * Render overlay (cursor for hovered and selected tiles)
+     */
+    renderOverlay() {
         const ctx = this.overlayCanvas.getContext('2d');
         ctx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
+        ctx.imageSmoothingEnabled = false;
 
+        // Draw selected tile cursor
+        if (this.selectedTile) {
+            this.drawCursor(ctx, this.selectedTile, this.cursorRows.select, this.cursorAnimationFrame);
+        }
+
+        // Draw hovered tile cursor
+        if (this.hoveredTile) {
+            // Don't draw hover cursor if it's the same as selected
+            if (!this.selectedTile ||
+                this.hoveredTile.x !== this.selectedTile.x ||
+                this.hoveredTile.y !== this.selectedTile.y) {
+                this.drawCursor(ctx, this.hoveredTile, this.cursorRows.hover, this.cursorAnimationFrame);
+            }
+        }
+    }
+
+    /**
+     * Draw cursor sprite at tile position
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {{x: number, y: number}} tile
+     * @param {number} cursorRow - 0 for hover, 1 for selected
+     * @param {number} cursorFrame - animation frame (0 or 1)
+     */
+    drawCursor(ctx, tile, cursorRow, cursorFrame) {
         const rowOffset = (tile.y % 2 === 1) ? this.staggerOffset : 0;
-        const x = tile.x * this.tileSize + rowOffset;
-        const y = tile.y * this.tileSize;
 
-        // Draw highlight rectangle
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x + 1, y + 1, this.tileSize - 2, this.tileSize - 2);
+        // Center the cursor on the tile (cursor is larger than tile)
+        const cursorScale = this.tileSize / this.terrainSrcSize;
+        const cursorDisplaySize = this.cursorSrcSize * cursorScale;
+        const offset = (cursorDisplaySize - this.tileSize) / 2;
 
-        // Inner glow
-        ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(x + 2, y + 2, this.tileSize - 4, this.tileSize - 4);
+        const destX = tile.x * this.tileSize + rowOffset - offset;
+        const destY = tile.y * this.tileSize - offset;
+
+        const srcX = cursorFrame * this.cursorSrcSize;
+        const srcY = cursorRow * this.cursorSrcSize;
+
+        ctx.drawImage(
+            this.cursorTileset,
+            srcX, srcY, this.cursorSrcSize, this.cursorSrcSize,
+            destX, destY, cursorDisplaySize, cursorDisplaySize
+        );
+    }
+
+    /**
+     * Highlight a tile (legacy method, now calls renderOverlay)
+     */
+    highlightTile() {
+        this.renderOverlay();
     }
 
     /**
      * Clear highlight
      */
     clearHighlight() {
-        const ctx = this.overlayCanvas.getContext('2d');
-        ctx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
         this.hoveredTile = null;
+        this.renderOverlay();
     }
 
     /**
