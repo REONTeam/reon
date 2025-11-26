@@ -40,7 +40,9 @@ RUN apk add --no-cache libpng libpng-dev \
 COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
 COPY --from=web-deps /app /var/www/reon/web
 RUN mkdir -p /var/www/reon/web/tmp \
-    && chown www-data:www-data /var/www/reon/web/tmp
+    && chown www-data:www-data /var/www/reon/web/tmp \
+    && find /var/www/reon/web/htdocs -type f -exec chmod 644 {} \; \
+    && find /var/www/reon/web/htdocs -type d -exec chmod 755 {} \;
 ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
 
 ### Database Migration Service

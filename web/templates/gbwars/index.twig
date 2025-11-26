@@ -3,77 +3,7 @@
 {% block title %}Game Boy Wars 3 - Map Gallery{% endblock %}
 
 {% block head %}
-<style>
-    .map-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-    }
-
-    .map-card {
-        background: var(--bs-body-bg);
-        border: 1px solid var(--bs-border-color);
-        border-radius: 8px;
-        overflow: hidden;
-        transition: transform 0.2s, box-shadow 0.2s;
-        cursor: pointer;
-        text-decoration: none;
-        color: inherit;
-        display: block;
-    }
-
-    .map-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-        color: inherit;
-    }
-
-    .map-preview {
-        width: 100%;
-        aspect-ratio: 1;
-        background: #111;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-
-    .map-preview img {
-        max-width: 100%;
-        max-height: 100%;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-    }
-
-    .map-info {
-        padding: 15px;
-    }
-
-    .map-info h5 {
-        margin-bottom: 8px;
-    }
-
-    .map-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.9rem;
-        color: var(--bs-secondary);
-    }
-
-    .map-meta .map-id {
-        font-family: monospace;
-        background: var(--bs-tertiary-bg);
-        padding: 2px 8px;
-        border-radius: 4px;
-    }
-
-    .map-meta .map-price {
-        color: var(--bs-success);
-        font-weight: bold;
-    }
-
-</style>
+<link rel="stylesheet" href="/css/gbwars.css">
 {% endblock %}
 
 {% block content %}

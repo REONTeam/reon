@@ -17,16 +17,16 @@ class MapRenderer
      */
     private static function getTileset(int $tileSize): GdImage
     {
-        $assetsDir = dirname(__DIR__) . '/htdocs/gbwars/assets';
+        $imagesDir = dirname(__DIR__) . '/htdocs/images/gbwars';
 
         if ($tileSize === self::TILE_SIZE_SMALL) {
             if (self::$tileset8 === null) {
-                self::$tileset8 = imagecreatefrompng($assetsDir . '/terrain_8x8.png');
+                self::$tileset8 = imagecreatefrompng($imagesDir . '/terrain_8x8.png');
             }
             return self::$tileset8;
         } else {
             if (self::$tileset16 === null) {
-                self::$tileset16 = imagecreatefrompng($assetsDir . '/terrain_16x16.png');
+                self::$tileset16 = imagecreatefrompng($imagesDir . '/terrain_16x16.png');
             }
             return self::$tileset16;
         }
