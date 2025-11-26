@@ -4,10 +4,11 @@
  * Route: 0.map_menu.txt
  *
  * Generates map pricing from database
- * Format: Multiple lines of "SSSS-EEEE:PPPP" where:
+ * Format: Multiple lines of "SSSS    EEEE    PPPP" where:
  *   SSSS = start map number (4 digits)
  *   EEEE = end map number (4 digits)
  *   PPPP = price in yen (4 digits)
+ * Values separated by tabs (per Dan Docs: "whitespace may be tabs or spaces")
  */
 
 require_once dirname(__DIR__, 2) . '/classes/DBUtil.php';
@@ -52,5 +53,6 @@ if ($currentRange !== null) {
 
 header('Content-Type: text/plain');
 foreach ($ranges as $range) {
-    echo sprintf("%04d-%04d:%04d\n", $range['min'], $range['max'], $range['price']);
+    // Format: "SSSS\tEEEE\tPPPP" - tab-separated 4-digit values
+    echo sprintf("%04d\t%04d\t%04d\n", $range['min'], $range['max'], $range['price']);
 }

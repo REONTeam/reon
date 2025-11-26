@@ -177,6 +177,13 @@ class GameboyWars3Util {
     }
 
     /**
+     * Map signature bytes required at offset 0x10-0x18 (in full file with header)
+     * This is 0x0E-0x16 in stored data without header.
+     * All working maps have this exact sequence - appears to be validation signature.
+     */
+    private const MAP_SIGNATURE = "\xB5\xCC\xF8\xBC\xFC\xD9\xCF\xFF\xF4";
+
+    /**
      * Create map data for storage (without header - header added dynamically on serve)
      * Returns data from offset 0x02 onwards
      *
@@ -189,9 +196,11 @@ class GameboyWars3Util {
      * @param int $height Map height (20-50)
      * @param array $tiles Array of tile bytes
      * @param array $units Array of unit data ['x' => int, 'y' => int, 'unit_id' => int]
+     * @param int $price Map price in yen (default 10)
+     * @param int $mapIndex Map index/variant byte (default 1)
      * @return string Binary map data without header
      */
-    public static function createMapData(string $name, int $width, int $height, array $tiles, array $units = []): string {
+    public static function createMapData(string $name, int $width, int $height, array $tiles, array $units = [], int $price = 10, int $mapIndex = 1): string {
         if ($width < 20 || $width > 50 || $height < 20 || $height > 50) {
             throw new InvalidArgumentException("Map dimensions must be 20-50");
         }
@@ -202,13 +211,43 @@ class GameboyWars3Util {
         $name = str_pad($name, 12, "\x00");
 
         // Build map data (starting from offset 0x02 - no header bytes)
-        // In stored data: offset 0x00-0x01 = size sum, 0x02 = checksum, 0x1E = name start
-        $data = "\x00\x00"; // Placeholder for size sum
-        $data .= "\x00"; // Placeholder for checksum
-        $data .= str_repeat("\x00", 0x1B); // Padding (0x03 to 0x1D = 27 bytes)
-        $data .= $name; // Map name (0x1E to 0x29 in stored data = 0x20 to 0x2B in full file)
-        $data .= chr($width); // 0x2A in stored = 0x2C in full
-        $data .= chr($height); // 0x2B in stored = 0x2D in full
+        // Full file layout:
+        //   0x00-0x01: Header (added on serve, not stored)
+        //   0x02-0x03: Size sum
+        //   0x04:      Data checksum
+        //   0x05-0x0F: Zeros
+        //   0x10-0x18: Signature (B5 CC F8 BC FC D9 CF FF F4)
+        //   0x19-0x1D: Zeros
+        //   0x1E:      Price (yen)
+        //   0x1F:      Map index
+        //   0x20-0x2B: Map name (12 bytes)
+        //   0x2C:      Width
+        //   0x2D:      Height
+        //   0x2E+:     Tile data, then units, then 0xFF terminator
+        //
+        // Stored data (without 2-byte header) starts at offset 0x02 of full file:
+        //   0x00-0x01: Size sum
+        //   0x02:      Data checksum
+        //   0x03-0x0D: Zeros
+        //   0x0E-0x16: Signature
+        //   0x17-0x1B: Zeros
+        //   0x1C:      Price
+        //   0x1D:      Map index
+        //   0x1E-0x29: Map name
+        //   0x2A:      Width
+        //   0x2B:      Height
+        //   0x2C+:     Tile data
+
+        $data = "\x00\x00"; // 0x00-0x01: Placeholder for size sum
+        $data .= "\x00"; // 0x02: Placeholder for checksum
+        $data .= str_repeat("\x00", 0x0B); // 0x03-0x0D: Zeros (11 bytes)
+        $data .= self::MAP_SIGNATURE; // 0x0E-0x16: Signature (9 bytes)
+        $data .= str_repeat("\x00", 0x05); // 0x17-0x1B: Zeros (5 bytes)
+        $data .= chr($price & 0xFF); // 0x1C: Price
+        $data .= chr($mapIndex & 0xFF); // 0x1D: Map index
+        $data .= $name; // 0x1E-0x29: Map name (12 bytes)
+        $data .= chr($width); // 0x2A: Width
+        $data .= chr($height); // 0x2B: Height
 
         // Add tiles
         foreach ($tiles as $tile) {
@@ -225,7 +264,6 @@ class GameboyWars3Util {
 
         // Calculate checksums
         // Data from 0x1E (name start in stored) to end (0xFF terminator)
-        // In stored data without header, offset 0x1E corresponds to 0x20 in full file
         $dataStart = 0x1E; // Where checksummed data starts in our headerless format
         $ffPos = strlen($data) - 1; // Position of 0xFF terminator
 

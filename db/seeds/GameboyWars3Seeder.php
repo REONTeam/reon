@@ -18,7 +18,7 @@ class GameboyWars3Seeder extends AbstractSeed
 {
     public function run(): void
     {
-        require_once dirname(__DIR__) . '/web/classes/GameboyWars3Util.php';
+        require_once dirname(__DIR__, 2) . '/web/classes/GameboyWars3Util.php';
 
         $this->importMaps();
         $this->importMessages();

@@ -37,14 +37,26 @@ class MapRenderer
         0x00, // Null/out of bounds
         0x01, // RS base
         0x02, // RS city
+        0x03, // RS ruined city
         0x04, // RS factory
+        0x05, // RS ruined factory
         0x06, // RS airport
+        0x07, // RS ruined airport
+        0x08, // RS simple airport
         0x09, // RS harbor
+        0x0A, // RS ruined harbor
+        0x0B, // RS Transmission Tower
         0x0C, // WM base
         0x0D, // WM city
+        0x0E, // WM ruined city
         0x0F, // WM factory
+        0x10, // WM ruined factory
         0x11, // WM airport
+        0x12, // WM ruined airport
+        0x13, // WM simple airport
         0x14, // WM harbor
+        0x15, // WM ruined harbor
+        0x16, // WM Transmission Tower
         0x17, // Neutral city
         0x18, // Neutral ruined city
         0x19, // Neutral factory
@@ -53,9 +65,11 @@ class MapRenderer
         0x1C, // Neutral ruined airport
         0x1D, // Neutral harbor
         0x1E, // Neutral ruined harbor
+        0x1F, // Neutral Transmission Tower
         0x20, // Plains
         0x21, // Highway
         0x22, // Bridge
+        0x23, // Bridge (variant)
         0x24, // Mountains
         0x25, // Forest
         0x26, // Wasteland
