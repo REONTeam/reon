@@ -17,12 +17,22 @@ class GameboyWars3Util {
      * Map category text at offset 0x10-0x18 (in full file with header)
      * This is 0x0E-0x16 in stored data without header.
      * Displayed on the third line of the map details box in-game.
-     * Keys are Japanese text (encoded when writing), values are English translations.
+     * Keys are game region codes (j=Japanese, e=English).
+     * Note: Category field is 9 bytes max. English uses uppercase only.
      */
     private static array $mapCategories = [
         'j' => 'オフィシャルマップ',
-        'e' => 'Official Map',
+        'e' => 'OFFICIAL',  // 8 chars, fits in 9-byte limit
     ];
+
+    /**
+     * Map ID ranges:
+     * - 0000-1999: Official maps (from original game)
+     * - 2000-9999: REON designer maps
+     */
+    public const MAP_ID_OFFICIAL_MAX = 1999;
+    public const MAP_ID_REON_MIN = 2000;
+    public const MAP_ID_REON_MAX = 9999;
 
     /**
      * Game Boy Wars 3 character encoding map (byte -> UTF-8)
@@ -188,31 +198,33 @@ class GameboyWars3Util {
     }
 
     /**
-     * Get the map category text for a locale
+     * Get the default map category text for a game region
      *
-     * @param string $locale Locale code ('ja' or 'en')
-     * @return string Category text
+     * @param string $region Game region code ('j' or 'e')
+     * @return string Category text in the appropriate language
      */
-    public static function getMapCategory(string $locale = 'j'): string {
-        return self::$mapCategories[$locale] ?? self::$mapCategories['j'];
+    public static function getMapCategory(string $region = 'j'): string {
+        return self::$mapCategories[$region] ?? self::$mapCategories['j'];
     }
 
     /**
-     * Translate a category from Japanese to English
+     * Check if a map ID is an official map (from original game)
      *
-     * @param string|null $category Japanese category text
-     * @return string|null English translation, or original if not found
+     * @param int $mapId Map ID number
+     * @return bool True if official map
      */
-    public static function translateCategory(?string $category): ?string {
-        if ($category === null) {
-            return null;
-        }
-        // Check if it matches the known Japanese category
-        if ($category === self::$mapCategories['j']) {
-            return self::$mapCategories['e'];
-        }
-        // Return original if no translation found
-        return $category;
+    public static function isOfficialMap(int $mapId): bool {
+        return $mapId <= self::MAP_ID_OFFICIAL_MAX;
+    }
+
+    /**
+     * Check if a map ID is a REON designer map
+     *
+     * @param int $mapId Map ID number
+     * @return bool True if REON designer map
+     */
+    public static function isReonMap(int $mapId): bool {
+        return $mapId >= self::MAP_ID_REON_MIN && $mapId <= self::MAP_ID_REON_MAX;
     }
 
     /**
@@ -247,25 +259,26 @@ class GameboyWars3Util {
     }
 
     /**
-     * Create map data for storage (without header - header added dynamically on serve)
-     * Returns data from offset 0x02 onwards
+     * Create map data for serving to a specific game region
+     * Returns data from offset 0x02 onwards (header added dynamically on serve)
      *
      * Checksum formulas (corrected from Dan Docs):
      * - Size sum (0x02-0x03): Number of bytes from 0x20 to 0xFF terminator (inclusive)
      * - Data checksum (0x04): Sum of bytes from 0x20 to 0xFF terminator (inclusive), masked to 8 bits
      *
-     * @param string $name Map name (max 12 bytes)
+     * @param string $region Game region ('j' or 'e')
+     * @param string $name Map name (max 12 bytes, should be in region's language)
      * @param int $width Map width (20-50)
      * @param int $height Map height (20-50)
      * @param array $tiles Array of tile bytes
      * @param array $units Array of unit data ['x' => int, 'y' => int, 'unit_id' => int]
      * @param int $price Map price in yen (default 10)
      * @param int $mapIndex Map index/variant byte (default 1)
-     * @param int|null $mapNumber Official map number (null for user-made maps)
-     * @param string|null $category Category text (null uses default "Official Map" for numbered maps)
+     * @param int|null $mapNumber Map number (null for user-made maps)
+     * @param string|null $category Category text (null uses default for region if map number is set)
      * @return string Binary map data without header
      */
-    public static function createMapData(string $name, int $width, int $height, array $tiles, array $units = [], int $price = 10, int $mapIndex = 1, ?int $mapNumber = null, ?string $category = null): string {
+    public static function createMapData(string $region, string $name, int $width, int $height, array $tiles, array $units = [], int $price = 10, int $mapIndex = 1, ?int $mapNumber = null, ?string $category = null): string {
         if ($width < 20 || $width > 50 || $height < 20 || $height > 50) {
             throw new InvalidArgumentException("Map dimensions must be 20-50");
         }
@@ -281,7 +294,7 @@ class GameboyWars3Util {
         //   0x02-0x03: Size sum
         //   0x04:      Data checksum
         //   0x05-0x0F: Zeros (11 bytes)
-        //   0x10-0x18: Category text (9 bytes, e.g., "オフィシャルマップ")
+        //   0x10-0x18: Category text (9 bytes, e.g., "オフィシャルマップ" or "Official Map")
         //   0x19-0x1D: Zeros (5 bytes)
         //   0x1E-0x1F: Map number (BCD format, e.g., 0x0A 0x03 = 1003)
         //   0x20-0x2B: Map name (12 bytes)
@@ -304,9 +317,9 @@ class GameboyWars3Util {
         // Encode map number to BCD
         [$mapNumHigh, $mapNumLow] = self::encodeMapNumber($mapNumber);
 
-        // Get category text (default to "Official Map" if map number is set)
+        // Get category text (default to region-appropriate "Official Map" if map number is set)
         if ($category === null && $mapNumber !== null) {
-            $category = self::$mapCategories['j'];
+            $category = self::getMapCategory($region);
         }
         $categoryEncoded = $category !== null
             ? self::encodeMapName($category, 9)

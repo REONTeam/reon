@@ -65,14 +65,25 @@ class GameboyWars3Seeder extends AbstractSeed
                     echo "  WARN: Map $mapId has invalid checksum (importing anyway)\n";
                 }
 
+                // Parse additional fields from full file
+                $parsed = GameboyWars3Util::parseMapFile($fullData, true);
+
                 $decodedName = GameboyWars3Util::decodeMapName($mapData['map_name']);
                 if ($decodedName === '') {
                     $decodedName = "Map $mapId";
                 }
 
+                // For official maps (ID < 2000), use default category text
+                $mapIdNum = (int)$mapId;
+                $isOfficial = GameboyWars3Util::isOfficialMap($mapIdNum);
+
                 $mapsTable->insert([
                     'map_id' => $mapId,
                     'map_name' => $decodedName,
+                    'map_name_j' => $decodedName, // Japanese name from file
+                    'map_name_e' => null, // English name TBD
+                    'category_j' => $isOfficial ? GameboyWars3Util::getMapCategory('j') : null,
+                    'category_e' => $isOfficial ? GameboyWars3Util::getMapCategory('e') : null,
                     'width' => $mapData['width'],
                     'height' => $mapData['height'],
                     'price_yen' => 10,
@@ -80,7 +91,8 @@ class GameboyWars3Seeder extends AbstractSeed
                     'is_active' => 1,
                 ])->saveData();
 
-                echo "  OK: Map $mapId '$decodedName' ({$mapData['width']}x{$mapData['height']})\n";
+                $categoryInfo = $isOfficial ? ' [Official]' : '';
+                echo "  OK: Map $mapId '$decodedName' ({$mapData['width']}x{$mapData['height']})$categoryInfo\n";
                 $imported++;
 
             } catch (Exception $e) {
