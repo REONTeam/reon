@@ -17,11 +17,15 @@
         overflow: hidden;
         transition: transform 0.2s, box-shadow 0.2s;
         cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
     }
 
     .map-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        color: inherit;
     }
 
     .map-preview {
@@ -69,17 +73,6 @@
         font-weight: bold;
     }
 
-    /* Modal styles */
-    .modal-body .map-preview-large {
-        text-align: center;
-    }
-
-    .modal-body .map-preview-large img {
-        max-width: 100%;
-        max-height: 70vh;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-    }
 </style>
 {% endblock %}
 
@@ -96,13 +89,7 @@
     {% else %}
         <div class="map-grid">
             {% for map in maps %}
-                <div class="map-card"
-                     data-bs-toggle="modal"
-                     data-bs-target="#previewModal"
-                     data-map-id="{{ map.map_id }}"
-                     data-map-name="{{ map.map_name }}"
-                     data-map-size="{{ map.width }}x{{ map.height }}"
-                     data-map-price="{{ map.price_yen }}">
+                <a href="map.php?id={{ map.map_id|url_encode }}" class="map-card">
                     <div class="map-preview">
                         <img src="preview.php?id={{ map.map_id|url_encode }}&size=8"
                              alt="Map {{ map.map_id }}"
@@ -113,48 +100,12 @@
                         <div class="map-meta">
                             <span class="map-id">#{{ map.map_id }}</span>
                             <span class="map-size">{{ map.width }}x{{ map.height }}</span>
-                            <span class="map-price">{{ map.price_yen }}¥</span>
+                            <span class="map-price">{{ map.price_yen }}&#165;</span>
                         </div>
                     </div>
-                </div>
+                </a>
             {% endfor %}
         </div>
     {% endif %}
 
-    <!-- Preview Modal -->
-    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="previewModalLabel">Map Preview</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="map-preview-large">
-                        <img id="modalImage" src="" alt="Map Preview">
-                    </div>
-                    <div class="mt-3 text-center">
-                        <span id="modalSize" class="badge bg-secondary me-2"></span>
-                        <span id="modalPrice" class="badge bg-success"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const previewModal = document.getElementById('previewModal');
-        previewModal.addEventListener('show.bs.modal', function (event) {
-            const card = event.relatedTarget;
-            const mapId = card.dataset.mapId;
-            const mapName = card.dataset.mapName;
-            const mapSize = card.dataset.mapSize;
-            const mapPrice = card.dataset.mapPrice;
-
-            document.getElementById('previewModalLabel').textContent = mapName;
-            document.getElementById('modalImage').src = 'preview.php?id=' + encodeURIComponent(mapId) + '&size=16';
-            document.getElementById('modalSize').textContent = mapSize;
-            document.getElementById('modalPrice').textContent = mapPrice + '¥';
-        });
-    </script>
 {% endblock %}
