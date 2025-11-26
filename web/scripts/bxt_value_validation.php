@@ -1234,7 +1234,9 @@ if (!function_exists('bxt_validate_player_zip_bytes')) {
             } elseif ($region === 'j') {
                 for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
                 $allowed[0x00] = true;
+                $allowed[0x01] = true;
                 $allowed[0x2E] = true;
+                $allowed[0x5A] = true;
             } else {
                 // Unknown region: no allowed bytes
             }
