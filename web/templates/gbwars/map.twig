@@ -1,6 +1,6 @@
 {% extends "main.twig" %}
 
-{% block title %}{{ map.map_name }} - Game Boy Wars 3{% endblock %}
+{% block title %}{{ map.map_name }} - {{'gameboy-wars'|trans}}{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="/css/gbwars.css">
@@ -9,7 +9,7 @@
 {% block content %}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="index.php">Game Boy Wars 3</a></li>
+        <li class="breadcrumb-item"><a href="index.php">{{'gameboy-wars'|trans}}</a></li>
         <li class="breadcrumb-item active" aria-current="page">Map #{{ map.map_id }}</li>
     </ol>
 </nav>

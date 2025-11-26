@@ -1,13 +1,13 @@
 {% extends "main.twig" %}
 
-{% block title %}Game Boy Wars 3 - Map Gallery{% endblock %}
+{% block title %}{{'gameboy-wars'|trans}} - Map Gallery{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="/css/gbwars.css">
 {% endblock %}
 
 {% block content %}
-    <h1>Game Boy Wars 3</h1>
+    <h1>{{'gameboy-wars'|trans}}</h1>
     <p class="lead">Map Gallery - {{ maps|length }} maps available</p>
 
     {% if maps is empty %}
