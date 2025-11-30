@@ -164,7 +164,7 @@ async function updateContentForRegion(region, connection) {
             if (selectedTrainers.length > 0) {
                 const insertTrainerSql =
                     "INSERT INTO bxt_battle_tower_trainers " +
-                    "(game_region, trainer_id, secret_id, player_name, player_name_decode, " +
+                    "(game_region, room, level, level_decode, no, trainer_id, secret_id, player_name, player_name_decode, " +
                     " class, class_decode, " +
                     " pokemon1, pokemon1_decode, " +
                     " pokemon2, pokemon2_decode, " +
@@ -173,8 +173,9 @@ async function updateContentForRegion(region, connection) {
                     " message_win, message_win_decode, " +
                     " message_lose, message_lose_decode, " +
                     " account_id) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+                let slot = 0;
                 for (const t of selectedTrainers) {
                     const key = region + "-" + t.trainer_id + "-" + t.secret_id + "-" + t.account_id;
                     if (seenTrainerKeys.has(key)) {
@@ -184,6 +185,10 @@ async function updateContentForRegion(region, connection) {
 
                     await connection.execute(insertTrainerSql, [
                         region,
+                        room,
+                        level,
+                        t.level_decode || null,
+                        slot,
                         t.trainer_id,
                         t.secret_id,
                         t.player_name,
@@ -204,6 +209,7 @@ async function updateContentForRegion(region, connection) {
                         t.message_lose_decode || null,
                         t.account_id,
                     ]);
+                    slot++;
                 }
             }
         }

@@ -6,6 +6,7 @@ require_once(__DIR__ . "/../../scripts/bxt_legality_policy.php");
 require_once(CORE_PATH . "/pokemon/bxt_config.php");
 require_once(__DIR__ . "/../../scripts/bxt_decode_helpers.php");
 require_once(__DIR__ . "/../../scripts/bxt_value_validation.php");
+require_once(__DIR__ . "/../../scripts/bxt_name_conversion.php");
 
 
 /**
@@ -149,6 +150,131 @@ function get_news_parameters($region) {
     $row["octet_length(news_binary_" . $region . ")"] = $row["octet_length_news_binary"];
 
     return $row;
+}
+
+
+
+/**
+ * Resolve which game_region codes are allowed in rankings for a given
+ * download region based on bxt_config['region_groups']['news'].
+ * If no config is present, only the download region itself is allowed.
+ */
+function bxt_news_allowed_regions($region) {
+    $region = strtolower(trim((string)$region));
+    $allowed = [$region];
+
+    // Read pools directly from global $bxt_config to avoid any wrapper
+    // function inconsistencies. This is the same array you edit in
+    // CORE_PATH . "/pokemon/bxt_config.php".
+    if (isset($GLOBALS['bxt_config']) &&
+        is_array($GLOBALS['bxt_config']) &&
+        isset($GLOBALS['bxt_config']['region_groups']) &&
+        isset($GLOBALS['bxt_config']['region_groups']['news']) &&
+        is_array($GLOBALS['bxt_config']['region_groups']['news'])) {
+
+        foreach ($GLOBALS['bxt_config']['region_groups']['news'] as $pool) {
+            if (!is_array($pool)) {
+                continue;
+            }
+            $normalized = array_map('strtolower', $pool);
+            if (in_array($region, $normalized, true)) {
+                $allowed = $normalized;
+                break;
+            }
+        }
+
+        // Debug what config we actually saw.
+        error_log(
+            'BXT_DEBUG_NEWS_ALLOWED: download_region=' . $region .
+            ' news_groups=' . json_encode($GLOBALS['bxt_config']['region_groups']['news']) .
+            ' allowed=' . implode(',', $allowed)
+        );
+    }
+
+    if (!in_array($region, $allowed, true)) {
+        $allowed[] = $region;
+    }
+
+    $allowed = array_values(array_unique(array_map('strtolower', $allowed)));
+    return $allowed;
+}
+
+/**
+ * Final defensive filter for ranking rows based on bxt_config pools.
+ * Only rows whose game_region is allowed for the download region survive.
+ */
+function bxt_filter_ranking_rows_by_news_config($rows, $download_region) {
+    if (!is_array($rows) || empty($rows)) {
+        return [];
+    }
+
+    $download_region = strtolower(trim((string)$download_region));
+
+    // Default: only the download region is allowed.
+    $allowed = [$download_region];
+    $newsGroups = null;
+
+    // Prefer the local CGB bxt_config.php (the one you edit under web/cgb/pokemon).
+    // This ensures we are using the same region_groups['news'] you actually maintain.
+    $local_cfg = null;
+    if (file_exists(__DIR__ . '/bxt_config.php')) {
+        include __DIR__ . '/bxt_config.php';
+        if (isset($bxt_config) && is_array($bxt_config)) {
+            $local_cfg = $bxt_config;
+        }
+    }
+
+    if (is_array($local_cfg) &&
+        isset($local_cfg['region_groups']) &&
+        isset($local_cfg['region_groups']['news']) &&
+        is_array($local_cfg['region_groups']['news'])) {
+
+        $newsGroups = $local_cfg['region_groups']['news'];
+
+        foreach ($newsGroups as $pool) {
+            if (!is_array($pool)) {
+                continue;
+            }
+            $normalized = array_map('strtolower', $pool);
+            if (in_array($download_region, $normalized, true)) {
+                $allowed = $normalized;
+                break;
+            }
+        }
+    }
+
+    if (!in_array($download_region, $allowed, true)) {
+        $allowed[] = $download_region;
+    }
+
+    $allowed = array_values(array_unique(array_map('strtolower', $allowed)));
+
+    // Apply filter.
+    $out = [];
+    foreach ($rows as $r) {
+        if (!is_array($r)) {
+            continue;
+        }
+        $gr = '';
+        if (isset($r['game_region'])) {
+            $gr = strtolower((string)$r['game_region']);
+        }
+        if (in_array($gr, $allowed, true)) {
+            $out[] = $r;
+        }
+    }
+
+    // Debug: log exactly what config we saw and what we allowed.
+    $newsGroupsJson = $newsGroups !== null ? json_encode($newsGroups) : 'null';
+    error_log(
+        'BXT_DEBUG_NEWS_CONFIG_FILTER: download_region=' . $download_region .
+        ' news_groups=' . $newsGroupsJson .
+        ' allowed=' . implode(',', $allowed) .
+        ' before=' . count($rows) .
+        ' after=' . count($out)
+    );
+
+    return $out;
 }
 
 
@@ -300,7 +426,6 @@ function set_ranking($region, $content, $length) {
     $category_info = get_ranking_category_info($news_param);
 
     error_log(
-        'BXT_DEBUG_NEWS_SET_RANKING_HEADER: ' .
         'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
         ' region=' . $region .
         ' news_region=' . $news_region .
@@ -412,7 +537,6 @@ if ($region == "j") {
     $message = fread($post_data, $sram["message"]["size"]);
 
     error_log(
-        'BXT_DEBUG_NEWS_SET_RANKING_PLAYER: ' .
         'region=' . $region .
         ' news_region=' . $news_region .
         ' news_id=' . (isset($news_param['id']) ? $news_param['id'] : 'null') .
@@ -478,7 +602,6 @@ if ($region == "j") {
         }
 
         error_log(
-            'BXT_DEBUG_NEWS_SET_RANKING_CATEGORY_OK: ' .
             'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
             ' region=' . $region .
             ' news_region=' . $news_region .
@@ -658,6 +781,9 @@ function get_ranking($region, $post_string) {
     // Pooled region list used for ranking queries (national + regional views).
     $gameRegions = $allowed_news;
 
+    // Always ignore news_id in ranking queries so pooled regions share history
+    $ignoreNewsIdForPool = true;
+
     parse_str($post_string, $post_data);
     $news_param    = get_news_parameters($news_region);
     if ($news_param === null) {
@@ -672,18 +798,32 @@ function get_ranking($region, $post_string) {
         // national ranking (all records in the pooled gameRegions for this news+category)
         $total_ranked = 0;
         foreach ($gameRegions as $gr) {
-            $stmt = $db->prepare(
-                "select count(*)
-                   from bxt_ranking
-                  where game_region = ?
-                    and news_id     = ?
-                    and category_id = ?"
-            );
-            if (!$stmt) {
-                continue;
+            if ($ignoreNewsIdForPool) {
+                $stmt = $db->prepare(
+                    "select count(*)
+                       from bxt_ranking
+                      where game_region = ?
+                        and category_id = ?"
+                );
+                if (!$stmt) {
+                    continue;
+                }
+                // region(s), category_id(i) => "si"
+                $stmt->bind_param("si", $gr, $category["id"]);
+            } else {
+                $stmt = $db->prepare(
+                    "select count(*)
+                       from bxt_ranking
+                      where game_region = ?
+                        and news_id     = ?
+                        and category_id = ?"
+                );
+                if (!$stmt) {
+                    continue;
+                }
+                // region(s), news_id(i), category_id(i) => "sii"
+                $stmt->bind_param("sii", $gr, $news_param["id"], $category["id"]);
             }
-            // region(s), news_id(i), category_id(i) => "sii"
-            $stmt->bind_param("sii", $gr, $news_param["id"], $category["id"]);
             $stmt->execute();
             $rows = fancy_get_result($stmt);
             if ($rows && count($rows) > 0) {
@@ -774,11 +914,13 @@ function get_ranking($region, $post_string) {
             }
         }
 
-        // national top 10 across pooled gameRegions
+                // national top 10 across pooled gameRegions
         $top_all = [];
-        foreach ($gameRegions as $gr) {
+
+        if ($ignoreNewsIdForPool) {
+            // Pooled regions: ignore news_id and take top 10 globally for this category
             $stmt = $db->prepare(
-                "select player_name,
+                "select game_region, player_name,
                         player_region,
                         player_gender,
                         player_age,
@@ -787,34 +929,91 @@ function get_ranking($region, $post_string) {
                         score,
                         timestamp
                    from bxt_ranking
-                  where game_region = ?
-                    and news_id     = ?
-                    and category_id = ?
+                  where category_id = ?
                   order by score desc, timestamp
                   limit 10"
             );
-            if (!$stmt) {
-                continue;
+            if ($stmt) {
+                // category_id(i) => "i"
+                $stmt->bind_param("i", $category["id"]);
+                $stmt->execute();
+                $rows = fancy_get_result($stmt);
+                if ($rows) {
+                    $top_all = $rows;
+                }
             }
-            // region(s), news_id(i), category_id(i) => "sii"
-            $stmt->bind_param("sii", $gr, $news_param["id"], $category["id"]);
-            $stmt->execute();
-            $rows = fancy_get_result($stmt);
-            if ($rows) {
-                $top_all = array_merge($top_all, $rows);
+        } else {
+            // Isolated region: keep using per-region + news_id
+            foreach ($gameRegions as $gr) {
+                $stmt = $db->prepare(
+                    "select game_region, player_name,
+                            player_region,
+                            player_gender,
+                            player_age,
+                            player_zip,
+                            player_message,
+                            score,
+                            timestamp
+                       from bxt_ranking
+                      where game_region = ?
+                        and news_id     = ?
+                        and category_id = ?
+                      order by score desc, timestamp
+                      limit 10"
+                );
+                if (!$stmt) {
+                    continue;
+                }
+                // region(s), news_id(i), category_id(i) => "sii"
+                $stmt->bind_param("sii", $gr, $news_param["id"], $category["id"]);
+                $stmt->execute();
+                $rows = fancy_get_result($stmt);
+                if ($rows) {
+                    $top_all = array_merge($top_all, $rows);
+                }
             }
         }
 
-        usort($top_all, function ($a, $b) {
-            if ($a["score"] == $b["score"]) {
-                if ($a["timestamp"] == $b["timestamp"]) {
-                    return 0;
-                }
-                return ($a["timestamp"] < $b["timestamp"]) ? -1 : 1;
+if (function_exists('bxt_transform_ranking_row_for_download')) {
+            foreach ($top_all as &$row) {
+                $row = bxt_transform_ranking_row_for_download($region, $row);
             }
-            return ($a["score"] > $b["score"]) ? -1 : 1;
-        });
-        $top10 = array_slice($top_all, 0, 10);
+            unset($row);
+        }
+
+                $top_all = bxt_filter_ranking_rows_by_news_config($top_all, $region);
+
+        if (!empty($top_all)) {
+            usort($top_all, function ($a, $b) {
+                if ($a["score"] == $b["score"]) {
+                    if ($a["timestamp"] == $b["timestamp"]) {
+                        return 0;
+                    }
+                    return ($a["timestamp"] < $b["timestamp"]) ? -1 : 1;
+                }
+                return ($a["score"] > $b["score"]) ? -1 : 1;
+            });
+            $top10 = array_slice($top_all, 0, 10);
+        } else {
+            $top10 = [];
+        }
+
+        // Debug: log final Top 10 rows after config-based filtering.
+        if (!empty($top10)) {
+            foreach ($top10 as $idxTop => $p) {
+                $dbgRegion = isset($p["game_region"]) ? strtolower((string)$p["game_region"]) : '?';
+                $dbgName   = isset($p["player_name_decode"])
+                    ? $p["player_name_decode"]
+                    : (isset($p["player_name"]) ? bin2hex($p["player_name"]) : '');
+                $dbgScore  = isset($p["score"]) ? $p["score"] : -1;
+                error_log(
+                    ' rank=' . ($idxTop + 1) .
+                    ' game_region=' . $dbgRegion .
+                    ' name=' . $dbgName .
+                    ' score=' . $dbgScore
+                );
+            }
+        }
 
         $out .= make_ranking_table($region, $category, $top10, $total_ranked, $my_rank);
 
@@ -825,19 +1024,34 @@ function get_ranking($region, $post_string) {
             // 1) pooled count
             $total_ranked = 0;
             foreach ($gameRegions as $gr) {
-                $stmt = $db->prepare(
-                    "select count(*)
-                       from bxt_ranking
-                      where game_region  = ?
-                        and news_id      = ?
-                        and category_id  = ?
-                        and player_region = ?"
-                );
-                if (!$stmt) {
-                    continue;
+                if ($ignoreNewsIdForPool) {
+                    $stmt = $db->prepare(
+                        "select count(*)
+                           from bxt_ranking
+                          where game_region  = ?
+                            and category_id  = ?
+                            and player_region = ?"
+                    );
+                    if (!$stmt) {
+                        continue;
+                    }
+                    // region(s), category_id(i), pregion(i) => "sii"
+                    $stmt->bind_param("sii", $gr, $category["id"], $pregion);
+                } else {
+                    $stmt = $db->prepare(
+                        "select count(*)
+                           from bxt_ranking
+                          where game_region  = ?
+                            and news_id      = ?
+                            and category_id  = ?
+                            and player_region = ?"
+                    );
+                    if (!$stmt) {
+                        continue;
+                    }
+                    // region(s), news_id(i), category_id(i), pregion(i) => "siii"
+                    $stmt->bind_param("siii", $gr, $news_param["id"], $category["id"], $pregion);
                 }
-                // region(s), news_id(i), category_id(i), pregion(i) => "siii"
-                $stmt->bind_param("siii", $gr, $news_param["id"], $category["id"], $pregion);
                 $stmt->execute();
                 $rows = fancy_get_result($stmt);
                 if ($rows && count($rows) > 0) {
@@ -848,36 +1062,73 @@ function get_ranking($region, $post_string) {
             // 2) pooled top 10
             $top_all = [];
             foreach ($gameRegions as $gr) {
-                $stmt = $db->prepare(
-                    "select player_name,
-                            player_region,
-                            player_gender,
-                            player_age,
-                            player_zip,
-                            player_message,
-                            score,
-                            timestamp
-                       from bxt_ranking
-                      where game_region  = ?
-                        and news_id      = ?
-                        and category_id  = ?
-                        and player_region = ?
-                      order by score desc, timestamp
-                      limit 10"
-                );
-                if (!$stmt) {
-                    continue;
+                if ($ignoreNewsIdForPool) {
+                    $stmt = $db->prepare(
+                        "select game_region,
+                                player_name,
+                                player_region,
+                                player_gender,
+                                player_age,
+                                player_zip,
+                                player_message,
+                                score,
+                                timestamp
+                           from bxt_ranking
+                          where game_region  = ?
+                            and category_id  = ?
+                            and player_region = ?
+                          order by score desc, timestamp
+                          limit 10"
+                    );
+                    if (!$stmt) {
+                        continue;
+                    }
+                    // region(s), category_id(i), pregion(i) => "sii"
+                    $stmt->bind_param("sii", $gr, $category["id"], $pregion);
+                } else {
+                    $stmt = $db->prepare(
+                        "select game_region,
+                                player_name,
+                                player_region,
+                                player_gender,
+                                player_age,
+                                player_zip,
+                                player_message,
+                                score,
+                                timestamp
+                           from bxt_ranking
+                          where game_region  = ?
+                            and news_id      = ?
+                            and category_id  = ?
+                            and player_region = ?
+                          order by score desc, timestamp
+                          limit 10"
+                    );
+                    if (!$stmt) {
+                        continue;
+                    }
+                    // region(s), news_id(i), category_id(i), pregion(i) => "siii"
+                    $stmt->bind_param("siii", $gr, $news_param["id"], $category["id"], $pregion);
                 }
-                // region(s), news_id(i), category_id(i), pregion(i) => "siii"
-                $stmt->bind_param("siii", $gr, $news_param["id"], $category["id"], $pregion);
                 $stmt->execute();
                 $rows = fancy_get_result($stmt);
                 if ($rows) {
+                    foreach ($rows as &$r) {
+                        $r = bxt_transform_ranking_row_for_download($region, $r);
+                    }
+                    unset($r);
                     $top_all = array_merge($top_all, $rows);
                 }
             }
 
-            usort($top_all, function ($a, $b) {
+    if (function_exists('bxt_transform_ranking_row_for_download')) {
+            foreach ($top_all as &$row) {
+                $row = bxt_transform_ranking_row_for_download($region, $row);
+            }
+            unset($row);
+        }
+
+                usort($top_all, function ($a, $b) {
                 if ($a["score"] == $b["score"]) {
                     if ($a["timestamp"] == $b["timestamp"]) {
                         return 0;
@@ -907,20 +1158,36 @@ function get_ranking($region, $post_string) {
                 // 1) pooled count
                 $total_ranked = 0;
                 foreach ($gameRegions as $gr) {
-                    $stmt = $db->prepare(
-                        "select count(*)
-                           from bxt_ranking
-                          where game_region   = ?
-                            and news_id       = ?
-                            and category_id   = ?
-                            and player_region = ?
-                            and player_zip    = ?"
-                    );
-                    if (!$stmt) {
-                        continue;
+                    if ($ignoreNewsIdForPool) {
+                        $stmt = $db->prepare(
+                            "select count(*)
+                               from bxt_ranking
+                              where game_region   = ?
+                                and category_id   = ?
+                                and player_region = ?
+                                and player_zip    = ?"
+                        );
+                        if (!$stmt) {
+                            continue;
+                        }
+                        // region(s), category_id(i), pregion(i), pzip(s) => "siis"
+                        $stmt->bind_param("siis", $gr, $category["id"], $pregion, $pzip);
+                    } else {
+                        $stmt = $db->prepare(
+                            "select count(*)
+                               from bxt_ranking
+                              where game_region   = ?
+                                and news_id       = ?
+                                and category_id   = ?
+                                and player_region = ?
+                                and player_zip    = ?"
+                        );
+                        if (!$stmt) {
+                            continue;
+                        }
+                        // region(s), news_id(i), category_id(i), pregion(i), pzip(s) => "siiis"
+                        $stmt->bind_param("siiis", $gr, $news_param["id"], $category["id"], $pregion, $pzip);
                     }
-                    // region(s), news_id(i), category_id(i), pregion(i), pzip(s) => "siiis"
-                    $stmt->bind_param("siiis", $gr, $news_param["id"], $category["id"], $pregion, $pzip);
                     $stmt->execute();
                     $rows = fancy_get_result($stmt);
                     if ($rows && count($rows) > 0) {
@@ -931,35 +1198,73 @@ function get_ranking($region, $post_string) {
                 // 2) pooled top 10
                 $top_all = [];
                 foreach ($gameRegions as $gr) {
-                    $stmt = $db->prepare(
-                        "select player_name,
-                                player_region,
-                                player_gender,
-                                player_age,
-                                player_zip,
-                                player_message,
-                                score,
-                                timestamp
-                           from bxt_ranking
-                          where game_region   = ?
-                            and news_id       = ?
-                            and category_id   = ?
-                            and player_region = ?
-                            and player_zip    = ?
-                          order by score desc, timestamp
-                          limit 10"
-                    );
-                    if (!$stmt) {
-                        continue;
+                    if ($ignoreNewsIdForPool) {
+                        $stmt = $db->prepare(
+                            "select game_region,
+                                    player_name,
+                                    player_region,
+                                    player_gender,
+                                    player_age,
+                                    player_zip,
+                                    player_message,
+                                    score,
+                                    timestamp
+                               from bxt_ranking
+                              where game_region   = ?
+                                and category_id   = ?
+                                and player_region = ?
+                                and player_zip    = ?
+                              order by score desc, timestamp
+                              limit 10"
+                        );
+                        if (!$stmt) {
+                            continue;
+                        }
+                        // region(s), category_id(i), pregion(i), pzip(s) => "siis"
+                        $stmt->bind_param("siis", $gr, $category["id"], $pregion, $pzip);
+                    } else {
+                        $stmt = $db->prepare(
+                            "select game_region,
+                                    player_name,
+                                    player_region,
+                                    player_gender,
+                                    player_age,
+                                    player_zip,
+                                    player_message,
+                                    score,
+                                    timestamp
+                               from bxt_ranking
+                              where game_region   = ?
+                                and news_id       = ?
+                                and category_id   = ?
+                                and player_region = ?
+                                and player_zip    = ?
+                              order by score desc, timestamp
+                              limit 10"
+                        );
+                        if (!$stmt) {
+                            continue;
+                        }
+                        // region(s), news_id(i), category_id(i), pregion(i), pzip(s) => "siiis"
+                        $stmt->bind_param("siiis", $gr, $news_param["id"], $category["id"], $pregion, $pzip);
                     }
-                    // region(s), news_id(i), category_id(i), pregion(i), pzip(s) => "siiis"
-                    $stmt->bind_param("siiis", $gr, $news_param["id"], $category["id"], $pregion, $pzip);
                     $stmt->execute();
                     $rows = fancy_get_result($stmt);
                     if ($rows) {
+                        foreach ($rows as &$r) {
+                            $r = bxt_transform_ranking_row_for_download($region, $r);
+                        }
+                        unset($r);
                         $top_all = array_merge($top_all, $rows);
                     }
                 }
+
+        if (function_exists('bxt_transform_ranking_row_for_download')) {
+            foreach ($top_all as &$row) {
+                $row = bxt_transform_ranking_row_for_download($region, $row);
+            }
+            unset($row);
+        }
 
                 usort($top_all, function ($a, $b) {
                     if ($a["score"] == $b["score"]) {

@@ -37,8 +37,11 @@ function process_trade_request($region, $request_data) {
     $allowedFile = dirname($bannedFile) . "/allowed_words.txt";
     $allowed = bxt_load_allowed_words($allowedFile);
 
+
     // Decode player name using exchange-specific helper, then enforce banned/allowed policy.
     $decoded_name_for_policy = bxt_decode_exchange_player_name($region, $decoded_data["player_name"]);
+
+
     if ($decoded_name_for_policy !== '' && bxt_contains_banned($decoded_name_for_policy, $banned, $allowed)) {
         error_log('trade_corner_gateway: banned player name: ' . $decoded_name_for_policy);
         http_response_code(400);
@@ -47,6 +50,8 @@ function process_trade_request($region, $request_data) {
 
     // Decode mail message using per-region Easy Chat and enforce banned/allowed policy.
     $decoded_mail_for_policy = bxt_decode_mail_for_region($region, $decoded_data["mail"]);
+
+
     if ($decoded_mail_for_policy !== '' && bxt_contains_banned($decoded_mail_for_policy, $banned, $allowed)) {
         error_log('trade_corner_gateway: banned mail message: ' . $decoded_mail_for_policy);
         http_response_code(400);
@@ -74,6 +79,16 @@ function process_trade_request($region, $request_data) {
             exit("Illegal Pokémon");
         }
         if (is_array($details) && $details) {
+            // Enforce banned / allowed word policy on Pokémon nickname as well,
+            // using the same helper as sweep_all / Battle Tower so allowed_words.txt
+            // behaves identically across features.
+            if (!bxt_policy_allow_nickname($details, $banned, $allowed)) {
+                $nick_dbg = isset($details['nickname']) && is_string($details['nickname']) ? $details['nickname'] : '';
+                error_log('trade_corner_gateway: banned pokemon nickname: ' . $nick_dbg);
+                http_response_code(400);
+                exit("Banned Pokémon nickname");
+            }
+
             // Use the shared human-readable formatter so this matches Battle Tower summaries.
             if (function_exists('bxt_format_legality_summary')) {
                 $pokemon_decode = bxt_format_legality_summary($details, $region);
