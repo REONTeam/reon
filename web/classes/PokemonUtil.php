@@ -103,12 +103,12 @@
                 "special" => $pkm["specialEV"],
             ];
             $pkm["iv"] = $iv = [
-                "defense" => $pkm["iv"] & 0xF,
-                "attack" => ($pkm["iv"] >> 4) & 0xF,
-                "special" => ($pkm["iv"] >> 8) & 0xF,
-                "speed" => ($pkm["iv"] >> 12) & 0xF,
+                "speed" => $pkm["iv"] & 0xF,
+                "special" => ($pkm["iv"] >> 4) & 0xF,
+                "defense" => ($pkm["iv"] >> 8) & 0xF,
+                "attack" => ($pkm["iv"] >> 12) & 0xF,
             ];
-            $pkm["iv"]["hp"] = (($iv["attack"] % 2) * 2^3) + (($iv["defense"] % 2) * 2^2) + (($iv["speed"] % 2) * 2^1) + (($iv["special"] % 2) * 2^0);
+            $pkm["iv"]["hp"] = (($iv["attack"] & 1) << 3) + (($iv["defense"] & 1) << 2) + (($iv["speed"] & 1) << 1) + (($iv["special"] & 1));
             $pkm["is_shiny"] = ($iv["defense"] == 10) && ($iv["speed"] == 10) && ($iv["special"] == 10) && (($iv["attack"] & 2) == 2);
             $pkm["met_location"] = ($pkm["caughtData"] >> 8) & 0x7f;
             $pkm["met_level"] = $pkm["caughtData"] & 0x1f;
@@ -150,7 +150,7 @@
                 unset($pkm["pp".$i]);
             }
 
-            unset($pkm["exp1"], $pkm["exp2"], $pkm["caughtData"], $pkm["pokerus"], $pkm["unused"]);
+            unset($pkm["exp1"], $pkm["exp2"], $pkm["caughtData"], /*$pkm["pokerus"],*/ $pkm["unused"]);
             unset($pkm["hpEV"], $pkm["attackEV"], $pkm["defenseEV"], $pkm["speedEV"], $pkm["specialEV"]);
             
             return $pkm;
