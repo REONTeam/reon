@@ -5,53 +5,91 @@
  */
 
 function bxt_load_banned_words(string $path): array {
-    static $cache = null;
-    if ($cache !== null) return $cache;
-    $cache = [];
-    if (!is_file($path)) return $cache;
+    static $cache = [];
+    if (isset($cache[$path])) {
+        return $cache[$path];
+    }
+
+    $list = [];
+    if (!is_file($path)) {
+        $cache[$path] = $list;
+        return $list;
+    }
+
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $ln) {
         $ln = trim($ln);
         if ($ln === '' || $ln[0] === '#') continue;
-        $cache[] = mb_strtolower($ln, 'UTF-8');
+        $list[] = mb_strtolower($ln, 'UTF-8');
     }
-    return $cache;
-}
 
+    $cache[$path] = $list;
+    return $list;
+}
 
 function bxt_load_allowed_words(string $path): array {
-    static $cache = null;
-    if ($cache !== null) return $cache;
-    $cache = [];
-    if (!is_file($path)) return $cache;
+    static $cache = [];
+    if (isset($cache[$path])) {
+        return $cache[$path];
+    }
+
+    $list = [];
+    if (!is_file($path)) {
+        $cache[$path] = $list;
+        return $list;
+    }
+
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $ln) {
         $ln = trim($ln);
         if ($ln === '' || $ln[0] === '#') continue;
-        $cache[] = mb_strtolower($ln, 'UTF-8');
+        $list[] = $ln;
     }
-    return $cache;
+
+    $cache[$path] = $list;
+    return $list;
 }
 
-
 function bxt_contains_banned(string $text, array $banned, array $allowed = []): bool {
+    // Normalize to lowercase once for comparison purposes
     $t = mb_strtolower($text, 'UTF-8');
 
-    // Pre-compute allowed word spans (start/end offsets in characters)
+    // If the entire text exactly matches any allowed word, short-circuit as clean
+    if (!empty($allowed)) {
+        foreach ($allowed as $aw) {
+            if ($aw === '') continue;
+            if ($t === mb_strtolower($aw, 'UTF-8')) {
+                return false;
+            }
+        }
+    }
+
+    // Pre-compute spans of text that are explicitly allowed
     $allowedSpans = [];
     if (!empty($allowed)) {
         foreach ($allowed as $aw) {
             if ($aw === '') continue;
             $awLower = mb_strtolower($aw, 'UTF-8');
-            $pos = 0;
-            $lenAw = mb_strlen($awLower, 'UTF-8');
+            $lenAw   = mb_strlen($awLower, 'UTF-8');
             if ($lenAw === 0) continue;
+
+            $pos = 0;
             while (($idx = mb_stripos($t, $awLower, $pos, 'UTF-8')) !== false) {
                 $allowedSpans[] = [$idx, $idx + $lenAw];
                 $pos = $idx + 1;
             }
         }
     }
+
+    // Helper: check if a [start,end) interval is fully inside any allowed span
+    $isInsideAllowed = function (int $start, int $end) use ($allowedSpans): bool {
+        foreach ($allowedSpans as $span) {
+            if ($start >= $span[0] && $end <= $span[1]) {
+                return true;
+            }
+        }
+        return false;
+    };
 
     // Scan for banned substrings, ignoring those fully inside any allowed span
     foreach ($banned as $w) {
@@ -65,15 +103,8 @@ function bxt_contains_banned(string $text, array $banned, array $allowed = []): 
             $start = $idx;
             $end   = $idx + $lenBw;
 
-            $whitelisted = false;
-            foreach ($allowedSpans as $span) {
-                if ($start >= $span[0] && $end <= $span[1]) {
-                    $whitelisted = true;
-                    break;
-                }
-            }
-
-            if (!$whitelisted) {
+            if (!$isInsideAllowed($start, $end)) {
+                // Found a banned substring that is not completely whitelisted
                 return true;
             }
 
@@ -81,9 +112,9 @@ function bxt_contains_banned(string $text, array $banned, array $allowed = []): 
         }
     }
 
+    // No non-whitelisted banned substrings found
     return false;
 }
-
 function bxt_encoding_table_id(string $hint): string {
     $json_path = __DIR__ . '/bxt_encoding.json';
     static $cfg = null;

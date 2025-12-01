@@ -8,19 +8,187 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
 {
     /**
      * Update Pokemon Crystal (BXT) tables with upstream changes:
-     * - Add decode columns for human-readable versions of binary/encoded data
-     * - Reorder columns for better organization
+     * - Ensure core shared BXT tables exist with the canonical layout (tables.sql)
+     * - Add missing columns / decode columns in an idempotent way
      * - Add indexes for rate limiting
-     * - Add triggers for rate limiting (5 per 24h for battle tower records, 1 per 2h for exchange)
+     * - Add triggers for rate limiting (5 per 24h for battle tower records)
      * - Update ranking categories with shortened names
      */
     public function change(): void
     {
-        // Update bxt_battle_tower_records table
+        /**
+         * 1) CREATE-IF-MISSING BRANCHES
+         *    These match the canonical schemas from tables.sql.
+         */
+
+        // bxt_battle_tower_records
+        if (!$this->hasTable('bxt_battle_tower_records')) {
+            $table = $this->table('bxt_battle_tower_records', ['id' => false, 'primary_key' => 'id']);
+            $table->addColumn('id', 'integer', ['identity' => true, 'signed' => false, 'limit' => 10])
+                  ->addColumn('game_region', 'char', ['limit' => 1])
+                  ->addColumn('room', 'integer', ['signed' => false, 'limit' => 10])
+                  ->addColumn('level', 'integer', ['signed' => false, 'limit' => 2, 'comment' => 'Battle tower level'])
+                  ->addColumn('level_decode', 'string', ['limit' => 16, 'null' => true])
+                  ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'comment' => 'Trainer ID'])
+                  ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'comment' => 'Secret ID'])
+                  ->addColumn('player_name', 'binary', ['limit' => 7, 'comment' => 'Name of trainer'])
+                  ->addColumn('player_name_decode', 'string', ['limit' => 32, 'null' => true])
+                  ->addColumn('class', 'integer', ['signed' => false, 'limit' => 3, 'comment' => 'Class of trainer'])
+                  ->addColumn('class_decode', 'string', ['limit' => 32, 'null' => true])
+                  ->addColumn('pokemon1', 'binary', ['limit' => 65, 'comment' => 'Pokémon'])
+                  ->addColumn('pokemon1_decode', 'text', ['null' => true])
+                  ->addColumn('pokemon2', 'binary', ['limit' => 65, 'comment' => 'Pokémon'])
+                  ->addColumn('pokemon2_decode', 'text', ['null' => true])
+                  ->addColumn('pokemon3', 'binary', ['limit' => 65, 'comment' => 'Pokémon'])
+                  ->addColumn('pokemon3_decode', 'text', ['null' => true])
+                  ->addColumn('message_start', 'binary', ['limit' => 12])
+                  ->addColumn('message_start_decode', 'text', ['null' => true])
+                  ->addColumn('message_win', 'binary', ['limit' => 12])
+                  ->addColumn('message_win_decode', 'text', ['null' => true])
+                  ->addColumn('message_lose', 'binary', ['limit' => 12])
+                  ->addColumn('message_lose_decode', 'text', ['null' => true])
+                  ->addColumn('num_trainers_defeated', 'integer', ['signed' => false, 'limit' => 3])
+                  ->addColumn('num_turns_required', 'integer', ['signed' => false, 'limit' => 5])
+                  ->addColumn('damage_taken', 'integer', ['signed' => false, 'limit' => 5])
+                  ->addColumn('num_fainted_pokemon', 'integer', ['signed' => false, 'limit' => 3])
+                  ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
+                  ->addColumn('timestamp', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+                  ->create();
+        }
+
+        // bxt_battle_tower_trainers
+        if (!$this->hasTable('bxt_battle_tower_trainers')) {
+            $table = $this->table('bxt_battle_tower_trainers', ['id' => false, 'primary_key' => 'id']);
+            $table->addColumn('id', 'integer', ['identity' => true, 'signed' => false, 'limit' => 11])
+                  ->addColumn('game_region', 'char', ['limit' => 1])
+                  ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'comment' => 'Trainer ID'])
+                  ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'comment' => 'Secret ID'])
+                  ->addColumn('player_name', 'binary', ['limit' => 7, 'comment' => 'Name of trainer'])
+                  ->addColumn('player_name_decode', 'string', ['limit' => 32, 'null' => true])
+                  ->addColumn('class', 'integer', ['signed' => false, 'limit' => 3, 'comment' => 'Class of trainer'])
+                  ->addColumn('class_decode', 'string', ['limit' => 32, 'null' => true])
+                  ->addColumn('pokemon1', 'binary', ['limit' => 65, 'comment' => 'Pokémon'])
+                  ->addColumn('pokemon1_decode', 'text', ['null' => true])
+                  ->addColumn('pokemon2', 'binary', ['limit' => 65, 'comment' => 'Pokémon'])
+                  ->addColumn('pokemon2_decode', 'text', ['null' => true])
+                  ->addColumn('pokemon3', 'binary', ['limit' => 65, 'comment' => 'Pokémon'])
+                  ->addColumn('pokemon3_decode', 'text', ['null' => true])
+                  ->addColumn('message_start', 'binary', ['limit' => 12])
+                  ->addColumn('message_start_decode', 'text', ['null' => true])
+                  ->addColumn('message_win', 'binary', ['limit' => 12])
+                  ->addColumn('message_win_decode', 'text', ['null' => true])
+                  ->addColumn('message_lose', 'binary', ['limit' => 12])
+                  ->addColumn('message_lose_decode', 'text', ['null' => true])
+                  ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
+                  ->addColumn('timestamp', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+                  ->create();
+        }
+
+        // bxt_battle_tower_leaders
+        if (!$this->hasTable('bxt_battle_tower_leaders')) {
+            $table = $this->table('bxt_battle_tower_leaders', ['id' => false, 'primary_key' => 'id']);
+            $table->addColumn('id', 'integer', ['identity' => true, 'signed' => false, 'limit' => 11])
+                  ->addColumn('game_region', 'char', ['limit' => 1])
+                  ->addColumn('player_name', 'binary', ['limit' => 7])
+                  ->addColumn('player_name_decode', 'string', ['limit' => 32, 'null' => true])
+                  ->addColumn('room', 'integer', ['signed' => false, 'limit' => 11])
+                  ->addColumn('level', 'integer', ['signed' => false, 'limit' => 1])
+                  ->addColumn('level_decode', 'string', ['limit' => 16, 'null' => true])
+                  ->addColumn('timestamp', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+                  ->create();
+        }
+
+        // bxt_exchange
+        if (!$this->hasTable('bxt_exchange')) {
+            $table = $this->table('bxt_exchange', ['id' => false, 'primary_key' => 'id']);
+            $table->addColumn('id', 'integer', ['identity' => true, 'signed' => false, 'limit' => 11])
+                  ->addColumn('game_region', 'char', ['limit' => 1])
+                  ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'comment' => 'Trainer ID'])
+                  ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'comment' => 'Secret ID'])
+                  ->addColumn('offer_gender', 'integer', ['signed' => false, 'limit' => 1, 'comment' => 'Gender of Pokémon'])
+                  ->addColumn('offer_gender_decode', 'string', ['limit' => 16, 'null' => true])
+                  ->addColumn('offer_species', 'integer', ['signed' => false, 'limit' => 3, 'comment' => 'Decimal Pokémon ID.'])
+                  ->addColumn('offer_species_decode', 'string', ['limit' => 32, 'null' => true])
+                  ->addColumn('request_gender', 'integer', ['signed' => false, 'limit' => 1])
+                  ->addColumn('request_gender_decode', 'string', ['limit' => 16, 'null' => true])
+                  ->addColumn('request_species', 'integer', ['signed' => false, 'limit' => 3])
+                  ->addColumn('request_species_decode', 'string', ['limit' => 32, 'null' => true])
+                  ->addColumn('player_name', 'binary', ['limit' => 7, 'comment' => 'Name of player'])
+                  ->addColumn('player_name_decode', 'string', ['limit' => 32, 'null' => true])
+                  ->addColumn('pokemon', 'binary', ['limit' => 65, 'comment' => 'Pokémon'])
+                  ->addColumn('pokemon_decode', 'text', ['null' => true])
+                  ->addColumn('mail', 'binary', ['limit' => 47, 'comment' => 'Held mail of Pokémon'])
+                  ->addColumn('mail_decode', 'text', ['null' => true])
+                  ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
+                  ->addColumn('email', 'string', ['limit' => 30, 'comment' => 'DION email'])
+                  ->addColumn('timestamp', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+                  ->addIndex(['account_id', 'trainer_id', 'secret_id'], ['unique' => true, 'name' => 'UNIQUE'])
+                  ->create();
+        }
+
+        // bxt_news
+        if (!$this->hasTable('bxt_news')) {
+            $table = $this->table('bxt_news', ['id' => false, 'primary_key' => 'id']);
+            $table->addColumn('id', 'integer', ['identity' => true, 'signed' => false, 'limit' => 11])
+                  ->addColumn('game_region', 'char', ['limit' => 1])
+                  ->addColumn('ranking_category_1', 'integer', ['signed' => false, 'limit' => 2, 'null' => true])
+                  ->addColumn('ranking_category_1_decode', 'string', ['limit' => 80, 'null' => true])
+                  ->addColumn('ranking_category_2', 'integer', ['signed' => false, 'limit' => 2, 'null' => true])
+                  ->addColumn('ranking_category_2_decode', 'string', ['limit' => 80, 'null' => true])
+                  ->addColumn('ranking_category_3', 'integer', ['signed' => false, 'limit' => 2, 'null' => true])
+                  ->addColumn('ranking_category_3_decode', 'string', ['limit' => 80, 'null' => true])
+                  ->addColumn('message', 'binary', ['limit' => 12])
+                  ->addColumn('message_decode', 'text', ['null' => true])
+                  ->addColumn('news_binary', 'blob')
+                  ->addColumn('timestamp', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+                  ->create();
+        }
+
+        // bxt_ranking
+        if (!$this->hasTable('bxt_ranking')) {
+            $table = $this->table('bxt_ranking', ['id' => false, 'primary_key' => 'id']);
+            $table->addColumn('id', 'integer', ['identity' => true, 'signed' => false, 'limit' => 11])
+                  ->addColumn('game_region', 'char', ['limit' => 1])
+                  ->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
+                  ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
+                  ->addColumn('category_id_decode', 'string', ['limit' => 80, 'null' => true])
+                  ->addColumn('score', 'integer', ['signed' => false, 'limit' => 11])
+                  ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
+                  ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
+                  ->addColumn('player_name', 'binary', ['limit' => 7])
+                  ->addColumn('player_name_decode', 'string', ['limit' => 32, 'null' => true])
+                  ->addColumn('player_gender', 'integer', ['signed' => false, 'limit' => 1])
+                  ->addColumn('player_gender_decode', 'string', ['limit' => 16, 'null' => true])
+                  ->addColumn('player_age', 'integer', ['signed' => false, 'limit' => 3])
+                  ->addColumn('player_region', 'integer', ['signed' => false, 'limit' => 3])
+                  ->addColumn('player_region_decode', 'string', ['limit' => 64, 'null' => true])
+                  ->addColumn('player_zip', 'binary', ['limit' => 3])
+                  ->addColumn('player_zip_decode', 'string', ['limit' => 16, 'null' => true])
+                  ->addColumn('player_message', 'binary', ['limit' => 12])
+                  ->addColumn('player_message_decode', 'text', ['null' => true])
+                  ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
+                  ->addColumn('timestamp', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+                  ->create();
+        }
+
+        /**
+         * 2) UPDATE-IF-EXISTS BRANCHES
+         *    These are additive / idempotent and ensure any missing fields from tables.sql are present.
+         */
+
+        // bxt_battle_tower_records
         if ($this->hasTable('bxt_battle_tower_records')) {
             $table = $this->table('bxt_battle_tower_records');
 
-            // Add new decode columns (only if they don't exist)
+            if (!$table->hasColumn('game_region')) {
+                $options = ['limit' => 1, 'null' => false];
+                if ($table->hasColumn('id')) {
+                    $options['after'] = 'id';
+                }
+                $table->addColumn('game_region', 'char', $options);
+            }
+
+            // Decode columns
             if (!$table->hasColumn('level_decode')) {
                 $table->addColumn('level_decode', 'string', ['limit' => 16, 'null' => true, 'after' => 'level']);
             }
@@ -48,22 +216,46 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
             if (!$table->hasColumn('message_lose_decode')) {
                 $table->addColumn('message_lose_decode', 'text', ['null' => true, 'after' => 'message_lose']);
             }
+
+            // Account / timestamp
+            if (!$table->hasColumn('account_id')) {
+                $table->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false, 'after' => 'num_fainted_pokemon']);
+            }
+            if (!$table->hasColumn('timestamp')) {
+                $after = $table->hasColumn('account_id') ? 'account_id' : null;
+                $opts  = ['default' => 'CURRENT_TIMESTAMP'];
+                if ($after !== null) {
+                    $opts['after'] = $after;
+                }
+                $table->addColumn('timestamp', 'timestamp', $opts);
+            }
+
+            // Index for rate limiting
             if (!$table->hasIndex(['account_id', 'trainer_id', 'secret_id', 'timestamp'])) {
                 $table->addIndex(['account_id', 'trainer_id', 'secret_id', 'timestamp'], ['name' => 'idx_limit_24h']);
             }
-            $table->save();
 
-            // Remove email column if it exists
+            // Remove old email column if present
             if ($table->hasColumn('email')) {
-                $table->removeColumn('email')->save();
+                $table->removeColumn('email');
             }
+
+            $table->save();
         }
 
-        // Update bxt_battle_tower_trainers table
+        // bxt_battle_tower_trainers
         if ($this->hasTable('bxt_battle_tower_trainers')) {
             $table = $this->table('bxt_battle_tower_trainers');
 
-            // Add new decode columns (only if they don't exist)
+            if (!$table->hasColumn('game_region')) {
+                $opts = ['limit' => 1, 'null' => false];
+                if ($table->hasColumn('id')) {
+                    $opts['after'] = 'id';
+                }
+                $table->addColumn('game_region', 'char', $opts);
+            }
+
+            // Decode columns
             if (!$table->hasColumn('player_name_decode')) {
                 $table->addColumn('player_name_decode', 'string', ['limit' => 32, 'null' => true, 'after' => 'player_name']);
             }
@@ -88,31 +280,114 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
             if (!$table->hasColumn('message_lose_decode')) {
                 $table->addColumn('message_lose_decode', 'text', ['null' => true, 'after' => 'message_lose']);
             }
+
             if (!$table->hasColumn('account_id')) {
                 $table->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false, 'after' => 'message_lose_decode']);
             }
+            if (!$table->hasColumn('timestamp')) {
+                $after = $table->hasColumn('account_id') ? 'account_id' : null;
+                $opts  = ['default' => 'CURRENT_TIMESTAMP'];
+                if ($after !== null) {
+                    $opts['after'] = $after;
+                }
+                $table->addColumn('timestamp', 'timestamp', $opts);
+            }
+
             $table->save();
         }
 
-        // Update bxt_battle_tower_leaders table
+        // bxt_battle_tower_leaders
         if ($this->hasTable('bxt_battle_tower_leaders')) {
             $table = $this->table('bxt_battle_tower_leaders');
 
-            // Add new decode columns (only if they don't exist)
+            if (!$table->hasColumn('game_region')) {
+                $opts = ['limit' => 1, 'null' => false];
+                if ($table->hasColumn('id')) {
+                    $opts['after'] = 'id';
+                }
+                $table->addColumn('game_region', 'char', $opts);
+            }
+
             if (!$table->hasColumn('player_name_decode')) {
                 $table->addColumn('player_name_decode', 'string', ['limit' => 32, 'null' => true, 'after' => 'player_name']);
             }
             if (!$table->hasColumn('level_decode')) {
                 $table->addColumn('level_decode', 'string', ['limit' => 16, 'null' => true, 'after' => 'level']);
             }
+            if (!$table->hasColumn('timestamp')) {
+                $after = $table->hasColumn('level_decode') ? 'level_decode' : 'level';
+                $table->addColumn('timestamp', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'after' => $after]);
+            }
+
             $table->save();
         }
 
-        // Update bxt_exchange table
+        // bxt_exchange
         if ($this->hasTable('bxt_exchange')) {
             $table = $this->table('bxt_exchange');
 
-            // Add new decode columns (only if they don't exist)
+            // Rename legacy columns from InitialSchema if present
+            if ($table->hasColumn('entry_time') && !$table->hasColumn('timestamp')) {
+                $table->renameColumn('entry_time', 'timestamp');
+            }
+            if ($table->hasColumn('trainer_name') && !$table->hasColumn('player_name')) {
+                $table->renameColumn('trainer_name', 'player_name');
+            }
+
+            // Ensure core columns present
+            if (!$table->hasColumn('id')) {
+                // Add identity column; we don't force PRIMARY KEY here to avoid breaking existing setups
+                $table->addColumn('id', 'integer', [
+                    'identity' => true,
+                    'signed'   => false,
+                    'limit'    => 11,
+                    'null'     => false,
+                    'first'    => true,
+                ]);
+            }
+
+            if (!$table->hasColumn('game_region')) {
+                $opts = ['limit' => 1, 'null' => false];
+                if ($table->hasColumn('id')) {
+                    $opts['after'] = 'id';
+                }
+                $table->addColumn('game_region', 'char', $opts);
+            }
+
+            if (!$table->hasColumn('timestamp')) {
+                $after = null;
+                if ($table->hasColumn('email')) {
+                    $after = 'email';
+                } elseif ($table->hasColumn('account_id')) {
+                    $after = 'account_id';
+                } elseif ($table->hasColumn('mail_decode')) {
+                    $after = 'mail_decode';
+                }
+                $opts = ['default' => 'CURRENT_TIMESTAMP'];
+                if ($after !== null) {
+                    $opts['after'] = $after;
+                }
+                $table->addColumn('timestamp', 'timestamp', $opts);
+            }
+
+            if (!$table->hasColumn('account_id')) {
+                // Place before email if possible
+                $opts = ['signed' => false, 'limit' => 11, 'null' => false];
+                if ($table->hasColumn('game_region')) {
+                    $opts['after'] = 'game_region';
+                }
+                $table->addColumn('account_id', 'integer', $opts);
+            }
+
+            if (!$table->hasColumn('email')) {
+                $opts = ['limit' => 30, 'null' => false, 'comment' => 'DION email'];
+                if ($table->hasColumn('account_id')) {
+                    $opts['after'] = 'account_id';
+                }
+                $table->addColumn('email', 'string', $opts);
+            }
+
+            // Decode columns
             if (!$table->hasColumn('offer_gender_decode')) {
                 $table->addColumn('offer_gender_decode', 'string', ['limit' => 16, 'null' => true, 'after' => 'offer_gender']);
             }
@@ -134,14 +409,29 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
             if (!$table->hasColumn('mail_decode')) {
                 $table->addColumn('mail_decode', 'text', ['null' => true, 'after' => 'mail']);
             }
+
+            // Unique index
+            if (!$table->hasIndex(['account_id', 'trainer_id', 'secret_id'])) {
+                $table->addIndex(['account_id', 'trainer_id', 'secret_id'], ['unique' => true, 'name' => 'UNIQUE']);
+            }
+
             $table->save();
         }
 
-        // Update bxt_news table
+        // bxt_news
         if ($this->hasTable('bxt_news')) {
             $table = $this->table('bxt_news');
 
-            // Add new decode columns (only if they don't exist)
+            if (!$table->hasColumn('game_region')) {
+                // Some older schemas had per-region columns; we just add game_region where possible.
+                $opts = ['limit' => 1, 'null' => false];
+                if ($table->hasColumn('id')) {
+                    $opts['after'] = 'id';
+                }
+                $table->addColumn('game_region', 'char', $opts);
+            }
+
+            // Decode columns (as before)
             if (!$table->hasColumn('ranking_category_1_decode')) {
                 $table->addColumn('ranking_category_1_decode', 'string', ['limit' => 80, 'null' => true, 'after' => 'ranking_category_1']);
             }
@@ -152,16 +442,31 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
                 $table->addColumn('ranking_category_3_decode', 'string', ['limit' => 80, 'null' => true, 'after' => 'ranking_category_3']);
             }
             if (!$table->hasColumn('message_decode')) {
-                $table->addColumn('message_decode', 'text', ['null' => true, 'after' => 'message']);
+                // For older multi-language schemas this will be after a generic `message` if present.
+                $after = $table->hasColumn('message') ? 'message' : null;
+                $opts  = ['null' => true];
+                if ($after !== null) {
+                    $opts['after'] = $after;
+                }
+                $table->addColumn('message_decode', 'text', $opts);
             }
+
             $table->save();
         }
 
-        // Update bxt_ranking table
+        // bxt_ranking
         if ($this->hasTable('bxt_ranking')) {
             $table = $this->table('bxt_ranking');
 
-            // Add new decode columns (only if they don't exist)
+            if (!$table->hasColumn('game_region')) {
+                $opts = ['limit' => 1, 'null' => false];
+                if ($table->hasColumn('id')) {
+                    $opts['after'] = 'id';
+                }
+                $table->addColumn('game_region', 'char', $opts);
+            }
+
+            // Decode columns (as before)
             if (!$table->hasColumn('category_id_decode')) {
                 $table->addColumn('category_id_decode', 'string', ['limit' => 80, 'null' => true, 'after' => 'category_id']);
             }
@@ -180,10 +485,13 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
             if (!$table->hasColumn('player_message_decode')) {
                 $table->addColumn('player_message_decode', 'text', ['null' => true, 'after' => 'player_message']);
             }
+
             $table->save();
         }
 
-        // Update bxt_ranking_categories data with shortened names
+        /**
+         * 3) RANKING CATEGORY NAME UPDATES
+         */
         $this->execute("
             UPDATE bxt_ranking_categories SET name = 'LAST HOF RECORD' WHERE id = 0;
             UPDATE bxt_ranking_categories SET name = 'LAST HOF STEPS' WHERE id = 1;
@@ -229,13 +537,11 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
             UPDATE bxt_ranking_categories SET name = 'BUG CONTEST SCORE' WHERE id = 41;
         ");
 
-        // Add triggers for rate limiting
-        // Note: Trigger creation may fail if the database user lacks SUPER privilege
-        // and binary logging is enabled. In that case, triggers must be created manually
-        // by a database administrator or by setting log_bin_trust_function_creators=1
-
+        /**
+         * 4) TRIGGERS FOR RATE LIMITING
+         */
         try {
-            // Add trigger for bxt_battle_tower_records (5 per 24 hours limit)
+            // 5 per 24 hours limit for battle tower records
             $this->execute("DROP TRIGGER IF EXISTS bxt_battle_tower_records_limit_5_per_24h");
 
             $this->execute("

@@ -207,7 +207,7 @@
 		
 		public function verifyResetPassword($id, $key) {
 			$db = DBUtil::getInstance()->getDB();
-			$stmt = $db->prepare("select count(*) from sys_password_reset where user_id = ? and secret = ? and time > date_sub(now(), interval 1 day)");
+			$stmt = $db->prepare("select count(*) from sys_password_reset where user_id = ? and secret = ? and timestamp > date_sub(now(), interval 1 day)");
 			$stmt->bind_param("is", $id, $key);
 			$stmt->execute();
 			if ($stmt->get_result()->fetch_assoc()["count(*)"] == 0) return 1;
@@ -244,7 +244,7 @@
 			$row = $stmt->get_result()->fetch_assoc();
 			if (isset($row)) return 0;
 			
-			$stmt = $db->prepare("select count(*) from sys_signup where email = ? and time > date_sub(now(), interval 5 minute)");
+			$stmt = $db->prepare("select count(*) from sys_signup where email = ? and timestamp > date_sub(now(), interval 5 minute)");
 			$stmt->bind_param("s", $email);
 			$stmt->execute();
 			if ($stmt->get_result()->fetch_assoc()["count(*)"] > 0) return 0;
@@ -272,7 +272,7 @@
 		
 		public function verifySignupRequest($id, $key) {
 			$db = DBUtil::getInstance()->getDB();
-			$stmt = $db->prepare("select email from sys_signup where id = ? and secret = ? and time > date_sub(now(), interval 1 day)");
+			$stmt = $db->prepare("select email from sys_signup where id = ? and secret = ? and timestamp > date_sub(now(), interval 1 day)");
 			$stmt->bind_param("ss", $id, $key);
 			$stmt->execute();
 			$email = $stmt->get_result()->fetch_assoc()["email"];

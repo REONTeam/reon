@@ -18,16 +18,30 @@ function legality_check_pk2_bytes_with_details(string $pkm_raw, ?callable $logge
     //    reon/app/pokemon-legality/LegalityCheckerConsole/out/pokemon-legality
     $bin = getenv('POKEMON_LEGALITY_BIN');
     if ($bin === false || $bin === '') {
-        $bin = realpath(__DIR__ . '/../../app/pokemon-legality/LegalityCheckerConsole/out/pokemon-legality');
+        $base = realpath(__DIR__ . '/../../app/pokemon-legality/LegalityCheckerConsole/out');
+        $bin = '';
+        if ($base !== false) {
+            $candidates = [
+                $base . DIRECTORY_SEPARATOR . 'pokemon-legality',
+                $base . DIRECTORY_SEPARATOR . 'win-x64' . DIRECTORY_SEPARATOR . 'pokemon-legality.cmd',
+                $base . DIRECTORY_SEPARATOR . 'win-x64' . DIRECTORY_SEPARATOR . 'LegalityCheckerConsole.exe',
+            ];
+            foreach ($candidates as $c) {
+                if (file_exists($c)) {
+                    $bin = $c;
+                    break;
+                }
+            }
+        }
     }
 
-    if ($bin === false || !file_exists($bin)) {
-        $msg = "bxt_legality_check: legality binary not found at {$bin}";
+    if (!$bin || !file_exists($bin)) {
+        $msg = "bxt_legality_check: legality binary not found (bin={$bin})";
         error_log($msg);
         throw new RuntimeException($msg);
     }
 
-    $len = strlen($pkm_raw);
+$len = strlen($pkm_raw);
     $hex = bin2hex($pkm_raw);
 
     if ($logger !== null) {
