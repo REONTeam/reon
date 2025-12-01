@@ -91,6 +91,12 @@ function battleTowerGetRoom($region, $roomNo) {
         for ($i = 0; $i < 7; $i++) {
             $result[] = getBattleTowerPlaceholderTrainerForRegion($region, $level, $i);
         }
+
+        // Game reads trainer structs from last to first (6→0), so reverse
+        // here so that the conceptual slot 0 trainer becomes the last
+        // struct consumed in-game.
+        $result = array_reverse($result);
+
         $bxte = ($region !== 'j');
         return encodeBattleTowerRoomData($result, $bxte);
     }
@@ -121,6 +127,12 @@ if ($numRecords === 0) {
         for ($i = 0; $i < 7; $i++) {
             $result[] = getBattleTowerPlaceholderTrainerForRegion($region, $level, $i);
         }
+
+        // Game reads trainer structs from last to first (6→0), so reverse
+        // here so that the conceptual slot 0 trainer becomes the last
+        // struct consumed in-game.
+        $result = array_reverse($result);
+
         $bxte = ($region !== 'j');
         return encodeBattleTowerRoomData($result, $bxte);
     }
@@ -245,6 +257,11 @@ if ($numRecords === 0) {
             $trainers[$i] = $after;
         }
     }
+
+    // Game reads trainer structs from last to first (6→0). Reverse
+    // here so that the conceptual slot 0 trainer becomes the last
+    // struct consumed in-game.
+    $trainers = array_reverse($trainers);
 
     $bxte = ($region !== 'j');
     return encodeBattleTowerRoomData($trainers, $bxte);
