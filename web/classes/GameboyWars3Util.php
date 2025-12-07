@@ -164,10 +164,10 @@ class GameboyWars3Util {
      * Lowercase letters will be converted to uppercase automatically.
      *
      * @param string $text UTF-8 text to encode
-     * @param int $maxBytes Maximum bytes in output (default 12 for map names)
+     * @param int $maxBytes Maximum bytes in output (default 8 for map names)
      * @return string Encoded bytes, padded with nulls to $maxBytes
      */
-    public static function encodeMapName(string $text, int $maxBytes = 12): string {
+    public static function encodeMapName(string $text, int $maxBytes = 8): string {
         self::buildEncodeLookup();
 
         $result = '';
@@ -267,26 +267,42 @@ class GameboyWars3Util {
      * - Data checksum (0x04): Sum of bytes from 0x20 to 0xFF terminator (inclusive), masked to 8 bits
      *
      * @param string $region Game region ('j' or 'e')
-     * @param string $name Map name (max 12 bytes, should be in region's language)
+     * @param string $name Map name (max 8 bytes, should be in region's language)
      * @param int $width Map width (20-50)
      * @param int $height Map height (20-50)
      * @param array $tiles Array of tile bytes
      * @param array $units Array of unit data ['x' => int, 'y' => int, 'unit_id' => int]
-     * @param int $price Map price in yen (default 10)
-     * @param int $mapIndex Map index/variant byte (default 1)
+     * @param int $playerGold Player starting gold (actual value, will be divided by 1000)
+     * @param int $enemyGold Enemy starting gold (actual value, will be divided by 1000)
+     * @param int $playerMaterials Player starting materials (actual value, will be divided by 10)
+     * @param int $enemyMaterials Enemy starting materials (actual value, will be divided by 10)
      * @param int|null $mapNumber Map number (null for user-made maps)
      * @param string|null $category Category text (null uses default for region if map number is set)
      * @return string Binary map data without header
      */
-    public static function createMapData(string $region, string $name, int $width, int $height, array $tiles, array $units = [], int $price = 10, int $mapIndex = 1, ?int $mapNumber = null, ?string $category = null): string {
+    public static function createMapData(
+        string $region,
+        string $name,
+        int $width,
+        int $height,
+        array $tiles,
+        array $units = [],
+        int $playerGold = 10000,
+        int $enemyGold = 10000,
+        int $playerMaterials = 100,
+        int $enemyMaterials = 100,
+        ?int $mapNumber = null,
+        ?string $category = null
+    ): string {
         if ($width < 20 || $width > 50 || $height < 20 || $height > 50) {
             throw new InvalidArgumentException("Map dimensions must be 20-50");
         }
 
-        if (strlen($name) > 12) {
-            $name = substr($name, 0, 12);
+        // Map name is 8 bytes, NOT 12
+        if (strlen($name) > 8) {
+            $name = substr($name, 0, 8);
         }
-        $name = str_pad($name, 12, "\x00");
+        $name = str_pad($name, 8, "\x00");
 
         // Build map data (starting from offset 0x02 - no header bytes)
         // Full file layout (with 2-byte header):
@@ -294,22 +310,30 @@ class GameboyWars3Util {
         //   0x02-0x03: Size sum
         //   0x04:      Data checksum
         //   0x05-0x0F: Zeros (11 bytes)
-        //   0x10-0x18: Category text (9 bytes, e.g., "オフィシャルマップ" or "Official Map")
+        //   0x10-0x18: Category text (9 bytes)
         //   0x19-0x1D: Zeros (5 bytes)
-        //   0x1E-0x1F: Map number (BCD format, e.g., 0x0A 0x03 = 1003)
-        //   0x20-0x2B: Map name (12 bytes)
+        //   0x1E-0x1F: Map number (BCD format)
+        //   0x20-0x27: Map name (8 bytes)
+        //   0x28:      Player Gold (in 1000s)
+        //   0x29:      Enemy Gold (in 1000s)
+        //   0x2A:      Player Materials (in 10s)
+        //   0x2B:      Enemy Materials (in 10s)
         //   0x2C:      Width
         //   0x2D:      Height
         //   0x2E+:     Tile data, then units, then 0xFF terminator
         //
-        // Stored data (without 2-byte header) starts at offset 0x02 of full file:
+        // Stored data (without 2-byte header):
         //   0x00-0x01: Size sum
         //   0x02:      Data checksum
         //   0x03-0x0D: Zeros (11 bytes)
         //   0x0E-0x16: Category text (9 bytes)
         //   0x17-0x1B: Zeros (5 bytes)
         //   0x1C-0x1D: Map number (BCD format)
-        //   0x1E-0x29: Map name (12 bytes)
+        //   0x1E-0x25: Map name (8 bytes)
+        //   0x26:      Player Gold (in 1000s)
+        //   0x27:      Enemy Gold (in 1000s)
+        //   0x28:      Player Materials (in 10s)
+        //   0x29:      Enemy Materials (in 10s)
         //   0x2A:      Width
         //   0x2B:      Height
         //   0x2C+:     Tile data
@@ -325,6 +349,12 @@ class GameboyWars3Util {
             ? self::encodeMapName($category, 9)
             : str_repeat("\x00", 9);
 
+        // Convert resource values to stored format
+        $goldPlayerByte = min(255, intdiv($playerGold, 1000));
+        $goldEnemyByte = min(255, intdiv($enemyGold, 1000));
+        $matPlayerByte = min(255, intdiv($playerMaterials, 10));
+        $matEnemyByte = min(255, intdiv($enemyMaterials, 10));
+
         $data = "\x00\x00"; // 0x00-0x01: Placeholder for size sum
         $data .= "\x00"; // 0x02: Placeholder for checksum
         $data .= str_repeat("\x00", 0x0B); // 0x03-0x0D: Zeros (11 bytes)
@@ -332,7 +362,11 @@ class GameboyWars3Util {
         $data .= str_repeat("\x00", 0x05); // 0x17-0x1B: Zeros (5 bytes)
         $data .= chr($mapNumHigh); // 0x1C: Map number high byte (BCD hundreds)
         $data .= chr($mapNumLow); // 0x1D: Map number low byte (BCD tens+units)
-        $data .= $name; // 0x1E-0x29: Map name (12 bytes)
+        $data .= $name; // 0x1E-0x25: Map name (8 bytes)
+        $data .= chr($goldPlayerByte); // 0x26: Player Gold (in 1000s)
+        $data .= chr($goldEnemyByte); // 0x27: Enemy Gold (in 1000s)
+        $data .= chr($matPlayerByte); // 0x28: Player Materials (in 10s)
+        $data .= chr($matEnemyByte); // 0x29: Enemy Materials (in 10s)
         $data .= chr($width); // 0x2A: Width
         $data .= chr($height); // 0x2B: Height
 
@@ -372,9 +406,26 @@ class GameboyWars3Util {
     /**
      * Parse a map file (with or without header)
      *
+     * File layout (with 2-byte header):
+     *   0x00-0x01: Header
+     *   0x02-0x03: Size sum
+     *   0x04:      Data checksum
+     *   0x05-0x0F: Zeros (11 bytes)
+     *   0x10-0x18: Category text (9 bytes)
+     *   0x19-0x1D: Zeros (5 bytes)
+     *   0x1E-0x1F: Map number (BCD format)
+     *   0x20-0x27: Map name (8 bytes, NOT 12!)
+     *   0x28:      Player Gold (in 1000s)
+     *   0x29:      Enemy Gold (in 1000s)
+     *   0x2A:      Player Materials (in 10s)
+     *   0x2B:      Enemy Materials (in 10s)
+     *   0x2C:      Width
+     *   0x2D:      Height
+     *   0x2E+:     Tile data, then units, then 0xFF terminator
+     *
      * @param string $data Raw map binary data
      * @param bool $hasHeader Whether the data includes the 2-byte header
-     * @return array Parsed map data including category and map_number
+     * @return array Parsed map data including category, map_number, and resources
      */
     public static function parseMapFile(string $data, bool $hasHeader = true): array {
         $offset = $hasHeader ? 0 : -2; // Adjust if no header
@@ -388,8 +439,16 @@ class GameboyWars3Util {
         $mapNumLow = ord($data[0x1F + $offset]);
         $mapNumber = self::decodeMapNumber($mapNumHigh, $mapNumLow);
 
-        $name = substr($data, 0x20 + $offset, 12);
+        // Map name is 8 bytes (0x20-0x27), NOT 12
+        $name = substr($data, 0x20 + $offset, 8);
         $name = rtrim($name, "\x00");
+
+        // Parse starting resources (0x28-0x2B)
+        // Gold values are stored in 1000s, Materials in 10s
+        $playerGold = ord($data[0x28 + $offset]) * 1000;
+        $enemyGold = ord($data[0x29 + $offset]) * 1000;
+        $playerMaterials = ord($data[0x2A + $offset]) * 10;
+        $enemyMaterials = ord($data[0x2B + $offset]) * 10;
 
         $width = ord($data[0x2C + $offset]);
         $height = ord($data[0x2D + $offset]);
@@ -420,6 +479,10 @@ class GameboyWars3Util {
             'units' => $units,
             'category' => $category ?: null,
             'map_number' => $mapNumber,
+            'player_gold' => $playerGold,
+            'enemy_gold' => $enemyGold,
+            'player_materials' => $playerMaterials,
+            'enemy_materials' => $enemyMaterials,
         ];
     }
 

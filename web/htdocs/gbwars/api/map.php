@@ -15,6 +15,12 @@
  *     "height": 32,
  *     "category": "Official Map",
  *     "mapNumber": 1001,
+ *     "resources": {
+ *       "playerGold": 10000,
+ *       "enemyGold": 10000,
+ *       "playerMaterials": 100,
+ *       "enemyMaterials": 100
+ *     },
  *     "tiles": [32, 32, 33, ...],
  *     "units": [{"x": 5, "y": 3, "type": 2}, ...]
  *   }
@@ -67,6 +73,12 @@ $response = [
     'width' => (int)$row['width'],
     'height' => (int)$row['height'],
     'mapNumber' => $parsed['map_number'],
+    'resources' => [
+        'playerGold' => $parsed['player_gold'],
+        'enemyGold' => $parsed['enemy_gold'],
+        'playerMaterials' => $parsed['player_materials'],
+        'enemyMaterials' => $parsed['enemy_materials'],
+    ],
     'tiles' => $parsed['tiles'],
     'units' => array_map(function($unit) {
         return [
