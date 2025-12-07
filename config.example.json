@@ -12,5 +12,7 @@
 	"smtp_auth": true,
 	"smtp_user": "USER",
 	"smtp_pass": "PASS",
-	"smtp_secure": "starttls"
+	"smtp_secure": "starttls",
+	"mobile_center_name": "EXAMPLE Server!",
+	"mobile_center_numb": "#9677"
 }
