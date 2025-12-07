@@ -13,7 +13,7 @@
 			$this->twig = new \Twig\Environment($loader, [
 				'cache' => "/tmp/reon",
 			]);
-
+			$this->twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(self::getTranslator()));
 		}
 
 		public static function render($template, $vars = null) {
@@ -22,11 +22,8 @@
 			}
 			if (!isset($vars)) $vars = array();
 			$vars["session_active"] = SessionUtil::getInstance()->isSessionActive();
-			$translator = self::getTranslator();
-			$twig = self::$instance->twig;
-			$twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension($translator));
 			$vars["curr_locale"] = SessionUtil::getInstance()->getLocale();
-			return $twig->render($template.".twig", $vars);
+			return self::$instance->twig->render($template.".twig", $vars);
 		}
 
 		public static function translate(?string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string {
