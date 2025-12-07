@@ -65,6 +65,16 @@ if (isset($gbwars['terrain'])) {
     }
 }
 
+$terrainShort = [];
+if (isset($gbwars['terrain_short'])) {
+    foreach ($gbwars['terrain_short'] as $key => $value) {
+        $intKey = is_string($key) && str_starts_with($key, '0x')
+            ? hexdec($key)
+            : (int)$key;
+        $terrainShort[$intKey] = $value;
+    }
+}
+
 $units = [];
 if (isset($gbwars['units'])) {
     foreach ($gbwars['units'] as $key => $value) {
@@ -72,6 +82,16 @@ if (isset($gbwars['units'])) {
             ? hexdec($key)
             : (int)$key;
         $units[$intKey] = $value;
+    }
+}
+
+$unitsShort = [];
+if (isset($gbwars['units_short'])) {
+    foreach ($gbwars['units_short'] as $key => $value) {
+        $intKey = is_string($key) && str_starts_with($key, '0x')
+            ? hexdec($key)
+            : (int)$key;
+        $unitsShort[$intKey] = $value;
     }
 }
 
@@ -84,7 +104,9 @@ $factions = $gbwars['factions'] ?? [
 $response = [
     'lang' => $lang,
     'terrain' => $terrain,
+    'terrain_short' => $terrainShort,
     'units' => $units,
+    'units_short' => $unitsShort,
     'factions' => $factions,
 ];
 

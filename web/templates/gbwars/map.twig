@@ -66,6 +66,26 @@
         </div>
 
         <div class="map-info-card">
+            <h5>Starting Resources</h5>
+            <div class="info-row">
+                <span class="info-label">Player Gold</span>
+                <span class="info-value" id="playerGold">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Enemy Gold</span>
+                <span class="info-value" id="enemyGold">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Player Materials</span>
+                <span class="info-value" id="playerMaterials">-</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Enemy Materials</span>
+                <span class="info-value" id="enemyMaterials">-</span>
+            </div>
+        </div>
+
+        <div class="map-info-card">
             <h5>Zoom</h5>
             <div class="zoom-controls">
                 <button class="btn btn-outline-secondary zoom-btn active" data-zoom="16" title="16x16">1x</button>
@@ -116,6 +136,14 @@
 
             const mapData = await response.json();
             renderer.setMapData(mapData);
+
+            // Update resources display
+            if (mapData.resources) {
+                document.getElementById('playerGold').textContent = mapData.resources.playerGold.toLocaleString();
+                document.getElementById('enemyGold').textContent = mapData.resources.enemyGold.toLocaleString();
+                document.getElementById('playerMaterials').textContent = mapData.resources.playerMaterials.toLocaleString();
+                document.getElementById('enemyMaterials').textContent = mapData.resources.enemyMaterials.toLocaleString();
+            }
 
             // Update unit list
             updateUnitList(mapData.units);
