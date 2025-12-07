@@ -66,19 +66,35 @@
         }
 
         public function unpackMail($region, $data) {
+            // Mail structure offsets (type field is at the end):
+            // Japanese:  Message(0x21) + Author(5) + AuthorID(2) + Species(1) + Type(1) = 0x2A total, type at 0x29
+            // European:  Message(0x21) + Author(8) + Nationality(2) + AuthorID(2) + Species(1) + Type(1) = 0x2F total, type at 0x2E
+            $type_offset = $region == 'j' ? 0x29 : 0x2E;
+            if (ord($data[$type_offset]) == 0) return null;
+
             $author_len = $region == 'j' ? 5 : 8;
             $message = substr($data, 0, 0x21);
             $author = substr($data, 0x21, $author_len);
             $unpack_start = 0x21 + $author_len;
             if ($region != 'j') {
-                $region = unpack("n", $data, 0x21 + $author_len)[1];
-                $region = ['e', 'f', 'd', 'i', 's'][$region];
-                $unpack_start += 2;
+                // Nationality is 2 bytes: first byte 'E' (European), second byte is language
+                // See: engine/pokemon/european_mail.asm IsMailEuropean
+                $byte1 = ord($data[$unpack_start]);
+                $byte2 = ord($data[$unpack_start + 1]);
+                if ($byte1 == 0x45) { // 'E' = European
+                    $region = match($byte2) {
+                        0x46 => 'f', // 'F' - French
+                        0x47 => 'd', // 'G' - German
+                        0x49 => 'i', // 'I' - Italian
+                        0x53 => 's', // 'S' - Spanish
+                        default => 'e', // Unknown European, default to English
+                    };
+                } else {
+                    $region = 'e';
+                }
+                $unpack_start += 2; // Nationality field is 2 bytes (dw)
             }
             $mail = unpack("nauthor_id/Cspecies/Ctype", $data, $unpack_start);
-
-            //TODO: Detect earlier
-            if ($mail["type"] == 0) return null;
 
             $mail["region"] = $region;
             $mail["length"] = strlen($data);

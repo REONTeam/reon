@@ -27,6 +27,9 @@
             {% if trade.pokemon.is_shiny %}<span class="shiny-mark" title="{{'pokemon.shiny'|trans}}"></span>{% endif %}
         </div>
         <div class="trade-offer {% if trade.pokemon.is_shiny %}shiny{% endif %}">
+            <!-- DVs {{trade.pokemon.iv.hp}}/{{trade.pokemon.iv.attack}}/{{trade.pokemon.iv.defense}}/{{trade.pokemon.iv.special}}/{{trade.pokemon.iv.speed}} -->
+            <!-- EVs {{trade.pokemon.ev.hp}}/{{trade.pokemon.ev.attack}}/{{trade.pokemon.ev.defense}}/{{trade.pokemon.ev.special}}/{{trade.pokemon.ev.speed}} -->
+            <!-- Shiny {{trade.pokemon.is_shiny}} -->
             <div class="media-area">
                 {% set offer_sprite_x = ((trade.offer.id - 1) % 15) * 64 %}
                 {% set offer_sprite_y = ((trade.offer.id - 1) // 15) * 64 %}
