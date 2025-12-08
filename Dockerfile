@@ -5,21 +5,21 @@ ARG DOTNET_VERSION=9.0
 ### Legality checker
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS pokemon-legality
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine AS pokemon-legality
 ARG DOTNET_VERSION
 WORKDIR /src
 COPY "app/pokemon-legality/LegalityCheckerConsole/LegalityCheckerConsole.csproj" /src/
 RUN dotnet restore "LegalityCheckerConsole.csproj"
 COPY "app/pokemon-legality/LegalityCheckerConsole/." .
-RUN dotnet build "LegalityCheckerConsole.csproj" --no-restore -c Release --framework net${DOTNET_VERSION} -r linux-musl-x64 --self-contained -o /app/pokemon-legality
+RUN dotnet build "LegalityCheckerConsole.csproj" --no-restore -c Release --framework net${DOTNET_VERSION} -r linux-x64 --self-contained -o /app/pokemon-legality
 
 ### Web Service
-FROM php:${PHP_VERSION}-alpine AS web-deps
+FROM php:${PHP_VERSION} AS web-deps
 
 WORKDIR /app
 
-RUN apk update \
- && apk add git unzip \
+RUN apt-get -y update \
+    && apt-get install -y --no-install-recommends git unzip \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 COPY web/composer.json composer.json
@@ -31,22 +31,24 @@ COPY web /app
 
 RUN composer dump-autoload --optimize
 
-FROM php:${PHP_VERSION}-fpm-alpine AS web
+FROM php:${PHP_VERSION}-fpm AS web
 WORKDIR /var/www
-RUN apk add --no-cache libpng libpng-dev \
+RUN apt-get -y update \
+    && apt-get install -y --no-install-recommends libpng-dev libicu76 \
     && docker-php-ext-install mysqli gd \
     && docker-php-ext-enable mysqli gd \
-    && apk del libpng-dev
+    && apt-get remove -y libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
 COPY --from=web-deps /app /var/www/reon/web
 RUN mkdir -p /var/www/reon/web/tmp \
     && chown www-data:www-data /var/www/reon/web/tmp \
     && find /var/www/reon/web/htdocs -type f -exec chmod 644 {} \; \
     && find /var/www/reon/web/htdocs -type d -exec chmod 755 {} \;
-ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
+ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality/LegalityCheckerConsole
 
 ### Database Migration Service
-FROM php:${PHP_VERSION}-alpine AS migrate
+FROM php:${PHP_VERSION} AS migrate
 WORKDIR /var/www/reon
 
 # Install MySQL client for database connectivity
@@ -63,14 +65,15 @@ COPY db/ /var/www/reon/db/
 CMD ["/var/www/reon/web/vendor/bin/phinx", "migrate"]
 
 ### Mail Service
-FROM node:${NODE_VERSION}-alpine AS mail-deps
+FROM node:${NODE_VERSION} AS mail-deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat jq
+RUN apt-get -y update \
+    && apt-get install -y --no-install-recommends libc6-compat jq
 WORKDIR /app
 COPY mail/package.json mail/package-lock.json* ./
 RUN npm ci
 
-FROM node:${NODE_VERSION}-alpine AS mail
+FROM node:${NODE_VERSION} AS mail
 WORKDIR /app
 COPY --from=mail-deps /app/node_modules ./node_modules
 COPY mail /app
@@ -82,18 +85,18 @@ ENTRYPOINT ["/app/entrypoint.sh"]
 
 ### Cron jobs
 
-FROM node:${NODE_VERSION}-alpine AS battle-deps
+FROM node:${NODE_VERSION} AS battle-deps
 WORKDIR /app
 COPY app/pokemon-battle/package.json app/pokemon-battle/package-lock.json* ./
 RUN npm ci
 
-FROM node:${NODE_VERSION}-alpine AS exchange-deps
+FROM node:${NODE_VERSION} AS exchange-deps
 WORKDIR /app
 COPY app/pokemon-exchange/package.json app/pokemon-exchange/package-lock.json* ./
 RUN npm ci
 
 # Based on https://github.com/AnalogJ/docker-cron
-FROM node:${NODE_VERSION}-alpine AS cron
+FROM node:${NODE_VERSION} AS cron
 COPY app/docker_entry.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
@@ -106,7 +109,7 @@ COPY app/pokemon-exchange pokemon-exchange
 COPY --from=exchange-deps /app/node_modules ./pokemon-exchange/node_modules
 
 COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
-ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality
+ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality/LegalityCheckerConsole
 
 COPY app/bxt_config_loader.js /app/
 
