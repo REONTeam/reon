@@ -7,6 +7,7 @@
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 		<link href="/css/main.css" rel="stylesheet">
+		<link href="/css/mobile-trainer.css" rel="stylesheet">
 		{% block head %}
 		{% endblock %}
 	</head>
@@ -28,7 +29,7 @@
 							<li><a class="dropdown-item" href="/gbwars/">{{'gameboy-wars'|trans}}</a></li>
 						</ul>
 					</li>
-					<li class="nav-item"><a href="/01/CGB-B9AJ/index.html" class="nav-link">{{'mobile-home'|trans}}</a></li>
+					<li class="nav-item"><a href="#" class="nav-link" onclick="openGbcModal(); return false;">{{'mobile-home'|trans}}</a></li>
 				</ul>
 				
 				<div class="d-flex">
@@ -67,12 +68,83 @@
 		{% block body %}
 		{% endblock %}
 
+		<!-- GBC Mobile Trainer Modal -->
+		<div id="gbc-modal" class="gbc-modal-overlay" onclick="closeGbcModal(event)">
+			<div class="gbc-modal-content" onclick="event.stopPropagation()">
+				<button class="gbc-modal-close" onclick="closeGbcModal()" aria-label="Close">&times;</button>
+				<div class="gbc-frame-container gbc-large">
+					<div class="gbc-frame-screen">
+						<iframe id="gbc-iframe" class="gbc-frame-iframe" title="Mobile Trainer"></iframe>
+					</div>
+					<img class="gbc-frame-svg" src="/images/cgb/CGB_Transparent_Screen.svg" alt="Game Boy Color">
+				</div>
+			</div>
+		</div>
+
 		<script>
 			function changeLocale(newLocale) {
 				var url = new URL(window.location);
 				url.searchParams.set('lang', newLocale);
 				window.location = url.toString();
 			}
+
+			function openGbcModal() {
+				var modal = document.getElementById('gbc-modal');
+				var iframe = document.getElementById('gbc-iframe');
+				// Inject styles when iframe loads
+				iframe.onload = function() {
+					injectGbcStyles(iframe);
+					requestAnimationFrame(alignGbcScreen);
+				};
+				// Load the iframe content only when opening
+				iframe.src = '/01/CGB-B9AJ/index.html';
+				modal.classList.add('active');
+				document.body.style.overflow = 'hidden';
+			}
+
+			function injectGbcStyles(iframe) {
+				try {
+					var doc = iframe.contentDocument || iframe.contentWindow.document;
+					// Inject stylesheet link
+					var link = doc.createElement('link');
+					link.rel = 'stylesheet';
+					link.href = '/css/mobile-trainer.css';
+					doc.head.appendChild(link);
+					// Add the gbc-screen class to the body for styling
+					doc.body.classList.add('gbc-screen');
+				} catch (e) {
+					console.warn('Could not inject styles into iframe:', e);
+				}
+			}
+
+			function alignGbcScreen() {
+				// Round screen position to integer pixels to prevent blurry text
+				var screen = document.querySelector('.gbc-frame-screen');
+				if (!screen) return;
+				var rect = screen.getBoundingClientRect();
+				var offsetX = rect.left - Math.round(rect.left);
+				var offsetY = rect.top - Math.round(rect.top);
+				if (offsetX !== 0 || offsetY !== 0) {
+					// Apply sub-pixel correction via transform
+					screen.style.transform = 'translate(' + (-offsetX) + 'px, ' + (-offsetY) + 'px) translateZ(0)';
+				}
+			}
+
+			function closeGbcModal(event) {
+				// If called from overlay click, only close if clicking the overlay itself
+				if (event && event.target !== event.currentTarget) return;
+				var modal = document.getElementById('gbc-modal');
+				var iframe = document.getElementById('gbc-iframe');
+				modal.classList.remove('active');
+				document.body.style.overflow = '';
+				// Clear iframe to stop any media
+				iframe.src = 'about:blank';
+			}
+
+			// Close on Escape key
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape') closeGbcModal();
+			});
 		</script>
 
 	</body>

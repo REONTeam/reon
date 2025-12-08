@@ -1,0 +1,292 @@
+/* Mobile Trainer Retro Stylesheet
+ * Emulates the Game Boy Color browser appearance
+ */
+
+:root {
+    /* GBC Classic Green Palette */
+    --gbc-background: #ffffff;   /* Lightest green - background */
+    --gbc-link-new: cornflowerblue;      /* Light green - hover states */
+    --gbc-link-old: red;       /* Dark green - links */
+    --gbc-color: #000000;    /* Darkest green - text */
+
+    /* GBC Frame positioning
+     * The link cable on the left side makes the SVG asymmetric.
+     * SVG dimensions and cable position (in pixels):
+     */
+    --gbc-svg-width: 977;
+    --gbc-cable-width: 290;
+    /* Derived values (as percentages of SVG width): */
+    --gbc-cable-percent: calc(var(--gbc-cable-width) / var(--gbc-svg-width) * 100%); /* 29.68% */
+    --gbc-body-percent: calc(100% - var(--gbc-cable-percent)); /* 70.32% */
+    /* Offset to center GBC body: cable creates asymmetry, shift by half cable width */
+    --gbc-adapter-offset: calc(var(--gbc-cable-percent) / 2); /* 14.84% */
+    /* Scale factor to make GBC body fill container (for mobile clipping) */
+    --gbc-body-scale: calc(100% / var(--gbc-body-percent)); /* 142.2% */
+}
+
+@font-face {
+    font-family: 'MobileTrainer';
+    src: url('/fonts/MobileTrainer/MobileTrainer.woff2') format('woff2'),
+         url('/fonts/MobileTrainer/MobileTrainer.woff') format('woff'),
+         url('/fonts/MobileTrainer/MobileTrainer.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+
+/* Base styles for GBC browser emulation */
+.gbc-screen {
+    font-family: 'MobileTrainer', monospace;
+    /* 12px is the native size, scale up by integer multiples for sharpness */
+    font-size: 12px;
+    line-height: 12px;
+
+    /* GBC-style green/yellow palette */
+    background-color: var(--gbc-background);
+    color: var(--gbc-color);
+
+    /* Disable anti-aliasing for crisp pixels */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    font-smooth: never;
+    text-rendering: optimizeSpeed;
+
+    /* Pixel-perfect rendering */
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+/* GBC screen inner content area */
+.gbc-content {
+    padding: 4px;
+    overflow: hidden;
+}
+
+/* Links styled for GBC */
+.gbc-screen a {
+    color: var(--gbc-link-new);
+    text-decoration: underline;
+}
+
+.gbc-screen a:visited {
+    color: var(--gbc-link-old);
+}
+
+.gbc-screen a:hover {
+    color: var(--gbc-link-new);
+    background-color: var(--gbc-background);
+}
+
+/* Horizontal rule */
+.gbc-screen hr {
+	border: 0;
+	border-color: var(--gbc-color);
+	border-top: calc(1px * 1) solid  var(--gbc-color);
+	margin-bottom: calc(5px * 1);
+}
+
+/* Lists */
+
+.gbc-screen ul {
+  list-style: none; /* Remove list bullets */
+  padding: 0;
+  margin: 0;
+}
+
+.gbc-screen ul, .gbc-screen ol {
+    margin: 0;
+    padding-left: 12px;
+}
+
+.gbc-screen li::before {
+  content: "\30fb";
+}
+
+/* Images should be pixelated */
+.gbc-screen img {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+/* Scale variations - use integer multiples for pixel perfection */
+.gbc-screen.scale-2x {
+    font-size: 24px;
+    line-height: 24px;
+}
+
+.gbc-screen.scale-3x {
+    font-size: 36px;
+    line-height: 36px;
+}
+
+.gbc-screen.scale-2x hr {
+	border-top: calc(1px * 2) solid  var(--gbc-color);
+	margin-bottom: calc(5px * 2);
+}
+
+.gbc-screen.scale-3x hr {
+	border-top: calc(1px * 3) solid  var(--gbc-color);
+	margin-bottom: calc(5px * 3);
+}
+
+/* GBC Frame wrapper styles
+ * SVG viewBox: 977 x 1168
+ * Screen area in SVG: x=436, y=114, width=383, height=345
+ * Screen position as percentage of SVG:
+ *   left: 436/977 = 44.627%
+ *   top: 114/1168 = 9.761%
+ *   width: 383/977 = 39.201%
+ *   height: 345/1168 = 29.538%
+ *
+ * The Mobile Adapter on the right side makes the SVG asymmetric.
+ * GBC body spans roughly x=290 to x=977, with the link cable on the left.
+ * As percentage: 290/977 = 29.68%
+ */
+.gbc-frame-container {
+    --gbc-width: 400px; /* Base width, adjust as needed */
+    position: relative;
+    display: inline-block;
+    width: var(--gbc-width);
+    /* Shift left to visually center the GBC body */
+    transform: translateX(calc(var(--gbc-adapter-offset) * -1));
+}
+
+.gbc-frame-container.gbc-large {
+    --gbc-width: 500px;
+}
+
+.gbc-frame-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* SVG sits on top to receive pointer events on the frame */
+    position: relative;
+    z-index: 2;
+    /* But allow clicks through to iframe on transparent screen area */
+    pointer-events: none;
+}
+
+.gbc-frame-svg svg {
+    pointer-events: auto;
+}
+
+.gbc-frame-screen {
+    position: absolute;
+    /* Position based on SVG screen location
+     * SVG coords: x=436, y=114, width=383, height=345
+     * As percentages of viewBox (977x1168)
+     */
+    left: 44.627%;
+    top: 9.761%;
+    width: 39.201%;
+    height: 29.538%;
+    z-index: 1;
+    /* GBC screen green background */
+    background-color: var(--gbc-background);
+    border-radius: 1%;
+    overflow: hidden;
+    /* Force pixel-aligned rendering */
+    transform: translateZ(0);
+}
+
+.gbc-frame-iframe {
+    border: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--gbc-background);
+}
+
+/* Modal/popup styles for the GBC frame */
+.gbc-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.gbc-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.gbc-modal-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.gbc-modal-close {
+    position: absolute;
+    top: -40px;
+    /* Offset to align with the visually-centered GBC body */
+    right: calc(var(--gbc-adapter-offset));
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.gbc-modal-close:hover {
+    color: var(--gbc-background);
+}
+
+/* Prevent sub-pixel rendering issues */
+.pixel-perfect {
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+/* Mobile responsiveness
+ * Clips the cable and shows only the GBC body, centered
+ *
+ * SVG dimensions: 977px wide, cable is 0-290px, body is 290-977px (687px)
+ * Cable as % of SVG: 290/977 = 29.68%
+ * Body width for .gbc-large (500px): 500 * 0.7032 = 351.6px
+ */
+@media (max-width: 768px) {
+    .gbc-modal-content {
+        /* Clip the cable */
+        overflow: hidden;
+        /* Width matches the GBC body portion */
+        width: 352px;
+        /* Center in the overlay */
+        margin: 0 auto;
+    }
+
+    .gbc-frame-container,
+    .gbc-frame-container.gbc-large {
+        /* Keep original size */
+        width: 500px;
+        transform: none;
+        /* Shift left by cable width (290/977 * 500 = 148.4px) */
+        margin-left: -148px;
+    }
+
+    .gbc-modal-close {
+        right: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .gbc-modal-content {
+        max-width: 95vw;
+    }
+
+    .gbc-modal-close {
+        top: -35px;
+        font-size: 20px;
+    }
+}

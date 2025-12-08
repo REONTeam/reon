@@ -10,8 +10,12 @@
 
 		private final function  __construct() {
 			$loader = new \Twig\Loader\FilesystemLoader(dirname(__DIR__)."/templates");
+			$cacheDir = sys_get_temp_dir() . "/reon_twig_cache";
+			if (!is_dir($cacheDir)) {
+				mkdir($cacheDir, 0755, true);
+			}
 			$this->twig = new \Twig\Environment($loader, [
-				'cache' => "/tmp/reon",
+				'cache' => $cacheDir,
 			]);
 			$this->twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(self::getTranslator()));
 		}
