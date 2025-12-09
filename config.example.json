@@ -6,7 +6,6 @@
 	"mysql_user": "reon",
 	"mysql_password": "password",
 	"mysql_database": "db",
-	"amoj_regist": "h200",
 	"smtp_host": "mail.example.net",
 	"smtp_port": 587,
 	"smtp_auth": true,
@@ -14,5 +13,7 @@
 	"smtp_pass": "PASS",
 	"smtp_secure": "starttls",
 	"mobile_center_name": "EXAMPLE Server!",
-	"mobile_center_numb": "#9677"
+	"mobile_center_numb": "#9677",
+	"amoj_regist": "h200",
+	"agtj_email": "admin@xxxx.dion.ne.jp"
 }

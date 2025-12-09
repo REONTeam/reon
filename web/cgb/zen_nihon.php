@@ -30,19 +30,20 @@
 
 	function getExtraCourse() {
 		$excrs = 0x80;
-		$excrs_bit = 0x80;
-		while ($excrs_bit != 0) {
-			// this assumes that, if a file exists for course #N, files must exist for courses #(N & 0x80), #(N & 0xC0), #(N & 0xE0), ..., #(N & 0xFE).
-			// under that assumption, the greatest number of any existing course file will end up in $excrs.
-			$excrs_bit >>= 1;
+		$bit = 0x80;
+		while ($bit) {
+			// this assumes that, if a file exists for course #N,
+			// files must exist for courses #(N & 0x80),
+			// #(N & 0xC0), #(N & 0xE0), ..., and #(N & 0xFE),
+			// except that a file should never exist for course #0.
+			// under that assumption, the greatest number of any
+			// existing course file will end up in $excrs.
+			$bit >>= 1;
 			if (realpath(__DIR__.DIRECTORY_SEPARATOR.sprintf("100.gtexcrs%03d.cgb", $excrs)) !== false) {
-				$excrs += $excrs_bit;
+				$excrs += $bit;
 			} else {
-				$excrs -= max($excrs_bit, 1);
+				$excrs -= ($bit ?: 1);
 			}
-		}
-		if ($excrs == 0 && realpath(__DIR__.DIRECTORY_SEPARATOR."100.gtexcrs000.cgb") === false) {
-			return -1;
 		}
 		return $excrs;
 	}
@@ -53,8 +54,13 @@
 			$stmt = $db->prepare("select * from agtj_ghosts where (course = ? or course = ?) and dl_ok is not null order by dl_ok desc limit 30");
 			$stmt->bind_param($course, $course + 9);
 		} else {
+			$excrs = getExtraCourse();
+			if (!$excrs) {
+				http_response_code(404);
+				return;
+			}
 			$stmt = $db->prepare("select * from agtj_ghosts where (course = 6 or course = 7 or course = 8 or course = 15 or course = 16 or course = 17) and dl_ok is not null and excrs = ? order by dl_ok desc limit 30");
-			$stmt->bind_param(getExtraCourse());
+			$stmt->bind_param($excrs);
 		}
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -94,8 +100,13 @@
 			$stmt = $db->prepare("select * from agtj_ghosts where course = ? or course = ? order by time desc limit 50");
 			$stmt->bind_param($course, $course + 9);
 		} else {
+			$excrs = getExtraCourse();
+			if (!$excrs) {
+				http_response_code(404);
+				return;
+			}
 			$stmt = $db->prepare("select * from agtj_ghosts where (course = 6 or course = 7 or course = 8 or course = 15 or course = 16 or course = 17) and excrs = ? order by time desc limit 50");
-			$stmt->bind_param(getExtraCourse());
+			$stmt->bind_param($excrs);
 		}
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
