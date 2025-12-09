@@ -710,9 +710,9 @@
 	function validateGhostUpload($data) {
 		$k = ord($data["player_id"]);
 		for ($i = 1; $i < 16; $i++) {
-			$k += ord(substr($data["player_id"], $i, 1));
+			$k += ord($data["player_id"][$i]);
 		}
-		if ((($k ^ $data["course_no"]) & 1) != 0) {
+		if (($k ^ $data["course_no"]) & 1) {
 			$a = $data["driver"] + $k * ($k + 1);
 			$b = $data["driver"] + $data["course_no"] - $k;
 		} else {
@@ -721,13 +721,13 @@
 		}
 
 		for ($i = 0; $i < 5; $i++) {
-			$k = ord(substr($data["name"], $i, 1));
-			if ((($b ^ $c) & 1) != 0) {
-				$a -= $k;
-				$b += $k;
-			} else {
+			$k = ord($data["name"][$i]);
+			if (($b ^ $k) & 1) {
 				$a += $k;
 				$b -= $k;
+			} else {
+				$a -= $k;
+				$b += $k;
 			}
 		}
 
@@ -736,31 +736,30 @@
 		$b = ($b + $k) ^ $data["time"];
 
 		for ($i = 0; $i < 4096; $i++) {
-			$k = ord(substr($data["input_data"], $i, 1));
+			$k = ord($data["input_data"][$i]);
 			$a ^= $k;
 			$b += $k;
 		}
 		for ($i = 0; $i < 16; $i++) {
-			$k = ord(substr($data["full_name"], $i, 1));
+			$k = ord($data["full_name"][$i]);
 			$a += $k;
 			$b ^= $k;
 		}
 		for ($i = 0; $i < 12; $i++) {
-			$k = ord(substr($data["phone_number"], $i, 1));
+			$k = ord($data["phone_number"][$i]);
 			$a ^= $k;
 			$b -= $k;
 		}
 		for ($i = 0; $i < 8; $i++) {
-			$k = ord(substr($data["postal_code"], $i, 1));
+			$k = ord($data["postal_code"][$i]);
 			$a -= $k;
 			$b += $k;
 		}
 		for ($i = 0; $i < 128; $i++) {
-			$k = ord(substr($data["address"], $i, 1));
+			$k = ord($data["address"][$i]);
 			$a ^= $k;
 			$b ^= $k;
 		}
-
 		return $data["unk18"] == (($a & 0xff) << 8 | ($b & 0xff));
 	}
 
@@ -771,7 +770,7 @@
 			return;
 		}
 		$data = parseGhostUpload(fopen("php://input", "rb"));
-		
+
 		if ($data["course_no"] != $course || $data["driver"] > 7) {
 			http_response_code(400);
 			return;
@@ -781,14 +780,14 @@
 			http_response_code(400);
 			return;
 		}
-		
+
 		// Validate sent player ID
 		if (!checkPlayerID($data["player_id"], $_SESSION['userId'])) {
 			// Player ID invalid (eg email mismatch)
 			http_response_code(400);
 			return;
 		}
-		
+
 		$db = connectMySQL();
 		$db->begin_transaction();
 		try {
@@ -796,12 +795,12 @@
 			$stmt = $db->prepare("delete ignore from amkj_ghosts where player_id = ? and course = ?");
 			$stmt->bind_param("si", $data["player_id"], $course);
 			$stmt->execute();
-			
+
 			// Insert new record
 			$stmt = $db->prepare("insert into amkj_ghosts (player_id, course_no, name, state, unk18, course, driver, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			$stmt->bind_param("iisiiiiisssss", $data["player_id"], $course, $data["name"], $data["state"], $data["unk18"], $course, $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
 			$stmt->execute();
-			
+
 			$db->commit();
 		} catch (mysqli_sql_exception $e) {
 			$db->rollback();
