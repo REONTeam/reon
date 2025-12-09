@@ -131,11 +131,11 @@
 			$date_array[3] -= 24;
 			$date_array[2]++;
 		}
-		if ($date_array[2] == cal_days_in_month(CAL_GREGORIAN, $date_array[1], $date_array[0]) + 1) {
+		if ($date_array[2] > cal_days_in_month(CAL_GREGORIAN, $date_array[1], $date_array[0])) {
 			$date_array[2] = 1;
 			$date_array[1]++;
 		}
-		if ($date_array[1] == 13) {
+		if ($date_array[1] > 12) {
 			$date_array[1] = 1;
 			$date_array[0]++;
 		}
@@ -155,5 +155,29 @@
 			// 2600 = 50 * 52
 			echo "\0";
 		}
+	}
+
+	function ghostDownload($price) {
+		if (strlen($_GET["agtj"]) != 8) {
+			http_response_code(404);
+			return;
+		}
+		$id = hexdec($_GET["agtj"]);
+		if ($id === false) {
+			http_response_code(404);
+			return;
+		}
+
+		$db = connectMySQL();
+		$stmt = $db->prepare("select * from agtj_ghosts where dl_ok is not null and id = ? limit 1")
+		$stmt->bind_param("i", $id);
+		$result = fancy_get_result($stmt);
+		if (sizeof($result) == 0 || $result[0]["price"] != $price) {
+			http_response_code(404);
+			return;
+		}
+
+		echo makeRankingEntry($result[0]);
+		echo $result[0]["input_data"];
 	}
 ?>

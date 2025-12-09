@@ -60,8 +60,17 @@
 		$i++;
 	}
 
-	for ($i = 0; $i < 0x40; $i++) {
+	$config = getConfig();
+	$track_email = $config["agtj_track"];
+	echo $track_email;
+	$i = 0;
+	while ($i < strlen($track_email)) {
+		$cksum = $cksum + ord($track_email[$i]);
+		$i++;
+	}
+	while ($i < 0x40) {
 		echo "\0";
+		$i++;
 	}
 
 	echo pack("V", $cksum);
