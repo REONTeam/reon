@@ -1521,7 +1521,7 @@ if (!function_exists('bxt_validate_exchange_row')) {
             $errors_local[] = 'pokemon: blob is not a string';
         } else {
             $len = strlen($pokemon_blob);
-            $expected_len = ($region === 'j') ? 63 : 65;
+            $expected_len = ($region === 'j') ? 58 : 65;
             if ($len !== $expected_len) {
                 $errors_local[] = 'pokemon: invalid length ' . $len . ' for region ' . $region . ', expected ' . $expected_len;
             }
@@ -1531,7 +1531,7 @@ if (!function_exists('bxt_validate_exchange_row')) {
             $errors_local[] = 'mail: blob is not a string';
         } else {
             $len = strlen($mail_blob);
-            $expected_len = ($region === 'j') ? 37 : 47;
+            $expected_len = ($region === 'j') ? 42 : 47;
             if ($len !== $expected_len) {
                 $errors_local[] = 'mail: invalid length ' . $len . ' for region ' . $region . ', expected ' . $expected_len;
             } else {

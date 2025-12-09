@@ -511,8 +511,14 @@ function bxt_decode_mail_for_region($game_region, $raw_binary) {
     $i     = 0;
 
     foreach ($bytes as $b) {
+        // 0x00 is the mail-string terminator
         if ($b === 0x00) {
-            // 0x00 is the mail-string terminator
+            break;
+        }
+
+        // After the author block (and its spacing at index 0x20),
+        // treat 0x50 (padding) as a terminator for the mail body.
+        if ($i > 0x20 && $b === 0x50) {
             break;
         }
 
@@ -521,25 +527,16 @@ function bxt_decode_mail_for_region($game_region, $raw_binary) {
             $out .= $table[$hex];
         }
 
-		// Region-specific readability spacing
-		if ($eff === 'j') {
-			// Japanese mail: insert a space after byte index 0x1B (27 decimal)
-			if ($i === 0x1B) {
-				$out .= ' ';
-			}
-		} else {
-			// All other regions: space after 0x20 (33 decimal)
-			if ($i === 0x20) {
-				$out .= ' ';
-			}
-		}
+        // Mail Author spacing (same for all regions)
+        if ($i === 0x20) {
+            $out .= ' ';
+        }
 
         $i++;
     }
 
     return $out;
 }
-
 
 
 /**

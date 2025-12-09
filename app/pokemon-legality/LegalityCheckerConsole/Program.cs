@@ -13,7 +13,10 @@ namespace LegalityCheckerConsole
         private const int SIZE_2_STORED = 32;
         private const int SIZE_2_PARTY  = 48;
         private const int SIZE_2_ULIST  = 73;
-        private const int SIZE_2_JLIST  = 63;
+        private const int SIZE_2_JLIST  = 63; // PKHeX JP single-entry list length
+
+        // JP minimal Trade Corner blob size (core + 5-byte OT + 5-byte nick)
+        private const int SIZE_BXT_JP_MIN = 58;
 
         // BXT/Mobile Trade Corner (JP) sizes
         private const int SIZE_BXT_FULL  = 143;
@@ -26,10 +29,13 @@ namespace LegalityCheckerConsole
         // EN/intl: 48 core + 11 nickname
         private const int SIZE_BT_PKM_INT = 59;
         // JP: 48 core + 6 unknown tail (no complete nickname/OT)
-        private const int SIZE_BT_PKM_JP  = 54;        // Gen 2 PKM string lengths (OT/Nickname)
+        private const int SIZE_BT_PKM_JP  = 54;
+
+        // Gen 2 PKM string lengths (OT/Nickname)
         private const int SIZE_G2_STRING    = 11; // non-JP (EN/etc)
         private const int SIZE_G2_STRING_JP = 6;  // JP-only buffers
-private static PK2 LoadPk2(byte[] data)
+
+        private static PK2 LoadPk2(byte[] data)
         {
             int len = data.Length;
             Console.Error.WriteLine($"[LegalityCheckerConsole BXT] input_len={len}");
@@ -76,14 +82,7 @@ private static PK2 LoadPk2(byte[] data)
                 return LoadPk2FromTradeCornerBlob73(data);
             }
 
-            // JP BXT/Mobile Trade Corner blobs (143-byte full or 105-byte email body)
-            if (len == SIZE_BXT_FULL || len == SIZE_BXT_EMAIL)
-            {
-                Console.Error.WriteLine("[LegalityCheckerConsole BXT] loader=BXTTradeBlobJP");
-                return LoadPk2FromBxtTradeBlobJP(data);
-            }
-
-            // JP single-entry list or JP minimal trade blob (63 bytes)
+            // JP PKHeX single-entry list (63 bytes) OR legacy JP minimal trade blob (63)
             if (len == SIZE_2_JLIST)
             {
                 // PKHeX JLIST single containers begin with 0x01 (header)
@@ -93,8 +92,23 @@ private static PK2 LoadPk2(byte[] data)
                     return PokeList2.ReadFromSingle(data);
                 }
 
-                Console.Error.WriteLine("[LegalityCheckerConsole BXT] loader=BXT_JP_Trade63");
-                return LoadPk2FromBxtTradeBlobJP63(data);
+                // Legacy 63-byte JP minimal trade blob (with 5 bytes trailing padding)
+                Console.Error.WriteLine("[LegalityCheckerConsole BXT] loader=BXT_JP_Trade63(legacy, padded)");
+                return LoadPk2FromBxtTradeBlobJPMin(data);
+            }
+
+            // New JP minimal trade blob (58 bytes: 48 core + 5 OT + 5 nick, no padding)
+            if (len == SIZE_BXT_JP_MIN)
+            {
+                Console.Error.WriteLine("[LegalityCheckerConsole BXT] loader=BXT_JP_Trade58(minimal)");
+                return LoadPk2FromBxtTradeBlobJPMin(data);
+            }
+
+            // JP BXT/Mobile Trade Corner blobs (143-byte full or 105-byte email body)
+            if (len == SIZE_BXT_FULL || len == SIZE_BXT_EMAIL)
+            {
+                Console.Error.WriteLine("[LegalityCheckerConsole BXT] loader=BXTTradeBlobJP");
+                return LoadPk2FromBxtTradeBlobJP(data);
             }
 
             // Fallback: match PKHeX list lengths in case constants change upstream
@@ -111,7 +125,7 @@ private static PK2 LoadPk2(byte[] data)
                 $"Unsupported Gen2 PKM/BXT container length: {len} bytes. " +
                 $"Expected {SIZE_2_STORED}, {SIZE_2_PARTY}, {SIZE_TC_PKM}, " +
                 $"{SIZE_BT_PKM_INT}, {SIZE_BT_PKM_JP}, {SIZE_2_ULIST}/{SIZE_2_JLIST}, " +
-                $"{SIZE_BXT_FULL}, or {SIZE_BXT_EMAIL}.");
+                $"{SIZE_BXT_FULL}, {SIZE_BXT_EMAIL}, {SIZE_BXT_JP_MIN}.");
         }
 
         /// <summary>
@@ -127,7 +141,7 @@ private static PK2 LoadPk2(byte[] data)
             if (blob.Length != SIZE_BT_PKM_INT)
                 throw new InvalidDataException($"BattleTowerBlob59: unexpected length {blob.Length}");
 
-            ReadOnlySpan<byte> core48   = blob.Slice(0, SIZE_2_PARTY);             // 0..47
+            ReadOnlySpan<byte> core48   = blob.Slice(0, SIZE_2_PARTY);              // 0..47
             ReadOnlySpan<byte> nickPart = blob.Slice(SIZE_2_PARTY, SIZE_G2_STRING); // 48..58
 
             Console.Error.WriteLine("[LegalityCheckerConsole BXT] BattleTowerBlob59 core_species=" + core48[0]);
@@ -164,37 +178,36 @@ private static PK2 LoadPk2(byte[] data)
         /// is not used by PKHeX for any Gen 2 legality condition beyond length.
         /// </summary>
         private static PK2 LoadPk2FromJP_BattleTowerBlob54(ReadOnlySpan<byte> blob)
-{
-    if (blob.Length != SIZE_BT_PKM_JP)
-        throw new InvalidDataException($"JP_BattleTowerBlob54: unexpected length {blob.Length}");
+        {
+            if (blob.Length != SIZE_BT_PKM_JP)
+                throw new InvalidDataException($"JP_BattleTowerBlob54: unexpected length {blob.Length}");
 
-    ReadOnlySpan<byte> core48 = blob.Slice(0, SIZE_2_PARTY);   // 0..47
-    ReadOnlySpan<byte> tail   = blob.Slice(SIZE_2_PARTY);      // 48..53 (6 bytes)
+            ReadOnlySpan<byte> core48 = blob.Slice(0, SIZE_2_PARTY);   // 0..47
+            ReadOnlySpan<byte> tail   = blob.Slice(SIZE_2_PARTY);      // 48..53 (6 bytes)
 
-    Console.Error.WriteLine("[LegalityCheckerConsole BXT] JP_BattleTowerBlob54 core_species=" + core48[0]);
+            Console.Error.WriteLine("[LegalityCheckerConsole BXT] JP_BattleTowerBlob54 core_species=" + core48[0]);
 
-    // For JP, PKHeX decides charset from OT buffer length (6 => Japanese).
-    Span<byte> ot6   = stackalloc byte[SIZE_G2_STRING_JP];
-    Span<byte> nick6 = stackalloc byte[SIZE_G2_STRING_JP];
+            // For JP, PKHeX decides charset from OT buffer length (6 => Japanese).
+            Span<byte> ot6   = stackalloc byte[SIZE_G2_STRING_JP];
+            Span<byte> nick6 = stackalloc byte[SIZE_G2_STRING_JP];
 
-    ot6.Fill(0x50);
-    nick6.Fill(0x50);
+            ot6.Fill(0x50);
+            nick6.Fill(0x50);
 
-    // Optional: keep the tail bytes in the nickname (best-effort preservation)
-    int copyLen = Math.Min(tail.Length, SIZE_G2_STRING_JP);
-    if (copyLen > 0)
-        tail.Slice(0, copyLen).CopyTo(nick6);
+            // Optional: keep the tail bytes in the nickname (best-effort preservation)
+            int copyLen = Math.Min(tail.Length, SIZE_G2_STRING_JP);
+            if (copyLen > 0)
+                tail.Slice(0, copyLen).CopyTo(nick6);
 
-    // Synthesize OT = "クリス" in Gen 2 JP charset:
-    // A=0x80, so: ク=0x87, リ=0xD8, ス=0x8C, terminator=0x50
-    ot6[0] = 0x87; // ク
-    ot6[1] = 0xD8; // リ
-    ot6[2] = 0x8C; // ス
-    ot6[3] = 0x50; // terminator
+            // Synthesize OT = "クリス" in Gen 2 JP charset:
+            // A=0x80, so: ク=0x87, リ=0xD8, ス=0x8C, terminator=0x50
+            ot6[0] = 0x87; // ク
+            ot6[1] = 0xD8; // リ
+            ot6[2] = 0x8C; // ス
+            ot6[3] = 0x50; // terminator
 
-    return new PK2(core48, ot6, nick6);
-}
-
+            return new PK2(core48, ot6, nick6);
+        }
 
         /// <summary>
         /// Trade Corner 65-byte trade blob -> PK2
@@ -303,39 +316,48 @@ private static PK2 LoadPk2(byte[] data)
         }
 
         /// <summary>
-        /// JP minimal 63-byte trade blob (core + two 5-byte names) -> PK2.
-        /// Layout as observed from your BXTJ Snubbull pair:
-        ///   [0..47]  48-byte PK2 party core
-        ///   [48..52] 5-byte OT (JP)
-        ///   [53..57] 5-byte nickname (JP)
-        ///   [58..62] padding (0x00)
-        /// We pad both OT and Nick to 11 bytes with 0x50 to satisfy PK2.
+        /// JP minimal trade blob -> PK2.
+        /// New format:
+        ///   58-byte minimal blob (current DB format)
+        ///     [0..47]  48-byte PK2 party core
+        ///     [48..52] 5-byte OT (JP)
+        ///     [53..57] 5-byte nickname (JP)
+        ///
+        /// Legacy format:
+        ///   63-byte minimal blob (older DB / captured samples)
+        ///     [0..47]  48-byte PK2 party core
+        ///     [48..52] 5-byte OT (JP)
+        ///     [53..57] 5-byte nickname (JP)
+        ///     [58..62] padding (0x00)
+        ///
+        /// Loader accepts both 58 and 63 and ignores any trailing padding.
+        /// OT/Nick are mapped into 6-byte JP buffers (PKHeX decides charset
+        /// from buffer length 6 => Japanese).
         /// </summary>
-        private static PK2 LoadPk2FromBxtTradeBlobJP63(ReadOnlySpan<byte> bxt)
-{
-    if (bxt.Length != SIZE_2_JLIST)
-        throw new InvalidDataException($"BXTTradeBlobJP63: unexpected length {bxt.Length}");
+        private static PK2 LoadPk2FromBxtTradeBlobJPMin(ReadOnlySpan<byte> bxt)
+        {
+            if (bxt.Length != SIZE_BXT_JP_MIN && bxt.Length != SIZE_2_JLIST)
+                throw new InvalidDataException($"BXTTradeBlobJPMin: unexpected length {bxt.Length}");
 
-    ReadOnlySpan<byte> core48 = bxt.Slice(0, SIZE_2_PARTY);      // 0..47
-    ReadOnlySpan<byte> ot5    = bxt.Slice(SIZE_2_PARTY, 5);      // 48..52
-    ReadOnlySpan<byte> nick5  = bxt.Slice(SIZE_2_PARTY + 5, 5);  // 53..57
+            ReadOnlySpan<byte> core48 = bxt.Slice(0, SIZE_2_PARTY);      // 0..47
+            ReadOnlySpan<byte> ot5    = bxt.Slice(SIZE_2_PARTY, 5);      // 48..52
+            ReadOnlySpan<byte> nick5  = bxt.Slice(SIZE_2_PARTY + 5, 5);  // 53..57
 
-    Console.Error.WriteLine("[LegalityCheckerConsole BXT] BXT_JP_Trade63 core_species=" + core48[0]);
+            Console.Error.WriteLine("[LegalityCheckerConsole BXT] BXT_JP_TradeMin core_species=" + core48[0]);
 
-    // For JP, PKHeX decides charset from OT buffer length (6 => Japanese).
-    Span<byte> ot6   = stackalloc byte[SIZE_G2_STRING_JP];
-    Span<byte> nick6 = stackalloc byte[SIZE_G2_STRING_JP];
+            // For JP, PKHeX decides charset from OT buffer length (6 => Japanese).
+            Span<byte> ot6   = stackalloc byte[SIZE_G2_STRING_JP];
+            Span<byte> nick6 = stackalloc byte[SIZE_G2_STRING_JP];
 
-    ot6.Fill(0x50);
-    nick6.Fill(0x50);
+            ot6.Fill(0x50);
+            nick6.Fill(0x50);
 
-    // Copy up to 5 chars into the 6-byte JP buffers (last stays 0x50 terminator).
-    ot5.CopyTo(ot6);
-    nick5.CopyTo(nick6);
+            // Copy up to 5 chars into the 6-byte JP buffers (last stays 0x50 terminator).
+            ot5.CopyTo(ot6);
+            nick5.CopyTo(nick6);
 
-    return new PK2(core48, ot6, nick6);
-}
-
+            return new PK2(core48, ot6, nick6);
+        }
 
         private sealed class IssueDto
         {
@@ -344,7 +366,6 @@ private static PK2 LoadPk2(byte[] data)
             public string msg { get; set; } = string.Empty;
         }
 
-        
         private sealed class ResultDto
         {
             public bool   ok        { get; set; }
@@ -396,7 +417,7 @@ private static PK2 LoadPk2(byte[] data)
             public IssueDto[] issues    { get; set; } = Array.Empty<IssueDto>();
         }
 
-private static int Main(string[] args)
+        private static int Main(string[] args)
         {
             if (args.Length != 1)
             {
@@ -430,7 +451,6 @@ private static int Main(string[] args)
                 var pk = LoadPk2(raw);
                 var la = new LegalityAnalysis(pk);
 
-                
                 // Compute full stats for summary output (pokemon_decode, Battle Tower, etc.)
                 var stats = pk.GetStats(pk.PersonalInfo);
 
@@ -493,8 +513,6 @@ private static int Main(string[] args)
                 {
                     WriteIndented = false
                 });
-
-
 
                 Console.Out.WriteLine(json);
 

@@ -617,7 +617,7 @@ const ENCODING_TABLES = {
     "D5": "ゆ",
     "D6": "よ",
     "D7": "ら",
-    "D8": "り",
+    "D8": "リ",
     "D9": "る",
     "DA": "れ",
     "DB": "ろ",
@@ -1730,23 +1730,14 @@ function simpleEncodeTextToBytes(text, tableId, maxBytes) {
     SIMPLE_ENCODE_CACHE.set(tableId, reverse);
   }
 
-  let fallback = null;
-  for (const [hex, val] of Object.entries(table)) {
-    if (val === "?") {
-      fallback = parseInt(hex, 16);
-      break;
-    }
-  }
-
   const out = [];
   const src = String(text);
   for (let i = 0; i < src.length && out.length < maxBytes; i++) {
     const ch = src[i];
     if (reverse.has(ch)) {
       out.push(reverse.get(ch));
-    } else if (fallback !== null) {
-      out.push(fallback);
     }
+    // else: drop the character entirely, do not substitute "?"
   }
   while (out.length < maxBytes) out.push(0x50);
   return Buffer.from(out.slice(0, maxBytes));
@@ -2195,32 +2186,6 @@ function ensureEnJpMaps() {
 	LE: "レ",
 	LO: "ロ",
 	RY: "リ",
-	AA: "ア",
-	II: "イ",
-	UU: "ウ",
-	EE: "エ",
-	OO: "オ",
-	BB: "ブ",
-	CC: "ク",
-	DD: "ド",
-	FF: "フ",
-	GG: "グ",
-	HH: "ハ",
-	JJ: "ジ",
-	KK: "ク",
-	LL: "ル",
-	MM: "ム",
-	NN: "ン",
-	PP: "プ",
-	QQ: "ク",
-	RR: "ル",
-	SS: "ス",
-	TT: "ト",
-	VV: "ヴ",
-	WW: "ウ",
-	XX: "ク",
-	YY: "イ",
-	ZZ: "ズ",
 	BA: "ヴァ",
 	BE: "ヴェ",
 	BO: "ヴォ",
@@ -2673,87 +2638,140 @@ function transformExchangePayloadForEmail(destRegion, sourceRegion, row) {
   // --- Mail text and name conversion ---
   if (mail.length > 0) {
     const srcTextOffset = 0x00;
-    const srcTextLen = isSourceJ ? 0x1c : 0x21;
-    const srcNameOffset = isSourceJ ? 0x1c : 0x21;
-    const srcNameLen = isSourceJ ? 5 : 7;
+    const srcTextLen = 0x21; // 33 bytes: 16 + 0x4E + 16
 
     const destTextOffset = 0x00;
-    const destTextLen = isDestJ ? 0x1c : 0x21;
-    const destNameOffset = isDestJ ? 0x1c : 0x21;
-    const destNameLen = isDestJ ? 5 : 7;
+    const destTextLen = 0x21;
+
+    const srcNameOffset = srcTextOffset + srcTextLen;
+    const destNameOffset = destTextOffset + destTextLen;
+
+    // Mail struct layout: [33 bytes text][name][4 bytes metadata].
+    const srcMailLen = mail.length;
+    const srcMetaLen = 4;
+    const srcMetaOffset =
+      srcMailLen >= srcMetaLen ? srcMailLen - srcMetaLen : srcMailLen;
+    const srcNameLen = Math.max(0, srcMetaOffset - srcNameOffset);
+
+    const destMetaLen = 4;
+    const destMetaOffset =
+      destMailLen >= destMetaLen ? destMailLen - destMetaLen : destMailLen;
+    const destNameLenMail = Math.max(0, destMetaOffset - destNameOffset);
 
     let destMail = Buffer.alloc(destMailLen, 0x00);
 
+    const srcTableId = nameTableForRegion(sourceRegion);
+    const destTableId = nameTableForRegion(destRegion);
+
+    function decodeMailText33(textBuf, tableId) {
+      if (!Buffer.isBuffer(textBuf) || textBuf.length === 0) return "";
+      if (!tableId) return "";
+
+      // Normalize to a 33-byte window so we can always treat the layout as:
+      //   16 bytes line 1, 0x4E, 16 bytes line 2.
+      const buf = Buffer.alloc(0x21, 0x50);
+      const copyLen = Math.min(textBuf.length, buf.length);
+      textBuf.copy(buf, 0, 0, copyLen);
+
+      // If there is no line-break marker at 0x10, fall back to simple decode.
+      if (buf[0x10] !== 0x4e) {
+        return simpleDecodeBytesToText(textBuf, tableId);
+      }
+
+      const line1Raw = buf.slice(0, 16);
+      const line2Raw = buf.slice(17, 33);
+
+      const line1 = simpleDecodeBytesToText(line1Raw, tableId) || "";
+      const line2 = simpleDecodeBytesToText(line2Raw, tableId) || "";
+
+      // Preserve a strict 32-character grid (16 + 16) with no injected
+      // separator. Trailing spaces are trimmed only at the very end.
+      const combined = (line1 + line2).slice(0, 32);
+      return combined.replace(/\s+$/, "");
+    }
+
+    function encodeMailText33(plain, tableId) {
+      if (!tableId) return Buffer.alloc(0x21, 0x50);
+      const flat = String(plain || "");
+
+      const line1Str = flat.slice(0, 16);
+      const line2Str = flat.slice(16, 32);
+
+      const line1 = simpleEncodeTextToBytes(line1Str, tableId, 16);
+      const line2 = simpleEncodeTextToBytes(line2Str, tableId, 16);
+
+      return Buffer.concat([line1, Buffer.from([0x4e]), line2]);
+    }
+
     // Mail body text.
-    if (mail.length >= srcTextOffset + srcTextLen) {
+    if (srcMailLen >= srcTextOffset + srcTextLen) {
       const textSlice = mail.slice(srcTextOffset, srcTextOffset + srcTextLen);
+
       if (isSourceJ && !isDestJ) {
-        let plain = simpleDecodeBytesToText(textSlice, "jp");
-        if (plain) {
-          const ascii = transliterateJpToEnName(plain, destTextLen);
-          const tableId = nameTableForRegion(destRegion);
-          if (tableId) {
-            const enc = simpleEncodeTextToBytes(ascii, tableId, destTextLen);
-            destMail.fill(0x50, destTextOffset, destTextOffset + destTextLen);
-            const writeLen = Math.min(destTextLen, enc.length);
-            enc.copy(destMail, destTextOffset, 0, writeLen);
-          }
-        }
-      } else if (!isSourceJ && isDestJ) {
-        const srcTable = nameTableForRegion(sourceRegion);
-        if (srcTable) {
-          let plain = simpleDecodeBytesToText(textSlice, srcTable);
+        // JP -> non-JP
+        if (srcTableId && destTableId) {
+          const plain = decodeMailText33(textSlice, srcTableId);
           if (plain) {
-            const kat = transliterateEnToJpName(plain, destTextLen);
-            if (kat) {
-              const enc = simpleEncodeTextToBytes(kat, "jp", destTextLen);
+            const ascii = transliterateJpToEnName(plain, 32);
+            if (ascii) {
+              const enc = encodeMailText33(ascii, destTableId);
+              const copyLen = Math.min(destTextLen, enc.length);
               destMail.fill(0x50, destTextOffset, destTextOffset + destTextLen);
-              const writeLen = Math.min(destTextLen, enc.length);
-              enc.copy(destMail, destTextOffset, 0, writeLen);
+              enc.copy(destMail, destTextOffset, 0, copyLen);
             }
           }
         }
+      } else if (!isSourceJ && isDestJ) {
+        // non-JP -> JP
+        if (srcTableId && destTableId) {
+          const plain = decodeMailText33(textSlice, srcTableId);
+          if (plain) {
+            const kat = transliterateEnToJpName(plain, 32);
+            if (kat) {
+              const enc = encodeMailText33(kat, destTableId);
+              const copyLen = Math.min(destTextLen, enc.length);
+              destMail.fill(0x50, destTextOffset, destTextOffset + destTextLen);
+              enc.copy(destMail, destTextOffset, 0, copyLen);
+            }
+          }
+        }
+      } else {
+        // Fallback: copy existing text into destination window.
+        const copyLen = Math.min(destTextLen, textSlice.length);
+        textSlice.copy(destMail, destTextOffset, 0, copyLen);
       }
     }
 
-    // Mail player name.
-    if (mail.length >= srcNameOffset + srcNameLen) {
-      const nameSlice = mail.slice(srcNameOffset, srcNameOffset + srcNameLen);
+    // Mail player name field inside the mail blob.
+    if (srcMailLen > srcNameOffset && destNameLenMail > 0) {
+      const nameSlice = mail.slice(srcNameOffset, srcMetaOffset);
       const newName = convertPlayerNameForDownload(
         destRegion,
         sourceRegion,
         nameSlice,
-        destNameLen
+        destNameLenMail
       );
-      destMail.fill(0x50, destNameOffset, destNameOffset + destNameLen);
-      const writeLen = Math.min(destNameLen, newName.length);
+      const writeLen = Math.min(destNameLenMail, newName.length);
       newName.copy(destMail, destNameOffset, 0, writeLen);
     }
 
-
-    // Preserve mail AuthorID (2 bytes), Species (1 byte), and Type (1 byte)
-    // so the receiving game sees a valid mail struct instead of resetting to default "Hello@".
-    const srcAuthorIdOffset = srcNameOffset + srcNameLen;
-    const srcSpeciesOffset = srcAuthorIdOffset + 2;
-    const srcTypeOffset = srcSpeciesOffset + 1;
-
-    const destAuthorIdOffset = destNameOffset + destNameLen;
-    const destSpeciesOffset = destAuthorIdOffset + 2;
-    const destTypeOffset = destSpeciesOffset + 1;
-
-    if (mail.length >= srcTypeOffset + 1 && destMail.length >= destTypeOffset + 1) {
-      // Copy AuthorID (2 bytes)
-      mail.copy(destMail, destAuthorIdOffset, srcAuthorIdOffset, srcAuthorIdOffset + 2);
-      // Copy Species (1 byte)
-      mail.copy(destMail, destSpeciesOffset, srcSpeciesOffset, srcSpeciesOffset + 1);
-      // Copy Type (1 byte)
-      mail.copy(destMail, destTypeOffset, srcTypeOffset, srcTypeOffset + 1);
+    // Preserve trailing mail metadata (trainer ID, species, mail item, etc.).
+    if (
+      srcMailLen >= srcMetaOffset + srcMetaLen &&
+      destMailLen >= destMetaOffset + destMetaLen
+    ) {
+      mail.copy(
+        destMail,
+        destMetaOffset,
+        srcMetaOffset,
+        srcMetaOffset + srcMetaLen
+      );
     }
 
     mail = destMail;
   }
 
-  // Finally, enforce destination lengths for outer trainerName
+// Finally, enforce destination lengths for outer trainerName
   if (trainerName.length > destNameLen)
     trainerName = trainerName.subarray(0, destNameLen);
   else if (trainerName.length < destNameLen)

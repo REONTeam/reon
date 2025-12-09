@@ -392,7 +392,7 @@ function decode_exchange($region, $stream, $full = true) {
 
     if ($full) {
         // $2B..: Pokémon data
-        $pkm_len = ($region === "j") ? 0x3F : 0x41;
+        $pkm_len = ($region === "j") ? 0x3A : 0x41;
         $decData["pokemon"] = fread($postdata, $pkm_len);
 
         // $65..: Held mail data
