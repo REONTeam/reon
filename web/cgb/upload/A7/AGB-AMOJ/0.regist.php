@@ -52,8 +52,8 @@
 			$stmt->bind_param("ssiii", $name, $email, $gender, $age, $state);
 			$stmt->execute();
 
-			$stmt = $db->prepare("insert into amoj_ranking (name, email, points, money, gender, age, state) values (?,?,?,?,?,?,?)");
-			$stmt->bind_param("ssiiiii", $name, $email, $points, $money, $gender, $age, $state);
+			$stmt = $db->prepare("insert into amoj_ranking (acc_id, name, email, points, money, gender, age, state) values (?,?,?,?,?,?,?,?)");
+			$stmt->bind_param("issiiiii", $_SESSION['userId'], $name, $email, $points, $money, $gender, $age, $state);
 			$stmt->execute();
 		} catch (mysqli_sql_exception $e) {
 			$db->rollback();

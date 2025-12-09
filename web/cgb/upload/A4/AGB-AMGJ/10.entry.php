@@ -40,7 +40,7 @@
 	}
 
 	$ident = rtrim(substr($data, 4, 46), "\0");
-	if ($ident[8] !== "@" || substr($ident, 9) !== $config["email_domain_dion"]) {
+	if (substr($ident, 8) !== "@".$config["email_domain_dion"]) {
 		http_response_code(400);
 		return;
 	}
@@ -72,8 +72,8 @@
 		$stmt->bind_param("s", $ident);
 		$stmt->execute();
 
-		$stmt = $db->prepare("insert into amgj_rankings (ident, name, blood, gender, age, weight) values (?,?,?,?,?,?)");
-		$stmt->bind_param("ssiiii", $ident, $name, $blood, $gender, $age, $weight);
+		$stmt = $db->prepare("insert into amgj_rankings (acc_id, ident, name, blood, gender, age, weight) values (?,?,?,?,?,?,?)");
+		$stmt->bind_param("issiiii", $_SESSION['userId'], $ident, $name, $blood, $gender, $age, $weight);
 		$stmt->execute();
 
 		$db->commit();

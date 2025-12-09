@@ -157,8 +157,8 @@
 		$stmt->bind_param("s", $ident);
 		$stmt->execute();
 
-		$stmt = $db->prepare("insert into ay5j_rankings (ident, name, phone_no, score) values (?,?,?,?)");
-		$stmt->bind_param("sssi", $ident, $name, $phone_no, $score);
+		$stmt = $db->prepare("insert into ay5j_rankings (acc_id, ident, name, phone_no, score) values (?,?,?,?,?)");
+		$stmt->bind_param("isssi", $_SESSION['userId'], $ident, $name, $phone_no, $score);
 		$stmt->execute();
 
 		$db->commit();

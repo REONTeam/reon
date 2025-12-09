@@ -16,7 +16,7 @@
 		if (!str_contains($email_chars.".", substr($email_svr, 1))) return false;
 
 		if (ord($name0) == 0) return false;
-		if (str_contains(rtrim($name0, "\x00"), "\x00")) return false;
+		if (str_contains(rtrim($name0, "\0"), "\0")) return false;
 
 		return true;
 	}
@@ -693,7 +693,7 @@
 	function parseGhostUpload($input) {
 		$data = array();
 		$data["player_id"] = fread($input, 0x10);
-		$data["course_no"] = unpack("C", fread($input, 0x1))[1];
+		$data["course"] = unpack("C", fread($input, 0x1))[1];
 		$data["driver"] = unpack("C", fread($input, 0x1))[1];
 		$data["name"] = fread($input, 0x5);
 		$data["state"] = unpack("C", fread($input, 0x1))[1];
@@ -712,12 +712,12 @@
 		for ($i = 1; $i < 16; $i++) {
 			$k += ord($data["player_id"][$i]);
 		}
-		if (($k ^ $data["course_no"]) & 1) {
+		if (($k ^ $data["course"]) & 1) {
 			$a = $data["driver"] + $k * ($k + 1);
-			$b = $data["driver"] + $data["course_no"] - $k;
+			$b = $data["driver"] + $data["course"] - $k;
 		} else {
 			$a = $data["driver"] + $k * ($k - 1);
-			$b = $data["driver"] - $data["course_no"] - $k;
+			$b = $data["driver"] - $data["course"] - $k;
 		}
 
 		for ($i = 0; $i < 5; $i++) {
@@ -771,7 +771,7 @@
 		}
 		$data = parseGhostUpload(fopen("php://input", "rb"));
 
-		if ($data["course_no"] != $course || $data["driver"] > 7) {
+		if ($data["course"] != $course || $data["driver"] > 7) {
 			http_response_code(400);
 			return;
 		}
@@ -792,13 +792,13 @@
 		$db->begin_transaction();
 		try {
 			// Delete existing record
-			$stmt = $db->prepare("delete ignore from amkj_ghosts where player_id = ? and course = ?");
-			$stmt->bind_param("si", $data["player_id"], $course);
+			$stmt = $db->prepare("delete ignore from amkj_ghosts where course = ? and player_id = ?");
+			$stmt->bind_param("is", $course, $data["player_id"]);
 			$stmt->execute();
 
 			// Insert new record
-			$stmt = $db->prepare("insert into amkj_ghosts (player_id, course_no, name, state, unk18, course, driver, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-			$stmt->bind_param("iisiiiiisssss", $data["player_id"], $course, $data["name"], $data["state"], $data["unk18"], $course, $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
+			$stmt = $db->prepare("insert into amkj_ghosts (acc_id, course, player_id, name, state, driver, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?)");
+			$stmt->bind_param("iissiiisssss", $_SESSION['userId'], $course, $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
 			$stmt->execute();
 
 			$db->commit();
