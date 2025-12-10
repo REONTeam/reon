@@ -14,7 +14,7 @@
 	$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
 	$stmt->bind_param("i", $_SESSION['userId']);
 	$stmt->execute();
-	$result = fancy_get_result($stmt)
+	$result = fancy_get_result($stmt);
 	if (sizeof($result) == 0) {
 		http_response_code(400);
 		return;
