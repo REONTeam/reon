@@ -18,18 +18,8 @@
 	$money = unpack("N", substr($myscore, 4))[1];
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
-	$stmt->bind_param("s", $_SESSION["userId"]);
-	$stmt->execute();
-	$result = fancy_get_result($stmt);
-	if (sizeof($result) == 0) {
-		//http_response_code(400);
-		return;
-	}
-	$email = $result[0]["dion_email_local"]."@reon.dion.ne.jp";
-
-	$stmt = $db->prepare("select * from amoj_ranking where today2 != 0 and email = ? and points = ? and money = ?");
-	$stmt->bind_param("sii", $email, $points, $money);
+	$stmt = $db->prepare("select id from amoj_ranking where acc_id = ? and points = ? and money = ? order by id desc limit 1");
+	$stmt->bind_param("iii", $_SESSION['userId'], $points, $money);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 	if (sizeof($result) == 0) {
@@ -37,12 +27,20 @@
 		return;
 	}
 
-	$stmt = $db->prepare("update amoj_ranking set today = ? where id = ?");
-	$stmt->bind_param("ii", $result[0]["today2"], $result[0]["id"]);
+	$stmt = $db->prepare("update amoj_ranking set valid = 1 where id = ?");
+	$stmt->bind_param("i", $result[0]["id"]);
 	$stmt->execute();
 
-	$stmt = $db->prepare("select count(*) from amoj_ranking where points > ? or (points = ? and (money > ? or (money = ? and id <= ?)))");
-	$stmt->bind_param("iiiii", $result["points"], $result["points"], $result["money"], $result["money"], $result["id"]);
+	$year = date("Y", time() + 32400);
+	$month = date("m", time() + 32400);
+	if ($month == 1) {
+		$timestamp = ($year-1)."-12-31 15:00:00";
+	} else {
+		$timestamp = sprintf("%04d-%02d-%02d 15:00:00", $year, $month-1, cal_days_in_month(CAL_GREGORIAN, $month-1, $year));
+	}
+
+	$stmt = $db->prepare("select count(*) from amoj_ranking where valid = 1 and timestamp >= ? and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?)))) group by acc_id, name, gender, age, state");
+	$stmt->bind_param("siiiii", $timestamp, $points, $points, $money, $money, $result[0]["id"]);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 
