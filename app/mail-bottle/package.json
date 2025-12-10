@@ -1,0 +1,18 @@
+{
+  "name": "mail-bottle",
+  "version": "1.0.0",
+  "description": "Application to perform Mail de Cute trades, should be setup as cronjob",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.5.2",
+    "nodemailer": "^6.9.16"
+  }
+}

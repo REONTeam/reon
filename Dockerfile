@@ -95,6 +95,11 @@ WORKDIR /app
 COPY app/pokemon-exchange/package.json app/pokemon-exchange/package-lock.json* ./
 RUN npm ci
 
+FROM node:${NODE_VERSION} AS bottle-deps
+WORKDIR /app
+COPY app/mail-bottle/package.json app/mail-bottle/package-lock.json* ./
+RUN npm ci
+
 # Based on https://github.com/AnalogJ/docker-cron
 FROM node:${NODE_VERSION} AS cron
 COPY app/docker_entry.sh /entrypoint.sh
@@ -107,6 +112,9 @@ COPY --from=battle-deps /app/node_modules ./pokemon-battle/node_modules
 
 COPY app/pokemon-exchange pokemon-exchange
 COPY --from=exchange-deps /app/node_modules ./pokemon-exchange/node_modules
+
+COPY app/mail-bottle mail-bottle
+COPY --from=bottle-deps /app/node_modules ./mail-bottle/node_modules
 
 COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
 ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality/LegalityCheckerConsole
