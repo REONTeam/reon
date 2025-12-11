@@ -2005,6 +2005,30 @@ function jpToEnCore(jp, map, useSpecialRules) {
   for (let i = 0; i < chars.length; i++) {
     const ch = chars[i];
 
+    // ASCII digits and punctuation passthrough
+    if ((ch >= "0" && ch <= "9") || ch === "!" || ch === "." || ch === "/" || ch === "?") {
+      out += ch;
+      continue;
+    }
+
+    // JP punctuation to ASCII
+    if (ch === " ") {
+      out += " ";
+      continue;
+    }
+    if (ch === "。") {
+      out += ".";
+      continue;
+    }
+    if (ch === "・") {
+      out += "-";
+      continue;
+    }
+    if (ch === "「" || ch === "『" || ch === "」" || ch === "』") {
+      out += '"';
+      continue;
+    }
+
     // small tsu
     if (useSpecialRules && (ch === "っ" || ch === "ッ")) {
       let romajiNext = "";
@@ -2053,9 +2077,34 @@ function jpToEnCore(jp, map, useSpecialRules) {
     }
     out += String(romaji).toUpperCase();
   }
-  out = out.toUpperCase().replace(/[^A-Z]/g, "");
+
+  // Uppercase and keep only letters, digits, space, and a small punctuation set
+  out = out.toUpperCase();
+  out = out
+    .split("")
+    .filter((c) => c === " " || c === "!" || c === "." || c === "/" || c === "?" || (c >= "0" && c <= "9") || (c >= "A" && c <= "Z"))
+    .join("");
+
+  // Collapse patterns like BUBU -> BB
+  out = out.replace(/([A-Z])U\1U/g, "$1$1");
+
+  // Per-word final tweaks: REI -> RY, RI -> RY at end of word
+  const parts = out.split(" ");
+  for (let idx = 0; idx < parts.length; idx++) {
+    let p = parts[idx];
+    if (!p) continue;
+    const lenp = p.length;
+    if (lenp >= 3 && p.endsWith("REI")) {
+      p = p.slice(0, -2) + "Y";
+    } else if (lenp >= 2 && p.endsWith("RI")) {
+      p = p.slice(0, -1) + "Y";
+    }
+    parts[idx] = p;
+  }
+  out = parts.join(" ");
   return out;
 }
+
 
 // Three-pass JP->EN for names
 function transliterateJpToEnName(jp, maxChars) {
@@ -2254,73 +2303,93 @@ function normalizeLatinForJp(str) {
   if (!str) return "";
   let s = String(str);
   const map = {
-    ß: "SS",
-    ä: "AE",
-    ö: "OE",
-    ü: "UE",
-    Ä: "AE",
-    Ö: "OE",
-    Ü: "UE",
-    é: "E",
-    è: "E",
-    ê: "E",
-    ë: "E",
-    É: "E",
-    È: "E",
-    Ê: "E",
-    Ë: "E",
-    á: "A",
-    à: "A",
-    â: "A",
-    ã: "A",
-    å: "A",
-    Á: "A",
-    À: "A",
-    Â: "A",
-    Ã: "A",
-    Å: "A",
-    í: "I",
-    ì: "I",
-    î: "I",
-    ï: "I",
-    Í: "I",
-    Ì: "I",
-    Î: "I",
-    Ï: "I",
-    ó: "O",
-    ò: "O",
-    ô: "O",
-    õ: "O",
-    ö: "O",
-    Ó: "O",
-    Ò: "O",
-    Ô: "O",
-    Õ: "O",
-    Ö: "O",
-    ú: "U",
-    ù: "U",
-    û: "U",
-    ü: "U",
-    Ú: "U",
-    Ù: "U",
-    Û: "U",
-    Ü: "U",
-    ç: "C",
-    Ç: "C",
-    ñ: "N",
-    Ñ: "N",
+    "ß": "SS",
+    "ä": "AE",
+    "ö": "O",
+    "ü": "U",
+    "Ä": "AE",
+    "Ö": "O",
+    "Ü": "U",
+    "é": "E",
+    "è": "E",
+    "ê": "E",
+    "ë": "E",
+    "É": "E",
+    "È": "E",
+    "Ê": "E",
+    "Ë": "E",
+    "á": "A",
+    "à": "A",
+    "â": "A",
+    "ã": "A",
+    "å": "A",
+    "Á": "A",
+    "À": "A",
+    "Â": "A",
+    "Ã": "A",
+    "Å": "A",
+    "í": "I",
+    "ì": "I",
+    "î": "I",
+    "ï": "I",
+    "Í": "I",
+    "Ì": "I",
+    "Î": "I",
+    "Ï": "I",
+    "ó": "O",
+    "ò": "O",
+    "ô": "O",
+    "õ": "O",
+    "Ó": "O",
+    "Ò": "O",
+    "Ô": "O",
+    "Õ": "O",
+    "ú": "U",
+    "ù": "U",
+    "û": "U",
+    "Ú": "U",
+    "Ù": "U",
+    "Û": "U",
+    "ç": "C",
+    "Ç": "C",
+    "ñ": "N",
+    "Ñ": "N",
+    "¡": "!",
+    "¿": "?",
   };
-  return Array.from(s).map((ch) => map[ch] || ch).join("");
+
+  let out = Array.from(s).map((ch) => map[ch] || ch).join("");
+  // Collapse French-style letter+apostrophe forms (c', d', l', etc.) to plain letters
+  out = out.replace(/([A-Za-z])'/g, "$1");
+  return out;
 }
+
 
 function enToJpKatakana(en, maxChars) {
   ensureEnJpMaps();
-  let s = String(en || "").toUpperCase().replace(/[^A-Z]/g, "");
+
+  let s = String(en || "").toUpperCase();
+  // Keep only A-Z, digits, space, and a small punctuation set
+  s = s
+    .split("")
+    .filter((c) => c === " " || c === "!" || c === "." || c === "/" || c === "?" || (c >= "0" && c <= "9") || (c >= "A" && c <= "Z"))
+    .join("");
   if (!s || maxChars <= 0) return "";
+
   const chars = s.split("");
   const out = [];
   let i = 0;
+
   while (i < chars.length && out.length < maxChars) {
+    const ch = chars[i];
+
+    // Preserve digits and basic punctuation as-is
+    if ((ch >= "0" && ch <= "9") || ch === " " || ch === "!" || ch === "." || ch === "/" || ch === "?") {
+      out.push(ch);
+      i++;
+      continue;
+    }
+
     const remaining = chars.length - i;
     if (remaining >= 3) {
       const tri = chars[i] + chars[i + 1] + chars[i + 2];
@@ -2338,13 +2407,15 @@ function enToJpKatakana(en, maxChars) {
         continue;
       }
     }
-    const ch = chars[i];
-    out.push(EN_JP_MAP1[ch] || "ア");
+
+    out.push(EN_JP_MAP1[chars[i]] || "ア");
     i++;
   }
+
   if (out.length > maxChars) out.length = maxChars;
   return out.join("");
 }
+
 
 function transliterateEnToJpName(en, maxChars) {
   const norm = normalizeLatinForJp(en);

@@ -1806,32 +1806,67 @@ function bxt_name_table_for_region(string $region): ?string
      */
     function bxt_normalise_latin_for_jp(string $text): string
     {
-        $map = [
-            'ß' => 'SS',
+            $map = [
+                'ß' => 'SS',
+                'ä' => 'AE',
+                'ö' => 'O',
+                'ü' => 'U',
+                'Ä' => 'AE',
+                'Ö' => 'O',
+                'Ü' => 'U',
+                'é' => 'E',
+                'è' => 'E',
+                'ê' => 'E',
+                'ë' => 'E',
+                'É' => 'E',
+                'È' => 'E',
+                'Ê' => 'E',
+                'Ë' => 'E',
+                'á' => 'A',
+                'à' => 'A',
+                'â' => 'A',
+                'ã' => 'A',
+                'å' => 'A',
+                'Á' => 'A',
+                'À' => 'A',
+                'Â' => 'A',
+                'Ã' => 'A',
+                'Å' => 'A',
+                'í' => 'I',
+                'ì' => 'I',
+                'î' => 'I',
+                'ï' => 'I',
+                'Í' => 'I',
+                'Ì' => 'I',
+                'Î' => 'I',
+                'Ï' => 'I',
+                'ó' => 'O',
+                'ò' => 'O',
+                'ô' => 'O',
+                'õ' => 'O',
+                'Ó' => 'O',
+                'Ò' => 'O',
+                'Ô' => 'O',
+                'Õ' => 'O',
+                'ú' => 'U',
+                'ù' => 'U',
+                'û' => 'U',
+                'Ú' => 'U',
+                'Ù' => 'U',
+                'Û' => 'U',
+                'ç' => 'C',
+                'Ç' => 'C',
+                'ñ' => 'N',
+                'Ñ' => 'N',
+                '¡' => '!',
+                '¿' => '?',
+                ];
 
-            'ä' => 'AE', 'ö' => 'OE', 'ü' => 'UE',
-            'Ä' => 'AE', 'Ö' => 'OE', 'Ü' => 'UE',
+        $normalized = strtr($text, $map);
+        // Collapse letter+apostrophe forms like C'EST, D'ARC, etc.
+        $normalized = preg_replace("/([A-Za-z])'/", '$1', $normalized);
 
-            'é' => 'E', 'è' => 'E', 'ê' => 'E', 'ë' => 'E',
-            'É' => 'E', 'È' => 'E', 'Ê' => 'E', 'Ë' => 'E',
-
-            'á' => 'A', 'à' => 'A', 'â' => 'A', 'ã' => 'A', 'å' => 'A',
-            'Á' => 'A', 'À' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Å' => 'A',
-
-            'í' => 'I', 'ì' => 'I', 'î' => 'I', 'ï' => 'I',
-            'Í' => 'I', 'Ì' => 'I', 'Î' => 'I', 'Ï' => 'I',
-
-            'ó' => 'O', 'ò' => 'O', 'ô' => 'O', 'õ' => 'O', 'ö' => 'O',
-            'Ó' => 'O', 'Ò' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'O',
-
-            'ú' => 'U', 'ù' => 'U', 'û' => 'U', 'ü' => 'U',
-            'Ú' => 'U', 'Ù' => 'U', 'Û' => 'U', 'Ü' => 'U',
-
-            'ç' => 'C', 'Ç' => 'C',
-            'ñ' => 'N', 'Ñ' => 'N',
-        ];
-
-        return strtr($text, $map);
+        return $normalized;
     }
 
     /**
@@ -1859,39 +1894,83 @@ function bxt_name_table_for_region(string $region): ?string
         for ($i = 0; $i < $count; $i++) {
             $ch = $chars[$i];
 
+            // ASCII digits and basic punctuation passthrough
+            if (
+                ($ch >= '0' && $ch <= '9') ||
+                $ch === '!' ||
+                $ch === '.' ||
+                $ch === '/' ||
+                $ch === '?'
+            ) {
+                $out .= $ch;
+                continue;
+            }
+
+            // JP punctuation to ASCII
+            if ($ch === ' ') {
+                $out .= ' ';
+                continue;
+            }
+            if ($ch === '。') {
+                $out .= '.';
+                continue;
+            }
+            if ($ch === '・') {
+                $out .= '-';
+                continue;
+            }
+            if ($ch === '「' || $ch === '『' || $ch === '」' || $ch === '』') {
+                $out .= '"';
+                continue;
+            }
+            if ($ch === '！') {
+                $out .= '!';
+                continue;
+            }
+            if ($ch === '？') {
+                $out .= '?';
+                continue;
+            }
+
+            // Small tsu: duplicate first consonant of next syllable
             if ($useSpecialRules && ($ch === 'っ' || $ch === 'ッ')) {
                 $romajiNext = '';
-
                 for ($j = $i + 1; $j < $count; $j++) {
                     $next = $chars[$j];
-                    $pair = ($j + 1 < $count) ? $next . $chars[$j + 1] : null;
+
+                    // Try digraph first
+                    $pair = null;
+                    if ($j + 1 < $count) {
+                        $pair = $next . $chars[$j + 1];
+                    }
 
                     if ($pair !== null && isset($map[$pair])) {
                         $romajiNext = $map[$pair];
                         break;
-                    } elseif (isset($map[$next])) {
+                    }
+
+                    if (isset($map[$next])) {
                         $romajiNext = $map[$next];
                         break;
-                    } else {
-                        continue;
                     }
                 }
 
                 if ($romajiNext !== '') {
                     $romajiNext = strtoupper($romajiNext);
-                    $firstChar  = $romajiNext[0];
-                    if ($firstChar >= 'A' && $firstChar <= 'Z') {
-                        $out .= $firstChar;
+                    $first = $romajiNext[0];
+                    if ($first >= 'A' && $first <= 'Z') {
+                        $out .= $first;
                     }
                 }
 
                 continue;
             }
 
+            // Long vowel mark: repeat previous Latin character
             if ($useSpecialRules && $ch === 'ー') {
-                $len = strlen($out);
-                if ($len > 0) {
-                    $last = $out[$len - 1];
+                $lenOut = strlen($out);
+                if ($lenOut > 0) {
+                    $last = $out[$lenOut - 1];
                     if ($last >= 'A' && $last <= 'Z') {
                         $out .= $last;
                     }
@@ -1900,6 +1979,8 @@ function bxt_name_table_for_region(string $region): ?string
             }
 
             $romaji = null;
+
+            // Prefer digraphs
             if ($i + 1 < $count) {
                 $pair = $ch . $chars[$i + 1];
                 if (isset($map[$pair])) {
@@ -1908,10 +1989,12 @@ function bxt_name_table_for_region(string $region): ?string
                 }
             }
 
+            // Fallback to single character
             if ($romaji === null) {
                 if (isset($map[$ch])) {
                     $romaji = $map[$ch];
                 } else {
+                    // Unknown glyph: skip
                     continue;
                 }
             }
@@ -1919,10 +2002,43 @@ function bxt_name_table_for_region(string $region): ?string
             $out .= strtoupper($romaji);
         }
 
+        // Uppercase and keep only letters, digits, space, and a small punctuation set
         $out = strtoupper($out);
-        $out = preg_replace('/[^A-Z]/', '', $out);
+        $filtered = '';
+        $len = strlen($out);
+        for ($i = 0; $i < $len; $i++) {
+            $c = $out[$i];
+            if (
+                $c === ' ' ||
+                $c === '!' ||
+                $c === '.' ||
+                $c === '/' ||
+                $c === '?' ||
+                ($c >= '0' && $c <= '9') ||
+                ($c >= 'A' && $c <= 'Z')
+            ) {
+                $filtered .= $c;
+            }
+        }
+        $out = $filtered;
 
-        return $out ?? '';
+        // Collapse patterns like BUBU -> BB
+        $out = preg_replace('/([A-Z])U\1U/', '$1$1', $out);
+
+        // Per-word final tweaks: REI -> RY, RI -> RY at end of word
+        $parts = explode(' ', $out);
+        foreach ($parts as &$p) {
+            $lenp = strlen($p);
+            if ($lenp >= 3 && substr($p, -3) === 'REI') {
+                // Drop the EI, keep base + Y
+                $p = substr($p, 0, $lenp - 2) . 'Y';
+            } elseif ($lenp >= 2 && substr($p, -2) === 'RI') {
+                $p = substr($p, 0, $lenp - 1) . 'Y';
+            }
+        }
+        unset($p);
+
+        return implode(' ', $parts);
     }
 
     /**
@@ -1934,76 +2050,233 @@ function bxt_name_table_for_region(string $region): ?string
         static $thirdMap   = null;
 
         if ($primaryMap === null) {
-            $primaryMap = [
-                // digraphs (hiragana)
-                'ぴょ' => 'PYO', 'ぴゅ' => 'PYU', 'ぴゃ' => 'PYA',
-                'びょ' => 'BYO', 'びゅ' => 'BYU', 'びゃ' => 'BYA',
-                'じょ' => 'JO',  'じゅ' => 'JU',  'じゃ' => 'JA',
-                'ぎょ' => 'GYO', 'ぎゅ' => 'GYU', 'ぎゃ' => 'GYA',
-                'りょ' => 'RYO', 'りゅ' => 'RYU', 'りゃ' => 'RYA',
-                'みょ' => 'MYO', 'みゅ' => 'MYU', 'みゃ' => 'MYA',
-                'ひょ' => 'HYO', 'ひゅ' => 'HYU', 'ひゃ' => 'HYA',
-                'にょ' => 'NYO', 'にゅ' => 'NYU', 'にゃ' => 'NYA',
-                'ちょ' => 'CHO', 'ちゅ' => 'CHU', 'ちゃ' => 'CHA',
-                'しょ' => 'SHO', 'しゅ' => 'SHU', 'しゃ' => 'SHA',
-                'きょ' => 'KYO', 'きゅ' => 'KYU', 'きゃ' => 'KYA',
-
-                // digraphs (katakana)
-                'ピョ' => 'PYO', 'ピュ' => 'PYU', 'ピャ' => 'PYA',
-                'ビョ' => 'BYO', 'ビュ' => 'BYU', 'ビャ' => 'BYA',
-                'ジョ' => 'JO',  'ジュ' => 'JU',  'ジャ' => 'JA',
-                'ギョ' => 'GYO', 'ギュ' => 'GYU', 'ギャ' => 'GYA',
-                'リョ' => 'RYO', 'リュ' => 'RYU', 'リャ' => 'RYA',
-                'ミョ' => 'MYO', 'ミュ' => 'MYU', 'ミャ' => 'MYA',
-                'ヒョ' => 'HYO', 'ヒュ' => 'HYU', 'ヒャ' => 'HYA',
-                'ニョ' => 'NYO', 'ニュ' => 'NYU', 'ニャ' => 'NYA',
-                'チョ' => 'CHO', 'チュ' => 'CHU', 'チャ' => 'CHA',
-                'ショ' => 'SHO', 'シュ' => 'SHU', 'シャ' => 'SHA',
-                'キョ' => 'KYO', 'キュ' => 'KYU', 'キャ' => 'KYA',
-
-                // katakana with F
-                'ファ' => 'FA',  'フィ' => 'FI',  'フェ' => 'FE',  'フォ' => 'FO',
-
-                // single kana (hiragana)
-                'ぽ' => 'PO', 'ぺ' => 'PE', 'ぷ' => 'PU', 'ぴ' => 'PI', 'ぱ' => 'PA',
-                'ぼ' => 'BO', 'べ' => 'BE', 'ぶ' => 'BU', 'び' => 'BI', 'ば' => 'BA',
-                'ど' => 'DO', 'で' => 'DE', 'づ' => 'ZU', 'ぢ' => 'JI', 'だ' => 'DA',
-                'ぞ' => 'ZO', 'ぜ' => 'ZE', 'ず' => 'ZU', 'じ' => 'JI', 'ざ' => 'ZA',
-                'ご' => 'GO', 'げ' => 'GE', 'ぐ' => 'GU', 'ぎ' => 'GI', 'が' => 'GA',
+                        $primaryMap = [
+                'ぴょ' => 'PYO',
+                'ぴゅ' => 'PYU',
+                'ぴゃ' => 'PYA',
+                'びょ' => 'BYO',
+                'びゅ' => 'BYU',
+                'びゃ' => 'BYA',
+                'じょ' => 'JO',
+                'じゅ' => 'JU',
+                'じゃ' => 'JA',
+                'ぎょ' => 'GYO',
+                'ぎゅ' => 'GYU',
+                'ぎゃ' => 'GYA',
+                'りょ' => 'RYO',
+                'りゅ' => 'RYU',
+                'りゃ' => 'RYA',
+                'みょ' => 'MYO',
+                'みゅ' => 'MYU',
+                'みゃ' => 'MYA',
+                'ひょ' => 'HYO',
+                'ひゅ' => 'HYU',
+                'ひゃ' => 'HYA',
+                'にょ' => 'NYO',
+                'にゅ' => 'NYU',
+                'にゃ' => 'NYA',
+                'ちょ' => 'CHO',
+                'ちゅ' => 'CHU',
+                'ちゃ' => 'CHA',
+                'しょ' => 'SHO',
+                'しゅ' => 'SHU',
+                'しゃ' => 'SHA',
+                'きょ' => 'KYO',
+                'きゅ' => 'KYU',
+                'きゃ' => 'KYA',
+                'ピョ' => 'PYO',
+                'ピュ' => 'PYU',
+                'ピャ' => 'PYA',
+                'ビョ' => 'BYO',
+                'ビュ' => 'BYU',
+                'ビャ' => 'BYA',
+                'ジョ' => 'JO',
+                'ジュ' => 'JU',
+                'ジャ' => 'JA',
+                'ギョ' => 'GYO',
+                'ギュ' => 'GYU',
+                'ギャ' => 'GYA',
+                'リョ' => 'RYO',
+                'リュ' => 'RYU',
+                'リャ' => 'RYA',
+                'ミョ' => 'MYO',
+                'ミュ' => 'MYU',
+                'ミャ' => 'MYA',
+                'ヒョ' => 'HYO',
+                'ヒュ' => 'HYU',
+                'ヒャ' => 'HYA',
+                'ニョ' => 'NYO',
+                'ニュ' => 'NYU',
+                'ニャ' => 'NYA',
+                'チョ' => 'CHO',
+                'チュ' => 'CHU',
+                'チャ' => 'CHA',
+                'ショ' => 'SHO',
+                'シュ' => 'SHU',
+                'シャ' => 'SHA',
+                'キョ' => 'KYO',
+                'キュ' => 'KYU',
+                'キャ' => 'KYA',
+                'ヴァ' => 'VA',
+                'ヴィ' => 'VI',
+                'ヴ' => 'VU',
+                'ヴェ' => 'VE',
+                'ヴォ' => 'VO',
+                'ファ' => 'FA',
+                'フィ' => 'FI',
+                'フェ' => 'FE',
+                'フォ' => 'FO',
+                'ティ' => 'TI',
+                'トゥ' => 'TU',
+                'ディ' => 'DI',
+                'ドゥ' => 'DU',
+                'チェ' => 'CHE',
+                'シェ' => 'SHE',
+                'ウィ' => 'WI',
+                'ウェ' => 'WE',
+                'ウォ' => 'WO',
+                'ぽ' => 'PO',
+                'ぺ' => 'PE',
+                'ぷ' => 'PU',
+                'ぴ' => 'PI',
+                'ぱ' => 'PA',
+                'ぼ' => 'BO',
+                'べ' => 'BE',
+                'ぶ' => 'BU',
+                'び' => 'BI',
+                'ば' => 'BA',
+                'ど' => 'DO',
+                'で' => 'DE',
+                'づ' => 'ZU',
+                'ぢ' => 'JI',
+                'だ' => 'DA',
+                'ぞ' => 'ZO',
+                'ぜ' => 'ZE',
+                'ず' => 'ZU',
+                'じ' => 'JI',
+                'ざ' => 'ZA',
+                'ご' => 'GO',
+                'げ' => 'GE',
+                'ぐ' => 'GU',
+                'ぎ' => 'GI',
+                'が' => 'GA',
                 'わ' => 'WA',
-                'ろ' => 'RO', 'れ' => 'RE', 'る' => 'RU', 'り' => 'RI', 'ら' => 'RA',
-                'よ' => 'YO', 'ゆ' => 'YU', 'や' => 'YA',
-                'も' => 'MO', 'め' => 'ME', 'む' => 'MU', 'み' => 'MI', 'ま' => 'MA',
-                'ほ' => 'HO', 'へ' => 'HE', 'ふ' => 'FU', 'ひ' => 'HI', 'は' => 'HA',
-                'の' => 'NO', 'ね' => 'NE', 'ぬ' => 'NU', 'に' => 'NI', 'な' => 'NA',
-                'と' => 'TO', 'て' => 'TE', 'つ' => 'TSU','ち' => 'CHI',
+                'ろ' => 'RO',
+                'れ' => 'RE',
+                'る' => 'RU',
+                'り' => 'RI',
+                'ら' => 'RA',
+                'よ' => 'YO',
+                'ゆ' => 'YU',
+                'や' => 'YA',
+                'も' => 'MO',
+                'め' => 'ME',
+                'む' => 'MU',
+                'み' => 'MI',
+                'ま' => 'MA',
+                'ほ' => 'HO',
+                'へ' => 'HE',
+                'ふ' => 'FU',
+                'ひ' => 'HI',
+                'は' => 'HA',
+                'の' => 'NO',
+                'ね' => 'NE',
+                'ぬ' => 'NU',
+                'に' => 'NI',
+                'な' => 'NA',
+                'と' => 'TO',
+                'て' => 'TE',
+                'つ' => 'TSU',
+                'ち' => 'CHI',
                 'た' => 'TA',
-                'そ' => 'SO', 'せ' => 'SE', 'す' => 'SU', 'さ' => 'SA',
-                'こ' => 'KO', 'け' => 'KE', 'く' => 'KU', 'き' => 'KI', 'か' => 'KA',
-
-                // single kana (katakana)
-                'ツ' => 'TSU', 'チ' => 'CHI',
-                'シ' => 'SHI', 'し' => 'SHI',
-
-                'ポ' => 'PO', 'ペ' => 'PE', 'プ' => 'PU', 'ピ' => 'PI', 'パ' => 'PA',
-                'ボ' => 'BO', 'ベ' => 'BE', 'ブ' => 'BU', 'ビ' => 'BI', 'バ' => 'BA',
-                'ド' => 'DO', 'デ' => 'DE', 'ヅ' => 'ZU', 'ヂ' => 'JI', 'ダ' => 'DA',
-                'ゾ' => 'ZO', 'ゼ' => 'ZE', 'ズ' => 'ZU', 'ジ' => 'JI', 'ザ' => 'ZA',
-                'ゴ' => 'GO', 'ゲ' => 'GE', 'グ' => 'GU', 'ギ' => 'GI', 'ガ' => 'GA',
+                'そ' => 'SO',
+                'せ' => 'SE',
+                'す' => 'SU',
+                'さ' => 'SA',
+                'こ' => 'KO',
+                'け' => 'KE',
+                'く' => 'KU',
+                'き' => 'KI',
+                'か' => 'KA',
+                'ツ' => 'TSU',
+                'チ' => 'CHI',
+                'シ' => 'SHI',
+                'し' => 'SHI',
+                'ポ' => 'PO',
+                'ペ' => 'PE',
+                'プ' => 'PU',
+                'ピ' => 'PI',
+                'パ' => 'PA',
+                'ボ' => 'BO',
+                'ベ' => 'BE',
+                'ブ' => 'BU',
+                'ビ' => 'BI',
+                'バ' => 'BA',
+                'ド' => 'DO',
+                'デ' => 'DE',
+                'ヅ' => 'ZU',
+                'ヂ' => 'JI',
+                'ダ' => 'DA',
+                'ゾ' => 'ZO',
+                'ゼ' => 'ZE',
+                'ズ' => 'ZU',
+                'ジ' => 'JI',
+                'ザ' => 'ZA',
+                'ゴ' => 'GO',
+                'ゲ' => 'GE',
+                'グ' => 'GU',
+                'ギ' => 'GI',
+                'ガ' => 'GA',
                 'ワ' => 'WA',
-                'ロ' => 'RO', 'レ' => 'RE', 'ル' => 'RU', 'リ' => 'RI', 'ラ' => 'RA',
-                'ヨ' => 'YO', 'ユ' => 'YU', 'ヤ' => 'YA',
-                'モ' => 'MO', 'メ' => 'ME', 'ム' => 'MU', 'ミ' => 'MI', 'マ' => 'MA',
-                'ホ' => 'HO', 'ヘ' => 'HE', 'フ' => 'FU', 'ヒ' => 'HI', 'ハ' => 'HA',
-                'ノ' => 'NO', 'ネ' => 'NE', 'ヌ' => 'NU', 'ニ' => 'NI', 'ナ' => 'NA',
-                'ト' => 'TO', 'テ' => 'TE', 'タ' => 'TA',
-                'ソ' => 'SO', 'セ' => 'SE', 'ス' => 'SU', 'サ' => 'SA',
-                'コ' => 'KO', 'ケ' => 'KE', 'ク' => 'KU', 'キ' => 'KI', 'カ' => 'KA',
-
-                'ン' => 'N', 'ん' => 'N',
-                'ヲ' => 'O', 'を' => 'O',
-                'お' => 'O', 'え' => 'E', 'う' => 'U', 'い' => 'I', 'あ' => 'A',
-                'オ' => 'O', 'エ' => 'E', 'ウ' => 'U', 'イ' => 'I', 'ア' => 'A',
+                'ロ' => 'RO',
+                'レ' => 'RE',
+                'ル' => 'RU',
+                'リ' => 'RI',
+                'ラ' => 'RA',
+                'ヨ' => 'YO',
+                'ユ' => 'YU',
+                'ヤ' => 'YA',
+                'モ' => 'MO',
+                'メ' => 'ME',
+                'ム' => 'MU',
+                'ミ' => 'MI',
+                'マ' => 'MA',
+                'ホ' => 'HO',
+                'ヘ' => 'HE',
+                'フ' => 'FU',
+                'ヒ' => 'HI',
+                'ハ' => 'HA',
+                'ノ' => 'NO',
+                'ネ' => 'NE',
+                'ヌ' => 'NU',
+                'ニ' => 'NI',
+                'ナ' => 'NA',
+                'ト' => 'TO',
+                'テ' => 'TE',
+                'タ' => 'TA',
+                'ソ' => 'SO',
+                'セ' => 'SE',
+                'ス' => 'SU',
+                'サ' => 'SA',
+                'コ' => 'KO',
+                'ケ' => 'KE',
+                'ク' => 'KU',
+                'キ' => 'KI',
+                'カ' => 'KA',
+                'ン' => 'N',
+                'ん' => 'N',
+                'ヲ' => 'O',
+                'を' => 'O',
+                'お' => 'O',
+                'え' => 'E',
+                'う' => 'U',
+                'い' => 'I',
+                'あ' => 'A',
+                'オ' => 'O',
+                'エ' => 'E',
+                'ウ' => 'U',
+                'イ' => 'I',
+                'ア' => 'A',
             ];
 
             $thirdMap = $primaryMap;
@@ -7520,54 +7793,149 @@ function bxt_collapse_easy_chat_pairs_for_nonj(string $asciiText): string
         static $map1 = null;
 
         if ($map1 === null) {
-            $map3 = [
-                'KYA' => 'キャ', 'KYU' => 'キュ', 'KYO' => 'キョ',
-                'SHA' => 'シャ', 'SHI' => 'シ',  'SHU' => 'シュ', 'SHO' => 'ショ',
-                'CHA' => 'チャ', 'CHI' => 'チ',  'CHU' => 'チュ', 'CHO' => 'チョ',
-                'NYA' => 'ニャ', 'NYU' => 'ニュ', 'NYO' => 'ニョ',
-                'HYA' => 'ヒャ', 'HYU' => 'ヒュ', 'HYO' => 'ヒョ',
-                'MYA' => 'ミャ', 'MYU' => 'ミュ', 'MYO' => 'ミョ',
-                'RYA' => 'リャ', 'RYU' => 'リュ', 'RYO' => 'リョ',
-                'GYA' => 'ギャ', 'GYU' => 'ギュ', 'GYO' => 'ギョ',
-                'BYA' => 'ビャ', 'BYU' => 'ビュ', 'BYO' => 'ビョ',
-                'PYA' => 'ピャ', 'PYU' => 'ピュ', 'PYO' => 'ピョ',
-				'TSU' => 'ツ', 'LLI' => 'リ', 'LLY' => 'リ', 'RRY' => 'リ',
-				'MMY' => 'ミ', 'DDY' => 'ディ',
+                        $map3 = [
+                'KYA' => 'キャ',
+                'KYU' => 'キュ',
+                'KYO' => 'キョ',
+                'SHA' => 'シャ',
+                'SHI' => 'シ',
+                'SHU' => 'シュ',
+                'SHO' => 'ショ',
+                'CHA' => 'チャ',
+                'CHI' => 'チ',
+                'CHU' => 'チュ',
+                'CHO' => 'チョ',
+                'NYA' => 'ニャ',
+                'NYU' => 'ニュ',
+                'NYO' => 'ニョ',
+                'HYA' => 'ヒャ',
+                'HYU' => 'ヒュ',
+                'HYO' => 'ヒョ',
+                'MYA' => 'ミャ',
+                'MYU' => 'ミュ',
+                'MYO' => 'ミョ',
+                'RYA' => 'リャ',
+                'RYU' => 'リュ',
+                'RYO' => 'リョ',
+                'GYA' => 'ギャ',
+                'GYU' => 'ギュ',
+                'GYO' => 'ギョ',
+                'BYA' => 'ビャ',
+                'BYU' => 'ビュ',
+                'BYO' => 'ビョ',
+                'PYA' => 'ピャ',
+                'PYU' => 'ピュ',
+                'PYO' => 'ピョ',
+                'TSU' => 'ツ',
+                'LLI' => 'リ',
+                'LLY' => 'リ',
+                'RRY' => 'リ',
+                'MMY' => 'ミ',
+                'DDY' => 'ディ',
             ];
 
-            $map2 = [
-				'TSU' => 'ツ', 'PEE' => 'ピ', 'BEE' => 'ビ', 'REE' => 'リ', 'THE' => 'テ',
-				'JA' => 'ジャ', 'JE' => 'ジェ', 'JI' => 'ジ', 'JO' => 'ジョ', 'JU' => 'ジュ',
-                'FA' => 'ファ', 'FI' => 'フィ', 'FE' => 'フェ', 'FO' => 'フォ',
-                'WI' => 'ウィ', 'WE' => 'ウェ', 'WO' => 'ウォ',
-                'TI' => 'ティ', 'DI' => 'ディ',
-                'TU' => 'トゥ', 'DU' => 'ドゥ',
-                'SI' => 'シ',  'ZI' => 'ジ',  'MY' => 'ミ',  'DY' => 'ディ',
-
-                // Direct CV kana for more natural transliteration
-                'KA' => 'カ', 'KI' => 'キ', 'KU' => 'ク', 'KE' => 'ケ', 'KO' => 'コ',
-                'SA' => 'サ', 'SU' => 'ス', 'SE' => 'セ', 'SO' => 'ソ',
-                'TA' => 'タ', 'TE' => 'テ', 'TO' => 'ト',
-                'NA' => 'ナ', 'NI' => 'ニ', 'NU' => 'ヌ', 'NE' => 'ネ', 'NO' => 'ノ',
-                'HA' => 'ハ', 'HI' => 'ヒ', 'HE' => 'ヘ', 'HO' => 'ホ',
-                'MA' => 'マ', 'MI' => 'ミ', 'MU' => 'ム', 'ME' => 'メ', 'MO' => 'モ',
-                'YA' => 'ヤ', 'YU' => 'ユ', 'YO' => 'ヨ',
-                'RA' => 'ラ', 'RI' => 'リ', 'RU' => 'ル', 'RE' => 'レ', 'RO' => 'ロ',
-                'WA' => 'ワ', 
-				'LA' => 'ラ', 'LI' => 'リ', 'LY' => 'リ', 'LU' => 'ル', 'LE' => 'レ',
-				'LO' => 'ロ', 'RY' => 'リ', 'BA' => 'ヴァ', 'BE' => 'ヴェ',
-				'BO' => 'ヴォ', 'CK' => 'ク', 'CH' => 'ク', 'TH' => 'ス',
-
-
-                'GA' => 'ガ', 'GI' => 'ギ', 'GU' => 'グ', 'GE' => 'ゲ', 'GO' => 'ゴ',
-                'ZA' => 'ザ', 'ZU' => 'ズ', 'ZE' => 'ゼ', 'ZO' => 'ゾ',
-                'DA' => 'ダ', 'DE' => 'デ', 'DO' => 'ド',
-                'BA' => 'バ', 'BI' => 'ビ', 'BU' => 'ブ', 'BE' => 'ベ', 'BO' => 'ボ',
-				'VA' => 'バ', 'VI' => 'ビ', 'VU' => 'ブ', 'VE' => 'ベ', 'VO' => 'ボ',
-                'PA' => 'パ', 'PI' => 'ピ', 'PU' => 'プ', 'PE' => 'ペ', 'PO' => 'ポ',
+                        $map2 = [
+                'TSU' => 'ツ',
+                'PEE' => 'ピ',
+                'BEE' => 'ビ',
+                'REE' => 'リ',
+                'THE' => 'テ',
+                'JA' => 'ジャ',
+                'JE' => 'ジェ',
+                'JI' => 'ジ',
+                'JO' => 'ジョ',
+                'JU' => 'ジュ',
+                'FA' => 'ファ',
+                'FI' => 'フィ',
+                'FE' => 'フェ',
+                'FO' => 'フォ',
+                'FU' => 'フ',
+                'WI' => 'ウィ',
+                'WE' => 'ウェ',
+                'WO' => 'ウォ',
+                'TI' => 'ティ',
+                'DI' => 'ディ',
+                'TU' => 'トゥ',
+                'DU' => 'ドゥ',
+                'SI' => 'シ',
+                'ZI' => 'ジ',
+                'MY' => 'ミ',
+                'DY' => 'ディ',
+                'KA' => 'カ',
+                'KI' => 'キ',
+                'KU' => 'ク',
+                'KE' => 'ケ',
+                'KO' => 'コ',
+                'SA' => 'サ',
+                'SU' => 'ス',
+                'SE' => 'セ',
+                'SO' => 'ソ',
+                'TA' => 'タ',
+                'TE' => 'テ',
+                'TO' => 'ト',
+                'NA' => 'ナ',
+                'NI' => 'ニ',
+                'NU' => 'ヌ',
+                'NE' => 'ネ',
+                'NO' => 'ノ',
+                'HA' => 'ハ',
+                'HI' => 'ヒ',
+                'HE' => 'ヘ',
+                'HO' => 'ホ',
+                'MA' => 'マ',
+                'MI' => 'ミ',
+                'MU' => 'ム',
+                'ME' => 'メ',
+                'MO' => 'モ',
+                'YA' => 'ヤ',
+                'YU' => 'ユ',
+                'YO' => 'ヨ',
+                'RA' => 'ラ',
+                'RI' => 'リ',
+                'RU' => 'ル',
+                'RE' => 'レ',
+                'RO' => 'ロ',
+                'WA' => 'ワ',
+                'LA' => 'ラ',
+                'LI' => 'リ',
+                'LY' => 'リ',
+                'LU' => 'ル',
+                'LE' => 'レ',
+                'LO' => 'ロ',
+                'RY' => 'リ',
+                'BA' => 'バ',
+                'BE' => 'ベ',
+                'BO' => 'ボ',
+                'CK' => 'ク',
+                'CH' => 'ク',
+                'TH' => 'ス',
+                'GA' => 'ガ',
+                'GI' => 'ギ',
+                'GU' => 'グ',
+                'GE' => 'ゲ',
+                'GO' => 'ゴ',
+                'ZA' => 'ザ',
+                'ZU' => 'ズ',
+                'ZE' => 'ゼ',
+                'ZO' => 'ゾ',
+                'DA' => 'ダ',
+                'DE' => 'デ',
+                'DO' => 'ド',
+                'BI' => 'ビ',
+                'BU' => 'ブ',
+                'VA' => 'ヴァ',
+                'VI' => 'ヴィ',
+                'VU' => 'ヴ',
+                'VE' => 'ヴェ',
+                'VO' => 'ヴォ',
+                'PA' => 'パ',
+                'PI' => 'ピ',
+                'PU' => 'プ',
+                'PE' => 'ペ',
+                'PO' => 'ポ',
             ];
 
-            $map1 = [
+                        $map1 = [
                 'A' => 'ア',
                 'I' => 'イ',
                 'U' => 'ウ',
@@ -7589,7 +7957,7 @@ function bxt_collapse_easy_chat_pairs_for_nonj(string $asciiText): string
                 'R' => 'ル',
                 'S' => 'ス',
                 'T' => 'タ',
-                'V' => 'ビ',
+                'V' => 'ヴ',
                 'W' => 'ウ',
                 'X' => 'ク',
                 'Y' => 'イ',
@@ -7597,8 +7965,27 @@ function bxt_collapse_easy_chat_pairs_for_nonj(string $asciiText): string
             ];
         }
 
-        $en = strtoupper($en);
-        $en = preg_replace('/[^A-Z]/', '', $en);
+                $en = strtoupper($en);
+
+        // Keep only A-Z, digits, space, and a small punctuation set
+        $filtered = '';
+        $lenInput = strlen($en);
+        for ($idx = 0; $idx < $lenInput; $idx++) {
+            $c = $en[$idx];
+            if (
+                $c === ' ' ||
+                $c === '!' ||
+                $c === '.' ||
+                $c === '/' ||
+                $c === '?' ||
+                ($c >= '0' && $c <= '9') ||
+                ($c >= 'A' && $c <= 'Z')
+            ) {
+                $filtered .= $c;
+            }
+        }
+        $en = $filtered;
+
         if ($en === '' || $maxChars <= 0) {
             return '';
         }
@@ -7609,6 +7996,22 @@ function bxt_collapse_easy_chat_pairs_for_nonj(string $asciiText): string
         $i     = 0;
 
         while ($i < $len && count($out) < $maxChars) {
+            $ch = $chars[$i];
+
+            // Preserve digits and basic punctuation as-is
+            if (
+                ($ch >= '0' && $ch <= '9') ||
+                $ch === ' ' ||
+                $ch === '!' ||
+                $ch === '.' ||
+                $ch === '/' ||
+                $ch === '?'
+            ) {
+                $out[] = $ch;
+                $i++;
+                continue;
+            }
+
             $remaining = $len - $i;
 
             if ($remaining >= 3) {
@@ -7634,7 +8037,7 @@ function bxt_collapse_easy_chat_pairs_for_nonj(string $asciiText): string
             $i++;
         }
 
-        $kana = implode('', $out);
+$kana = implode('', $out);
         // Enforce maxChars on actual characters that will be encoded,
         // not on the internal segment count.
         if (mb_strlen($kana, 'UTF-8') > $maxChars) {
