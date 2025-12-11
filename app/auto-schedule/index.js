@@ -1283,6 +1283,15 @@ async function main() {
             `Inserted bxt_news for region=${region}, id=${res.insertId}, article=${chosenArticleId}`
           );
         }
+
+        // 4) Reset rankings for this region whenever news is updated
+        await conn.execute(
+          "DELETE FROM bxt_ranking WHERE game_region = ?",
+          [region]
+        );
+        console.log(
+          `[news] Cleared bxt_ranking entries for region=${region} after news update`
+        );
       }
 
       // Persist cycle state (for slot-based regions) and file rotations.
