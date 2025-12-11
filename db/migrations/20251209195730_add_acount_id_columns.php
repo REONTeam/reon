@@ -27,6 +27,7 @@ final class AddAcountIdColumns extends AbstractMigration
         ]);
         $table->removeColumn('unk18');
         $table->removeColumn('course');
+        $table->update();
         $table->renameColumn('course_no', 'course');
         $table->update();
 
