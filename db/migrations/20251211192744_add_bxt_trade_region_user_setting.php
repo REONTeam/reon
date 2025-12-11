@@ -16,7 +16,7 @@ final class AddBxtTradeRegionUserSetting extends AbstractMigration
     public function change(): void
     {
         $table = $this->table("sys_users");
-        $table->addColumn("trade_region_whitelist","string",["limit" => 8,"null" => false,"default" => "efdsipuj"])
+        $table->addColumn("trade_region_allowlist","string",["limit" => 8,"null" => false,"default" => "efdsipuj"])
               ->update();
     }
 }
