@@ -1,11 +1,11 @@
-ARG NODE_VERSION=22.2.0
+ARG NODE_VERSION=25.2-trixie
 ARG PHP_VERSION=8.3
 ARG DOTNET_VERSION=9.0
 
 ### Legality checker
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION}-alpine AS pokemon-legality
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS pokemon-legality
 ARG DOTNET_VERSION
 WORKDIR /src
 COPY "app/pokemon-legality/LegalityCheckerConsole/LegalityCheckerConsole.csproj" /src/
@@ -102,6 +102,10 @@ RUN npm ci
 
 # Based on https://github.com/AnalogJ/docker-cron
 FROM node:${NODE_VERSION} AS cron
+RUN 
+RUN apt-get -y update \
+    && apt-get install -y --no-install-recommends cron libicu76 \
+    && rm -rf /var/lib/apt/lists/*
 COPY app/docker_entry.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
@@ -126,7 +130,8 @@ COPY app/docker.crontab /etc/crontabs/root
 # source: `docker run --rm -it alpine  crond -h`
 # -f | Foreground
 # -l N | Set log level. Most verbose 0, default 8
-CMD ["crond", "-f", "-l", "2"]
+#CMD ["crond", "-f", "-l", "2"]
+CMD ["cron", "-f"]
 
 ### DNS server
 
