@@ -336,15 +336,65 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
 
             // Ensure core columns present
             if (!$table->hasColumn('id')) {
-                // Add identity column; we don't force PRIMARY KEY here to avoid breaking existing setups
-                $table->addColumn('id', 'integer', [
-                    'identity' => true,
-                    'signed'   => false,
-                    'limit'    => 11,
-                    'null'     => false,
-                    'first'    => true,
-                ]);
-            }
+                /**
+                 * MySQL/MariaDB requirement:
+                 * AUTO_INCREMENT columns must be part of an index/key.
+                 *
+                 * The consolidated schema (from 20251117175526_consolidate_regional_tables.php)
+                 * produces bxt_exchange without an id column, but with a UNIQUE(account_id, trainer_id, secret_id).
+                 *
+                 * If we add an AUTO_INCREMENT id column without also making it a key, MySQL/MariaDB will error:
+                 *   "Incorrect table definition; there can be only one auto column and it must be defined as a key"
+                 *
+                 * Do it in a single ALTER TABLE that both adds the column and adds a UNIQUE key on it.
+                 */
+                $countRow = $this->fetchRow('SELECT COUNT(*) AS cnt FROM bxt_exchange');
+                $cnt = 0;
+                if (is_array($countRow) && $countRow) {
+                    // Some PDO drivers return both numeric + associative keys; be defensive.
+                    if (array_key_exists('cnt', $countRow)) {
+                        $cnt = (int)$countRow['cnt'];
+                    } elseif (array_key_exists('CNT', $countRow)) {
+                        $cnt = (int)$countRow['CNT'];
+                    } else {
+                        $vals = array_values($countRow);
+                        $cnt = isset($vals[0]) ? (int)$vals[0] : 0;
+                    }
+                }
+
+                if ($cnt === 0) {
+                    // Empty table: safe to add AUTO_INCREMENT + key in one shot.
+                    $this->execute("
+                        ALTER TABLE bxt_exchange
+                            ADD COLUMN id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
+                            ADD UNIQUE KEY idx_bxt_exchange_id (id)
+                    ");
+                } else {
+                    // Non-empty table: add as nullable, backfill deterministic ids, then promote to AUTO_INCREMENT.
+                    $this->execute("ALTER TABLE bxt_exchange ADD COLUMN id INT(11) UNSIGNED NULL FIRST");
+                    $this->execute("SET @__bxt_exchange_id := 0");
+                    $orderCols = [];
+                    foreach (['account_id', 'trainer_id', 'secret_id', 'timestamp', 'email'] as $col) {
+                        if ($table->hasColumn($col)) {
+                            $orderCols[] = $col;
+                        }
+                    }
+                    $orderBy = $orderCols ? (' ORDER BY ' . implode(', ', $orderCols)) : '';
+
+                    $sql = "
+                        UPDATE bxt_exchange
+                           SET id = (@__bxt_exchange_id := @__bxt_exchange_id + 1)
+                    ";
+                    $sql .= $orderBy;
+                    $this->execute($sql);
+                    $this->execute("ALTER TABLE bxt_exchange MODIFY COLUMN id INT(11) UNSIGNED NOT NULL");
+                    $this->execute("ALTER TABLE bxt_exchange ADD UNIQUE KEY idx_bxt_exchange_id (id)");
+                    $this->execute("ALTER TABLE bxt_exchange MODIFY COLUMN id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT");
+                }
+
+                // Refresh table metadata for subsequent hasColumn/hasIndex checks
+                $table = $this->table('bxt_exchange');
+}
 
             if (!$table->hasColumn('game_region')) {
                 $opts = ['limit' => 1, 'null' => false];
@@ -491,51 +541,63 @@ final class UpdatePokemonCrystalTables extends AbstractMigration
 
         /**
          * 3) RANKING CATEGORY NAME UPDATES
+         *
+         * NOTE:
+         * - The original migration used multiple UPDATE statements inside one execute() call.
+         * - On many PDO/MySQL setups, multi-statement execution is disabled, causing this migration to fail.
+         * - This replaces that block with a single UPDATE + CASE.
          */
-        $this->execute("
-            UPDATE bxt_ranking_categories SET name = 'LAST HOF RECORD' WHERE id = 0;
-            UPDATE bxt_ranking_categories SET name = 'LAST HOF STEPS' WHERE id = 1;
-            UPDATE bxt_ranking_categories SET name = 'LAST HOF HEALED' WHERE id = 2;
-            UPDATE bxt_ranking_categories SET name = 'LAST HOF BATTLES' WHERE id = 3;
-            UPDATE bxt_ranking_categories SET name = 'STEPS WALKED' WHERE id = 4;
-            UPDATE bxt_ranking_categories SET name = 'BATTLE TOWER WINS' WHERE id = 5;
-            UPDATE bxt_ranking_categories SET name = 'TMs/HMs TAUGHT' WHERE id = 6;
-            UPDATE bxt_ranking_categories SET name = 'POKéMON BATTLES' WHERE id = 7;
-            UPDATE bxt_ranking_categories SET name = 'POKéMON ENCOUNTER' WHERE id = 8;
-            UPDATE bxt_ranking_categories SET name = 'TRAINER BATTLES' WHERE id = 9;
-            UPDATE bxt_ranking_categories SET name = 'UNUSED' WHERE id = 10;
-            UPDATE bxt_ranking_categories SET name = 'HOF ENTRIES' WHERE id = 11;
-            UPDATE bxt_ranking_categories SET name = 'POKéMON CAUGHT' WHERE id = 12;
-            UPDATE bxt_ranking_categories SET name = 'POKéMON HOOKED' WHERE id = 13;
-            UPDATE bxt_ranking_categories SET name = 'EGGS HATCHED' WHERE id = 14;
-            UPDATE bxt_ranking_categories SET name = 'POKéMON EVOLVED' WHERE id = 15;
-            UPDATE bxt_ranking_categories SET name = 'FRUIT PICKED' WHERE id = 16;
-            UPDATE bxt_ranking_categories SET name = 'PARTY HEALED' WHERE id = 17;
-            UPDATE bxt_ranking_categories SET name = 'MYSTERY GIFT USED' WHERE id = 18;
-            UPDATE bxt_ranking_categories SET name = 'TRADES COMPLETED' WHERE id = 19;
-            UPDATE bxt_ranking_categories SET name = 'FLY USED' WHERE id = 20;
-            UPDATE bxt_ranking_categories SET name = 'SURF USED' WHERE id = 21;
-            UPDATE bxt_ranking_categories SET name = 'WATERFALL USED' WHERE id = 22;
-            UPDATE bxt_ranking_categories SET name = 'TIMES WHITED OUT' WHERE id = 23;
-            UPDATE bxt_ranking_categories SET name = 'LUCKY NUMBER WINS' WHERE id = 24;
-            UPDATE bxt_ranking_categories SET name = 'TOTAL PHONE CALLS' WHERE id = 25;
-            UPDATE bxt_ranking_categories SET name = 'UNUSED' WHERE id = 26;
-            UPDATE bxt_ranking_categories SET name = 'COLOSSEUM BATTLES' WHERE id = 27;
-            UPDATE bxt_ranking_categories SET name = 'SPLASH USED' WHERE id = 28;
-            UPDATE bxt_ranking_categories SET name = 'HEADBUTT USED' WHERE id = 29;
-            UPDATE bxt_ranking_categories SET name = 'UNUSED' WHERE id = 30;
-            UPDATE bxt_ranking_categories SET name = 'COLOSSEUM WINS' WHERE id = 31;
-            UPDATE bxt_ranking_categories SET name = 'COLOSSEUM LOSSES' WHERE id = 32;
-            UPDATE bxt_ranking_categories SET name = 'COLOSSEUM DRAWS' WHERE id = 33;
-            UPDATE bxt_ranking_categories SET name = 'SELF-KO MOVE USED' WHERE id = 34;
-            UPDATE bxt_ranking_categories SET name = 'SLOT WIN STREAK' WHERE id = 35;
-            UPDATE bxt_ranking_categories SET name = 'BEST SLOT STREAK' WHERE id = 36;
-            UPDATE bxt_ranking_categories SET name = 'SLOT COINS WON' WHERE id = 37;
-            UPDATE bxt_ranking_categories SET name = 'TOTAL MONEY' WHERE id = 38;
-            UPDATE bxt_ranking_categories SET name = 'LARGEST MAGIKARP' WHERE id = 39;
-            UPDATE bxt_ranking_categories SET name = 'SMALLEST MAGIKARP' WHERE id = 40;
-            UPDATE bxt_ranking_categories SET name = 'BUG CONTEST SCORE' WHERE id = 41;
-        ");
+        if ($this->hasTable('bxt_ranking_categories')) {
+            $this->execute("
+                UPDATE bxt_ranking_categories
+                   SET name = CASE id
+                           WHEN 0 THEN 'LAST HOF RECORD'
+                           WHEN 1 THEN 'LAST HOF STEPS'
+                           WHEN 2 THEN 'LAST HOF HEALED'
+                           WHEN 3 THEN 'LAST HOF BATTLES'
+                           WHEN 4 THEN 'STEPS WALKED'
+                           WHEN 5 THEN 'BATTLE TOWER WINS'
+                           WHEN 6 THEN 'TMs/HMs TAUGHT'
+                           WHEN 7 THEN 'POKéMON BATTLES'
+                           WHEN 8 THEN 'POKéMON ENCOUNTER'
+                           WHEN 9 THEN 'TRAINER BATTLES'
+                           WHEN 10 THEN 'UNUSED'
+                           WHEN 11 THEN 'HOF ENTRIES'
+                           WHEN 12 THEN 'POKéMON CAUGHT'
+                           WHEN 13 THEN 'POKéMON HOOKED'
+                           WHEN 14 THEN 'EGGS HATCHED'
+                           WHEN 15 THEN 'POKéMON EVOLVED'
+                           WHEN 16 THEN 'FRUIT PICKED'
+                           WHEN 17 THEN 'PARTY HEALED'
+                           WHEN 18 THEN 'MYSTERY GIFT USED'
+                           WHEN 19 THEN 'TRADES COMPLETED'
+                           WHEN 20 THEN 'FLY USED'
+                           WHEN 21 THEN 'SURF USED'
+                           WHEN 22 THEN 'WATERFALL USED'
+                           WHEN 23 THEN 'TIMES WHITED OUT'
+                           WHEN 24 THEN 'LUCKY NUMBER WINS'
+                           WHEN 25 THEN 'TOTAL PHONE CALLS'
+                           WHEN 26 THEN 'UNUSED'
+                           WHEN 27 THEN 'COLOSSEUM BATTLES'
+                           WHEN 28 THEN 'SPLASH USED'
+                           WHEN 29 THEN 'HEADBUTT USED'
+                           WHEN 30 THEN 'UNUSED'
+                           WHEN 31 THEN 'COLOSSEUM WINS'
+                           WHEN 32 THEN 'COLOSSEUM LOSSES'
+                           WHEN 33 THEN 'COLOSSEUM DRAWS'
+                           WHEN 34 THEN 'SELF-KO MOVE USED'
+                           WHEN 35 THEN 'SLOT WIN STREAK'
+                           WHEN 36 THEN 'BEST SLOT STREAK'
+                           WHEN 37 THEN 'SLOT COINS WON'
+                           WHEN 38 THEN 'TOTAL MONEY'
+                           WHEN 39 THEN 'LARGEST MAGIKARP'
+                           WHEN 40 THEN 'SMALLEST MAGIKARP'
+                           WHEN 41 THEN 'BUG CONTEST SCORE'
+                        ELSE name
+                    END
+                 WHERE id BETWEEN 0 AND 41
+            ");
+        }
 
         /**
          * 4) TRIGGERS FOR RATE LIMITING
