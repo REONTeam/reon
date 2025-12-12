@@ -3050,6 +3050,93 @@ function slicePayloadForRegionFromRow(row, region) {
   return { trainerName: tn, pokemon: pk, mail: ml };
 }
 
+
+async function insertExchangeLogRow(connection, row1, row2) {
+  // Each bxt_exchange row represents a single player's OFFER. Mirror that into *_1 / *_2.
+  const table = "bxt_exchange_log";
+
+  function buf(v) {
+    if (Buffer.isBuffer(v)) return v;
+    if (v === null || v === undefined) return Buffer.alloc(0);
+    return Buffer.from(String(v), "binary");
+  }
+
+  function s(v) {
+    if (v === undefined) return null;
+    return v === null ? null : String(v);
+  }
+
+  const r1 = row1 || {};
+  const r2 = row2 || {};
+
+  const params = [
+    // player 1
+    r1["account_id"],
+    s(r1["email"]),
+    s(r1["game_region"]),
+    r1["trainer_id"],
+    r1["secret_id"],
+    buf(r1["player_name"] || r1["trainer_name"]),
+    s(r1["player_name_decode"] || r1["trainer_name_decode"]),
+    r1["offer_gender"],
+    s(r1["offer_gender_decode"]),
+    r1["offer_species"],
+    s(r1["offer_species_decode"]),
+    buf(r1["pokemon"]),
+    s(r1["pokemon_decode"]),
+    buf(r1["mail"]),
+    s(r1["mail_decode"]),
+
+    // player 2
+    r2["account_id"],
+    s(r2["email"]),
+    s(r2["game_region"]),
+    r2["trainer_id"],
+    r2["secret_id"],
+    buf(r2["player_name"] || r2["trainer_name"]),
+    s(r2["player_name_decode"] || r2["trainer_name_decode"]),
+    r2["offer_gender"],
+    s(r2["offer_gender_decode"]),
+    r2["offer_species"],
+    s(r2["offer_species_decode"]),
+    buf(r2["pokemon"]),
+    s(r2["pokemon_decode"]),
+    buf(r2["mail"]),
+    s(r2["mail_decode"]),
+  ];
+
+  const sql = `
+    INSERT INTO \`${table}\` (
+      \`account_id_1\`, \`email_1\`, \`game_region_1\`, \`trainer_id_1\`, \`secret_id_1\`,
+      \`player_name_1\`, \`player_name_decode_1\`,
+      \`gender_1\`, \`gender_decode_1\`,
+      \`species_1\`, \`species_decode_1\`,
+      \`pokemon_1\`, \`pokemon_decode_1\`,
+      \`mail_1\`, \`mail_decode_1\`,
+      \`account_id_2\`, \`email_2\`, \`game_region_2\`, \`trainer_id_2\`, \`secret_id_2\`,
+      \`player_name_2\`, \`player_name_decode_2\`,
+      \`gender_2\`, \`gender_decode_2\`,
+      \`species_2\`, \`species_decode_2\`,
+      \`pokemon_2\`, \`pokemon_decode_2\`,
+      \`mail_2\`, \`mail_decode_2\`
+    ) VALUES (
+      ?, ?, ?, ?, ?,
+      ?, ?,
+      ?, ?,
+      ?, ?,
+      ?, ?,
+      ?, ?,
+      ?, ?, ?, ?, ?,
+      ?, ?,
+      ?, ?,
+      ?, ?,
+      ?, ?,
+      ?, ?
+    )
+  `;
+  await connection.execute(sql, params);
+}
+
 async function doExchange() {
   const connection = await mysql.createConnection(dbConfig);
 
@@ -3152,6 +3239,15 @@ async function doExchange() {
             payloadForA.pokemon,
             payloadForA.mail
           );
+
+          await insertExchangeLogRow(connection, a, b);
+
+          // Retention: keep only last 1 month of exchange logs.
+          await connection.execute(
+            "DELETE FROM bxt_exchange_log WHERE `timestamp` < NOW() - INTERVAL 1 MONTH"
+          );
+
+
 
           await connection.execute(
             "DELETE FROM " +
