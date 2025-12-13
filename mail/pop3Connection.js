@@ -291,7 +291,7 @@ class POP3Connection extends EventEmitter {
     }
 	
 	_getMail(id, callback) {
-		this._server.mysql.query("select message, concat(substring(dayname(date), 1, 3), ', ', day(date), ' ', substring(monthname(date), 1, 3), ' ', year(date), ' ', time(date), ' +0000')as date from sys_inbox where id = ?", [id], function (error, results, fields) {
+		this._server.mysql.query("select message, concat(substring(dayname(timestamp), 1, 3), ', ', day(timestamp), ' ', substring(monthname(timestamp), 1, 3), ' ', year(timestamp), ' ', time(timestamp), ' +0000')as timestamp from sys_inbox where id = ?", [id], function (error, results, fields) {
 			if (error) {
 				this._onError(error);
 			} else {
