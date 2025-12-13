@@ -2384,7 +2384,7 @@ function enToJpKatakana(en, maxChars) {
     const ch = chars[i];
 
     // Preserve digits and basic punctuation as-is
-    if ((ch >= "0" && ch <= "9") || ch === " " || ch === "!" || ch === "." || ch === "/" || ch === "?") {
+    if ((ch >= "0" && ch <= "9") || ch === " " || ch === "!" || ch === "/" || ch === "?") {
       out.push(ch);
       i++;
       continue;
