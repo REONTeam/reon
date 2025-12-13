@@ -33,6 +33,24 @@
 								{{'passwords-dont-match'|trans}}
 							</div>
 						</div>
+                        <div class="mb-3">
+                            <label for="tradeRegions">{{ "account.trade-corner-region-allowlist"|trans }}</label>
+                            
+                            <small>
+                            <details>
+                                <summary>{{ "what-is-this"|trans }}</summary>
+                                
+                                <p>{{ "auth.region-explanation-para1"|trans }}</p>
+                                <p>{{ "auth.region-explanation-para2"|trans }}</p>
+                            </details>
+                            </small>
+                            
+                            <select id="tradeRegions" name="tradeRegions">
+                                <option value="j">{{ "auth.only-japan"|trans }}</option>
+                                <option value="efdsipu">{{ "auth.all-except-japan"|trans }}</option>
+                                <option value="efdsipuj" selected>{{ "auth.all-regions"|trans }}</option>
+                            </select>
+                        </div>
 						<button type="submit" class="btn btn-primary">{{'signup'|trans}}</button>
 					</fieldset>
 					<input type="hidden" name="id" value="{{ id|e }}" />
