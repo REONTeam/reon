@@ -12,6 +12,15 @@ locale:
   it: Italiano
 # End do not translate section
 
+# Translatable language strings
+language:
+  en: English
+  ja: Japanese
+  de: German
+  fr: French
+  es: Spanish
+  it: Italian
+
 # Common/Global strings
 male: Male
 female: Female
@@ -91,6 +100,10 @@ account:
   email-changed-success: Your email was changed successfully.
   change-your-password: Change your password
   password-changed-success: Your password was changed successfully.
+  pokemon-crystal-settings: Pokémon Crystal settings
+  trade-corner-region-allowlist: Trade Corner international trading preferences
+  trade-region-allowlist-blurb: Select the languages you'll allow your Pokémon to be traded to when you deposit in the Trade Corner. If you get a match, it will only be with one of these languages, as well as your game's language.
+  update-settings: Update settings
 
 # Index/Home page
 index:

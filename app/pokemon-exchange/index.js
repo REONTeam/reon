@@ -2903,17 +2903,25 @@ function loadTradeRegionGroupsFromPhpConfig(phpPath) {
 
 const TRADE_REGION_GROUPS = loadTradeRegionGroupsFromPhpConfig(phpConfigPath);
 
-function regionCanTrade(a, b) {
+function regionCanTrade(a, b, aAllows, bAllows) {
   if (!a || !b) return false;
   a = String(a).toLowerCase();
   b = String(b).toLowerCase();
-  if (a === b) return true;
-  for (const group of TRADE_REGION_GROUPS) {
+  regionGroups = [
+    (aAllows + a).split(""), /*~Depositor's region is added to ensure a trade
+                                in case a user unchecked every single region
+                                option in their settings */
+    (bAllows + b).split("")
+  ];
+  
+  for (const group of regionGroups) {
     if (!Array.isArray(group)) continue;
     const g = group.map((x) => String(x).toLowerCase());
-    if (g.includes(a) && g.includes(b)) return true;
+    if (!g.includes(a) || !g.includes(b)) return false; /*~priority should be to
+        avoid undesired trades. If player A doesn't want a trade, but player B does,
+        then returning "true" would disrespect player A's settings */
   }
-  return false;
+  return true; //~no objections? Then fulfill the trade
 }
 
 // ------------------------------
@@ -3156,7 +3164,7 @@ async function doExchange() {
     );
 
     const [trades] = await connection.execute(
-      "SELECT * FROM " + table + " ORDER BY timestamp ASC"
+      "SELECT bxt_exchange.*, sys_users.trade_region_allowlist FROM " + table + " LEFT JOIN sys_users ON bxt_exchange.account_id=sys_users.id ORDER BY timestamp ASC"
     );
 
     const performedTrades = new Set();
@@ -3172,7 +3180,7 @@ async function doExchange() {
         const b = trades[j];
 
         if (
-          regionCanTrade(a["game_region"], b["game_region"]) &&
+          regionCanTrade(a["game_region"], b["game_region"], a["trade_region_allowlist"], b["trade_region_allowlist"]) &&
           a["offer_species"] == b["request_species"] &&
           a["request_species"] == b["offer_species"] &&
           (a["offer_gender"] == b["request_gender"] ||
