@@ -12,6 +12,15 @@ locale:
   it: Italiano
 # End do not translate section
 
+# Translatable language strings
+language:
+  en: English
+  ja: Japanese
+  de: German
+  fr: French
+  es: Spanish
+  it: Italian
+
 # Common/Global strings
 male: Male
 female: Female
