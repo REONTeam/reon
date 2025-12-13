@@ -1536,10 +1536,10 @@ if (!function_exists('bxt_validate_exchange_row')) {
                 $errors_local[] = 'mail: invalid length ' . $len . ' for region ' . $region . ', expected ' . $expected_len;
             } else {
                 // Region-specific mail byte whitelist, split into:
-//   - message bytes: [0 .. (len-4)-1]  (text + author/name bytes)
-//   - tail bytes:    [(len-4) .. end]  (trailing 4-byte metadata: trainer ID, species, mail item, etc.)
-// This matches the mail struct layout used in index.js: [33 bytes text][name][4 bytes metadata].
-                $tail_len = 4;
+//   - message bytes: [0 .. (len-$tail_len)-1]  (text + author/name bytes)
+//   - tail bytes:    [(len-$tail_len) .. end]  (trailing 6-byte metadata: trainer ID, species, mail item, etc.)
+// This matches the mail struct layout used in index.js: [33 bytes text][name][(non-j only: 2 bytes nationality)][4 bytes metadata].
+                $tail_len = ($region === 'j') ? 4 : 6;
                 $tail_offset = ($len >= $tail_len) ? ($len - $tail_len) : $len;
 
                 // Build per-region allowed-byte sets (as lookup tables) once.
@@ -1548,45 +1548,92 @@ if (!function_exists('bxt_validate_exchange_row')) {
                     $mail_allowed_cache = [
                         'j' => [
                             'message_list' => array(
-								0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-								0x10, 0x11, 0x12, 0x13, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x20, 0x21, 0x26, 0x27, 0x28, 0x29,
-								0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E,
-								0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x4D, 0x50, 0x76, 0x77, 0x78, 0x7F, 0x80,
-								0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90,
-								0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0,
-								0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0,
-								0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0xC0,
-								0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF, 0xD0,
-								0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF, 0xE0,
-								0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE9, 0xEA, 0xEB, 0xF3, 0xF4, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB,
-								0xFC, 0xFD, 0xFD, 0xFD, 0xFE, 0xFF
+                                0x00, 0x01, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x10, 0x11, 0x12, 0x13, 0x19, 0x1A,
+                                0x1B, 0x1C, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x37,
+                                0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49,
+                                0x4E, 0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C,
+                                0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C,
+                                0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC,
+                                0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC,
+                                0xBD, 0xBE, 0xBF, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC,
+                                0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC,
+                                0xDD, 0xDE, 0xDF, 0xE0, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE9, 0xEA, 0xEB, 0xF3, 0xF4, 0xF6, 0xF7,
+                                0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
                             ),
-                            // Tail is raw metadata (bytes), not text. By default allow full 0x00-0xFF.
-							'tail_list' => range(0x00, 0xFF),
+                            'author_list' => array(
+                                0x00, 0x01, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x10, 0x11, 0x12, 0x13, 0x19, 0x1A,
+                                0x1B, 0x1C, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x37,
+                                0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49,
+                                0x4E, 0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C,
+                                0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C,
+                                0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC,
+                                0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC,
+                                0xBD, 0xBE, 0xBF, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC,
+                                0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC,
+                                0xDD, 0xDE, 0xDF, 0xE0, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE9, 0xEA, 0xEB, 0xF4,
+							),
+                            // Tail is raw metadata (not text), validated as 4 fields:
+                            //   [0] trainer_id low byte, [1] trainer_id high byte, [2] species id, [3] mail item id.
+                            'tail_tid_lo_list' => range(0x00, 0xFF),
+                            'tail_tid_hi_list' => range(0x00, 0xFF),
+                            'tail_species_list' => range(0x01, 0xFB),
+                            'tail_mail_list' => array(0x9E, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD),
                         ],
                         'non_j' => [
                             'message_list' => array(
-								0x50, 0x54, 0x70, 0x71, 0x72, 0x73, 0x75, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
-								0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,
-								0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7,
-								0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7,
-								0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7,
-								0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7,
-								0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8,
-								0xE9, 0xEA, 0xEE, 0xEF, 0xF0, 0xF1, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC,
-								0xFD, 0xFE, 0xFF
+                                0x00, 0x10, 0x42, 0x4E, 0x00, 0x0F, 0x3F, 0x43, 0x50, 0x70, 0x71, 0x72, 0x73, 0x75, 0x7F, 0x80,
+                                0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90,
+                                0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0,
+                                0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0,
+                                0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0xC0,
+                                0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF, 0xD0,
+                                0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF, 0xE0,
+                                0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEC, 0xED, 0xEE, 0xEF, 0xF0, 0xF1,
+                                0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
                             ),
-                            // Tail is raw metadata (bytes), not text. By default allow full 0x00-0xFF.
-							'tail_list' => range(0x00, 0xFF),
+                            'author_list' => array(
+								0x50, 0x54, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C,
+								0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C,
+								0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC,
+								0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC,
+								0xBD, 0xC3, 0xC4, 0xC5, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5,
+								0xD6, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xEA, 0xF1, 0xF2, 0xF3, 0xF4, 0xF6, 0xF7,
+								0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
+                            ),
+                            // Tail is raw metadata (not text), validated as 6 fields:
+                            //   [0] nationality[0] (A-Z), [1] nationality[1] (A-Z)
+                            //   [2] trainer_id low byte, [3] trainer_id high byte, [4] species id, [5] mail item id.
+                            'tail_nat_pairs' => array(
+                                array(0x00, 0x00),
+                                array(0x80, 0x85),
+                                array(0x80, 0x86),
+                                array(0x80, 0x88),
+                                array(0x80, 0x92),
+                            ),
+                            'tail_tid_lo_list' => range(0x00, 0xFF),
+                            'tail_tid_hi_list' => range(0x00, 0xFF),
+                            'tail_species_list' => range(0x01, 0xFB),
+                            'tail_mail_list' => array(0x9E, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD),
                         ],
 // Prebuilt message lookup sets.
                         '__msg_set_j' => null,
                         '__msg_set_non_j' => null,
-                        '__tail_set_j' => null,
-                        '__tail_set_non_j' => null,
+                        '__author_set_j' => null,
+                        '__author_set_non_j' => null,
+                        '__tail_natpair_set_j' => null,
+                                                '__tail_tid_lo_set_j' => null,
+                        '__tail_tid_hi_set_j' => null,
+                        '__tail_species_set_j' => null,
+                        '__tail_mail_set_j' => null,
+                        '__tail_natpair_set_non_j' => null,
+                                                '__tail_tid_lo_set_non_j' => null,
+                        '__tail_tid_hi_set_non_j' => null,
+                        '__tail_species_set_non_j' => null,
+                        '__tail_mail_set_non_j' => null,
                     ];
 
-                    // Build message lookup sets.
+                    
+                    // Default author allowlists to message allowlists if not explicitly set.// Build message lookup sets.
                     $mail_allowed_cache['__msg_set_j'] = [];
                     foreach ($mail_allowed_cache['j']['message_list'] as $b) {
                         $mail_allowed_cache['__msg_set_j'][$b] = true;
@@ -1596,6 +1643,19 @@ if (!function_exists('bxt_validate_exchange_row')) {
                     foreach ($mail_allowed_cache['non_j']['message_list'] as $b) {
                         $mail_allowed_cache['__msg_set_non_j'][$b] = true;
                     }
+
+
+                    // Build author lookup sets.
+                    $mail_allowed_cache['__author_set_j'] = [];
+                    foreach ($mail_allowed_cache['j']['author_list'] as $b) {
+                        $mail_allowed_cache['__author_set_j'][$b] = true;
+                    }
+
+                    $mail_allowed_cache['__author_set_non_j'] = [];
+                    foreach ($mail_allowed_cache['non_j']['author_list'] as $b) {
+                        $mail_allowed_cache['__author_set_non_j'][$b] = true;
+                    }
+
 }
 
                 $bucket = ($region === 'j') ? 'j' : 'non_j';
@@ -1603,49 +1663,175 @@ if (!function_exists('bxt_validate_exchange_row')) {
                     ? $mail_allowed_cache['__msg_set_j']
                     : $mail_allowed_cache['__msg_set_non_j'];
 
-                // Tail bytes are raw metadata, not text.
+                $allowed_author_set = ($bucket === 'j')
+                    ? $mail_allowed_cache['__author_set_j']
+                    : $mail_allowed_cache['__author_set_non_j'];
+
+
+                // Tail bytes are raw metadata (not text), validated by field:
+                //   tail[0] nationality[0] (A-Z)
+                //   tail[1] nationality[1] (A-Z)
+                //   tail[2] trainer_id low byte
+                //   tail[3] trainer_id high byte
+                //   tail[4] species id
+                //   tail[5] mail item id
                 if ($bucket === 'j') {
-                    if ($mail_allowed_cache['__tail_set_j'] === null) {
-                        $mail_allowed_cache['__tail_set_j'] = [];
-                        foreach ($mail_allowed_cache['j']['tail_list'] as $b) {
-                            $mail_allowed_cache['__tail_set_j'][$b] = true;
+                    // JP mail has no nationality bytes; no nationality-pair validation.
+if ($mail_allowed_cache['__tail_tid_lo_set_j'] === null) {
+                        $mail_allowed_cache['__tail_tid_lo_set_j'] = [];
+                        foreach ($mail_allowed_cache['j']['tail_tid_lo_list'] as $b) {
+                            $mail_allowed_cache['__tail_tid_lo_set_j'][$b] = true;
                         }
                     }
-                    $allowed_tail_set = $mail_allowed_cache['__tail_set_j'];
+                    if ($mail_allowed_cache['__tail_tid_hi_set_j'] === null) {
+                        $mail_allowed_cache['__tail_tid_hi_set_j'] = [];
+                        foreach ($mail_allowed_cache['j']['tail_tid_hi_list'] as $b) {
+                            $mail_allowed_cache['__tail_tid_hi_set_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_species_set_j'] === null) {
+                        $mail_allowed_cache['__tail_species_set_j'] = [];
+                        foreach ($mail_allowed_cache['j']['tail_species_list'] as $b) {
+                            $mail_allowed_cache['__tail_species_set_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_mail_set_j'] === null) {
+                        $mail_allowed_cache['__tail_mail_set_j'] = [];
+                        foreach ($mail_allowed_cache['j']['tail_mail_list'] as $b) {
+                            $mail_allowed_cache['__tail_mail_set_j'][$b] = true;
+                        }
+                    }
+
+                    $tail_natpair_set = null; // JP has no nationality bytes
+                    $tail_tid_lo_set = $mail_allowed_cache['__tail_tid_lo_set_j'];
+                    $tail_tid_hi_set = $mail_allowed_cache['__tail_tid_hi_set_j'];
+                    $tail_species_set = $mail_allowed_cache['__tail_species_set_j'];
+                    $tail_mail_set = $mail_allowed_cache['__tail_mail_set_j'];
                 } else {
-                    if ($mail_allowed_cache['__tail_set_non_j'] === null) {
-                        $mail_allowed_cache['__tail_set_non_j'] = [];
-                        foreach ($mail_allowed_cache['non_j']['tail_list'] as $b) {
-                            $mail_allowed_cache['__tail_set_non_j'][$b] = true;
+                    if ($mail_allowed_cache['__tail_natpair_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_natpair_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_nat_pairs'] as $p) {
+                            if (!is_array($p) || count($p) !== 2) {
+                                continue;
+                            }
+                            $k = (($p[0] & 0xFF) << 8) | ($p[1] & 0xFF);
+                            $mail_allowed_cache['__tail_natpair_set_non_j'][$k] = true;
                         }
                     }
-                    $allowed_tail_set = $mail_allowed_cache['__tail_set_non_j'];
+if ($mail_allowed_cache['__tail_tid_lo_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_tid_lo_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_tid_lo_list'] as $b) {
+                            $mail_allowed_cache['__tail_tid_lo_set_non_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_tid_hi_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_tid_hi_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_tid_hi_list'] as $b) {
+                            $mail_allowed_cache['__tail_tid_hi_set_non_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_species_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_species_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_species_list'] as $b) {
+                            $mail_allowed_cache['__tail_species_set_non_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_mail_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_mail_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_mail_list'] as $b) {
+                            $mail_allowed_cache['__tail_mail_set_non_j'][$b] = true;
+                        }
+                    }
+
+                    $tail_natpair_set = $mail_allowed_cache['__tail_natpair_set_non_j'];
+                    $tail_tid_lo_set = $mail_allowed_cache['__tail_tid_lo_set_non_j'];
+                    $tail_tid_hi_set = $mail_allowed_cache['__tail_tid_hi_set_non_j'];
+                    $tail_species_set = $mail_allowed_cache['__tail_species_set_non_j'];
+                    $tail_mail_set = $mail_allowed_cache['__tail_mail_set_non_j'];
                 }
 
-
-
                 $bytes = unpack('C*', $mail_blob);
+
+                // First 0x21 bytes are the mail message body (line1 + separator + line2). Remaining pre-tail bytes are the author.
+                $mail_msg_len = 0x21;
+
 
                 // Note: unpack('C*') returns a 1-indexed array.
                 for ($i = 1; $i <= $len; $i++) {
                     $b = $bytes[$i];
                     $offset0 = $i - 1;
-                    $is_tail = ($offset0 >= $tail_offset);
+                    $is_tail = ($offset0 >= $tail_offset);                    if ($is_tail) {
+                        $tail_pos = $offset0 - $tail_offset;
 
-                    if ($is_tail) {
-                        if (!isset($allowed_tail_set[$b])) {
-                            $errors_local[] = sprintf('mail: invalid tail byte 0x%02X at offset %d for region %s', $b, $offset0, $region);
+                        if ($tail_len === 6) {
+                            // Non-J tail layout: [nat0][nat1][TID lo][TID hi][species][mail item]
+                            // Nationality is validated as a 2-byte pair at tail_pos 0+1.
+                            if ($tail_pos === 0) {
+                                if (($i + 1) > $len) {
+                                    $errors_local[] = sprintf('mail: missing nationality_1 byte at offset %d for region %s', $offset0, $region);
+                                    break;
+                                }
+                                if ($tail_natpair_set === null) {
+                                    $errors_local[] = sprintf('mail: nationality pair set is not defined for region %s', $region);
+                                    break;
+                                }
+                                $nat0 = $b;
+                                $nat1 = $bytes[$i + 1];
+                                $pair = (($nat0 & 0xFF) << 8) | ($nat1 & 0xFF);
+                                if (!isset($tail_natpair_set[$pair])) {
+                                    $errors_local[] = sprintf('mail: invalid nationality pair 0x%04X at offset %d for region %s', $pair, $offset0, $region);
+                                    break;
+                                }
+
+                                // Skip per-byte validation of nationality_1 (tail_pos 1).
+                                continue;
+                            } elseif ($tail_pos === 1) {
+                                continue;
+                            } elseif ($tail_pos === 2) {
+                                $tail_set = $tail_tid_lo_set;
+                                $tail_label = 'trainer_id_lo';
+                            } elseif ($tail_pos === 3) {
+                                $tail_set = $tail_tid_hi_set;
+                                $tail_label = 'trainer_id_hi';
+                            } elseif ($tail_pos === 4) {
+                                $tail_set = $tail_species_set;
+                                $tail_label = 'species_id';
+                            } else { // $tail_pos === 5
+                                $tail_set = $tail_mail_set;
+                                $tail_label = 'mail_id';
+                            }
+                        } else {
+                            // JP tail layout: [TID lo][TID hi][species][mail item]
+                            if ($tail_pos === 0) {
+                                $tail_set = $tail_tid_lo_set;
+                                $tail_label = 'trainer_id_lo';
+                            } elseif ($tail_pos === 1) {
+                                $tail_set = $tail_tid_hi_set;
+                                $tail_label = 'trainer_id_hi';
+                            } elseif ($tail_pos === 2) {
+                                $tail_set = $tail_species_set;
+                                $tail_label = 'species_id';
+                            } else { // $tail_pos === 3
+                                $tail_set = $tail_mail_set;
+                                $tail_label = 'mail_id';
+                            }
+                        }
+if (!isset($tail_set[$b])) {
+                            $errors_local[] = sprintf('mail: invalid tail %s byte 0x%02X at offset %d for region %s', $tail_label, $b, $offset0, $region);
                             break;
                         }
                     } else {
-                        if (!isset($allowed_msg_set[$b])) {
-                            $errors_local[] = sprintf('mail: invalid message byte 0x%02X at offset %d for region %s', $b, $offset0, $region);
+                        $set = ($offset0 < $mail_msg_len) ? $allowed_msg_set : $allowed_author_set;
+                        $which = ($offset0 < $mail_msg_len) ? 'message' : 'author';
+                        if (!isset($set[$b])) {
+                            $errors_local[] = sprintf('mail: invalid %s byte 0x%02X at offset %d for region %s', $which, $b, $offset0, $region);
                             break;
                         }
                     }
                 }
             }
         }
+
 
         if ($errors_local) {
             if (is_array($errors)) {

@@ -2384,7 +2384,7 @@ function enToJpKatakana(en, maxChars) {
     const ch = chars[i];
 
     // Preserve digits and basic punctuation as-is
-    if ((ch >= "0" && ch <= "9") || ch === " " || ch === "!" || ch === "/" || ch === "?") {
+    if ((ch >= "0" && ch <= "9") || ch === " " || ch === "!" || ch === "." || ch === "/" || ch === "?") {
       out.push(ch);
       i++;
       continue;
@@ -2824,6 +2824,15 @@ function transformExchangePayloadForEmail(destRegion, sourceRegion, row) {
       );
       const writeLen = Math.min(destNameLenMail, newName.length);
       newName.copy(destMail, destNameOffset, 0, writeLen);
+    }
+
+    // JP -> non-J: non-J mail includes 2 nationality bytes immediately before the 4-byte metadata tail.
+    // JP and EN mail have no nationality bytes, so default them to 0x00,0x00 (instead of inheriting name padding).
+    if (isSourceJ && !isDestJ) {
+      if (destMetaOffset >= 2) {
+        destMail[destMetaOffset - 2] = 0x00;
+        destMail[destMetaOffset - 1] = 0x00;
+      }
     }
 
     // Preserve trailing mail metadata (trainer ID, species, mail item, etc.).
