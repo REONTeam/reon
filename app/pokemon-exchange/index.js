@@ -2912,25 +2912,24 @@ function loadTradeRegionGroupsFromPhpConfig(phpPath) {
 
 const TRADE_REGION_GROUPS = loadTradeRegionGroupsFromPhpConfig(phpConfigPath);
 
-function regionCanTrade(a, b, aAllows, bAllows) {
+function regionCanTrade(a, b, aPool, bPool) {
   if (!a || !b) return false;
-  a = String(a).toLowerCase();
-  b = String(b).toLowerCase();
-  regionGroups = [
-    (aAllows + a).split(""), /*~Depositor's region is added to ensure a trade
-                                in case a user unchecked every single region
-                                option in their settings */
-    (bAllows + b).split("")
-  ];
+  var regions = { "a": String(a).toLowerCase(), "b": String(b).toLowerCase() }
   
-  for (const group of regionGroups) {
-    if (!Array.isArray(group)) continue;
-    const g = group.map((x) => String(x).toLowerCase());
-    if (!g.includes(a) || !g.includes(b)) return false; /*~priority should be to
-        avoid undesired trades. If player A doesn't want a trade, but player B does,
-        then returning "true" would disrespect player A's settings */
+  //~Set up per-player language pools
+  var regionPools = { "a": aPool.split(","), "b": bPool.split(",") }
+  
+  //~For each player, isolate down to the language pool their game falls into
+  for (var player in regionPools) {
+    for (var pool of regionPools[player]) {
+        if (pool.includes(regions[player])) {
+            regionPools[player] = pool; break;
+        }
+    }
   }
-  return true; //~no objections? Then fulfill the trade
+  
+  //~Return whether both players' pools have each others' languages
+  return (regionPools.a.includes(regions.b)) && (regionPools.b.includes(regions.a));
 }
 
 // ------------------------------

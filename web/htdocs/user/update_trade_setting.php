@@ -8,7 +8,7 @@
         
         $db = DBUtil::getInstance()->getDB();
         $stmt = $db->prepare("update sys_users set trade_region_allowlist = ? where id = ?");
-        $stmt->bind_param("si", implode(array_keys($_POST)), $_SESSION["user_id"]);
+        $stmt->bind_param("si", $_POST["tradeRegions"], $_SESSION["user_id"]);
         $stmt->execute();
         
 		header("Location: /user/summary.php");
