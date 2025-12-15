@@ -281,14 +281,15 @@
 			return $email;
 		}
 		
-		public function completeSignupAction($id, $key, $reonEmail, $password, $passwordConfirm) {
+		public function completeSignupAction($id, $key, $reonEmail, $password, $passwordConfirm, $tradeRegions) {
 			$email = self::$instance->verifySignupRequest($id, $key);
 
-			$result = self::$instance->createUser($email, $reonEmail, $password, $passwodConfirm);
+			$result = self::$instance->createUser($email, $reonEmail, $password, $passwordConfirm, $tradeRegions);
 			if ($result > 0) {
 				return $result;
 			}
-
+            
+            $db = DBUtil::getInstance()->getDB();
 			$stmt = $db->prepare("delete from sys_signup where email = ?");
 			$stmt->bind_param("s", $email);
 			$stmt->execute();
@@ -296,7 +297,7 @@
 			return 0;
 		}
 
-		public function createUser($email, $reonEmail, $password, $passwordConfirm) {
+		public function createUser($email, $reonEmail, $password, $passwordConfirm, $tradeRegions) {
 			if (!isset($email)) return 1;
 			if (!self::$instance->isDionEmailValidAndFree($reonEmail)) return 2;
 			if ($password != $passwordConfirm) return 3;
@@ -306,8 +307,8 @@
 			$dion_ppp_id = self::$instance->generatePPPId();
 			$log_in_password = self::$instance->generateLogInPassword();
 			$db = DBUtil::getInstance()->getDB();
-			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password, money_spent) values (?,?,?,?,?,0)");
-			$stmt->bind_param("sssss", $email, $password_hash, $dion_ppp_id, $reonEmail, $log_in_password);
+			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password, money_spent, trade_region_allowlist) values (?,?,?,?,?,0,?)");
+			$stmt->bind_param("ssssss", $email, $password_hash, $dion_ppp_id, $reonEmail, $log_in_password, $tradeRegions);
 			$stmt->execute();
 
 			return 0;

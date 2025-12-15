@@ -33,6 +33,24 @@
 								{{'passwords-dont-match'|trans}}
 							</div>
 						</div>
+                        <div class="mb-3">
+                            <label for="tradeRegions">{{ "account.trade-corner-region-allowlist"|trans }}</label>
+                            
+                            <small>
+                            <details>
+                                <summary>{{ "what-is-this"|trans }}</summary>
+                                
+                                <p>{{ "auth.region-explanation-para1"|trans }}</p>
+                                <p>{{ "auth.region-explanation-para2"|trans }}</p>
+                            </details>
+                            </small>
+                            
+                            <select id="tradeRegions" name="tradeRegions">
+                                <option value="e,f,d,s,i,p,u,j">{{ "account.trade-option-1"|trans }}</option>
+                                <option value="efdsipu,j">{{ "account.trade-option-2"|trans }}</option>
+                                <option value="efdsipuj" selected>{{ "account.trade-option-3"|trans }}</option>
+                            </select>
+                        </div>
 						<button type="submit" class="btn btn-primary">{{'signup'|trans}}</button>
 					</fieldset>
 					<input type="hidden" name="id" value="{{ id|e }}" />

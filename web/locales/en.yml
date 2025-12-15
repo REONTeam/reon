@@ -30,6 +30,7 @@ home: Home
 games: Games
 mobile-home: Mobile Homepage
 welcome-alpha: Welcome to the alpha test!
+what-is-this: What is this?
 
 # Common form elements
 send: Send
@@ -71,6 +72,8 @@ auth:
   registration-complete: Your registration is complete.
   reon-email: REON email address
   reon-email-invalid: REON email invalid or taken
+  region-explanation-para1: REON enables international trade for Pokémon Crystal players, via the in-game facility called the Trade Corner. This includes trading between Japanese and non-Japanese games, which are normally incompatible due to using different character sets. To make such trades possible, the service changes Pokémon nicknames, Trainer names, and messages written on Mail when matching Pokémon between Japanese and non-Japanese games (for example, changing "A" to "ア", and vice-versa). These changes are irreversible, but they aim to imitate the original language's lettering as faithfully as possible.
+  region-explanation-para2: Choose the pool of regions you're okay with trading with. This setting can be changed after sign-up as well.
 
 # Password reset pages
 password-reset:
@@ -101,8 +104,11 @@ account:
   change-your-password: Change your password
   password-changed-success: Your password was changed successfully.
   pokemon-crystal-settings: Pokémon Crystal settings
-  trade-corner-region-allowlist: Trade Corner: International Trading Preferences
-  trade-region-allowlist-blurb: Select the languages you’re willing to trade with when you deposit your Pokémon in the Trade Corner. Any match you receive will be with one of the selected languages, including your game’s own language.
+  trade-corner-region-allowlist: "Trade Corner: International Trading Preferences"
+  trade-region-allowlist-blurb: Select the region pool you’re willing to trade with when you deposit your Pokémon in the Trade Corner. Any match you receive will be from within that region pool. Note that "regions with compatible languages" refers to games that have compatible character sets, meaning either all Latin-based languages or Japanese by itself.
+  trade-option-1: National only (only your game's region)
+  trade-option-2: All regions with compatible languages
+  trade-option-3: All regions, including Latin-Japanese conversion
   update-settings: Update settings
 
 # Index/Home page

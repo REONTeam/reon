@@ -91,40 +91,19 @@
 				<div class="card-body">
                     <form method="post" action="update_trade_setting.php">
                         <div class="mb-3">
-                            <h6>{{ "account.trade-corner-region-allowlist"|trans }}</h6>
-                            <p>{{ "account.trade-region-allowlist-blurb"|trans }}</p>
-          
-                            <input type="checkbox" name="j" id="ja"{%
-                                if "j" in trade_region_allowlist
-                            %} checked{% endif %}>
-                            <label for="ja">{{ "language.ja"|trans }}</label><br>
-                            
-                            <input type="checkbox" name="epu" id="en"{%
-                                if ("e" in trade_region_allowlist)
-                                and ("p" in trade_region_allowlist)
-                                and ("u" in trade_region_allowlist)
-                            %} checked{% endif %}>
-                            <label for="en">{{ "language.en"|trans }}</label><br>
-                            
-                            <input type="checkbox" name="s" id="es"{%
-                                if "s" in trade_region_allowlist
-                            %} checked{% endif %}>
-                            <label for="es">{{ "language.es"|trans }}</label><br>
-                            
-                            <input type="checkbox" name="f" id="fr"{%
-                                if "f" in trade_region_allowlist
-                            %} checked{% endif %}>
-                            <label for="fr">{{ "language.fr"|trans }}</label><br>
-                            
-                            <input type="checkbox" name="d" id="de"{%
-                                if "d" in trade_region_allowlist
-                            %} checked{% endif %}>
-                            <label for="de">{{ "language.de"|trans }}</label><br>
-                            
-                            <input type="checkbox" name="i" id="it"{%
-                                if "i" in trade_region_allowlist
-                            %} checked{% endif %}>
-                            <label for="it">{{ "language.it"|trans }}</label><br>
+                            <label for="tradeRegions">{{ "account.trade-corner-region-allowlist"|trans }}</label>
+                            <small><p>{{ "account.trade-region-allowlist-blurb"|trans }}</p></small>
+                            <select id="tradeRegions" name="tradeRegions">
+                                <option value="e,f,d,s,i,p,u,j"{%
+                                    if (trade_region_allowlist == "e,f,d,s,i,p,u,j")
+                                %} selected{% endif %}>{{ "account.trade-option-1"|trans }}</option>
+                                <option value="efdsipu,j"{%
+                                    if (trade_region_allowlist == "efdsipu,j")
+                                %} selected{% endif %}>{{ "account.trade-option-2"|trans }}</option>
+                                <option value="efdsipuj"{%
+                                    if (trade_region_allowlist == "efdsipuj")
+                                %} selected{% endif %}>{{ "account.trade-option-3"|trans }}</option>
+                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary">{{ "account.update-settings"|trans }}</button>
                     </form>
