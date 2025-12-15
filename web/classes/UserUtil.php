@@ -302,6 +302,9 @@
 			if (!self::$instance->isDionEmailValidAndFree($reonEmail)) return 2;
 			if ($password != $passwordConfirm) return 3;
 			if (!self::$instance->validatePasswordConstraints($password)) return 4;
+   
+            if (!in_array($tradeRegions,array("e,f,d,s,i,p,u,j","efdsipu,j","efdsipuj")))
+                $tradeRegions = "e,f,d,s,i,p,u,j";
 			
 			$password_hash = self::$instance->getPasswordHash($password);
 			$dion_ppp_id = self::$instance->generatePPPId();
