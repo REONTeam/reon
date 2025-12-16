@@ -89,7 +89,7 @@
 			<div class="card">
 				<div class="card-header">{{ "account.pokemon-crystal-settings"|trans }}</div>
 				<div class="card-body">
-                    <form method="post" action="update_trade_setting.php">
+                    <form method="post">
                         <div class="mb-3">
                             <label for="tradeRegions">{{ "account.trade-corner-region-allowlist"|trans }}</label>
                             <small><p>{{ "account.trade-region-allowlist-blurb"|trans }}</p></small>
@@ -104,6 +104,9 @@
                                     if (trade_region_allowlist == "efdsipuj")
                                 %} selected{% endif %}>{{ "account.trade-option-3"|trans }}</option>
                             </select>
+                            {% if ("regionValue" in errors) %}
+                            <small><p>{{ "invalid-trade-setting"|trans }}</p></small>
+                            {% endif %}
                         </div>
                         <button type="submit" class="btn btn-primary">{{ "account.update-settings"|trans }}</button>
                     </form>
