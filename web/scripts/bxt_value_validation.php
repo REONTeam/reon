@@ -1189,7 +1189,7 @@ if (!function_exists('bxt_validate_player_zip_bytes')) {
      * Non-J: 3 bytes; J: 2 bytes.
      * Allowed bytes follow the per-region postal alphabets.
      */
-    function bxt_validate_player_zip_bytes($game_region, $blob, &$errors = []) {
+    function bxt_validate_player_zip_bytes($game_region, $blob, $player_region = null, &$errors = []) {
         $errors_local = [];
 
         if (!is_string($blob)) {
@@ -1203,59 +1203,576 @@ if (!function_exists('bxt_validate_player_zip_bytes')) {
         $region = strtolower($game_region);
         $len = strlen($blob);
 
+// Region-specific ZIP/Postal validation specs.
+        // Each region can define:
+        //  - 'len'    : expected byte-length
+        //  - 'ranges' : list of inclusive [lo, hi] byte ranges
+        //  - 'bytes'  : list of individual allowed bytes
+        //
+        // To customize per-region rules, edit these specs.
+        $zip_specs = [
+            'e' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            'p' => [
+                'len' => 3,
+
+                // EU player_region_id (1..40) -> ZipcodeFormatLengths DB index
+                // 1 = EU-AD, ... 40 = EU-UA
+                'player_region_db' => [
+                    1 => 0,  2 => 2,  3 => 2,  4 => 3,  5 => 2,
+                    6 => 2,  7 => 4,  8 => 2,  9 => 3, 10 => 3,
+                   11 => 2, 12 => 3, 13 => 3, 14 => 3, 15 => 3,
+                   16 => 8, 17 => 3, 18 => 3, 19 => 2, 20 => 7,
+                   21 => 1, 22 => 3, 23 => 2, 24 => 2, 25 => 2,
+                   26 => 10, 27 => 11, 28 => 9, 29 => 6, 30 => 2,
+                   31 => 14, 32 => 5, 33 => 4, 34 => 3, 35 => 4,
+                   36 => 15, 37 => 12, 38 => 3, 39 => 13, 40 => 3,
+                ],
+
+                // ZipcodeFormatLengths DB index -> slot specs (each is 3 slots)
+                // Each slot is ['ranges' => [[lo,hi],...], 'bytes' => [...]]
+                'db_formats' => [
+                    0 => [
+                        ['ranges' => [], 'bytes' => [0xE3]],
+                        ['ranges' => [], 'bytes' => [0xE3]],
+                        ['ranges' => [], 'bytes' => [0xE3]],
+                    ],
+                    1 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    2 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    3 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    4 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    5 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    6 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    7 => [
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [], 'bytes' => [0xF7]],
+                    ],
+                    8 => [
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF], [0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF], [0x80, 0x89]], 'bytes' => []],
+                    ],
+                    9 => [
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                    ],
+                    10 => [
+                        ['ranges' => [], 'bytes' => [0x8B]],
+                        ['ranges' => [], 'bytes' => [0x95]],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    11 => [
+                        ['ranges' => [], 'bytes' => [0x8C]],
+                        ['ranges' => [], 'bytes' => [0x83]],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    12 => [
+                        ['ranges' => [], 'bytes' => [0x92]],
+                        ['ranges' => [], 'bytes' => [0x88]],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    13 => [
+                        ['ranges' => [], 'bytes' => [0xFA]],
+                        ['ranges' => [], 'bytes' => [0xFD]],
+                        ['ranges' => [], 'bytes' => [0xFE]],
+                    ],
+                    14 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [], 'bytes' => [0xE3]],
+                    ],
+                    15 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                ],
+            ],
+            'u' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            'f' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            'd' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            'i' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            's' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [0xE3],
+            ],
+            'j' => [
+                'len' => 2,
+                // JP zip is a big-endian 16-bit value in range 000-999 (0x0000..0x03E7).
+                // Validation is handled in the special-case block for region j below.
+                'ranges' => [],
+                'bytes' => [],
+            ],
+        ];
+
+        if (!isset($zip_specs[$region])) {
+            $errors_local[] = 'player_zip: no validation spec for region ' . $region;
+        } else {
+            $expected_len = (int)$zip_specs[$region]['len'];
+            if ($len !== $expected_len) {
+                $errors_local[] = 'player_zip: invalid length ' . $len . ' for region ' . $region . ', expected ' . $expected_len;
+            }
+        }
+
+                // Region 'j' ZIP codes are a big-endian 16-bit value representing decimal 000-999:
+        //   0x00 0x00 .. 0x03 0xE7 (inclusive)
+        // This rule is ZIP-specific and does not use a per-byte allowlist.
         if ($region === 'j') {
             if ($len !== 2) {
                 $errors_local[] = 'player_zip: invalid length ' . $len . ' for region j, expected 2';
-            }
-        } else {
-            if ($len !== 3) {
-                $errors_local[] = 'player_zip: invalid length ' . $len . ' for non-j region, expected 3';
-            }
-        }
-
-        // Build per-region allowed byte sets.
-        static $cache = [];
-
-        if (!isset($cache[$region])) {
-            $allowed = [];
-
-            if ($region === 'e') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-                for ($b = 0x80; $b <= 0x99; $b++) $allowed[$b] = true;
-            } elseif ($region === 'p') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-                for ($b = 0x80; $b <= 0x99; $b++) $allowed[$b] = true;
-                foreach ([0xE3, 0x7F] as $b) $allowed[$b] = true;
-            } elseif ($region === 'u' || $region === 'f' || $region === 'd' || $region === 'i') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-            } elseif ($region === 's') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-                $allowed[0xE3] = true;
-            } elseif ($region === 'j') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-                $allowed[0x00] = true;
-                $allowed[0x01] = true;
-                $allowed[0x2E] = true;
-                $allowed[0x5A] = true;
             } else {
-                // Unknown region: no allowed bytes
+                $hi = ord($blob[0]);
+                $lo = ord($blob[1]);
+                $value = (($hi & 0xFF) << 8) | ($lo & 0xFF);
+
+                if ($value < 0x0000 || $value > 0x03E7) {
+                    $errors_local[] = sprintf(
+                        'player_zip: jp zip out of range: 0x%02X 0x%02X (0x%04X), expected 0x0000..0x03E7',
+                        $hi,
+                        $lo,
+                        $value
+                    );
+                }
             }
 
-            $cache[$region] = $allowed;
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
         }
 
-        $allowed = $cache[$region];
+// Build per-region allowed byte sets from specs.
+        // For region 'p' this is per-player_region (slot-specific) and does not use the simple union set.
+        static $cache = [];
+        static $cache_p = [];
+        static $cache_e = [];
+        static $cache_i = [];
+        static $cache_s = [];
 
-        if (!$allowed) {
-            $errors_local[] = 'player_zip: no allowed-byte set for region ' . $region;
+        if ($region === 'e') {
+            // Region 'e' ZIP validation depends on player_region ID:
+            // 1-50:  F6-FF, F6-FF, F6-FF
+            // 51-63: 80-89, F6-FF, 80-89
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 63) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region e';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region e (got %d)', $len);
+            } else {
+                $group = ($player_region <= 50) ? 'e_1_50' : 'e_51_63';
+
+                if (!isset($cache_e[$group])) {
+                    if ($group === 'e_1_50') {
+                        $cache_e[$group] = [
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ];
+                    } else {
+                        $cache_e[$group] = [
+                            ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ];
+                    }
+                }
+
+                $slot_specs = $cache_e[$group];
+
+                // Validate each of the 3 bytes against its slot spec.
+                for ($i = 0; $i < 3; $i++) {
+                    $slot_spec = $slot_specs[$i];
+                    $cache_key = $group . ':' . $i;
+
+                    if (!isset($cache[$cache_key])) {
+                        $allowed = [];
+
+                        if (isset($slot_spec['ranges']) && is_array($slot_spec['ranges'])) {
+                            foreach ($slot_spec['ranges'] as $r) {
+                                if (!is_array($r) || count($r) !== 2) continue;
+                                $lo = (int)$r[0];
+                                $hi = (int)$r[1];
+                                if ($lo > $hi) { $tmp = $lo; $lo = $hi; $hi = $tmp; }
+                                for ($b = $lo; $b <= $hi; $b++) {
+                                    $allowed[$b & 0xFF] = true;
+                                }
+                            }
+                        }
+
+                        if (isset($slot_spec['bytes']) && is_array($slot_spec['bytes'])) {
+                            foreach ($slot_spec['bytes'] as $b) {
+                                $allowed[((int)$b) & 0xFF] = true;
+                            }
+                        }
+
+                        $cache[$cache_key] = $allowed;
+                    }
+
+                    $allowed = $cache[$cache_key];
+                    $v = ord($blob[$i]);
+                    if (!isset($allowed[$v])) {
+                        $errors_local[] = sprintf('player_zip: invalid byte 0x%02X at offset %d (e player_region_id %d %s)', $v, $i, $player_region, $group);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+
+        if ($region === 'f') {
+            // Region 'f' zipcode rules are player_region-specific (IDs 1-70).
+            // All three bytes must be in F6-FF.
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 70) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region f';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region f (got %d)', $len);
+            } else {
+                for ($i = 0; $i < 3; $i++) {
+                    $v = ord($blob[$i]);
+                    if ($v < 0xF6 || $v > 0xFF) {
+                        $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d (region f)', $v, $i);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+        if ($region === 'd') {
+            // Region 'd' zipcode rules are player_region-specific (IDs 1-74).
+            // All three bytes must be in F6-FF.
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 74) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region d';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region d (got %d)', $len);
+            } else {
+                for ($i = 0; $i < 3; $i++) {
+                    $v = ord($blob[$i]);
+                    if ($v < 0xF6 || $v > 0xFF) {
+                        $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d (region d)', $v, $i);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+
+        if ($region === 'i') {
+            // Region 'i' ZIP validation depends on player_region ID:
+            // 1-129:  F6-FF, F6-FF, F6-FF
+            // 130-138: FA,   FD,    FE
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 138) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region i';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region i (got %d)', $len);
+            } else {
+                $group = ($player_region <= 129) ? 'i_1_129' : 'i_130_138';
+
+                if (!isset($cache_i[$group])) {
+                    if ($group === 'i_1_129') {
+                        $cache_i[$group] = [
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ];
+                    } else {
+                        // Strict single-byte slots: FA, FD, FE
+                        $cache_i[$group] = [
+                            ['ranges' => [], 'bytes' => [0xFA]],
+                            ['ranges' => [], 'bytes' => [0xFD]],
+                            ['ranges' => [], 'bytes' => [0xFE]],
+                        ];
+                    }
+                }
+
+                $slots = $cache_i[$group];
+
+                for ($i = 0; $i < $len; $i++) {
+                    $slot_spec = $slots[$i];
+                    $cache_key = $group . ':' . $i;
+
+                    if (!isset($cache[$cache_key])) {
+                        $allowed = [];
+
+                        if (isset($slot_spec['ranges']) && is_array($slot_spec['ranges'])) {
+                            foreach ($slot_spec['ranges'] as $r) {
+                                if (!is_array($r) || count($r) !== 2) {
+                                    continue;
+                                }
+                                $lo = (int)$r[0];
+                                $hi = (int)$r[1];
+                                if ($lo < 0) $lo = 0;
+                                if ($hi > 255) $hi = 255;
+                                for ($b = $lo; $b <= $hi; $b++) {
+                                    $allowed[$b & 0xFF] = true;
+                                }
+                            }
+                        }
+
+                        if (isset($slot_spec['bytes']) && is_array($slot_spec['bytes'])) {
+                            foreach ($slot_spec['bytes'] as $b) {
+                                $allowed[((int)$b) & 0xFF] = true;
+                            }
+                        }
+
+                        $cache[$cache_key] = $allowed;
+                    }
+
+                    $allowed = $cache[$cache_key];
+                    $v = ord($blob[$i]);
+                    if (!isset($allowed[$v])) {
+                        $errors_local[] = sprintf('player_zip: invalid byte 0x%02X at offset %d (i player_region_id %d %s)', $v, $i, $player_region, $group);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+
+        if ($region === 's') {
+            // Region 's' ZIP validation depends on player_region ID:
+            // 1-50:  F6-FF, F6-FF, F6-FF
+            // 51-57: E3,    E3,    E3
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 57) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region s';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region s (got %d)', $len);
+            } else {
+                $group = ($player_region <= 50) ? 's_1_50' : 's_51_57';
+
+                if (!isset($cache_s[$group])) {
+                    if ($group === 's_1_50') {
+                        $cache_s[$group] = [
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ];
+                    } else {
+                        // s_51_57
+                        $cache_s[$group] = [
+                            ['ranges' => [], 'bytes' => [0xE3]],
+                            ['ranges' => [], 'bytes' => [0xE3]],
+                            ['ranges' => [], 'bytes' => [0xE3]],
+                        ];
+                    }
+                }
+
+                $slot_specs = $cache_s[$group];
+
+                // Validate each of the 3 bytes against its slot spec.
+                for ($i = 0; $i < 3; $i++) {
+                    $slot_spec = $slot_specs[$i];
+                    $cache_key = $group . ':' . $i;
+
+                    if (!isset($cache[$cache_key])) {
+                        $allowed = [];
+
+                        if (isset($slot_spec['ranges']) && is_array($slot_spec['ranges'])) {
+                            foreach ($slot_spec['ranges'] as $r) {
+                                if (!is_array($r) || count($r) !== 2) {
+                                    continue;
+                                }
+                                $a = (int)$r[0];
+                                $b = (int)$r[1];
+                                for ($v = $a; $v <= $b; $v++) {
+                                    $allowed[$v] = true;
+                                }
+                            }
+                        }
+
+                        if (isset($slot_spec['bytes']) && is_array($slot_spec['bytes'])) {
+                            foreach ($slot_spec['bytes'] as $v) {
+                                $allowed[(int)$v] = true;
+                            }
+                        }
+
+                        $cache[$cache_key] = $allowed;
+                    }
+
+                    $allowed = $cache[$cache_key];
+                    $v = ord($blob[$i]);
+
+                    if (!isset($allowed[$v])) {
+                        $errors_local[] = sprintf('player_zip: invalid byte 0x%02X at offset %d (s player_region_id %d %s)', $v, $i, $player_region, $group);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+
+        // (JP ZIP numeric-range validation handled earlier.)
+
+
+
+
+
+        if ($region === 'p') {
+            if (!isset($zip_specs['p'])) {
+                $errors_local[] = 'player_zip: no validation spec for region p';
+            } else {
+                $spec = $zip_specs['p'];
+
+                if (!is_int($player_region) || $player_region < 1 || $player_region > 40) {
+                    $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region p';
+                } else if (!isset($spec['player_region_db'][$player_region])) {
+                    $errors_local[] = 'player_zip: missing player_region_db mapping for player_region_id ' . $player_region;
+                } else {
+                    $db = (int)$spec['player_region_db'][$player_region];
+
+                    if (!isset($spec['db_formats'][$db]) || !is_array($spec['db_formats'][$db]) || count($spec['db_formats'][$db]) !== 3) {
+                        $errors_local[] = 'player_zip: missing/invalid db_formats for db ' . $db . ' (player_region_id ' . $player_region . ')';
+                    } else {
+                        // Validate each of the 3 bytes against its slot spec.
+                        for ($i = 0; $i < $len; $i++) {
+                            $slot_spec = $spec['db_formats'][$db][$i];
+                            $cache_key = $db . ':' . $i;
+
+                            if (!isset($cache_p[$cache_key])) {
+                                $allowed = [];
+
+                                if (isset($slot_spec['ranges']) && is_array($slot_spec['ranges'])) {
+                                    foreach ($slot_spec['ranges'] as $r) {
+                                        if (!is_array($r) || count($r) !== 2) continue;
+                                        $lo = (int)$r[0];
+                                        $hi = (int)$r[1];
+                                        if ($lo > $hi) { $tmp = $lo; $lo = $hi; $hi = $tmp; }
+                                        for ($b = $lo; $b <= $hi; $b++) {
+                                            $allowed[$b & 0xFF] = true;
+                                        }
+                                    }
+                                }
+
+                                if (isset($slot_spec['bytes']) && is_array($slot_spec['bytes'])) {
+                                    foreach ($slot_spec['bytes'] as $b) {
+                                        $allowed[((int)$b) & 0xFF] = true;
+                                    }
+                                }
+
+                                $cache_p[$cache_key] = $allowed;
+                            }
+
+                            $allowed = $cache_p[$cache_key];
+                            $v = ord($blob[$i]);
+                            if (!isset($allowed[$v])) {
+                                $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d (p player_region_id %d db %d)', $v, $i, $player_region, $db);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // region p handled; fall through to error handling below
         } else {
-            for ($i = 0; $i < $len; $i++) {
-                $v = ord($blob[$i]);
-                if (!isset($allowed[$v])) {
-                    $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d', $v, $i);
+            if (!isset($cache[$region]) && isset($zip_specs[$region])) {
+                $allowed = [];
+                $spec = $zip_specs[$region];
+
+                if (isset($spec['ranges']) && is_array($spec['ranges'])) {
+                    foreach ($spec['ranges'] as $r) {
+                        if (!is_array($r) || count($r) !== 2) continue;
+                        $lo = (int)$r[0];
+                        $hi = (int)$r[1];
+                        if ($lo > $hi) { $tmp = $lo; $lo = $hi; $hi = $tmp; }
+                        for ($b = $lo; $b <= $hi; $b++) {
+                            $allowed[$b & 0xFF] = true;
+                        }
+                    }
+                }
+
+                if (isset($spec['bytes']) && is_array($spec['bytes'])) {
+                    foreach ($spec['bytes'] as $b) {
+                        $allowed[((int)$b) & 0xFF] = true;
+                    }
+                }
+
+                $cache[$region] = $allowed;
+            }
+
+            $allowed = isset($cache[$region]) ? $cache[$region] : null;
+
+            if (!$allowed) {
+                $errors_local[] = 'player_zip: no allowed-byte set for region ' . $region;
+            } else {
+                for ($i = 0; $i < $len; $i++) {
+                    $v = ord($blob[$i]);
+                    if (!isset($allowed[$v])) {
+                        $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d', $v, $i);
+                    }
                 }
             }
         }
+
 
         if ($errors_local) {
             if (is_array($errors)) {
@@ -1457,7 +1974,7 @@ if (!function_exists('bxt_validate_ranking_row')) {
         }
 
         // Postal code bytes
-        if (!bxt_validate_player_zip_bytes($game_region, $zip_blob, $errors_local)) {
+        if (!bxt_validate_player_zip_bytes($game_region, $zip_blob, $player_region, $errors_local)) {
             // errors added
         }
 

@@ -840,6 +840,29 @@ function bxt_decode_exchange_player_zip($game_region, $binary_zip)
         return null;
     }
 
+    $region = strtolower((string)$game_region);
+    if ($region === 'j') {
+        // JP player_zip is a 2-byte big-endian number (000-999).
+        // Display as decimal with leading zeros (e.g., 0x002E -> "046").
+        $val = null;
+
+        if (is_string($binary_zip) && strlen($binary_zip) === 2) {
+            $val = (ord($binary_zip[0]) << 8) | ord($binary_zip[1]);
+        } elseif (is_string($binary_zip)) {
+            // Allow hex-string input defensively (e.g. "03E7" or "0x03E7").
+            $hex = strtoupper(preg_replace('/[^0-9A-Fa-f]/', '', $binary_zip));
+            if (strlen($hex) === 4 && ctype_xdigit($hex)) {
+                $val = hexdec($hex);
+            }
+        }
+
+        if ($val === null) {
+            return null;
+        }
+
+        return str_pad((string)$val, 3, '0', STR_PAD_LEFT);
+    }
+
     $json = bxt_load_encoding_json();
     if (!$json) {
         return null;
