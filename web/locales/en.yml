@@ -60,6 +60,7 @@ password-invalid: Password invalid
 passwords-dont-match: The passwords don't match
 wrong-password: Wrong password
 link-invalid-expired: This link is invalid or has expired.
+invalid-trade-setting: Not a valid region pool setting.
 
 # Auth pages
 auth:
