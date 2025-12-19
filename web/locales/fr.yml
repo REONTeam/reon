@@ -1,4 +1,162 @@
+# Translatable language strings
+language:
+  en: Anglais
+  ja: Japonais
+  de: Allemand
+  fr: Français
+  es: Éspagnol
+  it: Italien
+
+# Common/Global strings
+male: Mâle
+female: Femelle
+name: Nom
+score: Score
+home: Accueil
+games: Jeux
+mobile-home: Page d'Accueil Mobile
+welcome-alpha: Bienvenue au test alpha!
+what-is-this: Qu'est-ce que c'est?
+
+# Common form elements
+send: Envoyer
+continue: Continuer
+reset: Réinitialiser
+reveal: Afficher
+
+# Navigation
+login: Se connecter
+logout: Déconnexion
+signup: Enregistrer
+your-account: Votre Compte
+forgot-password: Mot de passe oublié
+
+# Common form fields
+email-addr: Addresse courriel
+password: Mot de passe
+current-password: Mot de passe actuel
+new-password: Nouveau mot de passe
+confirm-password: Confirmer le mot de passe
+confirm-new-password: Confirmer le nouveau mot de passe
+new-email: Nouveau addresse courriel
+
+# Common validation messages
+invalid-email: Addresse invalide
+password-invalid: Mot de passe invalide
+passwords-dont-match: Les mots de passe sont différents
+wrong-password: Mot de passe incorrect
+link-invalid-expired: Soit ce lien est invalide, soit il a expiré.
+invalid-trade-setting: Réglage invalide pour le pool des régions.
+
+# Auth pages
+auth:
+  login-to-reon: Se connecter à votre compte REON
+  invalid-email-pass: Addresse ou mot de passe incorrect
+  signup-to-reon: S'enregistrer à REON
+  i-agree-terms: J'accepte les conditions d'utilisation et le politique de confidentialité
+  you-must-agree: Vous devez accepter
+  registration-email-sent: Un email contenant un lien pour continuer votre enregistrement était envoyé à l'addresse specifié, sauf si enregistré.
+  registration-complete: Votre enregistrement est fini.
+  reon-email: Addresse courriel de REON
+  reon-email-invalid: Addresse invalide ou prené
+  #region-explanation-para1: REON enables international trade for Pokémon Crystal players, via the in-game facility called the Trade Corner. This includes trading between Japanese and non-Japanese games, which are normally incompatible due to using different character sets. To make such trades possible, the service changes Pokémon nicknames, Trainer names, and messages written on Mail when matching Pokémon between Japanese and non-Japanese games (for example, changing "A" to "ア", and vice-versa). These changes are irreversible, but they aim to imitate the original language's lettering as faithfully as possible.
+  #region-explanation-para2: Choose the pool of regions you're okay with trading with. This setting can be changed after sign-up as well.
+
+# Password reset pages
+password-reset:
+  title: Réinitialiser votre mot de passe
+  this-email-not-registered: Cet addresse ne s'est pas enregistré
+  email-sent-recently: Un email était envoyé il y a moins de 5 minutes
+  email-sent: Un email contenant un lien pour réinitialiser votre mot de passe était envoyé à l'addresse specifié, si enregistré.
+  success: Votre mot de passe a été réinitialisé avec succès.
+
+# User account pages
+account:
+  your-reon-account: Votre compte REON
+  account-details: Détails de compte
+  change-email: Changer addresse courriel
+  change-password: Changer mot de passe
+  stats: Statistiques
+  emails-in-inbox: Emails dans boîte de réception
+  money-spent: Argent dépensé
+  dion-account-details: Détails de compte DION
+  dion-id: Identifiant DION
+  log-in-password: Mot de passe DION
+  reroll-log-in-password: Regénérer mot de passe DION
+  reroll-confirm-message: En êtes-vous sûr(e)?
+  reroll-warning: Vous devrez changer votre mot de passe dans tous les jeux.
+  change-email-address: Changer votre addresse courriel
+  email-confirm-sent: Un email contenant un lien pour confirmer ce changement était envoyé à l'addresse specifié, sauf si enregistré.
+  email-changed-success: Votre addresse courriel a été changé avec succès.
+  change-your-password: Changer votre mot de passe
+  password-changed-success: Votre mot de passe a été changé avec succès.
+  pokemon-crystal-settings: Paramètres Pokémon Cristal
+  trade-corner-region-allowlist: "Coin Troc : Préférences d'Échange International"
+  trade-region-allowlist-blurb: Selectionnez les régions avec qui vous voulez échanger au Coin Troc. N'import quel Pokémon que vous recevez sera d'en un. « Régions avec langues compatibles » signifie les jeux avec les mêmes caractères, donc tous les jeux latins ou seul le jeu japonais.
+  trade-option-1: National uniquement (seule la région de votre jeu)
+  trade-option-2: Tous les régions avec langues compatibles
+  trade-option-3: Tous les régions
+  update-settings: Mettre à jour les paramètres
+
+# Index/Home page
+index:
+  what-is-reon: Qu'est-ce c'est REON?
+  reon-description: REON est quelque chose.
+  reon-lorem: Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  what-is-mobile-adapter: Qu'est-ce c'est l'Adaptateur Mobile?
+  mobile-adapter-description: L'Adaptateur Mobile était un chose.
+
+gameboy-wars: Game Boy Wars 3
+
+# Pokemon game section
+pokemon-crystal: Pokémon Cristal
+rankings: Classement
+trade-corner: Coin Troc
+
+region:
+  text: Région
+  global: Mondial
+  international: International
+  short: # Trade corner
+    e: ENG
+    p: ENG
+    u: ENG
+    j: JPN
+    d: GER
+    f: FRA
+    i: ITA
+    s: SPA
+  country: # Rankings
+    e: États-Unis
+    p: Europe
+    u: Australie
+    j: Japon
+    d: Allemagne
+    f: France
+    i: Italie
+    s: Éspagne
+  language: # Trade corner (hover text)
+    e: Anglais (États-Unis)
+    p: Anglais (Europe)
+    u: Anglais (Australie)
+    j: Japonais
+    d: Allemand
+    f: Français
+    i: Italien
+    s: Éspagnol
+
 pokemon:
+  pokerus:
+    cured: Pokérus (soigné)
+    infected: Pokérus (infecté)
+  shiny: Brillant
+  level: N.
+  name: Surnom
+  offerer: Offrant
+  item: Object
+  trainer: DO
+  wanted: Désiré
+
   # Given the large size of these lists, it is advised to add any new translation keys ABOVE this line
   species:
   - (Aucun)
