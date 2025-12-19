@@ -96,8 +96,10 @@
 	}
 
 	function getCurrentMobileGP() {
+		$datestamp = date("Y-m-d", time() + 32400);
 		$db = connectMySQL();
-		$stmt = $db->prepare("select id from amkj_rule order by id desc limit 1");
+		$stmt = $db->prepare("select id from amkj_rule where start_date <= ? order by id desc limit 1");
+		$stmt->bind_param("s", $datestamp);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		if (sizeof($result) == 0) {

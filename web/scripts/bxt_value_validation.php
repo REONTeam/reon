@@ -1089,7 +1089,94 @@ if (!function_exists('bxt_validate_player_name_bytes')) {
      * Non-J regions: exactly 7 bytes; J region: exactly 5 bytes.
      * Allowed bytes follow the per-region name alphabets.
      */
-    function bxt_validate_player_name_bytes($game_region, $blob, &$errors = []) {
+    
+// Mail-author allowed byte sets, reused for validating player_name across systems.
+if (!function_exists('bxt_get_mail_author_allowed_byte_set_for_region')) {
+    function bxt_get_mail_author_allowed_byte_set_for_region($game_region) {
+        static $cache = null;
+        if ($cache === null) {
+            $lists = [
+                'j' => array(
+                    0x00, 0x01, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x10, 0x11, 0x12, 0x13, 0x19, 0x1A,
+                    0x1B, 0x1C, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x37,
+                    0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49,
+                    0x4E, 0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C,
+                    0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C,
+                    0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC,
+                    0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC,
+                    0xBD, 0xBE, 0xBF, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC,
+                    0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC,
+                    0xDD, 0xDE, 0xDF, 0xE0, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE9, 0xEA, 0xEB, 0xF4
+        ),
+                // English (and US English) use the same author allowlist as non-J mail nationality 0x0000.
+                'e' => array(
+                    0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+                    0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+                    0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+                    0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+                    0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+        ),
+                'u' => array(
+                    0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+                    0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+                    0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+                    0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+                    0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+        ),
+                'f' => array(
+                    0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+                    0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+                    0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+                    0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+                    0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+        ),
+                'd' => array(
+                    0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+                    0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9E,
+                    0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE,
+                    0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4,
+                    0xC5, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+        ),
+                'i' => array(
+                    0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+                    0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+                    0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+                    0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+                    0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+        ),
+                's' => array(
+                    0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+                    0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+                    0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+                    0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+                    0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+        ),
+                // Region 'p' uses the same author allowlist as non-J mail nationality 0x0000 (same as region 'e'/'u').
+                'p' => array(
+                    0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+                    0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+                    0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+                    0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+                    0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+        ),
+            ];
+
+            $cache = [];
+            foreach ($lists as $r => $list) {
+                $set = [];
+                foreach ($list as $b) {
+                    $set[$b] = true;
+                }
+                $cache[$r] = $set;
+            }
+        }
+
+        $r = strtolower($game_region);
+        return $cache[$r] ?? $cache['p'];
+    }
+}
+
+function bxt_validate_player_name_bytes($game_region, $blob, &$errors = []) {
         $errors_local = [];
 
         if (!is_string($blob)) {
@@ -1113,56 +1200,8 @@ if (!function_exists('bxt_validate_player_name_bytes')) {
             }
         }
 
-        // Allowed bytes for non-J regions
-        static $allowed_non_j = null;
-        if ($allowed_non_j === null) {
-            $allowed_non_j = [];
-
-            // Base 0x80-0xB9 inclusive
-            for ($b = 0x80; $b <= 0xB9; $b++) {
-                $allowed_non_j[$b] = true;
-            }
-
-            // Extras from the name alphabet (covers punctuation and special glyphs)
-            foreach ([0x50, 0x7F, 0xF1, 0x9A, 0x9B,
-                      0x9C, 0x9D, 0x9E, 0x9F, 0xC0,
-                      0xC3, 0xC4, 0xC5, 0xC6, 0xD1,
-                      0xD6, 0xDC, 0xE0, 0xE1, 0xE8,
-                      0xEC, 0xED, 0xF2, 0xE9, 0xF4,
-                      0xF6, 0xF7, 0xF9, 0xFA, 0xFB,
-                      0xFC, 0xFF] as $b) {
-                $allowed_non_j[$b] = true;
-            }
-        }
-
-        // Allowed bytes for J region – taken from Gen II JP name alphabet
-        static $allowed_j = null;
-        if ($allowed_j === null) {
-            $allowed_j = [];
-
-            $jp_bytes = [
-				0x01, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x10, 0x11, 0x12, 0x13, 0x19, 0x1A, 0x1B,
-				0x1C, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x37, 0x3A,
-				0x3B, 0x3C, 0x3D, 0x3E, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4E, 0x50,
-				0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E,
-				0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E,
-				0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE,
-				0xAF, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF,
-				0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
-				0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF,
-				0xE0, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE9, 0xEB, 0xF4
-            ];
-
-            foreach ($jp_bytes as $b) {
-                $allowed_j[$b] = true;
-            }
-        }
-
-        if ($region === 'j') {
-            $allowed = $allowed_j;
-        } else {
-            $allowed = $allowed_non_j;
-        }
+        // Allowed bytes for player_name are the same as the mail author allowlist for the given game region.
+        $allowed = bxt_get_mail_author_allowed_byte_set_for_region($region);
 
         for ($i = 0; $i < $len; $i++) {
             $v = ord($blob[$i]);
@@ -1189,7 +1228,7 @@ if (!function_exists('bxt_validate_player_zip_bytes')) {
      * Non-J: 3 bytes; J: 2 bytes.
      * Allowed bytes follow the per-region postal alphabets.
      */
-    function bxt_validate_player_zip_bytes($game_region, $blob, &$errors = []) {
+    function bxt_validate_player_zip_bytes($game_region, $blob, $player_region = null, &$errors = []) {
         $errors_local = [];
 
         if (!is_string($blob)) {
@@ -1203,59 +1242,576 @@ if (!function_exists('bxt_validate_player_zip_bytes')) {
         $region = strtolower($game_region);
         $len = strlen($blob);
 
+// Region-specific ZIP/Postal validation specs.
+        // Each region can define:
+        //  - 'len'    : expected byte-length
+        //  - 'ranges' : list of inclusive [lo, hi] byte ranges
+        //  - 'bytes'  : list of individual allowed bytes
+        //
+        // To customize per-region rules, edit these specs.
+        $zip_specs = [
+            'e' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            'p' => [
+                'len' => 3,
+
+                // EU player_region_id (1..40) -> ZipcodeFormatLengths DB index
+                // 1 = EU-AD, ... 40 = EU-UA
+                'player_region_db' => [
+                    1 => 0,  2 => 2,  3 => 2,  4 => 3,  5 => 2,
+                    6 => 2,  7 => 4,  8 => 2,  9 => 3, 10 => 3,
+                   11 => 2, 12 => 3, 13 => 3, 14 => 3, 15 => 3,
+                   16 => 8, 17 => 3, 18 => 3, 19 => 2, 20 => 7,
+                   21 => 1, 22 => 3, 23 => 2, 24 => 2, 25 => 2,
+                   26 => 10, 27 => 11, 28 => 9, 29 => 6, 30 => 2,
+                   31 => 14, 32 => 5, 33 => 4, 34 => 3, 35 => 4,
+                   36 => 15, 37 => 12, 38 => 3, 39 => 13, 40 => 3,
+                ],
+
+                // ZipcodeFormatLengths DB index -> slot specs (each is 3 slots)
+                // Each slot is ['ranges' => [[lo,hi],...], 'bytes' => [...]]
+                'db_formats' => [
+                    0 => [
+                        ['ranges' => [], 'bytes' => [0xE3]],
+                        ['ranges' => [], 'bytes' => [0xE3]],
+                        ['ranges' => [], 'bytes' => [0xE3]],
+                    ],
+                    1 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    2 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    3 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    4 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    5 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    6 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    7 => [
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [], 'bytes' => [0xF7]],
+                    ],
+                    8 => [
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF], [0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF], [0x80, 0x89]], 'bytes' => []],
+                    ],
+                    9 => [
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                    ],
+                    10 => [
+                        ['ranges' => [], 'bytes' => [0x8B]],
+                        ['ranges' => [], 'bytes' => [0x95]],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    11 => [
+                        ['ranges' => [], 'bytes' => [0x8C]],
+                        ['ranges' => [], 'bytes' => [0x83]],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    12 => [
+                        ['ranges' => [], 'bytes' => [0x92]],
+                        ['ranges' => [], 'bytes' => [0x88]],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                    13 => [
+                        ['ranges' => [], 'bytes' => [0xFA]],
+                        ['ranges' => [], 'bytes' => [0xFD]],
+                        ['ranges' => [], 'bytes' => [0xFE]],
+                    ],
+                    14 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [], 'bytes' => [0xE3]],
+                    ],
+                    15 => [
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                    ],
+                ],
+            ],
+            'u' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            'f' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            'd' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            'i' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [],
+            ],
+            's' => [
+                'len' => 3,
+                'ranges' => [[0xF6, 0xFF]],
+                'bytes' => [0xE3],
+            ],
+            'j' => [
+                'len' => 2,
+                // JP zip is a big-endian 16-bit value in range 000-999 (0x0000..0x03E7).
+                // Validation is handled in the special-case block for region j below.
+                'ranges' => [],
+                'bytes' => [],
+            ],
+        ];
+
+        if (!isset($zip_specs[$region])) {
+            $errors_local[] = 'player_zip: no validation spec for region ' . $region;
+        } else {
+            $expected_len = (int)$zip_specs[$region]['len'];
+            if ($len !== $expected_len) {
+                $errors_local[] = 'player_zip: invalid length ' . $len . ' for region ' . $region . ', expected ' . $expected_len;
+            }
+        }
+
+                // Region 'j' ZIP codes are a big-endian 16-bit value representing decimal 000-999:
+        //   0x00 0x00 .. 0x03 0xE7 (inclusive)
+        // This rule is ZIP-specific and does not use a per-byte allowlist.
         if ($region === 'j') {
             if ($len !== 2) {
                 $errors_local[] = 'player_zip: invalid length ' . $len . ' for region j, expected 2';
-            }
-        } else {
-            if ($len !== 3) {
-                $errors_local[] = 'player_zip: invalid length ' . $len . ' for non-j region, expected 3';
-            }
-        }
-
-        // Build per-region allowed byte sets.
-        static $cache = [];
-
-        if (!isset($cache[$region])) {
-            $allowed = [];
-
-            if ($region === 'e') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-                for ($b = 0x80; $b <= 0x99; $b++) $allowed[$b] = true;
-            } elseif ($region === 'p') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-                for ($b = 0x80; $b <= 0x99; $b++) $allowed[$b] = true;
-                foreach ([0xE3, 0x7F] as $b) $allowed[$b] = true;
-            } elseif ($region === 'u' || $region === 'f' || $region === 'd' || $region === 'i') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-            } elseif ($region === 's') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-                $allowed[0xE3] = true;
-            } elseif ($region === 'j') {
-                for ($b = 0xF6; $b <= 0xFF; $b++) $allowed[$b] = true;
-                $allowed[0x00] = true;
-                $allowed[0x01] = true;
-                $allowed[0x2E] = true;
-                $allowed[0x5A] = true;
             } else {
-                // Unknown region: no allowed bytes
+                $hi = ord($blob[0]);
+                $lo = ord($blob[1]);
+                $value = (($hi & 0xFF) << 8) | ($lo & 0xFF);
+
+                if ($value < 0x0000 || $value > 0x03E7) {
+                    $errors_local[] = sprintf(
+                        'player_zip: jp zip out of range: 0x%02X 0x%02X (0x%04X), expected 0x0000..0x03E7',
+                        $hi,
+                        $lo,
+                        $value
+                    );
+                }
             }
 
-            $cache[$region] = $allowed;
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
         }
 
-        $allowed = $cache[$region];
+// Build per-region allowed byte sets from specs.
+        // For region 'p' this is per-player_region (slot-specific) and does not use the simple union set.
+        static $cache = [];
+        static $cache_p = [];
+        static $cache_e = [];
+        static $cache_i = [];
+        static $cache_s = [];
 
-        if (!$allowed) {
-            $errors_local[] = 'player_zip: no allowed-byte set for region ' . $region;
+        if ($region === 'e') {
+            // Region 'e' ZIP validation depends on player_region ID:
+            // 1-50:  F6-FF, F6-FF, F6-FF
+            // 51-63: 80-89, F6-FF, 80-89
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 63) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region e';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region e (got %d)', $len);
+            } else {
+                $group = ($player_region <= 50) ? 'e_1_50' : 'e_51_63';
+
+                if (!isset($cache_e[$group])) {
+                    if ($group === 'e_1_50') {
+                        $cache_e[$group] = [
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ];
+                    } else {
+                        $cache_e[$group] = [
+                            ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0x80, 0x89]], 'bytes' => []],
+                        ];
+                    }
+                }
+
+                $slot_specs = $cache_e[$group];
+
+                // Validate each of the 3 bytes against its slot spec.
+                for ($i = 0; $i < 3; $i++) {
+                    $slot_spec = $slot_specs[$i];
+                    $cache_key = $group . ':' . $i;
+
+                    if (!isset($cache[$cache_key])) {
+                        $allowed = [];
+
+                        if (isset($slot_spec['ranges']) && is_array($slot_spec['ranges'])) {
+                            foreach ($slot_spec['ranges'] as $r) {
+                                if (!is_array($r) || count($r) !== 2) continue;
+                                $lo = (int)$r[0];
+                                $hi = (int)$r[1];
+                                if ($lo > $hi) { $tmp = $lo; $lo = $hi; $hi = $tmp; }
+                                for ($b = $lo; $b <= $hi; $b++) {
+                                    $allowed[$b & 0xFF] = true;
+                                }
+                            }
+                        }
+
+                        if (isset($slot_spec['bytes']) && is_array($slot_spec['bytes'])) {
+                            foreach ($slot_spec['bytes'] as $b) {
+                                $allowed[((int)$b) & 0xFF] = true;
+                            }
+                        }
+
+                        $cache[$cache_key] = $allowed;
+                    }
+
+                    $allowed = $cache[$cache_key];
+                    $v = ord($blob[$i]);
+                    if (!isset($allowed[$v])) {
+                        $errors_local[] = sprintf('player_zip: invalid byte 0x%02X at offset %d (e player_region_id %d %s)', $v, $i, $player_region, $group);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+
+        if ($region === 'f') {
+            // Region 'f' zipcode rules are player_region-specific (IDs 1-70).
+            // All three bytes must be in F6-FF.
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 70) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region f';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region f (got %d)', $len);
+            } else {
+                for ($i = 0; $i < 3; $i++) {
+                    $v = ord($blob[$i]);
+                    if ($v < 0xF6 || $v > 0xFF) {
+                        $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d (region f)', $v, $i);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+        if ($region === 'd') {
+            // Region 'd' zipcode rules are player_region-specific (IDs 1-74).
+            // All three bytes must be in F6-FF.
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 74) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region d';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region d (got %d)', $len);
+            } else {
+                for ($i = 0; $i < 3; $i++) {
+                    $v = ord($blob[$i]);
+                    if ($v < 0xF6 || $v > 0xFF) {
+                        $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d (region d)', $v, $i);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+
+        if ($region === 'i') {
+            // Region 'i' ZIP validation depends on player_region ID:
+            // 1-129:  F6-FF, F6-FF, F6-FF
+            // 130-138: FA,   FD,    FE
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 138) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region i';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region i (got %d)', $len);
+            } else {
+                $group = ($player_region <= 129) ? 'i_1_129' : 'i_130_138';
+
+                if (!isset($cache_i[$group])) {
+                    if ($group === 'i_1_129') {
+                        $cache_i[$group] = [
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ];
+                    } else {
+                        // Strict single-byte slots: FA, FD, FE
+                        $cache_i[$group] = [
+                            ['ranges' => [], 'bytes' => [0xFA]],
+                            ['ranges' => [], 'bytes' => [0xFD]],
+                            ['ranges' => [], 'bytes' => [0xFE]],
+                        ];
+                    }
+                }
+
+                $slots = $cache_i[$group];
+
+                for ($i = 0; $i < $len; $i++) {
+                    $slot_spec = $slots[$i];
+                    $cache_key = $group . ':' . $i;
+
+                    if (!isset($cache[$cache_key])) {
+                        $allowed = [];
+
+                        if (isset($slot_spec['ranges']) && is_array($slot_spec['ranges'])) {
+                            foreach ($slot_spec['ranges'] as $r) {
+                                if (!is_array($r) || count($r) !== 2) {
+                                    continue;
+                                }
+                                $lo = (int)$r[0];
+                                $hi = (int)$r[1];
+                                if ($lo < 0) $lo = 0;
+                                if ($hi > 255) $hi = 255;
+                                for ($b = $lo; $b <= $hi; $b++) {
+                                    $allowed[$b & 0xFF] = true;
+                                }
+                            }
+                        }
+
+                        if (isset($slot_spec['bytes']) && is_array($slot_spec['bytes'])) {
+                            foreach ($slot_spec['bytes'] as $b) {
+                                $allowed[((int)$b) & 0xFF] = true;
+                            }
+                        }
+
+                        $cache[$cache_key] = $allowed;
+                    }
+
+                    $allowed = $cache[$cache_key];
+                    $v = ord($blob[$i]);
+                    if (!isset($allowed[$v])) {
+                        $errors_local[] = sprintf('player_zip: invalid byte 0x%02X at offset %d (i player_region_id %d %s)', $v, $i, $player_region, $group);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+
+        if ($region === 's') {
+            // Region 's' ZIP validation depends on player_region ID:
+            // 1-50:  F6-FF, F6-FF, F6-FF
+            // 51-57: E3,    E3,    E3
+            if (!is_int($player_region) || $player_region < 1 || $player_region > 57) {
+                $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region s';
+            } else if ($len !== 3) {
+                $errors_local[] = sprintf('player_zip: expected length 3 for region s (got %d)', $len);
+            } else {
+                $group = ($player_region <= 50) ? 's_1_50' : 's_51_57';
+
+                if (!isset($cache_s[$group])) {
+                    if ($group === 's_1_50') {
+                        $cache_s[$group] = [
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                            ['ranges' => [[0xF6, 0xFF]], 'bytes' => []],
+                        ];
+                    } else {
+                        // s_51_57
+                        $cache_s[$group] = [
+                            ['ranges' => [], 'bytes' => [0xE3]],
+                            ['ranges' => [], 'bytes' => [0xE3]],
+                            ['ranges' => [], 'bytes' => [0xE3]],
+                        ];
+                    }
+                }
+
+                $slot_specs = $cache_s[$group];
+
+                // Validate each of the 3 bytes against its slot spec.
+                for ($i = 0; $i < 3; $i++) {
+                    $slot_spec = $slot_specs[$i];
+                    $cache_key = $group . ':' . $i;
+
+                    if (!isset($cache[$cache_key])) {
+                        $allowed = [];
+
+                        if (isset($slot_spec['ranges']) && is_array($slot_spec['ranges'])) {
+                            foreach ($slot_spec['ranges'] as $r) {
+                                if (!is_array($r) || count($r) !== 2) {
+                                    continue;
+                                }
+                                $a = (int)$r[0];
+                                $b = (int)$r[1];
+                                for ($v = $a; $v <= $b; $v++) {
+                                    $allowed[$v] = true;
+                                }
+                            }
+                        }
+
+                        if (isset($slot_spec['bytes']) && is_array($slot_spec['bytes'])) {
+                            foreach ($slot_spec['bytes'] as $v) {
+                                $allowed[(int)$v] = true;
+                            }
+                        }
+
+                        $cache[$cache_key] = $allowed;
+                    }
+
+                    $allowed = $cache[$cache_key];
+                    $v = ord($blob[$i]);
+
+                    if (!isset($allowed[$v])) {
+                        $errors_local[] = sprintf('player_zip: invalid byte 0x%02X at offset %d (s player_region_id %d %s)', $v, $i, $player_region, $group);
+                    }
+                }
+            }
+
+            if ($errors_local) {
+                $errors = array_merge($errors, $errors_local);
+                return false;
+            }
+            return true;
+        }
+
+
+        // (JP ZIP numeric-range validation handled earlier.)
+
+
+
+
+
+        if ($region === 'p') {
+            if (!isset($zip_specs['p'])) {
+                $errors_local[] = 'player_zip: no validation spec for region p';
+            } else {
+                $spec = $zip_specs['p'];
+
+                if (!is_int($player_region) || $player_region < 1 || $player_region > 40) {
+                    $errors_local[] = 'player_zip: invalid player_region_id ' . (is_scalar($player_region) ? $player_region : gettype($player_region)) . ' for region p';
+                } else if (!isset($spec['player_region_db'][$player_region])) {
+                    $errors_local[] = 'player_zip: missing player_region_db mapping for player_region_id ' . $player_region;
+                } else {
+                    $db = (int)$spec['player_region_db'][$player_region];
+
+                    if (!isset($spec['db_formats'][$db]) || !is_array($spec['db_formats'][$db]) || count($spec['db_formats'][$db]) !== 3) {
+                        $errors_local[] = 'player_zip: missing/invalid db_formats for db ' . $db . ' (player_region_id ' . $player_region . ')';
+                    } else {
+                        // Validate each of the 3 bytes against its slot spec.
+                        for ($i = 0; $i < $len; $i++) {
+                            $slot_spec = $spec['db_formats'][$db][$i];
+                            $cache_key = $db . ':' . $i;
+
+                            if (!isset($cache_p[$cache_key])) {
+                                $allowed = [];
+
+                                if (isset($slot_spec['ranges']) && is_array($slot_spec['ranges'])) {
+                                    foreach ($slot_spec['ranges'] as $r) {
+                                        if (!is_array($r) || count($r) !== 2) continue;
+                                        $lo = (int)$r[0];
+                                        $hi = (int)$r[1];
+                                        if ($lo > $hi) { $tmp = $lo; $lo = $hi; $hi = $tmp; }
+                                        for ($b = $lo; $b <= $hi; $b++) {
+                                            $allowed[$b & 0xFF] = true;
+                                        }
+                                    }
+                                }
+
+                                if (isset($slot_spec['bytes']) && is_array($slot_spec['bytes'])) {
+                                    foreach ($slot_spec['bytes'] as $b) {
+                                        $allowed[((int)$b) & 0xFF] = true;
+                                    }
+                                }
+
+                                $cache_p[$cache_key] = $allowed;
+                            }
+
+                            $allowed = $cache_p[$cache_key];
+                            $v = ord($blob[$i]);
+                            if (!isset($allowed[$v])) {
+                                $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d (p player_region_id %d db %d)', $v, $i, $player_region, $db);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // region p handled; fall through to error handling below
         } else {
-            for ($i = 0; $i < $len; $i++) {
-                $v = ord($blob[$i]);
-                if (!isset($allowed[$v])) {
-                    $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d', $v, $i);
+            if (!isset($cache[$region]) && isset($zip_specs[$region])) {
+                $allowed = [];
+                $spec = $zip_specs[$region];
+
+                if (isset($spec['ranges']) && is_array($spec['ranges'])) {
+                    foreach ($spec['ranges'] as $r) {
+                        if (!is_array($r) || count($r) !== 2) continue;
+                        $lo = (int)$r[0];
+                        $hi = (int)$r[1];
+                        if ($lo > $hi) { $tmp = $lo; $lo = $hi; $hi = $tmp; }
+                        for ($b = $lo; $b <= $hi; $b++) {
+                            $allowed[$b & 0xFF] = true;
+                        }
+                    }
+                }
+
+                if (isset($spec['bytes']) && is_array($spec['bytes'])) {
+                    foreach ($spec['bytes'] as $b) {
+                        $allowed[((int)$b) & 0xFF] = true;
+                    }
+                }
+
+                $cache[$region] = $allowed;
+            }
+
+            $allowed = isset($cache[$region]) ? $cache[$region] : null;
+
+            if (!$allowed) {
+                $errors_local[] = 'player_zip: no allowed-byte set for region ' . $region;
+            } else {
+                for ($i = 0; $i < $len; $i++) {
+                    $v = ord($blob[$i]);
+                    if (!isset($allowed[$v])) {
+                        $errors_local[] = sprintf('player_zip: disallowed byte 0x%02X at offset %d', $v, $i);
+                    }
                 }
             }
         }
+
 
         if ($errors_local) {
             if (is_array($errors)) {
@@ -1429,8 +1985,13 @@ if (!function_exists('bxt_validate_ranking_row')) {
     /**
      * Validate a single logical ranking row (for bxt_ranking) before DB insert/update.
      */
-    function bxt_validate_ranking_row($game_region, $category_id, $trainer_id, $secret_id, $gender, $age, $player_region, $zip_blob, $message_blob, $score, &$errors = []) {
+    function bxt_validate_ranking_row($game_region, $category_id, $trainer_id, $secret_id, $gender, $age, $player_region, $zip_blob, $message_blob, $score, &$errors = [], $player_name_blob = null) {
         $errors_local = [];
+
+        // Optional: validate player_name bytes using the same allowlist as mail author bytes for this region.
+        if ($player_name_blob !== null) {
+            bxt_validate_player_name_bytes($game_region, $player_name_blob, $errors_local);
+        }
 
         // Basic scalar ranges
         if (!is_int($category_id) || $category_id < 0 || $category_id > 41) {
@@ -1457,7 +2018,7 @@ if (!function_exists('bxt_validate_ranking_row')) {
         }
 
         // Postal code bytes
-        if (!bxt_validate_player_zip_bytes($game_region, $zip_blob, $errors_local)) {
+        if (!bxt_validate_player_zip_bytes($game_region, $zip_blob, $player_region, $errors_local)) {
             // errors added
         }
 
@@ -1490,8 +2051,13 @@ if (!function_exists('bxt_validate_exchange_row')) {
      *
      * $mail_blob and $pokemon_blob are raw binary as received from the client.
      */
-    function bxt_validate_exchange_row($game_region, $trainer_id, $secret_id, $offer_gender, $request_gender, $offer_species, $pokemon_blob, $mail_blob, &$errors = []) {
+    function bxt_validate_exchange_row($game_region, $trainer_id, $secret_id, $offer_gender, $request_gender, $offer_species, $pokemon_blob, $mail_blob, &$errors = [], $player_name_blob = null) {
         $errors_local = [];
+
+        // Optional: validate player_name bytes using the same allowlist as mail author bytes for this region.
+        if ($player_name_blob !== null) {
+            bxt_validate_player_name_bytes($game_region, $player_name_blob, $errors_local);
+        }
 
         foreach ([['trainer_id', $trainer_id], ['secret_id', $secret_id]] as $pair) {
             list($name, $val) = $pair;
@@ -1535,56 +2101,466 @@ if (!function_exists('bxt_validate_exchange_row')) {
             if ($len !== $expected_len) {
                 $errors_local[] = 'mail: invalid length ' . $len . ' for region ' . $region . ', expected ' . $expected_len;
             } else {
-                // Region-specific mail byte whitelist
-				if ($region === 'j') {
-					$allowed_bytes = array(
-						0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-						0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
-						0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
-						0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
-						0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,
-						0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F,
-						0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
-						0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
-						0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F,
-						0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F,
-						0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF,
-						0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF,
-						0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
-						0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF,
-						0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
-						0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
-					);
-				} else {
-					$allowed_bytes = array(
-						0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-						0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
-						0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
-						0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
-						0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F,
-						0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F,
-						0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C, 0x6D, 0x6E, 0x6F,
-						0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
-						0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F,
-						0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F,
-						0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF,
-						0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF,
-						0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
-						0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF,
-						0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
-						0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
-					);
-				}
+                // Region-specific mail byte whitelist, split into:
+//   - message bytes: [0 .. (len-$tail_len)-1]  (text + author/name bytes)
+//   - tail bytes:    [(len-$tail_len) .. end]  (trailing 6-byte metadata: trainer ID, species, mail item, etc.)
+// This matches the mail struct layout used in index.js: [33 bytes text][name][(non-j only: 2 bytes nationality)][4 bytes metadata].
+                $tail_len = ($region === 'j') ? 4 : 6;
+                $tail_offset = ($len >= $tail_len) ? ($len - $tail_len) : $len;
+
+                // Build per-region allowed-byte sets (as lookup tables) once.
+                static $mail_allowed_cache = null;
+                if ($mail_allowed_cache === null) {
+                    $mail_allowed_cache = [
+                        'j' => [
+                            'message_list' => array(
+                                0x00, 0x01, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x10, 0x11, 0x12, 0x13, 0x19, 0x1A,
+                                0x1B, 0x1C, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x37,
+                                0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49,
+                                0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C,
+                                0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C,
+                                0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC,
+                                0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC,
+                                0xBD, 0xBE, 0xBF, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC,
+                                0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC,
+                                0xDD, 0xDE, 0xDF, 0xE0, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE9, 0xEA, 0xEB, 0xF3, 0xF4, 0xF6, 0xF7,
+                                0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
+                            ),
+                            'author_list' => array(
+                                0x00, 0x01, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x10, 0x11, 0x12, 0x13, 0x19, 0x1A,
+                                0x1B, 0x1C, 0x26, 0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 0x31, 0x32, 0x37,
+                                0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49,
+                                0x4E, 0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C,
+                                0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C,
+                                0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC,
+                                0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC,
+                                0xBD, 0xBE, 0xBF, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC,
+                                0xCD, 0xCE, 0xCF, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC,
+                                0xDD, 0xDE, 0xDF, 0xE0, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE9, 0xEA, 0xEB, 0xF4,
+							),
+                            // Tail is raw metadata (not text), validated as 4 fields:
+                            //   [0] trainer_id low byte, [1] trainer_id high byte, [2] species id, [3] mail item id.
+                            'tail_tid_lo_list' => range(0x00, 0xFF),
+                            'tail_tid_hi_list' => range(0x00, 0xFF),
+                            'tail_species_list' => range(0x01, 0xFB),
+                            'tail_mail_list' => array(0x9E, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD),
+                        ],
+                        'non_j' => [
+// Nationality-dependent message/author allowlists for non-J mail.
+                            // Selected by the 2-byte nationality pair stored in the tail.
+							// 0000 is en
+							// 8485 is fr
+							// 8486 is de
+							// 8488 is it
+							// 8492 is es
+                            'message_list_nat_0000' => array(
+                                0x50, 0x54, 0x70, 0x71, 0x72, 0x73, 0x75, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
+								0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,
+								0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7,
+								0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7,
+								0xB8, 0xB9, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xE0, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE8,
+								0xE9, 0xEF, 0xF0, 0xF1, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE,
+								0xFF
+							),
+                            'author_list_nat_0000' => array(
+                                0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+								0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+								0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+								0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+								0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+                            ),
+                            'message_list_nat_8485' => array(
+								0x50, 0x70, 0x71, 0x72, 0x73, 0x75, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
+								0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98,
+								0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8,
+								0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8,
+								0xB9, 0xBA, 0xBB, 0xBD, 0xBF, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5,
+								0xD6, 0xD8, 0xD9, 0xDA, 0xDB, 0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xED,
+								0xF0, 0xF1, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
+							),
+                            'author_list_nat_8485' => array(
+								0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+								0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+								0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+								0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+								0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+							),
+                            'message_list_nat_8486' => array(
+								0x50, 0x70, 0x71, 0x72, 0x73, 0x75, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
+								0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98,
+								0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8,
+								0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8,
+								0xB9, 0xBE, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xE0, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7,
+								0xE8, 0xE9, 0xEA, 0xEF, 0xF0, 0xF1, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC,
+								0xFD, 0xFE, 0xFF
+							),
+                            'author_list_nat_8486' => array(
+								0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+								0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9E,
+								0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE,
+								0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xC0, 0xC1, 0xC2, 0xC3, 0xC4,
+								0xC5, 0xE1, 0xE2, 0xE3, 0xE6, 0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+							),
+                            'message_list_nat_8488' => array(
+								0x50, 0x70, 0x71, 0x72, 0x73, 0x75, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
+								0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98,
+								0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8,
+								0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8,
+								0xB9, 0xBA, 0xBB, 0xBD, 0xBE, 0xBF, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
+								0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xE0, 0xE1,
+								0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEE, 0xF0, 0xF1, 0xF3, 0xF4, 0xF5, 0xF6,
+								0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
+							),
+                            'author_list_nat_8488' => array(
+								0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+								0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+								0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+								0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+								0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+							),
+                            'message_list_nat_8492' => array(
+								0x50, 0x70, 0x71, 0x72, 0x73, 0x75, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
+								0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98,
+								0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8,
+								0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8,
+								0xB9, 0xBA, 0xBB, 0xBD, 0xBE, 0xBF, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
+								0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xE0, 0xE1,
+								0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEE, 0xF0, 0xF1, 0xF3, 0xF4, 0xF5, 0xF6,
+								0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
+							),
+                            'author_list_nat_8492' => array(
+								0x50, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
+								0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
+								0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD,
+								0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
+								0xE7, 0xE8, 0xF1, 0xF3, 0xF4
+							),
+                            // Tail is raw metadata (not text), validated as 6 fields:
+                            //   [0] nationality[0] (A-Z), [1] nationality[1] (A-Z)
+                            //   [2] trainer_id low byte, [3] trainer_id high byte, [4] species id, [5] mail item id.
+                            'tail_nat_pairs' => array(
+                                array(0x00, 0x00),
+                                array(0x84, 0x85),
+                                array(0x84, 0x86),
+                                array(0x84, 0x88),
+                                array(0x84, 0x92),
+                            ),
+                            'tail_tid_lo_list' => range(0x00, 0xFF),
+                            'tail_tid_hi_list' => range(0x00, 0xFF),
+                            'tail_species_list' => range(0x01, 0xFB),
+                            'tail_mail_list' => array(0x9E, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD),
+                        ],
+// Prebuilt message lookup sets.
+                        '__msg_set_j' => null,
+                        '__author_set_j' => null,
+                        '__msg_set_non_j_nat_0000' => null,
+                        '__author_set_non_j_nat_0000' => null,
+                        '__msg_set_non_j_nat_8485' => null,
+                        '__author_set_non_j_nat_8485' => null,
+                        '__msg_set_non_j_nat_8486' => null,
+                        '__author_set_non_j_nat_8486' => null,
+                        '__msg_set_non_j_nat_8488' => null,
+                        '__author_set_non_j_nat_8488' => null,
+                        '__msg_set_non_j_nat_8492' => null,
+                        '__author_set_non_j_nat_8492' => null,
+                        '__tail_natpair_set_j' => null,
+                                                '__tail_tid_lo_set_j' => null,
+                        '__tail_tid_hi_set_j' => null,
+                        '__tail_species_set_j' => null,
+                        '__tail_mail_set_j' => null,
+                        '__tail_natpair_set_non_j' => null,
+                                                '__tail_tid_lo_set_non_j' => null,
+                        '__tail_tid_hi_set_non_j' => null,
+                        '__tail_species_set_non_j' => null,
+                        '__tail_mail_set_non_j' => null,
+                    ];
+
+                    
+                    // Default author allowlists to message allowlists if not explicitly set.// Build message lookup sets.
+                    $mail_allowed_cache['__msg_set_j'] = [];
+                    foreach ($mail_allowed_cache['j']['message_list'] as $b) {
+                        $mail_allowed_cache['__msg_set_j'][$b] = true;
+                    }
+                    // Build author lookup sets.
+                    $mail_allowed_cache['__author_set_j'] = [];
+                    foreach ($mail_allowed_cache['j']['author_list'] as $b) {
+                        $mail_allowed_cache['__author_set_j'][$b] = true;
+                    }
+                    // Build nationality-dependent lookup sets for non-J mail.
+                    $mail_allowed_cache['__msg_set_non_j_nat_0000'] = [];
+                    foreach ($mail_allowed_cache['non_j']['message_list_nat_0000'] as $b) {
+                        $mail_allowed_cache['__msg_set_non_j_nat_0000'][$b] = true;
+                    }
+
+                    $mail_allowed_cache['__author_set_non_j_nat_0000'] = [];
+                    foreach ($mail_allowed_cache['non_j']['author_list_nat_0000'] as $b) {
+                        $mail_allowed_cache['__author_set_non_j_nat_0000'][$b] = true;
+                    }
+
+// Build nationality-dependent lookup sets for non-J mail.
+// No fallback to a broad non-J allowlist: every allowed nationality pair must have its own lists.
+
+$mail_allowed_cache['__msg_set_non_j_nat_8485'] = [];
+foreach ((array)($mail_allowed_cache['non_j']['message_list_nat_8485'] ?? []) as $b) {
+    $mail_allowed_cache['__msg_set_non_j_nat_8485'][$b] = true;
+}
+$mail_allowed_cache['__author_set_non_j_nat_8485'] = [];
+foreach ((array)($mail_allowed_cache['non_j']['author_list_nat_8485'] ?? []) as $b) {
+    $mail_allowed_cache['__author_set_non_j_nat_8485'][$b] = true;
+}
+
+$mail_allowed_cache['__msg_set_non_j_nat_8486'] = [];
+foreach ((array)($mail_allowed_cache['non_j']['message_list_nat_8486'] ?? []) as $b) {
+    $mail_allowed_cache['__msg_set_non_j_nat_8486'][$b] = true;
+}
+$mail_allowed_cache['__author_set_non_j_nat_8486'] = [];
+foreach ((array)($mail_allowed_cache['non_j']['author_list_nat_8486'] ?? []) as $b) {
+    $mail_allowed_cache['__author_set_non_j_nat_8486'][$b] = true;
+}
+
+$mail_allowed_cache['__msg_set_non_j_nat_8488'] = [];
+foreach ((array)($mail_allowed_cache['non_j']['message_list_nat_8488'] ?? []) as $b) {
+    $mail_allowed_cache['__msg_set_non_j_nat_8488'][$b] = true;
+}
+$mail_allowed_cache['__author_set_non_j_nat_8488'] = [];
+foreach ((array)($mail_allowed_cache['non_j']['author_list_nat_8488'] ?? []) as $b) {
+    $mail_allowed_cache['__author_set_non_j_nat_8488'][$b] = true;
+}
+
+$mail_allowed_cache['__msg_set_non_j_nat_8492'] = [];
+foreach ((array)($mail_allowed_cache['non_j']['message_list_nat_8492'] ?? []) as $b) {
+    $mail_allowed_cache['__msg_set_non_j_nat_8492'][$b] = true;
+}
+$mail_allowed_cache['__author_set_non_j_nat_8492'] = [];
+foreach ((array)($mail_allowed_cache['non_j']['author_list_nat_8492'] ?? []) as $b) {
+    $mail_allowed_cache['__author_set_non_j_nat_8492'][$b] = true;
+}
+
+
+
+}
+
+                $bucket = ($region === 'j') ? 'j' : 'non_j';
+                $allowed_msg_set = ($bucket === 'j')
+                    ? $mail_allowed_cache['__msg_set_j']
+                    : [];
+
+                $allowed_author_set = ($bucket === 'j')
+                    ? $mail_allowed_cache['__author_set_j']
+                    : [];
+
+
+                // Tail bytes are raw metadata (not text), validated by field:
+                //   tail[0] nationality[0] (A-Z)
+                //   tail[1] nationality[1] (A-Z)
+                //   tail[2] trainer_id low byte
+                //   tail[3] trainer_id high byte
+                //   tail[4] species id
+                //   tail[5] mail item id
+                if ($bucket === 'j') {
+                    // JP mail has no nationality bytes; no nationality-pair validation.
+if ($mail_allowed_cache['__tail_tid_lo_set_j'] === null) {
+                        $mail_allowed_cache['__tail_tid_lo_set_j'] = [];
+                        foreach ($mail_allowed_cache['j']['tail_tid_lo_list'] as $b) {
+                            $mail_allowed_cache['__tail_tid_lo_set_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_tid_hi_set_j'] === null) {
+                        $mail_allowed_cache['__tail_tid_hi_set_j'] = [];
+                        foreach ($mail_allowed_cache['j']['tail_tid_hi_list'] as $b) {
+                            $mail_allowed_cache['__tail_tid_hi_set_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_species_set_j'] === null) {
+                        $mail_allowed_cache['__tail_species_set_j'] = [];
+                        foreach ($mail_allowed_cache['j']['tail_species_list'] as $b) {
+                            $mail_allowed_cache['__tail_species_set_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_mail_set_j'] === null) {
+                        $mail_allowed_cache['__tail_mail_set_j'] = [];
+                        foreach ($mail_allowed_cache['j']['tail_mail_list'] as $b) {
+                            $mail_allowed_cache['__tail_mail_set_j'][$b] = true;
+                        }
+                    }
+
+                    $tail_natpair_set = null; // JP has no nationality bytes
+                    $tail_tid_lo_set = $mail_allowed_cache['__tail_tid_lo_set_j'];
+                    $tail_tid_hi_set = $mail_allowed_cache['__tail_tid_hi_set_j'];
+                    $tail_species_set = $mail_allowed_cache['__tail_species_set_j'];
+                    $tail_mail_set = $mail_allowed_cache['__tail_mail_set_j'];
+                } else {
+                    if ($mail_allowed_cache['__tail_natpair_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_natpair_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_nat_pairs'] as $p) {
+                            if (!is_array($p) || count($p) !== 2) {
+                                continue;
+                            }
+                            $k = (($p[0] & 0xFF) << 8) | ($p[1] & 0xFF);
+                            $mail_allowed_cache['__tail_natpair_set_non_j'][$k] = true;
+                        }
+                    }
+if ($mail_allowed_cache['__tail_tid_lo_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_tid_lo_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_tid_lo_list'] as $b) {
+                            $mail_allowed_cache['__tail_tid_lo_set_non_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_tid_hi_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_tid_hi_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_tid_hi_list'] as $b) {
+                            $mail_allowed_cache['__tail_tid_hi_set_non_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_species_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_species_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_species_list'] as $b) {
+                            $mail_allowed_cache['__tail_species_set_non_j'][$b] = true;
+                        }
+                    }
+                    if ($mail_allowed_cache['__tail_mail_set_non_j'] === null) {
+                        $mail_allowed_cache['__tail_mail_set_non_j'] = [];
+                        foreach ($mail_allowed_cache['non_j']['tail_mail_list'] as $b) {
+                            $mail_allowed_cache['__tail_mail_set_non_j'][$b] = true;
+                        }
+                    }
+
+                    $tail_natpair_set = $mail_allowed_cache['__tail_natpair_set_non_j'];
+                    $tail_tid_lo_set = $mail_allowed_cache['__tail_tid_lo_set_non_j'];
+                    $tail_tid_hi_set = $mail_allowed_cache['__tail_tid_hi_set_non_j'];
+                    $tail_species_set = $mail_allowed_cache['__tail_species_set_non_j'];
+                    $tail_mail_set = $mail_allowed_cache['__tail_mail_set_non_j'];
+                }
 
                 $bytes = unpack('C*', $mail_blob);
-                foreach ($bytes as $b) {
-                    if (!in_array($b, $allowed_bytes, true)) {
-                        $errors_local[] = 'mail: invalid byte ' . sprintf('0x%02X', $b) . ' for region ' . $region;
-                        break;
+                // For non-J mail, select message/author allowlists based on the tail nationality pair.
+                if ($bucket === 'non_j' && $tail_len === 6) {
+                    // unpack('C*') is 1-indexed; tail_offset is 0-indexed.
+                    $nat0_idx = $tail_offset + 1;
+                    $nat1_idx = $tail_offset + 2;
+                    if ($nat1_idx <= $len) {
+                        $nat0 = $bytes[$nat0_idx];
+                        $nat1 = $bytes[$nat1_idx];
+                        $pair = (($nat0 & 0xFF) << 8) | ($nat1 & 0xFF);
+
+if ($pair === 0x0000) {
+    $allowed_msg_set = $mail_allowed_cache['__msg_set_non_j_nat_0000'];
+    $allowed_author_set = $mail_allowed_cache['__author_set_non_j_nat_0000'];
+} elseif ($pair === 0x8485) {
+    $allowed_msg_set = $mail_allowed_cache['__msg_set_non_j_nat_8485'];
+    $allowed_author_set = $mail_allowed_cache['__author_set_non_j_nat_8485'];
+} elseif ($pair === 0x8486) {
+    $allowed_msg_set = $mail_allowed_cache['__msg_set_non_j_nat_8486'];
+    $allowed_author_set = $mail_allowed_cache['__author_set_non_j_nat_8486'];
+} elseif ($pair === 0x8488) {
+    $allowed_msg_set = $mail_allowed_cache['__msg_set_non_j_nat_8488'];
+    $allowed_author_set = $mail_allowed_cache['__author_set_non_j_nat_8488'];
+} elseif ($pair === 0x8492) {
+    $allowed_msg_set = $mail_allowed_cache['__msg_set_non_j_nat_8492'];
+    $allowed_author_set = $mail_allowed_cache['__author_set_non_j_nat_8492'];
+}
+
+                    }
+                }
+
+
+                // First 0x21 bytes are the mail message body (line1 + separator + line2). Remaining pre-tail bytes are the author.
+                $mail_msg_len = 0x21;
+
+
+                // Note: unpack('C*') returns a 1-indexed array.
+                for ($i = 1; $i <= $len; $i++) {
+                    $b = $bytes[$i];
+                    $offset0 = $i - 1;
+                    $is_tail = ($offset0 >= $tail_offset);                    if ($is_tail) {
+                        $tail_pos = $offset0 - $tail_offset;
+
+                        if ($tail_len === 6) {
+                            // Non-J tail layout: [nat0][nat1][TID lo][TID hi][species][mail item]
+                            // Nationality is validated as a 2-byte pair at tail_pos 0+1.
+                            if ($tail_pos === 0) {
+                                if (($i + 1) > $len) {
+                                    $errors_local[] = sprintf('mail: missing nationality_1 byte at offset %d for region %s', $offset0, $region);
+                                    break;
+                                }
+                                if ($tail_natpair_set === null) {
+                                    $errors_local[] = sprintf('mail: nationality pair set is not defined for region %s', $region);
+                                    break;
+                                }
+                                $nat0 = $b;
+                                $nat1 = $bytes[$i + 1];
+                                $pair = (($nat0 & 0xFF) << 8) | ($nat1 & 0xFF);
+                                if (!isset($tail_natpair_set[$pair])) {
+                                    $errors_local[] = sprintf('mail: invalid nationality pair 0x%04X at offset %d for region %s', $pair, $offset0, $region);
+                                    break;
+                                }
+
+                                // Skip per-byte validation of nationality_1 (tail_pos 1).
+                                continue;
+                            } elseif ($tail_pos === 1) {
+                                continue;
+                            } elseif ($tail_pos === 2) {
+                                $tail_set = $tail_tid_lo_set;
+                                $tail_label = 'trainer_id_lo';
+                            } elseif ($tail_pos === 3) {
+                                $tail_set = $tail_tid_hi_set;
+                                $tail_label = 'trainer_id_hi';
+                            } elseif ($tail_pos === 4) {
+                                $tail_set = $tail_species_set;
+                                $tail_label = 'species_id';
+                            } else { // $tail_pos === 5
+                                $tail_set = $tail_mail_set;
+                                $tail_label = 'mail_id';
+                            }
+                        } else {
+                            // JP tail layout: [TID lo][TID hi][species][mail item]
+                            if ($tail_pos === 0) {
+                                $tail_set = $tail_tid_lo_set;
+                                $tail_label = 'trainer_id_lo';
+                            } elseif ($tail_pos === 1) {
+                                $tail_set = $tail_tid_hi_set;
+                                $tail_label = 'trainer_id_hi';
+                            } elseif ($tail_pos === 2) {
+                                $tail_set = $tail_species_set;
+                                $tail_label = 'species_id';
+                            } else { // $tail_pos === 3
+                                $tail_set = $tail_mail_set;
+                                $tail_label = 'mail_id';
+                            }
+                        }
+if (!isset($tail_set[$b])) {
+                            $errors_local[] = sprintf('mail: invalid tail %s byte 0x%02X at offset %d for region %s', $tail_label, $b, $offset0, $region);
+                            break;
+                        }
+                    } else {
+                        // 0x4E is a fixed line-break separator: it must be the 17th byte of the message (offset 0x10) and nowhere else in the message.
+                        // This rule applies to *message* validation only (not author).
+                        if ($offset0 < $mail_msg_len) {
+                            if ($offset0 === 0x10) {
+                                if ($b !== 0x4E) {
+                                    $errors_local[] = sprintf('mail: expected 0x4E line-break separator at offset %d for region %s', $offset0, $region);
+                                    break;
+                                }
+                                continue;
+                            } else {
+                                if ($b === 0x4E) {
+                                    $errors_local[] = sprintf('mail: unexpected 0x4E line-break separator at offset %d for region %s', $offset0, $region);
+                                    break;
+                                }
+                            }
+                        }
+
+                        $set = ($offset0 < $mail_msg_len) ? $allowed_msg_set : $allowed_author_set;
+                        $which = ($offset0 < $mail_msg_len) ? 'message' : 'author';
+                        if (!isset($set[$b])) {
+                            $errors_local[] = sprintf('mail: invalid %s byte 0x%02X at offset %d for region %s', $which, $b, $offset0, $region);
+                            break;
+                        }
                     }
                 }
             }
         }
+
 
         if ($errors_local) {
             if (is_array($errors)) {
@@ -1624,9 +2600,15 @@ if (!function_exists('bxt_validate_battle_tower_record_row')) {
         $damage_taken,
         $num_fainted_pokemon,
         $level,
-        &$errors = []
+        &$errors = [],
+        $player_name_blob = null
     ) {
         $errors_local = [];
+
+        // Optional: validate player_name bytes using the same allowlist as mail author bytes for this region.
+        if ($player_name_blob !== null) {
+            bxt_validate_player_name_bytes($game_region, $player_name_blob, $errors_local);
+        }
 
         // Basic range checks for stats
         if (!is_int($num_trainers_defeated) || $num_trainers_defeated < 0 || $num_trainers_defeated > 7) {

@@ -85,6 +85,34 @@
 				</div>
 			</div>
 		</div>
+        <div class="col-lg-6">
+			<div class="card">
+				<div class="card-header">{{ "account.pokemon-crystal-settings"|trans }}</div>
+				<div class="card-body">
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="tradeRegions">{{ "account.trade-corner-region-allowlist"|trans }}</label>
+                            <small><p>{{ "account.trade-region-allowlist-blurb"|trans }}</p></small>
+                            <select id="tradeRegions" name="tradeRegions">
+                                <option value="e,f,d,s,i,p,u,j"{%
+                                    if (trade_region_allowlist == "e,f,d,s,i,p,u,j")
+                                %} selected{% endif %}>{{ "account.trade-option-1"|trans }}</option>
+                                <option value="efdsipu,j"{%
+                                    if (trade_region_allowlist == "efdsipu,j")
+                                %} selected{% endif %}>{{ "account.trade-option-2"|trans }}</option>
+                                <option value="efdsipuj"{%
+                                    if (trade_region_allowlist == "efdsipuj")
+                                %} selected{% endif %}>{{ "account.trade-option-3"|trans }}</option>
+                            </select>
+                            {% if ("regionValue" in errors) %}
+                            <small><p>{{ "invalid-trade-setting"|trans }}</p></small>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">{{ "account.update-settings"|trans }}</button>
+                    </form>
+				</div>
+			</div>
+		</div>
 	</div>
 {% endblock %}
 

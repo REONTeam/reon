@@ -48,7 +48,7 @@
 	);
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select text from amoj_news order by id desc limit 1");
+	$stmt = $db->prepare("select text from amoj_news where timestamp <= current_timestamp() order by id desc limit 1");
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 

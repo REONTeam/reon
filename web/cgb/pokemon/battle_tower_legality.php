@@ -96,7 +96,7 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
     foreach (['pokemon1', 'pokemon2', 'pokemon3'] as $slot) {
         if (!isset($data[$slot]) || $data[$slot] === null) {
             error_log("bt_legality_error: missing slot $slot");
-            http_response_code(400);
+            http_response_code(403);
             exit("Missing data for $slot");
         }
     }
@@ -110,7 +110,7 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
     }
     if (!empty($extraSlots)) {
         error_log('bt_legality_error: unexpected Pokémon slots: ' . implode(',', $extraSlots));
-        http_response_code(400);
+        http_response_code(403);
         exit('Exactly 3 Pokémon are required');
     }
 
@@ -136,7 +136,7 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
         if ($txt === '') return;
         if (bxt_contains_banned($txt, $banned, $allowed)) {
             error_log("bt_legality_error: banned text in {$label}: '{$txt}'");
-            http_response_code(400);
+            http_response_code(403);
             exit("Banned text in {$label}");
         }
     };
@@ -158,7 +158,7 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
 
 		if ($txt !== '' && bxt_contains_banned($txt, $banned)) {
 			error_log("bt_legality_error: banned text in trainer name: '{$txt}'");
-			http_response_code(400);
+			http_response_code(403);
 			exit("Banned text in trainer name");
 		}
 	}
@@ -187,19 +187,19 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
 
         if (!$ok) {
             error_log("bt_legality_error: illegal Pokémon in {$label}");
-            http_response_code(400);
+            http_response_code(403);
             exit("Illegal Pokémon in {$label}");
         }
 
         if (!bxt_policy_allow_nickname($details, $banned, $allowed)) {
             error_log("bt_legality_error: banned nickname in {$label}");
-            http_response_code(400);
+            http_response_code(403);
             exit("Banned nickname in {$label}");
         }
 
         if (!bxt_policy_allow_ot($details, $banned, $allowed)) {
             error_log("bt_legality_error: banned OT in {$label}");
-            http_response_code(400);
+            http_response_code(403);
             exit("Banned OT in {$label}");
         }
 
@@ -214,7 +214,7 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
         if ($speciesKey !== null) {
             if (isset($speciesSeen[$speciesKey])) {
                 error_log("bt_legality_error: duplicate species in {$label} (matches {$speciesSeen[$speciesKey]})");
-                http_response_code(400);
+                http_response_code(403);
                 exit('Duplicate Pokémon species not allowed');
             }
             $speciesSeen[$speciesKey] = $label;
@@ -238,7 +238,7 @@ function battleTowerSubmitRecord_legality($inputStream, $game_region) {
         $validation_errors
     )) {
         error_log('bt_legality_error: value validation failed: ' . json_encode($validation_errors));
-        http_response_code(400);
+        http_response_code(403);
         exit('Invalid Battle Tower record payload');
     }
 

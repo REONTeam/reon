@@ -2826,6 +2826,15 @@ function transformExchangePayloadForEmail(destRegion, sourceRegion, row) {
       newName.copy(destMail, destNameOffset, 0, writeLen);
     }
 
+    // JP -> non-J: non-J mail includes 2 nationality bytes immediately before the 4-byte metadata tail.
+    // JP and EN mail have no nationality bytes, so default them to 0x00,0x00 (instead of inheriting name padding).
+    if (isSourceJ && !isDestJ) {
+      if (destMetaOffset >= 2) {
+        destMail[destMetaOffset - 2] = 0x00;
+        destMail[destMetaOffset - 1] = 0x00;
+      }
+    }
+
     // Preserve trailing mail metadata (trainer ID, species, mail item, etc.).
     if (
       srcMailLen >= srcMetaOffset + srcMetaLen &&
@@ -2903,17 +2912,24 @@ function loadTradeRegionGroupsFromPhpConfig(phpPath) {
 
 const TRADE_REGION_GROUPS = loadTradeRegionGroupsFromPhpConfig(phpConfigPath);
 
-function regionCanTrade(a, b) {
+function regionCanTrade(a, b, aPool, bPool) {
   if (!a || !b) return false;
-  a = String(a).toLowerCase();
-  b = String(b).toLowerCase();
-  if (a === b) return true;
-  for (const group of TRADE_REGION_GROUPS) {
-    if (!Array.isArray(group)) continue;
-    const g = group.map((x) => String(x).toLowerCase());
-    if (g.includes(a) && g.includes(b)) return true;
+  var regions = { "a": String(a).toLowerCase(), "b": String(b).toLowerCase() }
+  
+  //~Set up per-player language pools
+  var regionPools = { "a": aPool.split(","), "b": bPool.split(",") }
+  
+  //~For each player, isolate down to the language pool their game falls into
+  for (var player in regionPools) {
+    for (var pool of regionPools[player]) {
+        if (pool.includes(regions[player])) {
+            regionPools[player] = pool; break;
+        }
+    }
   }
-  return false;
+  
+  //~Return whether both players' pools have each others' languages
+  return (regionPools.a.includes(regions.b)) && (regionPools.b.includes(regions.a));
 }
 
 // ------------------------------
@@ -3156,7 +3172,7 @@ async function doExchange() {
     );
 
     const [trades] = await connection.execute(
-      "SELECT * FROM " + table + " ORDER BY timestamp ASC"
+      "SELECT bxt_exchange.*, sys_users.trade_region_allowlist FROM " + table + " LEFT JOIN sys_users ON bxt_exchange.account_id=sys_users.id ORDER BY timestamp ASC"
     );
 
     const performedTrades = new Set();
@@ -3172,7 +3188,7 @@ async function doExchange() {
         const b = trades[j];
 
         if (
-          regionCanTrade(a["game_region"], b["game_region"]) &&
+          regionCanTrade(a["game_region"], b["game_region"], a["trade_region_allowlist"], b["trade_region_allowlist"]) &&
           a["offer_species"] == b["request_species"] &&
           a["request_species"] == b["offer_species"] &&
           (a["offer_gender"] == b["request_gender"] ||
