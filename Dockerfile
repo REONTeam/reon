@@ -95,6 +95,11 @@ WORKDIR /app
 COPY app/pokemon-exchange/package.json app/pokemon-exchange/package-lock.json* ./
 RUN npm ci
 
+FROM node:${NODE_VERSION} AS auto-schedule-deps
+WORKDIR /app
+COPY app/auto-schedule/package.json app/auto-schedule/package-lock.json* ./
+RUN npm ci
+
 FROM node:${NODE_VERSION} AS bottle-deps
 WORKDIR /app
 COPY app/mail-bottle/package.json app/mail-bottle/package-lock.json* ./
@@ -104,9 +109,24 @@ RUN npm ci
 FROM node:${NODE_VERSION} AS cron
 RUN 
 RUN apt-get -y update \
-    && apt-get install -y --no-install-recommends cron libicu76 \
+    && apt-get install -y --no-install-recommends curl tzdata libicu76 \
     && rm -rf /var/lib/apt/lists/*
+
+# Latest releases available at https://github.com/aptible/supercronic/releases
+ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.41/supercronic-linux-amd64 \
+    SUPERCRONIC_SHA1SUM=f70ad28d0d739a96dc9e2087ae370c257e79b8d7 \
+    SUPERCRONIC=supercronic-linux-amd64
+
+RUN curl -fsSLO "$SUPERCRONIC_URL" \
+    && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
+    && chmod +x "$SUPERCRONIC" \
+    && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
+    && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
+
 COPY app/docker_entry.sh /entrypoint.sh
+COPY app/docker.crontab /etc/cron.d/crontab
+RUN chmod 0644 /etc/cron.d/crontab
+
 ENTRYPOINT ["/entrypoint.sh"]
 
 WORKDIR /app
@@ -120,18 +140,15 @@ COPY --from=exchange-deps /app/node_modules ./pokemon-exchange/node_modules
 COPY app/mail-bottle mail-bottle
 COPY --from=bottle-deps /app/node_modules ./mail-bottle/node_modules
 
+COPY app/auto-schedule auto-schedule
+COPY --from=auto-schedule-deps /app/node_modules ./auto-schedule/node_modules
+
 COPY --from=pokemon-legality /app/pokemon-legality /app/pokemon-legality
 ENV POKEMON_LEGALITY_BIN=/app/pokemon-legality/LegalityCheckerConsole
 
 COPY app/bxt_config_loader.js /app/
 
-COPY app/docker.crontab /etc/crontabs/root
-
-# source: `docker run --rm -it alpine  crond -h`
-# -f | Foreground
-# -l N | Set log level. Most verbose 0, default 8
-#CMD ["crond", "-f", "-l", "2"]
-CMD ["cron", "-f"]
+CMD ["/usr/local/bin/supercronic", "/etc/cron.d/crontab"]
 
 ### DNS server
 

@@ -5,3 +5,4 @@ node_modules/
 web/tmp
 web/vendor
 docker-compose*
+Dockerfile
