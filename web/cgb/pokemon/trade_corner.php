@@ -44,7 +44,7 @@ function process_trade_request($region, $request_data) {
 
     if ($decoded_name_for_policy !== '' && bxt_contains_banned($decoded_name_for_policy, $banned, $allowed)) {
         error_log('trade_corner_gateway: banned player name: ' . $decoded_name_for_policy);
-        http_response_code(400);
+        http_response_code(403);
         exit("Banned player name");
     }
 
@@ -54,7 +54,7 @@ function process_trade_request($region, $request_data) {
 
     if ($decoded_mail_for_policy !== '' && bxt_contains_banned($decoded_mail_for_policy, $banned, $allowed)) {
         error_log('trade_corner_gateway: banned mail message: ' . $decoded_mail_for_policy);
-        http_response_code(400);
+        http_response_code(403);
         exit("Banned mail message");
     }
 
@@ -75,7 +75,7 @@ function process_trade_request($region, $request_data) {
         );
         if (!$ok_leg) {
             error_log('trade_corner_gateway: illegal Pokémon blob');
-            http_response_code(400);
+            http_response_code(403);
             exit("Illegal Pokémon");
         }
         if (is_array($details) && $details) {
@@ -85,7 +85,7 @@ function process_trade_request($region, $request_data) {
             if (!bxt_policy_allow_nickname($details, $banned, $allowed)) {
                 $nick_dbg = isset($details['nickname']) && is_string($details['nickname']) ? $details['nickname'] : '';
                 error_log('trade_corner_gateway: banned pokemon nickname: ' . $nick_dbg);
-                http_response_code(400);
+                http_response_code(403);
                 exit("Banned Pokémon nickname");
             }
 
@@ -118,7 +118,7 @@ function process_trade_request($region, $request_data) {
         $validation_errors
     )) {
         error_log('trade_corner_gateway: value validation failed: ' . json_encode($validation_errors));
-        http_response_code(400);
+        http_response_code(403);
         exit("Invalid exchange payload");
     }
 
@@ -204,7 +204,7 @@ function process_cancel_request($region, $request_data) {
     $decoded_data = decode_exchange($region, $request_data, false);
     if (!is_array($decoded_data)) {
         error_log('BXT_DEBUG process_cancel_request: decode_exchange returned non-array account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
-        http_response_code(400);
+        http_response_code(403);
         exit('Invalid cancel payload');
     }
 
@@ -213,7 +213,7 @@ function process_cancel_request($region, $request_data) {
 
     if ($trainerId === null || $secretId === null) {
         error_log('BXT_DEBUG process_cancel_request: missing trainer_id or secret_id account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));
-        http_response_code(400);
+        http_response_code(403);
         exit('Missing identifiers for cancellation');
     }
 
