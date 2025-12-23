@@ -8489,7 +8489,7 @@ function bxt_load_default_pokemon_name_bytes(
     /**
      * Transform a single Battle Tower Pokémon blob for cross-region download.
      *
-     * In bxt_battle_tower_trainers:
+     * In bxt_battle_tower_room_leaders:
      *   - species: first byte
      *   - nickname bytes: offset 30.. (10-byte segment; JP uses first 5 bytes)
      */

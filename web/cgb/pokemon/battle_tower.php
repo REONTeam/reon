@@ -78,7 +78,7 @@ function battleTowerGetRoom($region, $roomNo) {
                    t.message_start,
                    t.message_win,
                    t.message_lose
-            FROM bxt_battle_tower_trainers t
+            FROM bxt_battle_tower_room_leaders t
             WHERE t.game_region IN ($inExpr)
               AND t.room = ?
               AND t.level = ?
@@ -290,8 +290,8 @@ function battleTowerGetLeaders($region, $roomNo, $bxte = false) {
     }
     $inExpr = implode(',', $inParts);
 
-    $sql = "SELECT HEX(name) AS `hex(name)`
-            FROM bxt_battle_tower_leaders
+    $sql = "SELECT HEX(player_name) AS `hex(name)`
+            FROM bxt_battle_tower_honor_roll
             WHERE game_region IN ($inExpr)
               AND room = ?
               AND level = ?

@@ -3172,7 +3172,10 @@ async function doExchange() {
     );
 
     const [trades] = await connection.execute(
-      "SELECT bxt_exchange.*, sys_users.trade_region_allowlist FROM " + table + " LEFT JOIN sys_users ON bxt_exchange.account_id=sys_users.id ORDER BY timestamp ASC"
+      "SELECT bxt_exchange.*, sys_users.trade_region_allowlist " +
+      "FROM " + table + " " +
+      "JOIN sys_users ON bxt_exchange.account_id = sys_users.id " +
+      "ORDER BY bxt_exchange.timestamp ASC"
     );
 
     const performedTrades = new Set();

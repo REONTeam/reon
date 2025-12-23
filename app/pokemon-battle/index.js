@@ -67,7 +67,7 @@ async function updateContent() {
 async function updateContentForRegion(region, connection) {
     // Rebuild trainer pool for this region from scratch each run.
     await connection.execute(
-        "DELETE FROM bxt_battle_tower_trainers WHERE game_region = ?",
+        "DELETE FROM bxt_battle_tower_room_leaders WHERE game_region = ?",
         [region]
     );
 
@@ -81,7 +81,7 @@ async function updateContentForRegion(region, connection) {
                 "SELECT " +
                 " id, trainer_id, secret_id, account_id, " +
                 " player_name, player_name_decode, " +
-                " class, class_decode, " +
+                " `class`, `class_decode`, " +
                 " pokemon1, pokemon1_decode, " +
                 " pokemon2, pokemon2_decode, " +
                 " pokemon3, pokemon3_decode, " +
@@ -111,7 +111,7 @@ async function updateContentForRegion(region, connection) {
                     "SELECT " +
                     " id, trainer_id, secret_id, account_id, " +
                     " player_name, player_name_decode, " +
-                    " class, class_decode, " +
+                    " `class`, `class_decode`, " +
                     " pokemon1, pokemon1_decode, " +
                     " pokemon2, pokemon2_decode, " +
                     " pokemon3, pokemon3_decode, " +
@@ -135,7 +135,7 @@ async function updateContentForRegion(region, connection) {
             // 3) Maintain honor roll (leaders table) for this region/level/room.
             //    We do NOT delete records or trainers here; records are trimmed globally.
             await connection.execute(
-                "DELETE FROM bxt_battle_tower_leaders " +
+                "DELETE FROM bxt_battle_tower_honor_roll " +
                 "WHERE game_region = ? AND level = ? AND room = ?",
                 [region, level, room]
             );
@@ -145,27 +145,29 @@ async function updateContentForRegion(region, connection) {
 
                 // Insert leader with decoded name and level.
                 await connection.execute(
-                    "INSERT INTO bxt_battle_tower_leaders " +
-                    "(game_region, player_name, player_name_decode, room, level, level_decode) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO bxt_battle_tower_honor_roll " +
+                    "(game_region, player_name, player_name_decode, `class`, `class_decode`, room, level, level_decode) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     [
                         region,
                         leader.player_name,
                         leader.player_name_decode || null,
-                        room,
+                        leader.class || null,
+                        leader.class_decode || null,
+                                                room,
                         level,
                         leader.level_decode || null,
                     ]
                 );
             }
 
-            // 4) Populate trainer pool table (bxt_battle_tower_trainers) for this region.
+            // 4) Populate trainer pool table (bxt_battle_tower_room_leaders) for this region.
             //    Deduplicate on (region, trainer_id, secret_id, account_id) to match composite PK.
             if (selectedTrainers.length > 0) {
                 const insertTrainerSql =
-                    "INSERT INTO bxt_battle_tower_trainers " +
+                    "INSERT INTO bxt_battle_tower_room_leaders " +
                     "(game_region, room, level, level_decode, no, trainer_id, secret_id, player_name, player_name_decode, " +
-                    " class, class_decode, " +
+                    " `class`, `class_decode`, " +
                     " pokemon1, pokemon1_decode, " +
                     " pokemon2, pokemon2_decode, " +
                     " pokemon3, pokemon3_decode, " +
