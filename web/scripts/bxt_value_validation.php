@@ -2101,6 +2101,10 @@ if (!function_exists('bxt_validate_exchange_row')) {
             if ($len !== $expected_len) {
                 $errors_local[] = 'mail: invalid length ' . $len . ' for region ' . $region . ', expected ' . $expected_len;
             } else {
+                // Rule: a completely null mail blob (all bytes 0x00) is valid.
+                if ($len > 0 && strspn($mail_blob, "\x00") === $len) {
+                    // valid: skip mail byte validation
+                } else {
                 // Region-specific mail byte whitelist, split into:
 //   - message bytes: [0 .. (len-$tail_len)-1]  (text + author/name bytes)
 //   - tail bytes:    [(len-$tail_len) .. end]  (trailing 6-byte metadata: trainer ID, species, mail item, etc.)
@@ -2169,7 +2173,7 @@ if (!function_exists('bxt_validate_exchange_row')) {
 								0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xE1, 0xE2, 0xE3, 0xE6,
 								0xE7, 0xE8, 0xF1, 0xF3, 0xF4
                             ),
-                            'message_list_nat_8485' => array(		
+                            'message_list_nat_8485' => array(
 								0x50, 0x70, 0x71, 0x72, 0x73, 0x75, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88,
 								0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98,
 								0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8,
@@ -2467,16 +2471,6 @@ if ($pair === 0x0000) {
                 // First 0x21 bytes are the mail message body (line1 + separator + line2). Remaining pre-tail bytes are the author.
                 $mail_msg_len = 0x21;
 
-                // If the message region (including the line-break separator byte) is entirely 0x00, treat this as a null/empty mail message.
-                $msg_all_zero = true;
-                for ($j = 0; $j < $mail_msg_len; $j++) {
-                    if (($bytes[$j + 1] ?? 0x00) !== 0x00) {
-                        $msg_all_zero = false;
-                        break;
-                    }
-                }
-
-
 
                 // Note: unpack('C*') returns a 1-indexed array.
                 for ($i = 1; $i <= $len; $i++) {
@@ -2539,10 +2533,6 @@ if ($pair === 0x0000) {
                             }
                         }
 if (!isset($tail_set[$b])) {
-    if ($b === 0x00 && $msg_all_zero) {
-        // Allow 0x00 in tail bytes only for null/empty mail (message region all 0x00).
-        continue;
-    }
                             $errors_local[] = sprintf('mail: invalid tail %s byte 0x%02X at offset %d for region %s', $tail_label, $b, $offset0, $region);
                             break;
                         }
@@ -2551,35 +2541,11 @@ if (!isset($tail_set[$b])) {
                         // This rule applies to *message* validation only (not author).
                         if ($offset0 < $mail_msg_len) {
                             if ($offset0 === 0x10) {
-                                if ($b === 0x4E) {
-                                    continue;
-                                }
-                                if ($b === 0x00) {
-                                    $all_zero = true;
-                                    for ($j = 0; $j < $mail_msg_len; $j++) {
-                                        if ($j === 0x10) {
-                                            continue;
-                                        }
-                                        if (($bytes[$j + 1] ?? 0x00) !== 0x00) {
-                                            $all_zero = false;
-                                            break;
-                                        }
-                                    }
-                                    if ($all_zero) {
-                                        continue;
-                                    }
-                                }
+                                if ($b !== 0x4E) {
                                     $errors_local[] = sprintf('mail: expected 0x4E line-break separator at offset %d for region %s', $offset0, $region);
                                     break;
-                            }
-                            if ($b === 0x00) {
-                                // 0x00 is only allowed when the separator byte at offset 0x10 is also 0x00 (all-zero message).
-                                $sep = ($bytes[0x10 + 1] ?? 0x4E);
-                                if ($sep !== 0x00) {
-                                    $errors_local[] = sprintf('Message byte 0x00 is only allowed when separator is 0x00 (all-zero message); got 0x00 at offset %d for region %s', $offset0, $region);
-                                    break;
                                 }
-                            }
+                                continue;
                             } else {
                                 if ($b === 0x4E) {
                                     $errors_local[] = sprintf('mail: unexpected 0x4E line-break separator at offset %d for region %s', $offset0, $region);
@@ -2590,26 +2556,14 @@ if (!isset($tail_set[$b])) {
 
                         $set = ($offset0 < $mail_msg_len) ? $allowed_msg_set : $allowed_author_set;
                         $which = ($offset0 < $mail_msg_len) ? 'message' : 'author';
-                        if ($which === 'author' && $b === 0x00 && $msg_all_zero) {
-                            // Allow 0x00 in author bytes only for null/empty mail (message region all 0x00).
-                            continue;
-                        }
                         if (!isset($set[$b])) {
                             $errors_local[] = sprintf('mail: invalid %s byte 0x%02X at offset %d for region %s', $which, $b, $offset0, $region);
                             break;
                         }
                     }
                 }
-            }
-        // Finalize: if any errors were collected, merge them and fail; otherwise succeed.
-        if (!empty($errors_local)) {
-            if (is_array($errors)) {
-                $errors = array_merge($errors, $errors_local);
-            }
-            return false;
-        }
-
-        return true;
+                            }
+}
         }
 
 
@@ -2622,6 +2576,7 @@ if (!isset($tail_set[$b])) {
 
         return true;
     }
+}
 
 if (!function_exists('bxt_validate_battle_tower_record_row')) {
     /**
@@ -2804,7 +2759,7 @@ if (!function_exists('bxt_validate_battle_tower_trainer_row')) {
 
 if (!function_exists('bxt_validate_battle_tower_leader_row')) {
     /**
-     * Validate a battle tower leader entry (bxt_battle_tower_honor_roll).
+     * Validate a battle tower honor roll entry (bxt_battle_tower_honor_roll).
      */
     function bxt_validate_battle_tower_leader_row($game_region, $room, $level, $player_name_blob, &$errors = []) {
         $errors_local = [];
