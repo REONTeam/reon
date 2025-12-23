@@ -12,7 +12,7 @@
 	}
 	$data = parseGhostUpload(fopen("php://input", "rb"));
 	
-	if ($data["driver"] > 7) {
+	if ($data["driver"] > 7 || $data["course"] != 20) {
 		http_response_code(400);
 		return;
 	}
@@ -27,16 +27,6 @@
 	$gp_id = getCurrentMobileGP();
 	
 	$db = connectMySQL();
-	$stmt = $db->prepare("select course from amkj_rule where id = ?");
-	$stmt->bind_param("i", $gp_id);
-	$stmt->execute();
-	$result = fancy_get_result($stmt)
-
-	if (sizeof($result) == 0 || $result[0]["course"] != $data["course"]) {
-		http_response_code(400);
-		return;
-	}
-
 	$db->begin_transaction();
 	try {
 		// Delete existing record
