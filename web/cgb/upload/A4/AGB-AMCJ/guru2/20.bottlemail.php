@@ -11,7 +11,13 @@
 	$data = substr($data, 0, -5);
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
+	
+	$game_region = getCurrentGameRegion();
+	if ($game_region === null) {
+		http_response_code(500);
+		return;
+	}
+$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
 	$stmt->bind_param("i", $_SESSION['userId']);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
@@ -23,7 +29,7 @@
 	$config = getConfig();
 	$email = $result[0]["dion_email_local"]."@".$config["email_domain_dion"];
 
-	$stmt = $db->prepare("insert into amcj_trades (acc_id, email, message) values (?,?,?)");
-	$stmt->bind_param("iss", $_SESSION['userId'], $email, $data);
+	$stmt = $db->prepare("insert into amc_trades (game_region, acc_id, email, message) values (?,?,?,?)");
+	$stmt->bind_param("siss", $game_region, $_SESSION['userId'], $email, $data);
 	$stmt->execute();
 ?>

@@ -39,7 +39,13 @@
 	}
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
+	
+	$game_region = getCurrentGameRegion();
+	if ($game_region === null) {
+		http_response_code(500);
+		return;
+	}
+$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
 	$stmt->bind_param("i", $_SESSION['userId']);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
@@ -60,12 +66,12 @@
 		}
 		$db->begin_transaction();
 		try {
-			$stmt = $db->prepare("delete ignore from amoj_ranking where (valid = 0 or timestamp >= ?) and acc_id = ? and name = ? and gender = ? and age = ? and state = ?");
-			$stmt->bind_param("sisiii", $timestamp, $_SESSION['userId'], $name, $gender, $age, $state);
+			$stmt = $db->prepare("delete ignore from amo_ranking where (valid = 0 or timestamp >= ?) and acc_id = ? and name = ? and gender = ? and age = ? and state = ? and game_region = ?");
+			$stmt->bind_param("sisiiis", $timestamp, $_SESSION['userId'], $name, $gender, $age, $state, $game_region);
 			$stmt->execute();
 
-			$stmt = $db->prepare("insert into amoj_ranking (acc_id, name, email, points, money, gender, age, state) values (?,?,?,?,?,?,?,?)");
-			$stmt->bind_param("issiiiii", $_SESSION['userId'], $name, $email, $points, $money, $gender, $age, $state);
+			$stmt = $db->prepare("insert into amo_ranking (game_region, acc_id, name, email, points, money, gender, age, state) values (?,?,?,?,?,?,?,?,?)");
+			$stmt->bind_param("sissiiiii", $game_region, $_SESSION['userId'], $name, $email, $points, $money, $gender, $age, $state);
 			$stmt->execute();
 		} catch (mysqli_sql_exception $e) {
 			$db->rollback();
@@ -75,8 +81,8 @@
 		$db->commit();
 	} else {
 		if (($today >> 4) != ($year % 16) || ($today & 0xF) != $month) {
-			$stmt = $db->prepare("delete ignore from amoj_ranking where valid = 0 and acc_id = ? and name = ? and points = ? and money = ? and gender = ? and age = ? and state = ?");
-			$stmt->bind_param("isiiiii", $_SESSION['userId'], $name, $points, $money, $gender, $age, $state);
+			$stmt = $db->prepare("delete ignore from amo_ranking where valid = 0 and acc_id = ? and name = ? and points = ? and money = ? and gender = ? and age = ? and state = ? and game_region = ?");
+			$stmt->bind_param("isiiiiis", $_SESSION['userId'], $name, $points, $money, $gender, $age, $state, $game_region);
 			$stmt->execute();
 			//http_response_code(400);
 			return;
@@ -84,8 +90,8 @@
 		if (empty($config["amoj_regist"])) {
 			return;
 		}
-		$stmt = $db->prepare("update amoj_ranking set valid = 1 where valid = 0 and acc_id = ? and name = ? and points = ? and money = ? and gender = ? and age = ? and state = ?");
-		$stmt->bind_param("isiiiii", $_SESSION['userId'], $name, $points, $money, $gender, $age, $state);
+		$stmt = $db->prepare("update amo_ranking set valid = 1 where valid = 0 and acc_id = ? and name = ? and points = ? and money = ? and gender = ? and age = ? and state = ?");
+		$stmt->bind_param("isiiiiis", $_SESSION['userId'], $name, $points, $money, $gender, $age, $state, $game_region);
 		$stmt->execute();
 		if ($config["amoj_regist"][0] === "h") {
 			http_response_code(intval(substr($config["amoj_regist"], 1)));

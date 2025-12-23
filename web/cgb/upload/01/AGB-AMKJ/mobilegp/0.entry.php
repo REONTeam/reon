@@ -27,16 +27,22 @@
 	$gp_id = getCurrentMobileGP();
 	
 	$db = connectMySQL();
-	$db->begin_transaction();
+	
+	$game_region = getCurrentGameRegion();
+	if ($game_region === null) {
+		http_response_code(500);
+		return;
+	}
+$db->begin_transaction();
 	try {
 		// Delete existing record
-		$stmt = $db->prepare("delete ignore from amkj_ghosts_mobilegp where gp_id = ? and player_id = ?");
-		$stmt->bind_param("is", $gp_id, $data["player_id"]);
+		$stmt = $db->prepare("delete ignore from amk_ghosts_mobilegp where gp_id = ? and player_id = ? and game_region = ?");
+		$stmt->bind_param("iss", $gp_id, $data["player_id"], $game_region);
 		$stmt->execute();
 
 		// Insert new record
-		$stmt = $db->prepare("insert into amkj_ghosts_mobilegp (acc_id, gp_id, player_id, name, state, driver, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?)");
-		$stmt->bind_param("iissiiisssss", $_SESSION['userId'], $gp_id, $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
+		$stmt = $db->prepare("insert into amk_ghosts_mobilegp (game_region, acc_id, gp_id, player_id, name, state, driver, time, input_data, full_name, phone_number, postal_code, address) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$stmt->bind_param("siissiiisssss", $game_region, $_SESSION['userId'], $gp_id, $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
 		$stmt->execute();
 		
 		$db->commit();

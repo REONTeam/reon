@@ -18,7 +18,13 @@
 	$money = unpack("N", substr($myscore, 4))[1];
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select id from amoj_ranking where acc_id = ? and points = ? and money = ? order by id desc limit 1");
+	
+	$game_region = getCurrentGameRegion();
+	if ($game_region === null) {
+		http_response_code(500);
+		return;
+	}
+$stmt = $db->prepare("select id from amo_ranking where acc_id = ? and points = ? and money = ? order by id desc limit 1");
 	$stmt->bind_param("iii", $_SESSION['userId'], $points, $money);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
@@ -27,7 +33,7 @@
 		return;
 	}
 
-	$stmt = $db->prepare("update amoj_ranking set valid = 1 where id = ?");
+	$stmt = $db->prepare("update amo_ranking set valid = 1 where id = ?");
 	$stmt->bind_param("i", $result[0]["id"]);
 	$stmt->execute();
 
@@ -39,7 +45,7 @@
 		$timestamp = sprintf("%04d-%02d-%02d 15:00:00", $year, $month-1, cal_days_in_month(CAL_GREGORIAN, $month-1, $year));
 	}
 
-	$stmt = $db->prepare("select count(*) from amoj_ranking where valid = 1 and timestamp >= ? and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?)))) group by acc_id, name, gender, age, state");
+	$stmt = $db->prepare("select count(*) from amo_ranking where valid = 1 and timestamp >= ? and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?)))) group by acc_id, name, gender, age, state");
 	$stmt->bind_param("siiiii", $timestamp, $points, $points, $money, $money, $result[0]["id"]);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);

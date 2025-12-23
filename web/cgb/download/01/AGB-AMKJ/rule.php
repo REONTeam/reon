@@ -4,7 +4,14 @@
 	require_once(CORE_PATH."/database.php");
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select * from amkj_rule order by id desc limit 1;");
+	
+	$game_region = getCurrentGameRegion();
+	if ($game_region === null) {
+		http_response_code(500);
+		return;
+	}
+$stmt = $db->prepare("select * from amk_rule where game_region = ? order by id desc limit 1;");
+	$stmt->bind_param("s", $game_region);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 	

@@ -3,17 +3,23 @@
 	require_once(CORE_PATH."/database.php");
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select count(*) from amgj_rankings");
+	
+	$game_region = getCurrentGameRegion();
+	if ($game_region === null) {
+		http_response_code(500);
+		return;
+	}
+$stmt = $db->prepare("select count(*) from amg_rankings");
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 	$count = $result[0]["count(*)"];
 
-	$stmt = $db->prepare("select * from amgj_rankings order by weight desc limit 10");
+	$stmt = $db->prepare("select * from amg_rankings order by weight desc limit 10");
 	$stmt->execute();
 	$top10 = fancy_get_result($stmt);
 
 	if ($count <= 111) {
-		$stmt = $db->prepare("select * from amgj_rankings order by weight asc limit 101");
+		$stmt = $db->prepare("select * from amg_rankings order by weight asc limit 101");
 		$stmt->execute();
 		$overall = fancy_get_result($stmt);
 	} else {
@@ -21,7 +27,7 @@
 		$not10 = $count - 10;
 		for ($i = 0; $i < 101; $i++) {
 			$offset = $i * $not10 / 101;
-			$stmt = $db->prepare("select * from amgj_rankings order by weight asc limit 1 offset ?");
+			$stmt = $db->prepare("select * from amg_rankings order by weight asc limit 1 offset ?");
 			$stmt->bind_param("i", $offset);
 			$stmt->execute();
 			$result = fancy_get_result($stmt);

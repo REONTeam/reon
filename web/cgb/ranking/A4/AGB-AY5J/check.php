@@ -23,7 +23,13 @@
 	}
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select id from ay5j_rankings where ident = ? and score = ?");
+	
+	$game_region = getCurrentGameRegion();
+	if ($game_region === null) {
+		http_response_code(500);
+		return;
+	}
+$stmt = $db->prepare("select id from ay5_rankings where ident = ? and score = ?");
 	$stmt->bind_param("si", $ident, $score);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
@@ -33,12 +39,12 @@
 	}
 	$id = $result[0]["id"];
 
-	$stmt = $db->prepare("select score from ay5j_rankings order by score desc limit 1");
+	$stmt = $db->prepare("select score from ay5_rankings order by score desc limit 1");
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 	$top = $result[0]["score"];
 
-	$stmt = $db->prepare("select count(*) from ay5j_rankings where score > ? or (score = ? and id <= ?)");
+	$stmt = $db->prepare("select count(*) from ay5_rankings where score > ? or (score = ? and id <= ?)");
 	$stmt->bind_param("iii", $score, $score, $id);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);

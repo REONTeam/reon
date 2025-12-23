@@ -113,7 +113,13 @@
 	}
 
 	$db = connectMySQL();
-	$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
+	
+	$game_region = getCurrentGameRegion();
+	if ($game_region === null) {
+		http_response_code(500);
+		return;
+	}
+$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
 	$stmt->bind_param("i", $_SESSION["userId"]);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
@@ -153,12 +159,12 @@
 
 	$db->begin_transaction();
 	try {
-		$stmt = $db->prepare("delete ignore from ay5j_rankings where ident = ?");
-		$stmt->bind_param("s", $ident);
+		$stmt = $db->prepare("delete ignore from ay5_rankings where ident = ? and game_region = ?");
+		$stmt->bind_param("ss", $ident, $game_region);
 		$stmt->execute();
 
-		$stmt = $db->prepare("insert into ay5j_rankings (acc_id, ident, name, phone_no, score) values (?,?,?,?,?)");
-		$stmt->bind_param("isssi", $_SESSION['userId'], $ident, $name, $phone_no, $score);
+		$stmt = $db->prepare("insert into ay5_rankings (game_region, acc_id, ident, name, phone_no, score) values (?,?,?,?,?,?)");
+		$stmt->bind_param("sisssi", $game_region, $_SESSION['userId'], $ident, $name, $phone_no, $score);
 		$stmt->execute();
 
 		$db->commit();

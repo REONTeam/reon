@@ -20,7 +20,13 @@
 	$dion_email_local = substr($ident, 0, 8);
 	
 	$db = connectMySQL();
-	$stmt = $db->prepare("select count(*) from sys_users where dion_email_local = ?");
+	
+	$game_region = getCurrentGameRegion();
+	if ($game_region === null) {
+		http_response_code(500);
+		return;
+	}
+$stmt = $db->prepare("select count(*) from sys_users where dion_email_local = ?");
 	$stmt->bind_param("s", $dion_email_local);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
@@ -39,8 +45,8 @@
 	echo pack("C", date("m", time() + 32400));
 	echo pack("C", date("d", time() + 32400));
 
-	$stmt = $db->prepare("select id, weight from amgj_rankings where ident = ?");
-	$stmt->bind_param("s", $ident);
+	$stmt = $db->prepare("select id, weight from amg_rankings where ident = ? and game_region = ?");
+	$stmt->bind_param("ss", $ident, $game_region);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 
@@ -53,8 +59,8 @@
 		$id = $result[0]["id"];
 		$weight = $result[0]["weight"];
 
-		$stmt = $db->prepare("select count(*) from amgj_rankings where weight > ? or (weight == ? and id <= ?)");
-		$stmt->bind_param("iii", $weight, $weight, $id);
+		$stmt = $db->prepare("select count(*) from amg_rankings where (weight > ? or (weight = ? and id <= ?)) and game_region = ?");
+		$stmt->bind_param("iiis", $weight, $weight, $id, $game_region);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 

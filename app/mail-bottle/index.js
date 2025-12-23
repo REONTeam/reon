@@ -77,18 +77,45 @@ async function doExchange() {
   try {
     await connection.beginTransaction();
 
-    const table = "amcj_trades";
+    const table = "amc_trades";
 
     const [trades] = await connection.execute(
-      "SELECT * FROM " + table + " ORDER BY timestamp ASC"
+      "SELECT * FROM " + table + " ORDER BY game_region ASC, timestamp ASC"
     );
 
-    for (let i = 1; i < trades.length; i += 2) {
-      await mailTransport.sendMail({
-        envelope: {
-          from: trades[i-1]["email"],
-          to: trades[i]["email"],
-        },
+    // group trades by region and pair sequentially within each region
+    const byRegion = new Map();
+    for (const trade of trades) {
+      const region = trade["game_region"] ?? "";
+      if (!byRegion.has(region)) byRegion.set(region, []);
+      byRegion.get(region).push(trade);
+    }
+
+    for (const [region, list] of byRegion.entries()) {
+      for (let i = 1; i < list.length; i += 2) {
+        const a = list[i - 1];
+        const b = list[i];
+
+        await mailTransport.sendMail({
+          envelope: {
+            from: a["email"],
+            to: b["email"],
+          },
+          raw: "To: " + b["email"] + "\r\n" + a["message"],
+        });
+        await mailTransport.sendMail({
+          envelope: {
+            from: b["email"],
+            to: a["email"],
+          },
+          raw: "To: " + a["email"] + "\r\n" + b["message"],
+        });
+
+        // Clean up processed rows
+        await connection.execute("DELETE FROM " + table + " WHERE id = ?", [a["id"]]);
+        await connection.execute("DELETE FROM " + table + " WHERE id = ?", [b["id"]]);
+      }
+    },
         raw: "To: " + trades[i]["email"] + "\r\n" + trades[i-1]["message"],
       });
       await mailTransport.sendMail({

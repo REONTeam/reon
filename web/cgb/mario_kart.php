@@ -98,8 +98,9 @@
 	function getCurrentMobileGP() {
 		$datestamp = date("Y-m-d", time() + 32400);
 		$db = connectMySQL();
-		$stmt = $db->prepare("select id from amkj_rule where start_date <= ? order by id desc limit 1");
-		$stmt->bind_param("s", $datestamp);
+		$stmt = $db->prepare("select id from amk_rule where start_date <= ? and game_region = ? order by id desc limit 1");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("ss", $datestamp, $game_region);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		if (sizeof($result) == 0) {
@@ -110,8 +111,9 @@
 
 	function getTotalRankingEntries($course) { // total.cgb
 		$db = connectMySQL();
-		$stmt = $db->prepare("select count(*) from amkj_ghosts where course = ?");
-		$stmt->bind_param("i", $course);
+		$stmt = $db->prepare("select count(*) from amk_ghosts where course = ? and game_region = ?");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("is", $course, $game_region);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		return $result[0]["count(*)"];
@@ -119,8 +121,9 @@
 
 	function getTotalRankingEntriesState($course, $state) {
 		$db = connectMySQL();
-		$stmt = $db->prepare("select count(*) from amkj_ghosts where course = ? and state = ?");
-		$stmt->bind_param("ii", $course, $state);
+		$stmt = $db->prepare("select count(*) from amk_ghosts where course = ? and state = ? and game_region = ?");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("iis", $course, $state, $game_region);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		return $result[0]["count(*)"];
@@ -128,8 +131,9 @@
 
 	function getTotalRankingEntriesDriver($course, $driver) {
 		$db = connectMySQL();
-		$stmt = $db->prepare("select count(*) from amkj_ghosts where course = ? and driver = ?");
-		$stmt->bind_param("ii", $course, $driver);
+		$stmt = $db->prepare("select count(*) from amk_ghosts where course = ? and driver = ? and game_region = ?");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("iis", $course, $driver, $game_region);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		return $result[0]["count(*)"];
@@ -137,8 +141,9 @@
 
 	function getTotalRankingEntriesMobileGP($gp_id) { // total.cgb
 		$db = connectMySQL();
-		$stmt = $db->prepare("select count(*) from amkj_ghosts where gp_id = ?");
-		$stmt->bind_param("i", $gp_id);
+		$stmt = $db->prepare("select count(*) from amk_ghosts where gp_id = ? and game_region = ?");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("is", $gp_id, $game_region);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		return $result[0]["count(*)"];
@@ -147,7 +152,7 @@
 	function getOwnRank($course, $myid) {
 		$db = connectMySQL();
 
-		$stmt = $db->prepare("select id, time, driver from amkj_ghosts where course = ? and player_id = ?");
+		$stmt = $db->prepare("select id, time, driver from amk_ghosts where course = ? and player_id = ?");
 		$stmt->bind_param("is", $course, $myid);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -161,8 +166,9 @@
 		$time = $result[0]["time"];
 		$driver = $result[0]["driver"];
 		
-		$stmt = $db->prepare("select count(*) from amkj_ghosts where course = ? and (time < ? or (time = ? and id <= ?))");
-		$stmt->bind_param("iiii", $course, $time, $time, $id);
+		$stmt = $db->prepare("select count(*) from amk_ghosts where course = ? and game_region = ? and (time < ? or (time = ? and id <= ?))");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("isiii", $course, $game_region, $time, $time, $id);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
@@ -176,7 +182,7 @@
 	function getOwnRankState($course, $myid, $state) {
 		$db = connectMySQL();
 
-		$stmt = $db->prepare("select id, time, driver, state from amkj_ghosts where course = ? and player_id = ?");
+		$stmt = $db->prepare("select id, time, driver, state from amk_ghosts where course = ? and player_id = ?");
 		$stmt->bind_param("is", $course, $myid);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -190,8 +196,9 @@
 		$time = $result[0]["time"];
 		$driver = $result[0]["driver"];
 		
-		$stmt = $db->prepare("select count(*) from amkj_ghosts where course = ? and state = ? and (time < ? or (time = ? and id <= ?))");
-		$stmt->bind_param("iiiii", $course, $state, $time, $time, $id);
+		$stmt = $db->prepare("select count(*) from amk_ghosts where course = ? and state = ? and game_region = ? and (time < ? or (time = ? and id <= ?))");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("iisiii", $course, $state, $game_region, $time, $time, $id);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
@@ -205,7 +212,7 @@
 	function getOwnRankDriver($course, $myid, $driver) {
 		$db = connectMySQL();
 
-		$stmt = $db->prepare("select id, time, driver from amkj_ghosts where course = ? and player_id = ?");
+		$stmt = $db->prepare("select id, time, driver from amk_ghosts where course = ? and player_id = ?");
 		$stmt->bind_param("is", $course, $myid);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -218,8 +225,9 @@
 		$id = $result[0]["id"];
 		$time = $result[0]["time"];
 		
-		$stmt = $db->prepare("select count(*) from amkj_ghosts where course = ? and driver = ? and (time < ? or (time = ? and id <= ?))");
-		$stmt->bind_param("iiiii", $course, $driver, $time, $time, $id);
+		$stmt = $db->prepare("select count(*) from amk_ghosts where course = ? and driver = ? and game_region = ? and (time < ? or (time = ? and id <= ?))");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("iisiii", $course, $driver, $game_region, $time, $time, $id);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
@@ -233,7 +241,7 @@
 	function getOwnRankMobileGP($gp_id, $myid) {
 		$db = connectMySQL();
 
-		$stmt = $db->prepare("select id, time, driver from amkj_ghosts_mobilegp where gp_id = ? and player_id = ?");
+		$stmt = $db->prepare("select id, time, driver from amk_ghosts_mobilegp where gp_id = ? and player_id = ?");
 		$stmt->bind_param("is", $gp_id, $myid);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -247,7 +255,7 @@
 		$time = $result[0]["time"];
 		$driver = $result[0]["driver"];
 		
-		$stmt = $db->prepare("select count(*) from amkj_ghosts_mobilegp where gp_id = ? and (time < ? or (time = ? and id <= ?))");
+		$stmt = $db->prepare("select count(*) from amk_ghosts_mobilegp where gp_id = ? and (time < ? or (time = ? and id <= ?))");
 		$stmt->bind_param("iiiii", $gp_id, $time, $time, $id);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -302,7 +310,7 @@
 		$ghostrank = $ghostrank - 1;
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select * from amkj_ghosts where course = ? order by time asc limit 1 offset ?");
+		$stmt = $db->prepare("select * from amk_ghosts where course = ? order by time asc limit 1 offset ?");
 		$stmt->bind_param("ii", $course, $ghostrank);
 		$stmt->execute();
 
@@ -322,7 +330,7 @@
 		}
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select * from amkj_ghosts where course = ? and time < ? order by time desc limit 1");
+		$stmt = $db->prepare("select * from amk_ghosts where course = ? and time < ? order by time desc limit 1");
 		$stmt->bind_param("ii", $course, $ghostscore);
 		$stmt->execute();
 
@@ -345,7 +353,7 @@
 		}
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select * from amkj_ghosts where course = ? and player_id = ?");
+		$stmt = $db->prepare("select * from amk_ghosts where course = ? and player_id = ?");
 		$stmt->bind_param("is", $course, $myid);
 		$stmt->execute();
 
@@ -366,7 +374,7 @@
 		$ghostrank = $ghostrank - 1;
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select player_id from amkj_ghosts where course = ? order by time asc limit 1 offset ?");
+		$stmt = $db->prepare("select player_id from amk_ghosts where course = ? order by time asc limit 1 offset ?");
 		$stmt->bind_param("ii", $course, $ghostrank);
 		$stmt->execute();
 
@@ -401,7 +409,7 @@
 		$ghostrank = $ghostrank - 1;
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select player_id from amkj_ghosts where course = ? and state = ? order by time asc limit 1 offset ?");
+		$stmt = $db->prepare("select player_id from amk_ghosts where course = ? and state = ? order by time asc limit 1 offset ?");
 		$stmt->bind_param("iii", $course, $state, $ghostrank);
 		$stmt->execute();
 
@@ -436,7 +444,7 @@
 		$ghostrank = $ghostrank - 1;
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select player_id from amkj_ghosts where course = ? and driver = ? order by time asc limit 1 offset ?");
+		$stmt = $db->prepare("select player_id from amk_ghosts where course = ? and driver = ? order by time asc limit 1 offset ?");
 		$stmt->bind_param("iii", $course, $driver, $ghostrank);
 		$stmt->execute();
 
@@ -467,8 +475,9 @@
 	
 	function getTop10($course) {
 		$db = connectMySQL();
-		$stmt = $db->prepare("select player_id, name, driver, time from amkj_ghosts where course = ? order by time asc limit 11");
-		$stmt->bind_param("i", $course);
+		$stmt = $db->prepare("select player_id, name, driver, time from amk_ghosts where course = ? and game_region = ? order by time asc limit 11");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("is", $course, $game_region);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		
@@ -487,7 +496,7 @@
 		$myrankOffset = $myrank["rank"] - 12;
 		
 		$db = connectMySQL();
-		$stmt = $db->prepare("select player_id, name, driver, time from amkj_ghosts where course = ? order by time asc limit 11 offset ?");
+		$stmt = $db->prepare("select player_id, name, driver, time from amk_ghosts where course = ? order by time asc limit 11 offset ?");
 		$stmt->bind_param("ii", $course, $myrankOffset);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -503,7 +512,7 @@
 		$offset = $rank - 1;
 		
 		$db = connectMySQL();
-		$stmt = $db->prepare("select player_id, name, driver, time from amkj_ghosts where course = ? order by time asc limit 1 offset ?");
+		$stmt = $db->prepare("select player_id, name, driver, time from amk_ghosts where course = ? order by time asc limit 1 offset ?");
 		$stmt->bind_param("ii", $course, $offset);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -515,8 +524,9 @@
 	
 	function getTop10State($course, $state) {
 		$db = connectMySQL();
-		$stmt = $db->prepare("select player_id, name, driver, time from amkj_ghosts where course = ? and state = ? order by time asc limit 11");
-		$stmt->bind_param("ii", $course, $state);
+		$stmt = $db->prepare("select player_id, name, driver, time from amk_ghosts where course = ? and state = ? and game_region = ? order by time asc limit 11");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("iis", $course, $state, $game_region);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		
@@ -529,8 +539,9 @@
 	
 	function getTop10Driver($course, $driver) {
 		$db = connectMySQL();
-		$stmt = $db->prepare("select player_id, name, driver, time from amkj_ghosts where course = ? and driver = ? order by time asc limit 11");
-		$stmt->bind_param("ii", $course, $driver);
+		$stmt = $db->prepare("select player_id, name, driver, time from amk_ghosts where course = ? and driver = ? and game_region = ? order by time asc limit 11");
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("iis", $course, $driver, $game_region);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		
@@ -794,13 +805,14 @@
 		$db->begin_transaction();
 		try {
 			// Delete existing record
-			$stmt = $db->prepare("delete ignore from amkj_ghosts where course = ? and player_id = ?");
+			$stmt = $db->prepare("delete ignore from amk_ghosts where course = ? and player_id = ?");
 			$stmt->bind_param("is", $course, $data["player_id"]);
 			$stmt->execute();
 
 			// Insert new record
-			$stmt = $db->prepare("insert into amkj_ghosts (acc_id, course, player_id, name, state, driver, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?)");
-			$stmt->bind_param("iissiiisssss", $_SESSION['userId'], $course, $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
+			$stmt = $db->prepare("insert into amk_ghosts (game_region, acc_id, course, player_id, name, state, driver, time, input_data, full_name, phone_number, postal_code, address) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			$game_region = getCurrentGameRegion();
+			$stmt->bind_param("siissiiisssss", $game_region, $_SESSION['userId'], $course, $data["player_id"], $data["name"], $data["state"], $data["driver"], $data["time"], $data["input_data"], $data["full_name"], $data["phone_number"], $data["postal_code"], $data["address"]);
 			$stmt->execute();
 
 			$db->commit();

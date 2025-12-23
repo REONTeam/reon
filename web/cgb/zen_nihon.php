@@ -51,16 +51,18 @@
 	function gtgst($course) {
 		$db = connectMySQL();
 		if ($course != 6) {
-			$stmt = $db->prepare("select * from agtj_ghosts where (course = ? or course = ?) and dl_ok is not null order by dl_ok desc limit 30");
-			$stmt->bind_param($course, $course + 9);
+			$stmt = $db->prepare("select * from agt_ghosts where (course = ? or course = ?) and dl_ok is not null and game_region = ? order by dl_ok desc limit 30");
+			$game_region = getCurrentGameRegion();
+			$stmt->bind_param("iis", $course, $course + 9, $game_region);
 		} else {
 			$excrs = getExtraCourse();
 			if (!$excrs) {
 				http_response_code(404);
 				return;
 			}
-			$stmt = $db->prepare("select * from agtj_ghosts where (course = 6 or course = 7 or course = 8 or course = 15 or course = 16 or course = 17) and dl_ok is not null and excrs = ? order by dl_ok desc limit 30");
-			$stmt->bind_param($excrs);
+			$stmt = $db->prepare("select * from agt_ghosts where (course = 6 or course = 7 or course = 8 or course = 15 or course = 16 or course = 17) and dl_ok is not null and excrs = ? and game_region = ? order by dl_ok desc limit 30");
+			$game_region = getCurrentGameRegion();
+			$stmt->bind_param("is", $excrs, $game_region);
 		}
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -97,16 +99,18 @@
 	function gtrk($course) {
 		$db = connectMySQL();
 		if ($course != 6) {
-			$stmt = $db->prepare("select * from agtj_ghosts where course = ? or course = ? order by time desc limit 50");
-			$stmt->bind_param($course, $course + 9);
+			$stmt = $db->prepare("select * from agt_ghosts where (course = ? or course = ?) and game_region = ? order by time desc limit 50");
+			$game_region = getCurrentGameRegion();
+			$stmt->bind_param("iis", $course, $course + 9, $game_region);
 		} else {
 			$excrs = getExtraCourse();
 			if (!$excrs) {
 				http_response_code(404);
 				return;
 			}
-			$stmt = $db->prepare("select * from agtj_ghosts where (course = 6 or course = 7 or course = 8 or course = 15 or course = 16 or course = 17) and excrs = ? order by time desc limit 50");
-			$stmt->bind_param($excrs);
+			$stmt = $db->prepare("select * from agt_ghosts where (course = 6 or course = 7 or course = 8 or course = 15 or course = 16 or course = 17) and excrs = ? and game_region = ? order by time desc limit 50");
+			$game_region = getCurrentGameRegion();
+			$stmt->bind_param("is", $excrs, $game_region);
 		}
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -169,8 +173,9 @@
 		}
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select * from agtj_ghosts where dl_ok is not null and id = ? limit 1")
-		$stmt->bind_param("i", $id);
+		$stmt = $db->prepare("select * from agt_ghosts where dl_ok is not null and id = ? and game_region = ? limit 1")
+		$game_region = getCurrentGameRegion();
+		$stmt->bind_param("is", $id, $game_region);
 		$result = fancy_get_result($stmt);
 		if (sizeof($result) == 0 || $result[0]["price"] != $price) {
 			http_response_code(404);

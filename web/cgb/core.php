@@ -23,6 +23,10 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
     
     if (isset($filePath) && $filePath != "")
     {
+		// Derive per-request game id/region from the requested (virtual) path.
+		$GLOBALS['CGB_GAME_ID'] = extractGameIdFromPath($filePath);
+		$GLOBALS['CGB_GAME_REGION'] = $GLOBALS['CGB_GAME_ID'] ? extractGameRegionFromGameId($GLOBALS['CGB_GAME_ID']) : null;
+
 		$realBaseDir = realpath($dir);
 		$realFilePath = realpath($dir.$filePath);
 		
@@ -69,6 +73,54 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
 		session_destroy();
 	}
 }
+
+
+
+/**
+ * Extract a normalized game id (lowercase) from a path by scanning for a segment like
+ * "AGB-XXXX" or "CGB-XXXX".
+ * Returns null if it cannot be determined.
+ */
+function extractGameIdFromPath(string $path): ?string {
+    $path = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $path);
+    $parts = explode(DIRECTORY_SEPARATOR, $path);
+
+    for ($i = count($parts) - 1; $i >= 0; $i--) {
+        $seg = $parts[$i];
+        if (preg_match('/^(?:AGB|CGB|SGB|NTR|DS|GBA)-([A-Z0-9]+)$/i', $seg, $m)) {
+            return strtolower($m[1]);
+        }
+    }
+    return null;
+}
+
+/**
+ * Extract game_region from a normalized game id.
+ * Convention: game_region is the last alphabetic character of the game id.
+ * Example: "amgj" -> "j", "ay5j" -> "j".
+ */
+function extractGameRegionFromGameId(string $gameId): ?string {
+    $gameId = strtolower($gameId);
+    if ($gameId === '') return null;
+
+    $last = substr($gameId, -1);
+    if (ctype_alpha($last)) {
+        return $last;
+    }
+    return null;
+}
+
+/**
+ * Current request helpers (set by serveFileOrExecScript()).
+ */
+function getCurrentGameId(): ?string {
+    return $GLOBALS['CGB_GAME_ID'] ?? null;
+}
+
+function getCurrentGameRegion(): ?string {
+    return $GLOBALS['CGB_GAME_REGION'] ?? null;
+}
+
 
 function generate_UUID() {
 	return str_replace(
