@@ -47,8 +47,11 @@
 		"7" => 8
 	);
 
+	$game_region = getCurrentGameRegion();
+
 	$db = connectMySQL();
-	$stmt = $db->prepare("select text from amoj_news where timestamp <= current_timestamp() order by id desc limit 1");
+	$stmt = $db->prepare("select text from amo_news where (game_region = null or game_region = ?) and timestamp <= current_timestamp() order by id desc limit 1");
+	$stmt->bind_param("s", strtolower($game_region));
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 
