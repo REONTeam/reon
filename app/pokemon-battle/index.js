@@ -146,15 +146,17 @@ async function updateContentForRegion(region, connection) {
                 // Insert leader with decoded name and level.
                 await connection.execute(
                     "INSERT INTO bxt_battle_tower_honor_roll " +
-                    "(game_region, player_name, player_name_decode, `class`, `class_decode`, room, level, level_decode) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    "(game_region, player_name, player_name_decode, `class`, `class_decode`, message_start, message_start_decode, room, level, level_decode) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     [
                         region,
                         leader.player_name,
                         leader.player_name_decode || null,
                         leader.class || null,
                         leader.class_decode || null,
-                                                room,
+                        (leader.message_start ?? null),
+                        leader.message_start_decode || null,
+                        room,
                         level,
                         leader.level_decode || null,
                     ]
