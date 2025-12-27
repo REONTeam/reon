@@ -67,7 +67,7 @@ async function updateContent() {
 async function updateContentForRegion(region, connection) {
     // Rebuild trainer pool for this region from scratch each run.
     await connection.execute(
-        "DELETE FROM bxt_battle_tower_room_trainers WHERE game_region = ?",
+        "DELETE FROM bxt_battle_tower_trainers WHERE game_region = ?",
         [region]
     );
 
@@ -194,11 +194,11 @@ async function updateContentForRegion(region, connection) {
 
             }
 
-            // 4) Populate trainer pool table (bxt_battle_tower_room_trainers) for this region.
+            // 4) Populate trainer pool table (bxt_battle_tower_trainers) for this region.
             //    Deduplicate on (region, trainer_id, secret_id, account_id) to match composite PK.
             if (selectedTrainers.length > 0) {
                 const insertTrainerSql =
-                    "INSERT INTO bxt_battle_tower_room_trainers " +
+                    "INSERT INTO bxt_battle_tower_trainers " +
                     "(game_region, room, level, level_decode, no, trainer_id, secret_id, player_name, player_name_decode, " +
                     " `class`, `class_decode`, " +
                     " pokemon1, pokemon1_decode, " +
