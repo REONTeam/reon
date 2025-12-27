@@ -2710,7 +2710,7 @@ if (!function_exists('bxt_validate_battle_tower_record_row')) {
 
 if (!function_exists('bxt_validate_battle_tower_trainer_row')) {
     /**
-     * Validate a single logical trainer entry (for bxt_battle_tower_room_leaders).
+     * Validate a single logical trainer entry (for bxt_battle_tower_room_trainers).
      */
     function bxt_validate_battle_tower_trainer_row($game_region, $room, $level, $pokemon1_blob, $pokemon2_blob, $pokemon3_blob, $player_name_blob, $message_start_blob, $message_win_blob, $message_lose_blob, &$errors = []) {
         $errors_local = [];

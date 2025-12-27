@@ -78,7 +78,7 @@ function battleTowerGetRoom($region, $roomNo) {
                    t.message_start,
                    t.message_win,
                    t.message_lose
-            FROM bxt_battle_tower_room_leaders t
+            FROM bxt_battle_tower_room_trainers t
             WHERE t.game_region IN ($inExpr)
               AND t.room = ?
               AND t.level = ?
