@@ -2105,7 +2105,20 @@ if (!function_exists('bxt_validate_exchange_row')) {
                 if ($len > 0 && strspn($mail_blob, "\x00") === $len) {
                     // valid: skip mail byte validation
                 } else {
-                // Region-specific mail byte whitelist, split into:
+                    // If the offered Pokémon is NOT holding a mail item, the game will ignore the mail blob.
+                    // Some clients/builds send uninitialized bytes in this case; accept the blob and skip strict validation.
+                    $held_item = null;
+                    if (is_string($pokemon_blob) && strlen($pokemon_blob) >= 2) {
+                        $held_item = ord($pokemon_blob[1]); // Gen 2 item is byte 1 in the core struct; matches TradeCornerBlob58/65.
+                    }
+
+                    $mail_item_set = array_fill_keys(array(0x9E, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD), true);
+                    $is_mail_item = ($held_item !== null) && isset($mail_item_set[$held_item]);
+
+                    if (!$is_mail_item) {
+                        // valid: skip mail byte validation
+                    } else {
+                        // Region-specific mail byte whitelist, split into:
 //   - message bytes: [0 .. (len-$tail_len)-1]  (text + author/name bytes)
 //   - tail bytes:    [(len-$tail_len) .. end]  (trailing 6-byte metadata: trainer ID, species, mail item, etc.)
 // This matches the mail struct layout used in index.js: [33 bytes text][name][(non-j only: 2 bytes nationality)][4 bytes metadata].
@@ -2345,13 +2358,9 @@ foreach ((array)($mail_allowed_cache['non_j']['author_list_nat_8492'] ?? []) as 
 }
 
                 $bucket = ($region === 'j') ? 'j' : 'non_j';
-                $allowed_msg_set = ($bucket === 'j')
-                    ? $mail_allowed_cache['__msg_set_j']
-                    : [];
 
-                $allowed_author_set = ($bucket === 'j')
-                    ? $mail_allowed_cache['__author_set_j']
-                    : [];
+                $allowed_msg_set = ($bucket === 'j') ? $mail_allowed_cache['__msg_set_j'] : [];
+                $allowed_author_set = ($bucket === 'j') ? $mail_allowed_cache['__author_set_j'] : [];
 
 
                 // Tail bytes are raw metadata (not text), validated by field:
@@ -2562,6 +2571,7 @@ if (!isset($tail_set[$b])) {
                         }
                     }
                 }
+                    }
                             }
 }
         }
