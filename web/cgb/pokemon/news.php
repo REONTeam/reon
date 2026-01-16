@@ -8,6 +8,153 @@ require_once(__DIR__ . "/../../scripts/bxt_decode_helpers.php");
 require_once(__DIR__ . "/../../scripts/bxt_value_validation.php");
 require_once(__DIR__ . "/../../scripts/bxt_name_conversion.php");
 
+/**
+ * Authentication + per-user Pokémon News (custom track) selection helpers.
+ *
+ * Requirement: Pokémon news + ranking endpoints require auth even if "free".
+ * Also: any "custom news" identifiers must be Pokémon-news specific.
+ */
+function bxt_pokemon_news_require_authenticated_user_id() {
+    // Force CGB auth for Pokémon News endpoints, even when accessed as zero-cost downloads.
+    if (defined('CORE_PATH')) {
+        require_once(CORE_PATH . "/auth.php");
+    }
+
+    if (function_exists('doAuth')) {
+        $uid = doAuth(2); // type=2 => always requires auth; returns userId on success
+        if (isset($uid) && (int)$uid > 0) {
+            return (int)$uid;
+        }
+    }
+
+    // Fallback: if something else already established a CGB session.
+    if (isset($_SESSION) && isset($_SESSION['userId']) && isset($_SESSION['type']) && $_SESSION['type'] === 'cgb') {
+        return (int)$_SESSION['userId'];
+    }
+
+    http_response_code(401);
+    exit();
+}
+
+/**
+ * Ranking queries are sent as POSTs that (in practice) do not replay a GB00
+ * Authorization challenge. For these requests, derive the userId from the
+ * POST payload's my_account_id (which is already the server-issued userId).
+ */
+function bxt_pokemon_news_resolve_user_id_from_ranking_post($postString) {
+    if (!is_string($postString) || $postString === '') {
+        return 0;
+    }
+
+    $post = [];
+    parse_str($postString, $post);
+    if (!isset($post['my_account_id'])) {
+        return 0;
+    }
+
+    $userId = intval($post['my_account_id'], 16);
+    return ($userId > 0) ? $userId : 0;
+}
+
+function bxt_pokemon_news_get_user_id_for_ranking_request($postString) {
+    if (isset($_SESSION) && isset($_SESSION['userId']) && isset($_SESSION['type']) && $_SESSION['type'] === 'cgb') {
+        $userId = (int)$_SESSION['userId'];
+        return ($userId > 0) ? $userId : 0;
+    }
+    return bxt_pokemon_news_resolve_user_id_from_ranking_post($postString);
+}
+
+
+
+function bxt_pokemon_news_user_opted_in_custom($userId) {
+    $db = connectMySQL();
+    $stmt = $db->prepare("select custom_pokemon_news_opt_in from sys_users where id = ? limit 1");
+    if (!$stmt) return false;
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $rows = fancy_get_result($stmt);
+    if (!$rows || count($rows) === 0) return false;
+    return (int)$rows[0]["custom_pokemon_news_opt_in"] === 1;
+}
+
+function bxt_pokemon_news_custom_row_exists($region) {
+    $region = strtolower(trim((string)$region));
+    $db = connectMySQL();
+    $stmt = $db->prepare(
+        "select id from bxt_news where game_region = ? and is_custom = 1 order by id desc limit 1"
+    );
+    if (!$stmt) return false;
+    $stmt->bind_param("s", $region);
+    $stmt->execute();
+    $rows = fancy_get_result($stmt);
+    return ($rows && count($rows) > 0);
+}
+
+function bxt_pokemon_news_select_is_custom_for_user($region, $userId) {
+    $region = strtolower(trim((string)$region));
+    if (!bxt_pokemon_news_user_opted_in_custom($userId)) {
+        return 0;
+    }
+    return bxt_pokemon_news_custom_row_exists($region) ? 1 : 0;
+}
+
+function bxt_pokemon_news_resolve_canonical_ranking_news_id($region, $news_id) {
+    $region = strtolower(trim((string)$region));
+    $db = connectMySQL();
+
+    // Load requested news row.
+    $stmt = $db->prepare(
+        "select id, game_region, is_custom, ranking_category_1, ranking_category_2, ranking_category_3
+           from bxt_news
+          where id = ?
+          limit 1"
+    );
+    if (!$stmt) return (int)$news_id;
+    $stmt->bind_param("i", $news_id);
+    $stmt->execute();
+    $rows = fancy_get_result($stmt);
+    if (!$rows || count($rows) === 0) return (int)$news_id;
+
+    $row = $rows[0];
+    if (strtolower((string)$row["game_region"]) !== strtolower((string)$region)) {
+        return (int)$news_id;
+    }
+
+    // Prefer vanilla as canonical when categories match.
+    if ((int)$row["is_custom"] !== 1) {
+        return (int)$news_id;
+    }
+
+    // If any category is null, don't attempt canonical remap.
+    $c1 = $row["ranking_category_1"];
+    $c2 = $row["ranking_category_2"];
+    $c3 = $row["ranking_category_3"];
+    if ($c1 === null || $c2 === null || $c3 === null) {
+        return (int)$news_id;
+    }
+
+    $stmt2 = $db->prepare(
+        "select id
+           from bxt_news
+          where game_region = ?
+            and is_custom = 0
+            and ranking_category_1 = ?
+            and ranking_category_2 = ?
+            and ranking_category_3 = ?
+          order by id desc
+          limit 1"
+    );
+    if (!$stmt2) return (int)$news_id;
+    $stmt2->bind_param("siii", $region, $c1, $c2, $c3);
+    $stmt2->execute();
+    $rows2 = fancy_get_result($stmt2);
+    if ($rows2 && count($rows2) > 0) {
+        return (int)$rows2[0]["id"];
+    }
+
+    return (int)$news_id;
+}
+
 
 /**
  * Decode a player's Easy Chat ranking message with respect to the
@@ -121,10 +268,15 @@ function get_sram_structure($region) {
 	);
 }
 
-function get_news_parameters($region) {
+function get_news_parameters($region, $is_custom = 0) {
+    $region = strtolower(trim((string)$region));
     $db = connectMySQL();
+
+    $is_custom = (int)$is_custom;
+
     $stmt = $db->prepare(
         "select id,
+                is_custom,
                 ranking_category_1,
                 ranking_category_2,
                 ranking_category_3,
@@ -133,10 +285,11 @@ function get_news_parameters($region) {
                 octet_length(news_binary) as octet_length_news_binary
            from bxt_news
           where game_region = ?
+            and is_custom = ?
           order by id desc
           limit 1"
     );
-    $stmt->bind_param("s", $region);
+    $stmt->bind_param("si", $region, $is_custom);
     $stmt->execute();
     $rows = fancy_get_result($stmt);
     if (!$rows || count($rows) === 0) {
@@ -279,7 +432,10 @@ function bxt_filter_ranking_rows_by_news_config($rows, $download_region) {
 
 
 function get_news_parameters_bin($region) {
-    $news_param = get_news_parameters($region);
+    $userId    = bxt_pokemon_news_require_authenticated_user_id();
+    $region    = strtolower(trim((string)$region));
+    $is_custom  = bxt_pokemon_news_select_is_custom_for_user($region, $userId);
+    $news_param = get_news_parameters($region, $is_custom);
     if ($news_param === null) {
         return null;
     }
@@ -353,15 +509,20 @@ function get_news_parameters_bin($region) {
 
 
 function get_news_file($region) {
+    $userId   = bxt_pokemon_news_require_authenticated_user_id();
+    $region   = strtolower(trim((string)$region));
+    $is_custom = bxt_pokemon_news_select_is_custom_for_user($region, $userId);
+
     $db = connectMySQL();
     $stmt = $db->prepare(
         "select news_binary
            from bxt_news
           where game_region = ?
+            and is_custom = ?
           order by id desc
           limit 1"
     );
-    $stmt->bind_param("s", $region);
+    $stmt->bind_param("si", $region, $is_custom);
     $stmt->execute();
     $rows = fancy_get_result($stmt);
     if (!$rows || count($rows) === 0) {
@@ -385,6 +546,8 @@ function get_ranking_category_info($news_param) {
 function set_ranking($region, $content, $length) {
     // Normalise region code.
     $region = strtolower(trim($region));
+
+    $userId = bxt_pokemon_news_require_authenticated_user_id();
 
     $is_allowed   = true;
     $allowed_news = [$region];
@@ -418,15 +581,19 @@ function set_ranking($region, $content, $length) {
     // SRAM layout depends on the actual game region (J vs non-J),
     // while news parameters are keyed by the canonical news region.
     $sram          = get_sram_structure($region);
-    $news_param    = get_news_parameters($news_region);
+    $is_custom  = bxt_pokemon_news_select_is_custom_for_user($news_region, $userId);
+    $news_param = get_news_parameters($news_region, $is_custom);
     if ($news_param === null) {
         // No news configured for this pool; nothing to do.
         return;
     }
     $category_info = get_ranking_category_info($news_param);
 
+    // Canonicalize ranking linkage to vanilla when categories match (prefer vanilla).
+    $ranking_news_id = bxt_pokemon_news_resolve_canonical_ranking_news_id($news_region, (int)$news_param['id']);
+
     error_log(
-        'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+        'account_id=' . $userId .
         ' region=' . $region .
         ' news_region=' . $news_region .
         ' length=' . $length .
@@ -445,7 +612,7 @@ function set_ranking($region, $content, $length) {
     if ($length != $expected_data_size) {
         error_log(
             'BXT_DEBUG_NEWS_SET_RANKING_LENGTH_MISMATCH: ' .
-            'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+            'account_id=' . $userId .
             ' region=' . $region .
             ' news_region=' . $news_region .
             ' length=' . $length .
@@ -496,14 +663,14 @@ function set_ranking($region, $content, $length) {
     if ($decoded_name !== '' && bxt_contains_banned($decoded_name, $banned, $allowed)) {
         error_log(
             'BXT_DEBUG_NEWS_SET_RANKING_BANNED_NAME: ' .
-            'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+            'account_id=' . $userId .
             ' region=' . $region .
             ' trainer_id=' . $trainer_id .
             ' secret_id=' . $secret_id .
             ' decoded_name=' . $decoded_name
         );
         // Reject ranking by banned player name but return success sentinel
-        return pack("N", $_SESSION["userId"] ?? 0);
+        return pack("N", $userId ?? 0);
     }
     // --- end banned-player-name check ---
 
@@ -552,7 +719,7 @@ if ($region == "j") {
         ' message_hex=' . bin2hex($message)
     );
 
-    if (!isset($_SESSION["userId"])) {
+    if (!isset($userId)) {
         return;
     }
 
@@ -587,10 +754,10 @@ if ($region == "j") {
         )) {
             error_log(
                 'BXT_DEBUG_NEWS_SET_RANKING_CATEGORY_INVALID: ' .
-                'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+                'account_id=' . $userId .
                 ' region=' . $region .
                 ' news_region=' . $news_region .
-                ' news_id=' . $news_param["id"] .
+                ' news_id=' . $ranking_news_id .
                 ' category_id=' . $category["id"] .
                 ' trainer_id=' . $trainer_id .
                 ' secret_id=' . $secret_id .
@@ -602,10 +769,10 @@ if ($region == "j") {
         }
 
         error_log(
-            'account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') .
+            'account_id=' . $userId .
             ' region=' . $region .
             ' news_region=' . $news_region .
-            ' news_id=' . $news_param["id"] .
+            ' news_id=' . $ranking_news_id .
             ' category_id=' . $category["id"] .
             ' trainer_id=' . $trainer_id .
             ' secret_id=' . $secret_id .
@@ -628,9 +795,9 @@ if ($region == "j") {
         $stmt->bind_param(
             "siiiii",
             $region,
-            $news_param["id"],
+            $ranking_news_id,
             $category["id"],
-            $_SESSION["userId"],
+            $userId,
             $trainer_id,
             $secret_id
         );
@@ -692,9 +859,9 @@ if ($region == "j") {
                 $score,
                 $category_id_decode,
                 $region,
-                $news_param["id"],
+                $ranking_news_id,
                 $category["id"],
-                $_SESSION["userId"],
+                $userId,
                 $trainer_id,
                 $secret_id
             );
@@ -719,9 +886,9 @@ if ($region == "j") {
             $stmt->bind_param(
                 "siiiiisisiississsss",
                 $region,
-                $news_param["id"],
+                $ranking_news_id,
                 $category["id"],
-                $_SESSION["userId"],
+                $userId,
                 $trainer_id,
                 $secret_id,
                 $name,
@@ -742,12 +909,16 @@ if ($region == "j") {
         }
     }
 
-    return pack("N", $_SESSION["userId"]);
+    return pack("N", $userId);
 }
 
 
 function get_ranking($region, $post_string) {
     $region = strtolower($region);
+
+    // Ranking queries are POSTed without replaying a GB00 auth challenge.
+    // Identify the user via my_account_id when present.
+    $userId = bxt_pokemon_news_get_user_id_for_ranking_request($post_string);
 
     $is_allowed   = true;
     $allowed_news = [$region];
@@ -781,15 +952,19 @@ function get_ranking($region, $post_string) {
     // Pooled region list used for ranking queries (national + regional views).
     $gameRegions = $allowed_news;
 
-    // Always ignore news_id in ranking queries so pooled regions share history
-    $ignoreNewsIdForPool = true;
+    // Use news_id to partition rankings (enables vanilla/custom split when categories differ).
+    $ignoreNewsIdForPool = false;
 
     parse_str($post_string, $post_data);
-    $news_param    = get_news_parameters($news_region);
+    $is_custom  = bxt_pokemon_news_select_is_custom_for_user($news_region, $userId);
+    $news_param = get_news_parameters($news_region, $is_custom);
     if ($news_param === null) {
         return "";
     }
     $category_info = get_ranking_category_info($news_param);
+
+    // Canonical ranking linkage: prefer vanilla news_id when categories match.
+    $ranking_news_id = bxt_pokemon_news_resolve_canonical_ranking_news_id($news_region, (int)$news_param['id']);
 
     $out = "";
     $db  = connectMySQL();
@@ -822,7 +997,7 @@ function get_ranking($region, $post_string) {
                     continue;
                 }
                 // region(s), news_id(i), category_id(i) => "sii"
-                $stmt->bind_param("sii", $gr, $news_param["id"], $category["id"]);
+                $stmt->bind_param("sii", $gr, $ranking_news_id, $category["id"]);
             }
             $stmt->execute();
             $rows = fancy_get_result($stmt);
@@ -863,7 +1038,7 @@ function get_ranking($region, $post_string) {
                 $stmt->bind_param(
                     "siiiii",
                     $gr,
-                    $news_param["id"],
+                    $ranking_news_id,
                     $category["id"],
                     $my_account_id,
                     $my_trainer_id,
@@ -898,7 +1073,7 @@ function get_ranking($region, $post_string) {
                     $stmt->bind_param(
                         "siiiis",
                         $gr,
-                        $news_param["id"],
+                        $ranking_news_id,
                         $category["id"],
                         $my_score,
                         $my_score,
@@ -965,7 +1140,7 @@ function get_ranking($region, $post_string) {
                     continue;
                 }
                 // region(s), news_id(i), category_id(i) => "sii"
-                $stmt->bind_param("sii", $gr, $news_param["id"], $category["id"]);
+                $stmt->bind_param("sii", $gr, $ranking_news_id, $category["id"]);
                 $stmt->execute();
                 $rows = fancy_get_result($stmt);
                 if ($rows) {
@@ -1050,7 +1225,7 @@ if (function_exists('bxt_transform_ranking_row_for_download')) {
                         continue;
                     }
                     // region(s), news_id(i), category_id(i), pregion(i) => "siii"
-                    $stmt->bind_param("siii", $gr, $news_param["id"], $category["id"], $pregion);
+                    $stmt->bind_param("siii", $gr, $ranking_news_id, $category["id"], $pregion);
                 }
                 $stmt->execute();
                 $rows = fancy_get_result($stmt);
@@ -1108,7 +1283,7 @@ if (function_exists('bxt_transform_ranking_row_for_download')) {
                         continue;
                     }
                     // region(s), news_id(i), category_id(i), pregion(i) => "siii"
-                    $stmt->bind_param("siii", $gr, $news_param["id"], $category["id"], $pregion);
+                    $stmt->bind_param("siii", $gr, $ranking_news_id, $category["id"], $pregion);
                 }
                 $stmt->execute();
                 $rows = fancy_get_result($stmt);
@@ -1186,7 +1361,7 @@ if (function_exists('bxt_transform_ranking_row_for_download')) {
                             continue;
                         }
                         // region(s), news_id(i), category_id(i), pregion(i), pzip(s) => "siiis"
-                        $stmt->bind_param("siiis", $gr, $news_param["id"], $category["id"], $pregion, $pzip);
+                        $stmt->bind_param("siiis", $gr, $ranking_news_id, $category["id"], $pregion, $pzip);
                     }
                     $stmt->execute();
                     $rows = fancy_get_result($stmt);
@@ -1246,7 +1421,7 @@ if (function_exists('bxt_transform_ranking_row_for_download')) {
                             continue;
                         }
                         // region(s), news_id(i), category_id(i), pregion(i), pzip(s) => "siiis"
-                        $stmt->bind_param("siiis", $gr, $news_param["id"], $category["id"], $pregion, $pzip);
+                        $stmt->bind_param("siiis", $gr, $ranking_news_id, $category["id"], $pregion, $pzip);
                     }
                     $stmt->execute();
                     $rows = fancy_get_result($stmt);

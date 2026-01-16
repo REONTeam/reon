@@ -281,10 +281,10 @@
 			return $email;
 		}
 		
-		public function completeSignupAction($id, $key, $reonEmail, $password, $passwordConfirm, $tradeRegions) {
+		public function completeSignupAction($id, $key, $reonEmail, $password, $passwordConfirm, $tradeRegions, $customPokemonNewsOptIn) {
 			$email = self::$instance->verifySignupRequest($id, $key);
 
-			$result = self::$instance->createUser($email, $reonEmail, $password, $passwordConfirm, $tradeRegions);
+			$result = self::$instance->createUser($email, $reonEmail, $password, $passwordConfirm, $tradeRegions, $customPokemonNewsOptIn);
 			if ($result > 0) {
 				return $result;
 			}
@@ -297,7 +297,7 @@
 			return 0;
 		}
 
-		public function createUser($email, $reonEmail, $password, $passwordConfirm, $tradeRegions) {
+		public function createUser($email, $reonEmail, $password, $passwordConfirm, $tradeRegions, $customPokemonNewsOptIn) {
 			if (!isset($email)) return 1;
 			if (!self::$instance->isDionEmailValidAndFree($reonEmail)) return 2;
 			if ($password != $passwordConfirm) return 3;
@@ -306,12 +306,14 @@
             if (!in_array($tradeRegions,array("e,f,d,s,i,p,u,j","efdsipu,j","efdsipuj")))
                 $tradeRegions = "e,f,d,s,i,p,u,j";
 			
+			$opt_in = ($customPokemonNewsOptIn == 1) ? 1 : 0;
+
 			$password_hash = self::$instance->getPasswordHash($password);
 			$dion_ppp_id = self::$instance->generatePPPId();
 			$log_in_password = self::$instance->generateLogInPassword();
 			$db = DBUtil::getInstance()->getDB();
-			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password, money_spent, trade_region_allowlist) values (?,?,?,?,?,0,?)");
-			$stmt->bind_param("ssssss", $email, $password_hash, $dion_ppp_id, $reonEmail, $log_in_password, $tradeRegions);
+			$stmt = $db->prepare("insert into sys_users (email, password, dion_ppp_id, dion_email_local, log_in_password, money_spent, trade_region_allowlist, custom_pokemon_news_opt_in) values (?,?,?,?,?,0,?,?)");
+			$stmt->bind_param("ssssssi", $email, $password_hash, $dion_ppp_id, $reonEmail, $log_in_password, $tradeRegions, $opt_in);
 			$stmt->execute();
 
 			return 0;

@@ -1,5 +1,4 @@
 pokemon:
-  # Given the large size of these lists, it is advised to add any new translation keys ABOVE this line
   species:
   - (Keins)
   - Bisasam
@@ -762,3 +761,13 @@ pokemon:
   - Zertrümmerer
   - Whirlpool
   - Prügler
+account:
+  pokemon-news-custom-opt-in: 'Pokémon-Nachrichten: Nachrichteneinstellungen'
+  pokemon-news-custom-opt-in-blurb: Wenn aktiviert, können Pokémon-Nachrichten-Downloads – sofern verfügbar –
+    benutzerdefinierte Nachrichteninhalte des REON-Teams verwenden. Wenn keine
+    benutzerdefinierten Nachrichten vorhanden sind, werden stattdessen offizielle
+    Nachrichten verwendet.
+  pokemon-news-custom-opt-in-off: Nur offizielle Pokémon-Nachrichten
+  pokemon-news-custom-opt-in-on: Benutzerdefinierte Pokémon-Nachrichten, wenn verfügbar
+
+invalid-pokemon-news-setting: Ungültige Pokémon-Nachrichten-Einstellung.

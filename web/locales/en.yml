@@ -1,8 +1,3 @@
-# English is defined as the fallback language (see TemplateUtil.php)
-# Anything not included in another language file will pull from here instead
-
-# DO NOT TRANSLATE
-# These are used in the language pickers and should not be localized
 locale:
   en: English
   ja: 日本語
@@ -10,9 +5,6 @@ locale:
   fr: Français
   es: Español
   it: Italiano
-# End do not translate section
-
-# Translatable language strings
 language:
   en: English
   ja: Japanese
@@ -20,8 +12,6 @@ language:
   fr: French
   es: Spanish
   it: Italian
-
-# Common/Global strings
 male: Male
 female: Female
 name: Name
@@ -31,21 +21,15 @@ games: Games
 mobile-home: Mobile Homepage
 welcome-alpha: Welcome to the alpha test!
 what-is-this: What is this?
-
-# Common form elements
 send: Send
 continue: Continue
 reset: Reset
 reveal: Reveal
-
-# Navigation
 login: Login
 logout: Logout
 signup: Sign-up
 your-account: Your Account
 forgot-password: Forgot password
-
-# Common form fields
 email-addr: Email address
 password: Password
 current-password: Current password
@@ -53,38 +37,41 @@ new-password: New password
 confirm-password: Confirm password
 confirm-new-password: Confirm new password
 new-email: New email
-
-# Common validation messages
 invalid-email: Invalid email
 password-invalid: Password invalid
 passwords-dont-match: The passwords don't match
 wrong-password: Wrong password
 link-invalid-expired: This link is invalid or has expired.
 invalid-trade-setting: Not a valid region pool setting.
-
-# Auth pages
+invalid-pokemon-news-setting: Not a valid Pokémon news preference.
 auth:
   login-to-reon: Login to your REON account
   invalid-email-pass: Incorrect email or password
   signup-to-reon: Sign-up to REON
   i-agree-terms: I agree to the terms of use and the privacy policy
   you-must-agree: You must agree
-  registration-email-sent: If not yet registered, an email containing a link to continue your registration was sent to the specified email address.
+  registration-email-sent: If not yet registered, an email containing a link to continue
+    your registration was sent to the specified email address.
   registration-complete: Your registration is complete.
   reon-email: REON email address
   reon-email-invalid: REON email invalid or taken
-  region-explanation-para1: REON enables international trade for Pokémon Crystal players, via the in-game facility called the Trade Corner. This includes trading between Japanese and non-Japanese games, which are normally incompatible due to using different character sets. To make such trades possible, the service changes Pokémon nicknames, Trainer names, and messages written on Mail when matching Pokémon between Japanese and non-Japanese games (for example, changing "A" to "ア", and vice-versa). These changes are irreversible, but they aim to imitate the original language's lettering as faithfully as possible.
-  region-explanation-para2: Choose the pool of regions you're okay with trading with. This setting can be changed after sign-up as well.
-
-# Password reset pages
+  region-explanation-para1: REON enables international trade for Pokémon Crystal players,
+    via the in-game facility called the Trade Corner. This includes trading between
+    Japanese and non-Japanese games, which are normally incompatible due to using
+    different character sets. To make such trades possible, the service changes Pokémon
+    nicknames, Trainer names, and messages written on Mail when matching Pokémon between
+    Japanese and non-Japanese games (for example, changing "A" to "ア", and vice-versa).
+    These changes are irreversible, but they aim to imitate the original language's
+    lettering as faithfully as possible.
+  region-explanation-para2: Choose the pool of regions you're okay with trading with.
+    This setting can be changed after sign-up as well.
 password-reset:
   title: Reset your password
   this-email-not-registered: This email isn't registered
   email-sent-recently: An email was sent less than 5 minutes ago
-  email-sent: If registered, an email containing a link to reset your password was sent to the specified email address.
+  email-sent: If registered, an email containing a link to reset your password was
+    sent to the specified email address.
   success: Your password was reset successfully.
-
-# User account pages
 account:
   your-reon-account: Your REON account
   account-details: Account details
@@ -100,44 +87,52 @@ account:
   reroll-confirm-message: Are you sure you want to do this?
   reroll-warning: You will have to change your password in all games.
   change-email-address: Change your email address
-  email-confirm-sent: If not yet registered, an email containing a link to confirm this change was sent to the specified email address.
+  email-confirm-sent: If not yet registered, an email containing a link to confirm
+    this change was sent to the specified email address.
   email-changed-success: Your email was changed successfully.
   change-your-password: Change your password
   password-changed-success: Your password was changed successfully.
   pokemon-crystal-settings: Pokémon Crystal settings
-  trade-corner-region-allowlist: "Trade Corner: International Trading Preferences"
-  trade-region-allowlist-blurb: Select the region pool you’re willing to trade with when you deposit your Pokémon in the Trade Corner. Any match you receive will be from within that region pool. Note that "regions with compatible languages" refers to games that have compatible character sets, meaning either all Latin-based languages or Japanese by itself.
+  trade-corner-region-allowlist: 'Trade Corner: Trading Preferences'
+  trade-region-allowlist-blurb: Select the region pool you’re willing to trade with
+    when you deposit your Pokémon in the Trade Corner. Any match you receive will
+    be from within that region pool. Note that "regions with compatible languages"
+    refers to games that have compatible character sets, meaning either all Latin-based
+    languages or Japanese by itself.
   trade-option-1: National only (only your game's region)
   trade-option-2: All regions with compatible languages
   trade-option-3: All regions, including Latin-Japanese conversion
   update-settings: Update settings
-
-# Index/Home page
+  pokemon-news-custom-opt-in: 'Pokémon News: News Preferences'
+  pokemon-news-custom-opt-in-blurb: When enabled, Pokémon News downloads may use custom
+    news content created by the REON Team when available. 
+    If no custom news exists, official news will be used instead.
+  pokemon-news-custom-opt-in-off: Official Pokémon News only
+  pokemon-news-custom-opt-in-on: Custom Pokémon News when available
 index:
   what-is-reon: What is REON?
   reon-description: REON is something.
-  reon-lorem: Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+  reon-lorem: Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod
+    tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+    nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat.
+    Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+    pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia
+    deserunt mollit anim id est laborum.
   what-is-mobile-adapter: What is the Mobile Adapter?
   mobile-adapter-description: The Mobile Adapter was a thing.
-
 gameboy-wars: Game Boy Wars 3
-
-# Pokemon game section
 pokemon-crystal: Pokémon Crystal
 rankings: Rankings
 trade-corner: Trade Corner
-
 pokemon-pages:
   index-description: Cute little critters and stuff
   rankings-description: How big did you say that magikarp was?
   trade-corner-description: Look at all those caterpie and weedle!
-
-
 region:
   text: Region
   global: Global
   international: International
-  short: # Trade corner
+  short:
     e: ENG
     p: ENG
     u: ENG
@@ -146,7 +141,7 @@ region:
     f: FRA
     i: ITA
     s: SPA
-  country: # Rankings
+  country:
     e: United States
     p: Europe
     u: Australia
@@ -155,7 +150,7 @@ region:
     f: France
     i: Italy
     s: Spain
-  language: # Trade corner (hover text)
+  language:
     e: English (United States)
     p: English (Europe)
     u: English (Australia)
@@ -164,316 +159,313 @@ region:
     f: French
     i: Italian
     s: Spanish
-
-# Game Boy Wars 3
 gbwars:
   terrain:
-    0x00: "Null"
-    0x01: "RS Base"
-    0x02: "RS City"
-    0x03: "RS Ruins"
-    0x04: "RS Factory"
-    0x05: "RS Ruined Factory"
-    0x06: "RS Airport"
-    0x07: "RS Ruined Airport"
-    0x08: "RS Ruined Port"
-    0x09: "RS Port"
-    0x0A: "RS Ruined Port"
-    0x0B: "RS Com Tower"
-    0x0C: "WM Base"
-    0x0D: "WM City"
-    0x0E: "WM Ruins"
-    0x0F: "WM Factory"
-    0x10: "WM Ruined Factory"
-    0x11: "WM Airport"
-    0x12: "WM Ruined Airport"
-    0x13: "WM Ruined Port"
-    0x14: "WM Port"
-    0x15: "WM Ruined Port"
-    0x16: "WM Com Tower"
-    0x17: "City"
-    0x18: "Ruins"
-    0x19: "Factory"
-    0x1A: "Ruined Factory"
-    0x1B: "Airport"
-    0x1C: "Ruined Airport"
-    0x1D: "Port"
-    0x1E: "Ruined Port"
-    0x1F: "Com Tower"
-    0x20: "Plain"
-    0x21: "Road"
-    0x22: "Bridge"
-    0x23: "Bridge"
-    0x24: "Mountain"
-    0x25: "Woods"
-    0x26: "Wasteland"
-    0x27: "Desert"
-    0x28: "River"
-    0x29: "Sea"
-    0x2A: "Shoal"
+    0: 'Null'
+    1: RS Base
+    2: RS City
+    3: RS Ruins
+    4: RS Factory
+    5: RS Ruined Factory
+    6: RS Airport
+    7: RS Ruined Airport
+    8: RS Ruined Port
+    9: RS Port
+    10: RS Ruined Port
+    11: RS Com Tower
+    12: WM Base
+    13: WM City
+    14: WM Ruins
+    15: WM Factory
+    16: WM Ruined Factory
+    17: WM Airport
+    18: WM Ruined Airport
+    19: WM Ruined Port
+    20: WM Port
+    21: WM Ruined Port
+    22: WM Com Tower
+    23: City
+    24: Ruins
+    25: Factory
+    26: Ruined Factory
+    27: Airport
+    28: Ruined Airport
+    29: Port
+    30: Ruined Port
+    31: Com Tower
+    32: Plain
+    33: Road
+    34: Bridge
+    35: Bridge
+    36: Mountain
+    37: Woods
+    38: Wasteland
+    39: Desert
+    40: River
+    41: Sea
+    42: Shoal
   terrain_short:
-    0x00: "NULL"
-    0x01: "RS BASE"
-    0x02: "RS CITY"
-    0x03: "RS RUINS"
-    0x04: "RS FACTORY"
-    0x05: "RS R FACTORY"
-    0x06: "RS AIRPORT"
-    0x07: "RS R AIRPORT"
-    0x08: "RS R PORT"
-    0x09: "RS PORT"
-    0x0A: "RS R PORT"
-    0x0B: "RS COM TOWER"
-    0x0C: "WM BASE"
-    0x0D: "WM CITY"
-    0x0E: "WM RUINS"
-    0x0F: "WM FACTORY"
-    0x10: "WM R FACTORY"
-    0x11: "WM AIRPORT"
-    0x12: "WM R AIRPORT"
-    0x13: "WM R PORT"
-    0x14: "WM PORT"
-    0x15: "WM R PORT"
-    0x16: "WM COM TOWER"
-    0x17: "CITY"
-    0x18: "RUINS"
-    0x19: "FACTORY"
-    0x1A: "R FACTORY"
-    0x1B: "AIRPORT"
-    0x1C: "R AIRPORT"
-    0x1D: "PORT"
-    0x1E: "R PORT"
-    0x1F: "COM TOWER"
-    0x20: "PLAIN"
-    0x21: "ROAD"
-    0x22: "BRIDGE"
-    0x23: "BRIDGE"
-    0x24: "MOUNTAIN"
-    0x25: "WOOD"
-    0x26: "WASTELAND"
-    0x27: "DESERT"
-    0x28: "RIVER"
-    0x29: "SEA"
-    0x2A: "SHOAL"
+    0: 'NULL'
+    1: RS BASE
+    2: RS CITY
+    3: RS RUINS
+    4: RS FACTORY
+    5: RS R FACTORY
+    6: RS AIRPORT
+    7: RS R AIRPORT
+    8: RS R PORT
+    9: RS PORT
+    10: RS R PORT
+    11: RS COM TOWER
+    12: WM BASE
+    13: WM CITY
+    14: WM RUINS
+    15: WM FACTORY
+    16: WM R FACTORY
+    17: WM AIRPORT
+    18: WM R AIRPORT
+    19: WM R PORT
+    20: WM PORT
+    21: WM R PORT
+    22: WM COM TOWER
+    23: CITY
+    24: RUINS
+    25: FACTORY
+    26: R FACTORY
+    27: AIRPORT
+    28: R AIRPORT
+    29: PORT
+    30: R PORT
+    31: COM TOWER
+    32: PLAIN
+    33: ROAD
+    34: BRIDGE
+    35: BRIDGE
+    36: MOUNTAIN
+    37: WOOD
+    38: WASTELAND
+    39: DESERT
+    40: RIVER
+    41: SEA
+    42: SHOAL
   units:
-    0x00: "None"
-    0x01: "Invalid"
-    0x02: "RS Infantry"
-    0x03: "WM Infantry"
-    0x04: "RS Missile Infantry"
-    0x05: "WM Missile Infantry"
-    0x06: "RS Mercenary Infantry"
-    0x07: "WM Mercenary Infantry"
-    0x08: "RS Cultivator"
-    0x09: "WM Cultivator"
-    0x0A: "RS Supplier"
-    0x0B: "WM Supplier"
-    0x0C: "RS Supplier S"
-    0x0D: "WM Supplier S"
-    0x0E: "RS Transport Truck"
-    0x0F: "WM Transport Truck"
-    0x10: "RS Transport Truck S"
-    0x11: "WM Transport Truck S"
-    0x12: "RS Combat Buggy"
-    0x13: "WM Combat Buggy"
-    0x14: "RS Combat Buggy S"
-    0x15: "WM Combat Buggy S"
-    0x16: "RS Fighter Vehicle"
-    0x17: "WM Fighter Vehicle"
-    0x18: "RS Fighter Vehicle S"
-    0x19: "WM Fighter Vehicle S"
-    0x1A: "RS Armored Transport Vehicle"
-    0x1B: "WM Armored Transport Vehicle"
-    0x1C: "RS Armored Transport Vehicle S"
-    0x1D: "WM Armored Transport Vehicle S"
-    0x1E: "RS Rocket Launcher"
-    0x1F: "WM Rocket Launcher"
-    0x20: "RS Rocket Launcher S"
-    0x21: "WM Rocket Launcher S"
-    0x22: "RS Anti-Aircraft Tank"
-    0x23: "WM Anti-Aircraft Tank"
-    0x24: "RS Mercenary Anti-Aircraft"
-    0x25: "WM Mercenary Anti-Aircraft"
-    0x26: "RS Anti-Aircraft Missile"
-    0x27: "WM Anti-Aircraft Missile"
-    0x28: "RS Anti-Aircraft Missile S"
-    0x29: "WM Anti-Aircraft Missile S"
-    0x2A: "RS Artillery"
-    0x2B: "WM Artillery"
-    0x2C: "RS Artillery S"
-    0x2D: "WM Artillery S"
-    0x2E: "RS Infantry Fighting Vehicle"
-    0x2F: "WM Infantry Fighting Vehicle"
-    0x30: "RS Infantry Fighting Vehicle S"
-    0x31: "WM Infantry Fighting Vehicle S"
-    0x32: "RS Tank Destroyer"
-    0x33: "WM Tank Destroyer"
-    0x34: "RS Tank Destroyer S"
-    0x35: "WM Tank Destroyer S"
-    0x36: "RS Tank"
-    0x37: "WM Tank"
-    0x38: "RS Mercenary Tank"
-    0x39: "WM Mercenary Tank"
-    0x3A: "RS Fighter Plane S"
-    0x3B: "WM Fighter Plane S"
-    0x3C: "RS Fighter Plane A"
-    0x3D: "WM Fighter Plane A"
-    0x3E: "RS Fighter Plane B"
-    0x3F: "WM Fighter Plane B"
-    0x40: "RS Attack Plane S"
-    0x41: "WM Attack Plane S"
-    0x42: "RS Attack Plane A"
-    0x43: "WM Attack Plane A"
-    0x44: "RS Attack Plane B"
-    0x45: "WM Attack Plane B"
-    0x46: "RS Bomber"
-    0x47: "WM Bomber"
-    0x48: "RS Mercenary Bomber"
-    0x49: "WM Mercenary Bomber"
-    0x4A: "RS Transport Plane"
-    0x4B: "WM Transport Plane"
-    0x4C: "RS Refueling Plane"
-    0x4D: "WM Refueling Plane"
-    0x4E: "RS Fighter Helicopter"
-    0x4F: "WM Fighter Helicopter"
-    0x50: "RS Fighter Helicopter S"
-    0x51: "WM Fighter Helicopter S"
-    0x52: "RS Anti-Sub Helicopter"
-    0x53: "WM Anti-Sub Helicopter"
-    0x54: "RS Transport Helicopter"
-    0x55: "WM Transport Helicopter"
-    0x56: "RS Transport Helicopter S"
-    0x57: "WM Transport Helicopter S"
-    0x58: "RS Aegis Warship"
-    0x59: "WM Aegis Warship"
-    0x5A: "RS Mercenary Frigate"
-    0x5B: "WM Mercenary Frigate"
-    0x5C: "RS Large Carrier"
-    0x5D: "WM Large Carrier"
-    0x5E: "RS Small Carrier"
-    0x5F: "WM Small Carrier"
-    0x60: "RS Transport Ship"
-    0x61: "WM Transport Ship"
-    0x62: "RS Supply Tanker"
-    0x63: "WM Supply Tanker"
-    0x64: "RS Submarine"
-    0x65: "WM Submarine"
-    0x66: "RS Submarine S"
-    0x67: "WM Submarine S"
-    0x68: "RS Dummy"
-    0x69: "WM Dummy"
+    0: None
+    1: Invalid
+    2: RS Infantry
+    3: WM Infantry
+    4: RS Missile Infantry
+    5: WM Missile Infantry
+    6: RS Mercenary Infantry
+    7: WM Mercenary Infantry
+    8: RS Cultivator
+    9: WM Cultivator
+    10: RS Supplier
+    11: WM Supplier
+    12: RS Supplier S
+    13: WM Supplier S
+    14: RS Transport Truck
+    15: WM Transport Truck
+    16: RS Transport Truck S
+    17: WM Transport Truck S
+    18: RS Combat Buggy
+    19: WM Combat Buggy
+    20: RS Combat Buggy S
+    21: WM Combat Buggy S
+    22: RS Fighter Vehicle
+    23: WM Fighter Vehicle
+    24: RS Fighter Vehicle S
+    25: WM Fighter Vehicle S
+    26: RS Armored Transport Vehicle
+    27: WM Armored Transport Vehicle
+    28: RS Armored Transport Vehicle S
+    29: WM Armored Transport Vehicle S
+    30: RS Rocket Launcher
+    31: WM Rocket Launcher
+    32: RS Rocket Launcher S
+    33: WM Rocket Launcher S
+    34: RS Anti-Aircraft Tank
+    35: WM Anti-Aircraft Tank
+    36: RS Mercenary Anti-Aircraft
+    37: WM Mercenary Anti-Aircraft
+    38: RS Anti-Aircraft Missile
+    39: WM Anti-Aircraft Missile
+    40: RS Anti-Aircraft Missile S
+    41: WM Anti-Aircraft Missile S
+    42: RS Artillery
+    43: WM Artillery
+    44: RS Artillery S
+    45: WM Artillery S
+    46: RS Infantry Fighting Vehicle
+    47: WM Infantry Fighting Vehicle
+    48: RS Infantry Fighting Vehicle S
+    49: WM Infantry Fighting Vehicle S
+    50: RS Tank Destroyer
+    51: WM Tank Destroyer
+    52: RS Tank Destroyer S
+    53: WM Tank Destroyer S
+    54: RS Tank
+    55: WM Tank
+    56: RS Mercenary Tank
+    57: WM Mercenary Tank
+    58: RS Fighter Plane S
+    59: WM Fighter Plane S
+    60: RS Fighter Plane A
+    61: WM Fighter Plane A
+    62: RS Fighter Plane B
+    63: WM Fighter Plane B
+    64: RS Attack Plane S
+    65: WM Attack Plane S
+    66: RS Attack Plane A
+    67: WM Attack Plane A
+    68: RS Attack Plane B
+    69: WM Attack Plane B
+    70: RS Bomber
+    71: WM Bomber
+    72: RS Mercenary Bomber
+    73: WM Mercenary Bomber
+    74: RS Transport Plane
+    75: WM Transport Plane
+    76: RS Refueling Plane
+    77: WM Refueling Plane
+    78: RS Fighter Helicopter
+    79: WM Fighter Helicopter
+    80: RS Fighter Helicopter S
+    81: WM Fighter Helicopter S
+    82: RS Anti-Sub Helicopter
+    83: WM Anti-Sub Helicopter
+    84: RS Transport Helicopter
+    85: WM Transport Helicopter
+    86: RS Transport Helicopter S
+    87: WM Transport Helicopter S
+    88: RS Aegis Warship
+    89: WM Aegis Warship
+    90: RS Mercenary Frigate
+    91: WM Mercenary Frigate
+    92: RS Large Carrier
+    93: WM Large Carrier
+    94: RS Small Carrier
+    95: WM Small Carrier
+    96: RS Transport Ship
+    97: WM Transport Ship
+    98: RS Supply Tanker
+    99: WM Supply Tanker
+    100: RS Submarine
+    101: WM Submarine
+    102: RS Submarine S
+    103: WM Submarine S
+    104: RS Dummy
+    105: WM Dummy
   units_short:
-    0x00: "None"
-    0x01: "Invalid"
-    0x02: "RS INFANTRY"
-    0x03: "WM INFANTRY"
-    0x04: "RS MECH"
-    0x05: "WM MECH"
-    0x06: "RS MERCENARY"
-    0x07: "WM MERCENARY"
-    0x08: "RS BULLDOZER"
-    0x09: "WM BULLDOZER"
-    0x0A: "RS S TRUCK"
-    0x0B: "WM S TRUCK"
-    0x0C: "RS S TRUCK-S"
-    0x0D: "WM S TRUCK-S"
-    0x0E: "RS T TRUCK"
-    0x0F: "WM T TRUCK"
-    0x10: "RS T TRUCK-S"
-    0x11: "WM T TRUCK-S"
-    0x12: "RS BUGGY"
-    0x13: "WM BUGGY"
-    0x14: "RS BUGGY-S"
-    0x15: "WM BUGGY-S"
-    0x16: "RS HUMVEE"
-    0x17: "WM HUMVEE"
-    0x18: "RS HUMVEE-S"
-    0x19: "WM HUMVEE-S"
-    0x1A: "RS APC"
-    0x1B: "WM APC"
-    0x1C: "RS APC-S"
-    0x1D: "WM APC-S"
-    0x1E: "RS ROCKETS"
-    0x1F: "WM ROCKETS"
-    0x20: "RS ROCKETS-S"
-    0x21: "WM ROCKETS-S"
-    0x22: "RS ANTI-AIR"
-    0x23: "WM ANTI-AIR"
-    0x24: "RS M MISSILES"
-    0x25: "WM M MISSILES"
-    0x26: "RS MISSILES"
-    0x27: "WM MISSILES"
-    0x28: "RS MISSILES-S"
-    0x29: "WM MISSILES-S"
-    0x2A: "RS ARTILLERY"
-    0x2B: "WM ARTILLERY"
-    0x2C: "RS ARTILLERY-S"
-    0x2D: "WM ARTILLERY-S"
-    0x2E: "RS IFV"
-    0x2F: "WM IFV"
-    0x30: "RS IFV-S"
-    0x31: "WM IFV-S"
-    0x32: "RS BUSTER"
-    0x33: "WM BUSTER"
-    0x34: "RS BUSTER-S"
-    0x35: "WM BUSTER-S"
-    0x36: "RS TANK"
-    0x37: "WM TANK"
-    0x38: "RS M TANK"
-    0x39: "WM M TANK"
-    0x3A: "RS FIGHTER-S"
-    0x3B: "WM FIGHTER-S"
-    0x3C: "RS FIGHTER-A"
-    0x3D: "WM FIGHTER-A"
-    0x3E: "RS FIGHTER-B"
-    0x3F: "WM FIGHTER-B"
-    0x40: "RS ATTACKER-S"
-    0x41: "WM ATTACKER-S"
-    0x42: "RS ATTACKER-A"
-    0x43: "WM ATTACKER-A"
-    0x44: "RS ATTACKER-B"
-    0x45: "WM ATTACKER-B"
-    0x46: "RS BOMBER"
-    0x47: "WM BOMBER"
-    0x48: "RS M BOMBER"
-    0x49: "WM M BOMBER"
-    0x4A: "RS T PLANE"
-    0x4B: "WM T PLANE"
-    0x4C: "RS S PLANE"
-    0x4D: "WM S PLANE"
-    0x4E: "RS B COPTER"
-    0x4F: "WM B COPTER"
-    0x50: "RS B COPTER-S"
-    0x51: "WM B COPTER-S"
-    0x52: "RS AS COPTER"
-    0x53: "WM AS COPTER"
-    0x54: "RS T COPTER"
-    0x55: "WM T COPTER"
-    0x56: "RS T COPTER-S"
-    0x57: "WM T COPTER-S"
-    0x58: "RS WARSHIP"
-    0x59: "WM WARSHIP"
-    0x5A: "RS M FRIGATE"
-    0x5B: "WM M FRIGATE"
-    0x5C: "RS L CARRIER"
-    0x5D: "WM L CARRIER"
-    0x5E: "RS CARRIER"
-    0x5F: "WM CARRIER"
-    0x60: "RS LANDER"
-    0x61: "WM LANDER"
-    0x62: "RS S SHIP"
-    0x63: "WM S SHIP"
-    0x64: "RS SUB"
-    0x65: "WM SUB"
-    0x66: "RS SUB-S"
-    0x67: "WM SUB-S"
-    0x68: "RS DUMMY"
-    0x69: "WM DUMMY"
+    0: None
+    1: Invalid
+    2: RS INFANTRY
+    3: WM INFANTRY
+    4: RS MECH
+    5: WM MECH
+    6: RS MERCENARY
+    7: WM MERCENARY
+    8: RS BULLDOZER
+    9: WM BULLDOZER
+    10: RS S TRUCK
+    11: WM S TRUCK
+    12: RS S TRUCK-S
+    13: WM S TRUCK-S
+    14: RS T TRUCK
+    15: WM T TRUCK
+    16: RS T TRUCK-S
+    17: WM T TRUCK-S
+    18: RS BUGGY
+    19: WM BUGGY
+    20: RS BUGGY-S
+    21: WM BUGGY-S
+    22: RS HUMVEE
+    23: WM HUMVEE
+    24: RS HUMVEE-S
+    25: WM HUMVEE-S
+    26: RS APC
+    27: WM APC
+    28: RS APC-S
+    29: WM APC-S
+    30: RS ROCKETS
+    31: WM ROCKETS
+    32: RS ROCKETS-S
+    33: WM ROCKETS-S
+    34: RS ANTI-AIR
+    35: WM ANTI-AIR
+    36: RS M MISSILES
+    37: WM M MISSILES
+    38: RS MISSILES
+    39: WM MISSILES
+    40: RS MISSILES-S
+    41: WM MISSILES-S
+    42: RS ARTILLERY
+    43: WM ARTILLERY
+    44: RS ARTILLERY-S
+    45: WM ARTILLERY-S
+    46: RS IFV
+    47: WM IFV
+    48: RS IFV-S
+    49: WM IFV-S
+    50: RS BUSTER
+    51: WM BUSTER
+    52: RS BUSTER-S
+    53: WM BUSTER-S
+    54: RS TANK
+    55: WM TANK
+    56: RS M TANK
+    57: WM M TANK
+    58: RS FIGHTER-S
+    59: WM FIGHTER-S
+    60: RS FIGHTER-A
+    61: WM FIGHTER-A
+    62: RS FIGHTER-B
+    63: WM FIGHTER-B
+    64: RS ATTACKER-S
+    65: WM ATTACKER-S
+    66: RS ATTACKER-A
+    67: WM ATTACKER-A
+    68: RS ATTACKER-B
+    69: WM ATTACKER-B
+    70: RS BOMBER
+    71: WM BOMBER
+    72: RS M BOMBER
+    73: WM M BOMBER
+    74: RS T PLANE
+    75: WM T PLANE
+    76: RS S PLANE
+    77: WM S PLANE
+    78: RS B COPTER
+    79: WM B COPTER
+    80: RS B COPTER-S
+    81: WM B COPTER-S
+    82: RS AS COPTER
+    83: WM AS COPTER
+    84: RS T COPTER
+    85: WM T COPTER
+    86: RS T COPTER-S
+    87: WM T COPTER-S
+    88: RS WARSHIP
+    89: WM WARSHIP
+    90: RS M FRIGATE
+    91: WM M FRIGATE
+    92: RS L CARRIER
+    93: WM L CARRIER
+    94: RS CARRIER
+    95: WM CARRIER
+    96: RS LANDER
+    97: WM LANDER
+    98: RS S SHIP
+    99: WM S SHIP
+    100: RS SUB
+    101: WM SUB
+    102: RS SUB-S
+    103: WM SUB-S
+    104: RS DUMMY
+    105: WM DUMMY
   factions:
-    rs: "Red Star"
-    wm: "White Moon"
-    neutral: "Neutral"
-
+    rs: Red Star
+    wm: White Moon
+    neutral: Neutral
 pokemon:
   pokerus:
     cured: Pokérus (cured)
@@ -485,8 +477,6 @@ pokemon:
   item: Item
   trainer: OT
   wanted: Wanted
-
-  # Given the large size of these lists, it is advised to add any new translation keys ABOVE this line
   species:
   - (None)
   - Bulbasaur
@@ -1249,450 +1239,449 @@ pokemon:
   - Rock Smash
   - Whirlpool
   - Beat Up
-
   prefectures:
-    AD-02: "Escut Encamp"
-    AD-03: "Massana"
-    AD-04: "Sant Julià de Lòria"
-    AD-05: "Escut Andorra la Vella"
-    AD-06: "Escut Escaldes-Engordany"
-    AD-07: "Escut Canillo"
-    AD-08: "Ordino"
-    AT-1: "Burgenland"
-    AT-2: "Kärnten"
-    AT-3: "Niederösterreich"
-    AT-4: "Oberösterreich"
-    AT-5: "Salzburg"
-    AT-6: "Steiermark"
-    AT-7: "Tirol"
-    AT-8: "Vorarlberg"
-    AT-9: "Wien"
-    AU-ACT: "Australian Capital Territory"
-    AU-NSW: "New South Wales"
-    AU-NT: "Northern Territory"
-    AU-QLD: "Queensland"
-    AU-SA: "South Australia"
-    AU-TAS: "Tasmania"
-    AU-VIC: "Victoria"
-    AU-WA: "Western Australia"
-    BE-VAN: "Antwerpen"
-    BE-VBR: "Luxembourg"
-    BE-VLI: "West-Vlaanderen"
-    BE-VOV: "Liège"
-    BE-VWV: "Namur"
-    BE-WBR: "Vlaams-Brabant"
-    BE-WHT: "Limburg"
-    BE-WLG: "Oost-Vlaanderen"
-    BE-WLX: "Brabant wallon"
-    BE-WNA: "Hainaut"
-    CA-AB: "Alberta"
-    CA-BC: "British Columbia"
-    CA-MB: "Manitoba"
-    CA-NB: "New Brunswick"
-    CA-NL: "Newfoundland and Labrador"
-    CA-NS: "Nova Scotia"
-    CA-NT: "Northwest Territories"
-    CA-NU: "Nunavut"
-    CA-ON: "Ontario"
-    CA-PE: "Prince Edward Island"
-    CA-QC: "Quebec"
-    CA-SK: "Saskatchewan"
-    CA-YT: "Yukon"
-    CH-AG: "Aargau"
-    CH-AI: "Appenzell Innerrhoden"
-    CH-AR: "Appenzell Ausserrhoden"
-    CH-BL: "Basel Land"
-    CH-BS: "Basel Stadt"
-    CH-GE: "Genève"
-    CH-GL: "Glarus"
-    CH-GR: "Graubünden"
-    CH-JU: "Jura"
-    CH-LU: "Luzern"
-    CH-NE: "Neuchâtel"
-    CH-NW: "Nidwalden"
-    CH-OW: "Obwalden"
-    CH-SG: "Sankt Gallen"
-    CH-SH: "Schaffhausen"
-    CH-SO: "Solothurn"
-    CH-SZ: "Schwyz"
-    CH-TG: "Thurgau"
-    CH-TI: "Ticino"
-    CH-UR: "Uri"
-    CH-VD: "Vaud"
-    CH-ZG: "Zug"
-    CH-ZH: "Zürich"
-    DE-BB: "Brandenburg"
-    DE-BE: "Berlin"
-    DE-BW: "Baden-Württemberg"
-    DE-BY: "Bavaria"
-    DE-HB: "Bremen"
-    DE-HE: "Hesse"
-    DE-HH: "Hamburg"
-    DE-MV: "Lower Saxony"
-    DE-NI: "Mecklenburg-Vorpommern"
-    DE-NW: "North Rhine-Westphalia"
-    DE-RP: "Rhineland-Palatinate"
-    DE-SH: "Schleswig-Holstein"
-    DE-SL: "Saarland"
-    DE-SN: "Saxony"
-    DE-ST: "Saxony-Anhalt"
-    DE-TH: "Thuringia"
-    ES-A: "Alicante"
-    ES-AB: "Albacete"
-    ES-AL: "Almería"
-    ES-AV: "Ávila"
-    ES-B: "Barcelona"
-    ES-BA: "Badajoz"
-    ES-BI: "Bizkaia"
-    ES-BU: "Burgos"
-    ES-C: "A Coruña"
-    ES-CA: "Cádiz"
-    ES-CC: "Cáceres"
-    ES-CO: "Córdoba"
-    ES-CR: "Ciudad Real"
-    ES-CS: "Castellón"
-    ES-CU: "Cuenca"
-    ES-GC: "Las Palmas"
-    ES-GI: "Girona"
-    ES-GR: "Granada"
-    ES-GU: "Guadalajara"
-    ES-H: "Huelva"
-    ES-HU: "Huesca"
-    ES-J: "Jaén"
-    ES-L: "Lleida"
-    ES-LE: "León"
-    ES-LO: "La Rioja"
-    ES-LU: "Lugo"
-    ES-M: "Madrid"
-    ES-MA: "Málaga"
-    ES-MU: "Murcia"
-    ES-NA: "Nafarroa"
-    ES-O: "Asturias"
-    ES-OR: "Ourense"
-    ES-P: "Palencia"
-    ES-PM: "Illes Balears"
-    ES-PO: "Pontevedra"
-    ES-S: "Cantabria"
-    ES-SA: "Salamanca"
-    ES-SE: "Sevilla"
-    ES-SG: "Segovia"
-    ES-SO: "Soria"
-    ES-SS: "Gipuzkoa"
-    ES-T: "Tarragona"
-    ES-TE: "Teruel"
-    ES-TF: "Santa Cruz de Tenerife"
-    ES-TO: "Toledo"
-    ES-V: "Valencia"
-    ES-VA: "Valladolid"
-    ES-VI: "Araba"
-    ES-Z: "Zaragoza"
-    ES-ZA: "Zamora"
-    EU-AD: "Andorra"
-    EU-AL: "Albania"
-    EU-AT: "Austria"
-    EU-BA: "Bosnia and Herzegovina"
-    EU-BE: "Belgium"
-    EU-BG: "Bulgaria"
-    EU-BY: "Belarus"
-    EU-CH: "Switzerland"
-    EU-CZ: "Czech Republic"
-    EU-DE: "Germany"
-    EU-DK: "Denmark"
-    EU-EE: "Estonia"
-    EU-ES: "Spain"
-    EU-FI: "Finland"
-    EU-FR: "France"
-    EU-GB: "United Kingdom"
-    EU-GR: "Greece"
-    EU-HR: "Croatia"
-    EU-HU: "Hungary"
-    EU-IE: "Ireland"
-    EU-IS: "Iceland"
-    EU-IT: "Italy"
-    EU-LI: "Liechtenstein"
-    EU-LT: "Lithuania"
-    EU-LU: "Luxembourg"
-    EU-LV: "Latvia"
-    EU-MD: "Moldova"
-    EU-MT: "Malta"
-    EU-NL: "Netherlands"
-    EU-NO: "Norway"
-    EU-PL: "Poland"
-    EU-PT: "Portugal"
-    EU-RO: "Romania"
-    EU-RS: "Serbia"
-    EU-RU: "Russian Federation"
-    EU-SE: "Sweden"
-    EU-SI: "Slovenia"
-    EU-SK: "Slovakia"
-    EU-SM: "San Marino"
-    EU-UA: "Ukraine"
-    FR-A: "Alsace"
-    FR-B: "Aquitaine"
-    FR-C: "Auvergne"
-    FR-D: "Bourgogne"
-    FR-E: "Bretagne"
-    FR-F: "Centre-Val de Loire"
-    FR-G: "Champagne-Ardenne"
-    FR-H: "Corse"
-    FR-I: "Franche-Comté"
-    FR-J: "Île-de-France"
-    FR-K: "Languedoc-Roussillon"
-    FR-L: "Limousin"
-    FR-M: "Lorraine"
-    FR-N: "Midi-Pyrénées"
-    FR-O: "Nord-Pas-de-Calais"
-    FR-P: "Basse-Normandie"
-    FR-Q: "Haute-Normandie"
-    FR-R: "Pays de la Loire"
-    FR-S: "Picardie"
-    FR-T: "Poitou-Charentes"
-    FR-V: "Rhône-Alpes"
-    IT-AG: "Agrigento"
-    IT-AL: "Alessandria"
-    IT-AN: "Ancona"
-    IT-AO: "Aosta"
-    IT-AP: "Ascoli Piceno"
-    IT-AQ: "L'Aquila"
-    IT-AR: "Arezzo"
-    IT-AT: "Asti"
-    IT-AV: "Avellino"
-    IT-BA: "Bari"
-    IT-BG: "Bergamo"
-    IT-BI: "Biella"
-    IT-BL: "Belluno"
-    IT-BN: "Benevento"
-    IT-BO: "Bologna"
-    IT-BR: "Brindisi"
-    IT-BS: "Brescia"
-    IT-BZ: "South Tyrol"
-    IT-CA: "Cagliari"
-    IT-CB: "Campobasso"
-    IT-CE: "Caserta"
-    IT-CH: "Chieti"
-    IT-CL: "Caltanissetta"
-    IT-CN: "Cuneo"
-    IT-CO: "Como"
-    IT-CR: "Cremona"
-    IT-CS: "Cosenza"
-    IT-CT: "Catania"
-    IT-CZ: "Catanzaro"
-    IT-EN: "Enna"
-    IT-FC: "Forlì-Cesena"
-    IT-FE: "Ferrara"
-    IT-FG: "Foggia"
-    IT-FI: "Florence"
-    IT-FR: "Frosinone"
-    IT-GE: "Genoa"
-    IT-GO: "Gorizia"
-    IT-GR: "Grosseto"
-    IT-IM: "Imperia"
-    IT-IS: "Isernia"
-    IT-KR: "Crotone"
-    IT-LC: "Lecco"
-    IT-LE: "Lecce"
-    IT-LI: "Livorno"
-    IT-LO: "Lodi"
-    IT-LT: "Latina"
-    IT-LU: "Lucca"
-    IT-MC: "Macerata"
-    IT-ME: "Messina"
-    IT-MI: "Milan"
-    IT-MN: "Mantua"
-    IT-MO: "Modena"
-    IT-MS: "Massa-Carrara"
-    IT-MT: "Matera"
-    IT-NA: "Naples"
-    IT-NO: "Novara"
-    IT-NU: "Nuoro"
-    IT-OR: "Oristano"
-    IT-PA: "Palermo"
-    IT-PC: "Piacenza"
-    IT-PD: "Padua"
-    IT-PE: "Pescara"
-    IT-PG: "Perugia"
-    IT-PI: "Pisa"
-    IT-PN: "Pordenone"
-    IT-PO: "Prato"
-    IT-PR: "Parma"
-    IT-PT: "Pistoia"
-    IT-PU: "Pesaro and Urbino"
-    IT-PV: "Pavia"
-    IT-PZ: "Potenza"
-    IT-RA: "Ravenna"
-    IT-RC: "Reggio Calabria"
-    IT-RE: "Reggio Emilia"
-    IT-RG: "Ragusa"
-    IT-RI: "Rieti"
-    IT-RM: "Rome"
-    IT-RN: "Rimini"
-    IT-RO: "Rovigo"
-    IT-SA: "Salerno"
-    IT-SI: "Siena"
-    IT-SO: "Sondrio"
-    IT-SP: "La Spezia"
-    IT-SR: "Syracuse"
-    IT-SS: "Sassari"
-    IT-SV: "Savona"
-    IT-TA: "Taranto"
-    IT-TE: "Teramo"
-    IT-TN: "Trento"
-    IT-TO: "Turin"
-    IT-TP: "Trapani"
-    IT-TR: "Terni"
-    IT-TS: "Trieste"
-    IT-TV: "Treviso"
-    IT-UD: "Udine"
-    IT-VA: "Varese"
-    IT-VB: "Verbano-Cusio-Ossola"
-    IT-VC: "Vercelli"
-    IT-VE: "Venice"
-    IT-VI: "Vicenza"
-    IT-VR: "Verona"
-    IT-VT: "Viterbo"
-    IT-VV: "Vibo Valentia"
-    JP-01: "Hokkaido"
-    JP-02: "Aomori"
-    JP-03: "Iwate"
-    JP-04: "Miyagi"
-    JP-05: "Akita"
-    JP-06: "Yamagata"
-    JP-07: "Fukushima"
-    JP-08: "Ibaraki"
-    JP-09: "Tochigi"
-    JP-10: "Gunma"
-    JP-11: "Saitama"
-    JP-12: "Chiba"
-    JP-13: "Tokyo"
-    JP-14: "Kanagawa"
-    JP-15: "Niigata"
-    JP-16: "Toyama"
-    JP-17: "Ishikawa"
-    JP-18: "Fukui"
-    JP-19: "Yamanashi"
-    JP-20: "Nagano"
-    JP-21: "Gifu"
-    JP-22: "Shizuoka"
-    JP-23: "Aichi"
-    JP-24: "Mie"
-    JP-25: "Shiga"
-    JP-26: "Kyoto"
-    JP-27: "Osaka"
-    JP-28: "Hyogo"
-    JP-29: "Nara"
-    JP-31: "Tottori"
-    JP-32: "Shimane"
-    JP-33: "Okayama"
-    JP-34: "Hiroshima"
-    JP-35: "Yamaguchi"
-    JP-36: "Tokushima"
-    JP-37: "Kagawa"
-    JP-38: "Ehime"
-    JP-39: "Kochi"
-    JP-40: "Fukuoka"
-    JP-41: "Saga"
-    JP-42: "Nagasaki"
-    JP-43: "Kumamoto"
-    JP-44: "Oita"
-    JP-45: "Miyazaki"
-    JP-46: "Kagoshima"
-    JP-47: "Okinawa"
-    LI-01: "Balzers"
-    LI-02: "Eschen"
-    LI-03: "Gamprin"
-    LI-04: "Mauren"
-    LI-05: "Planken"
-    LI-06: "Ruggell"
-    LI-07: "Schaan"
-    LI-08: "Schellenberg"
-    LI-09: "Triesen"
-    LI-10: "Triesenberg"
-    LI-11: "Vaduz"
-    LU-CA: "Capellen"
-    LU-CL: "Clervaux"
-    LU-DI: "Diekirch"
-    LU-EC: "Echternach"
-    LU-ES: "Esch-sur-Alzette"
-    LU-GR: "Grevenmacher"
-    LU-LU: "Luxembourg"
-    LU-ME: "Mersch"
-    LU-RD: "Redange"
-    LU-RM: "Remich"
-    LU-VD: "Vianden"
-    LU-WI: "Wiltz"
-    NZ-AUK: "Auckland"
-    NZ-BOP: "Bay of Plenty"
-    NZ-CAN: "Canterbury"
-    NZ-CIT: "Chatham Islands Territory"
-    NZ-GIS: "Gisborne"
-    NZ-HKB: "Hawke's Bay"
-    NZ-MBH: "Marlborough"
-    NZ-MWT: "Manawatu-Wanganui"
-    NZ-NSN: "Nelson"
-    NZ-NTL: "Northland"
-    NZ-OTA: "Otago"
-    NZ-STL: "Southland"
-    NZ-TAS: "Tasman"
-    NZ-TKI: "Taranaki"
-    NZ-WGN: "Wellington"
-    NZ-WKO: "Waikato"
-    NZ-WTC: "West Coast"
-    SM-01: "Acquaviva"
-    SM-02: "Chiesanuova"
-    SM-03: "Domagnano"
-    SM-04: "Faetano"
-    SM-05: "Fiorentino"
-    SM-06: "Borgo Maggiore"
-    SM-07: "Città di San Marino"
-    SM-08: "Montegiardino"
-    SM-09: "Serravalle"
-    US-AK: "Alaska"
-    US-AL: "Alabama"
-    US-AR: "Arkansas"
-    US-AZ: "Arizona"
-    US-CA: "California"
-    US-CO: "Colorado"
-    US-CT: "Connecticut"
-    US-DE: "Delaware"
-    US-FL: "Florida"
-    US-GA: "Georgia"
-    US-HI: "Hawaii"
-    US-IA: "Iowa"
-    US-ID: "Idaho"
-    US-IL: "Illinois"
-    US-IN: "Indiana"
-    US-KS: "Kansas"
-    US-KY: "Kentucky"
-    US-LA: "Louisiana"
-    US-MA: "Massachusetts"
-    US-MD: "Maryland"
-    US-ME: "Maine"
-    US-MI: "Michigan"
-    US-MN: "Minnesota"
-    US-MO: "Missouri"
-    US-MS: "Mississippi"
-    US-MT: "Montana"
-    US-NC: "North Carolina"
-    US-ND: "North Dakota"
-    US-NE: "Nebraska"
-    US-NH: "New Hampshire"
-    US-NJ: "New Jersey"
-    US-NM: "New Mexico"
-    US-NV: "Nevada"
-    US-NY: "New York"
-    US-OH: "Ohio"
-    US-OK: "Oklahoma"
-    US-OR: "Oregon"
-    US-PA: "Pennsylvania"
-    US-RI: "Rhode Island"
-    US-SC: "South Carolina"
-    US-SD: "South Dakota"
-    US-TN: "Tennessee"
-    US-TX: "Texas"
-    US-UT: "Utah"
-    US-VA: "Virginia"
-    US-VT: "Vermont"
-    US-WA: "Washington"
-    US-WI: "Wisconsin"
-    US-WV: "West Virginia"
-    US-WY: "Wyoming"
+    AD-02: Escut Encamp
+    AD-03: Massana
+    AD-04: Sant Julià de Lòria
+    AD-05: Escut Andorra la Vella
+    AD-06: Escut Escaldes-Engordany
+    AD-07: Escut Canillo
+    AD-08: Ordino
+    AT-1: Burgenland
+    AT-2: Kärnten
+    AT-3: Niederösterreich
+    AT-4: Oberösterreich
+    AT-5: Salzburg
+    AT-6: Steiermark
+    AT-7: Tirol
+    AT-8: Vorarlberg
+    AT-9: Wien
+    AU-ACT: Australian Capital Territory
+    AU-NSW: New South Wales
+    AU-NT: Northern Territory
+    AU-QLD: Queensland
+    AU-SA: South Australia
+    AU-TAS: Tasmania
+    AU-VIC: Victoria
+    AU-WA: Western Australia
+    BE-VAN: Antwerpen
+    BE-VBR: Luxembourg
+    BE-VLI: West-Vlaanderen
+    BE-VOV: Liège
+    BE-VWV: Namur
+    BE-WBR: Vlaams-Brabant
+    BE-WHT: Limburg
+    BE-WLG: Oost-Vlaanderen
+    BE-WLX: Brabant wallon
+    BE-WNA: Hainaut
+    CA-AB: Alberta
+    CA-BC: British Columbia
+    CA-MB: Manitoba
+    CA-NB: New Brunswick
+    CA-NL: Newfoundland and Labrador
+    CA-NS: Nova Scotia
+    CA-NT: Northwest Territories
+    CA-NU: Nunavut
+    CA-ON: Ontario
+    CA-PE: Prince Edward Island
+    CA-QC: Quebec
+    CA-SK: Saskatchewan
+    CA-YT: Yukon
+    CH-AG: Aargau
+    CH-AI: Appenzell Innerrhoden
+    CH-AR: Appenzell Ausserrhoden
+    CH-BL: Basel Land
+    CH-BS: Basel Stadt
+    CH-GE: Genève
+    CH-GL: Glarus
+    CH-GR: Graubünden
+    CH-JU: Jura
+    CH-LU: Luzern
+    CH-NE: Neuchâtel
+    CH-NW: Nidwalden
+    CH-OW: Obwalden
+    CH-SG: Sankt Gallen
+    CH-SH: Schaffhausen
+    CH-SO: Solothurn
+    CH-SZ: Schwyz
+    CH-TG: Thurgau
+    CH-TI: Ticino
+    CH-UR: Uri
+    CH-VD: Vaud
+    CH-ZG: Zug
+    CH-ZH: Zürich
+    DE-BB: Brandenburg
+    DE-BE: Berlin
+    DE-BW: Baden-Württemberg
+    DE-BY: Bavaria
+    DE-HB: Bremen
+    DE-HE: Hesse
+    DE-HH: Hamburg
+    DE-MV: Lower Saxony
+    DE-NI: Mecklenburg-Vorpommern
+    DE-NW: North Rhine-Westphalia
+    DE-RP: Rhineland-Palatinate
+    DE-SH: Schleswig-Holstein
+    DE-SL: Saarland
+    DE-SN: Saxony
+    DE-ST: Saxony-Anhalt
+    DE-TH: Thuringia
+    ES-A: Alicante
+    ES-AB: Albacete
+    ES-AL: Almería
+    ES-AV: Ávila
+    ES-B: Barcelona
+    ES-BA: Badajoz
+    ES-BI: Bizkaia
+    ES-BU: Burgos
+    ES-C: A Coruña
+    ES-CA: Cádiz
+    ES-CC: Cáceres
+    ES-CO: Córdoba
+    ES-CR: Ciudad Real
+    ES-CS: Castellón
+    ES-CU: Cuenca
+    ES-GC: Las Palmas
+    ES-GI: Girona
+    ES-GR: Granada
+    ES-GU: Guadalajara
+    ES-H: Huelva
+    ES-HU: Huesca
+    ES-J: Jaén
+    ES-L: Lleida
+    ES-LE: León
+    ES-LO: La Rioja
+    ES-LU: Lugo
+    ES-M: Madrid
+    ES-MA: Málaga
+    ES-MU: Murcia
+    ES-NA: Nafarroa
+    ES-O: Asturias
+    ES-OR: Ourense
+    ES-P: Palencia
+    ES-PM: Illes Balears
+    ES-PO: Pontevedra
+    ES-S: Cantabria
+    ES-SA: Salamanca
+    ES-SE: Sevilla
+    ES-SG: Segovia
+    ES-SO: Soria
+    ES-SS: Gipuzkoa
+    ES-T: Tarragona
+    ES-TE: Teruel
+    ES-TF: Santa Cruz de Tenerife
+    ES-TO: Toledo
+    ES-V: Valencia
+    ES-VA: Valladolid
+    ES-VI: Araba
+    ES-Z: Zaragoza
+    ES-ZA: Zamora
+    EU-AD: Andorra
+    EU-AL: Albania
+    EU-AT: Austria
+    EU-BA: Bosnia and Herzegovina
+    EU-BE: Belgium
+    EU-BG: Bulgaria
+    EU-BY: Belarus
+    EU-CH: Switzerland
+    EU-CZ: Czech Republic
+    EU-DE: Germany
+    EU-DK: Denmark
+    EU-EE: Estonia
+    EU-ES: Spain
+    EU-FI: Finland
+    EU-FR: France
+    EU-GB: United Kingdom
+    EU-GR: Greece
+    EU-HR: Croatia
+    EU-HU: Hungary
+    EU-IE: Ireland
+    EU-IS: Iceland
+    EU-IT: Italy
+    EU-LI: Liechtenstein
+    EU-LT: Lithuania
+    EU-LU: Luxembourg
+    EU-LV: Latvia
+    EU-MD: Moldova
+    EU-MT: Malta
+    EU-NL: Netherlands
+    EU-NO: Norway
+    EU-PL: Poland
+    EU-PT: Portugal
+    EU-RO: Romania
+    EU-RS: Serbia
+    EU-RU: Russian Federation
+    EU-SE: Sweden
+    EU-SI: Slovenia
+    EU-SK: Slovakia
+    EU-SM: San Marino
+    EU-UA: Ukraine
+    FR-A: Alsace
+    FR-B: Aquitaine
+    FR-C: Auvergne
+    FR-D: Bourgogne
+    FR-E: Bretagne
+    FR-F: Centre-Val de Loire
+    FR-G: Champagne-Ardenne
+    FR-H: Corse
+    FR-I: Franche-Comté
+    FR-J: Île-de-France
+    FR-K: Languedoc-Roussillon
+    FR-L: Limousin
+    FR-M: Lorraine
+    FR-N: Midi-Pyrénées
+    FR-O: Nord-Pas-de-Calais
+    FR-P: Basse-Normandie
+    FR-Q: Haute-Normandie
+    FR-R: Pays de la Loire
+    FR-S: Picardie
+    FR-T: Poitou-Charentes
+    FR-V: Rhône-Alpes
+    IT-AG: Agrigento
+    IT-AL: Alessandria
+    IT-AN: Ancona
+    IT-AO: Aosta
+    IT-AP: Ascoli Piceno
+    IT-AQ: L'Aquila
+    IT-AR: Arezzo
+    IT-AT: Asti
+    IT-AV: Avellino
+    IT-BA: Bari
+    IT-BG: Bergamo
+    IT-BI: Biella
+    IT-BL: Belluno
+    IT-BN: Benevento
+    IT-BO: Bologna
+    IT-BR: Brindisi
+    IT-BS: Brescia
+    IT-BZ: South Tyrol
+    IT-CA: Cagliari
+    IT-CB: Campobasso
+    IT-CE: Caserta
+    IT-CH: Chieti
+    IT-CL: Caltanissetta
+    IT-CN: Cuneo
+    IT-CO: Como
+    IT-CR: Cremona
+    IT-CS: Cosenza
+    IT-CT: Catania
+    IT-CZ: Catanzaro
+    IT-EN: Enna
+    IT-FC: Forlì-Cesena
+    IT-FE: Ferrara
+    IT-FG: Foggia
+    IT-FI: Florence
+    IT-FR: Frosinone
+    IT-GE: Genoa
+    IT-GO: Gorizia
+    IT-GR: Grosseto
+    IT-IM: Imperia
+    IT-IS: Isernia
+    IT-KR: Crotone
+    IT-LC: Lecco
+    IT-LE: Lecce
+    IT-LI: Livorno
+    IT-LO: Lodi
+    IT-LT: Latina
+    IT-LU: Lucca
+    IT-MC: Macerata
+    IT-ME: Messina
+    IT-MI: Milan
+    IT-MN: Mantua
+    IT-MO: Modena
+    IT-MS: Massa-Carrara
+    IT-MT: Matera
+    IT-NA: Naples
+    IT-NO: Novara
+    IT-NU: Nuoro
+    IT-OR: Oristano
+    IT-PA: Palermo
+    IT-PC: Piacenza
+    IT-PD: Padua
+    IT-PE: Pescara
+    IT-PG: Perugia
+    IT-PI: Pisa
+    IT-PN: Pordenone
+    IT-PO: Prato
+    IT-PR: Parma
+    IT-PT: Pistoia
+    IT-PU: Pesaro and Urbino
+    IT-PV: Pavia
+    IT-PZ: Potenza
+    IT-RA: Ravenna
+    IT-RC: Reggio Calabria
+    IT-RE: Reggio Emilia
+    IT-RG: Ragusa
+    IT-RI: Rieti
+    IT-RM: Rome
+    IT-RN: Rimini
+    IT-RO: Rovigo
+    IT-SA: Salerno
+    IT-SI: Siena
+    IT-SO: Sondrio
+    IT-SP: La Spezia
+    IT-SR: Syracuse
+    IT-SS: Sassari
+    IT-SV: Savona
+    IT-TA: Taranto
+    IT-TE: Teramo
+    IT-TN: Trento
+    IT-TO: Turin
+    IT-TP: Trapani
+    IT-TR: Terni
+    IT-TS: Trieste
+    IT-TV: Treviso
+    IT-UD: Udine
+    IT-VA: Varese
+    IT-VB: Verbano-Cusio-Ossola
+    IT-VC: Vercelli
+    IT-VE: Venice
+    IT-VI: Vicenza
+    IT-VR: Verona
+    IT-VT: Viterbo
+    IT-VV: Vibo Valentia
+    JP-01: Hokkaido
+    JP-02: Aomori
+    JP-03: Iwate
+    JP-04: Miyagi
+    JP-05: Akita
+    JP-06: Yamagata
+    JP-07: Fukushima
+    JP-08: Ibaraki
+    JP-09: Tochigi
+    JP-10: Gunma
+    JP-11: Saitama
+    JP-12: Chiba
+    JP-13: Tokyo
+    JP-14: Kanagawa
+    JP-15: Niigata
+    JP-16: Toyama
+    JP-17: Ishikawa
+    JP-18: Fukui
+    JP-19: Yamanashi
+    JP-20: Nagano
+    JP-21: Gifu
+    JP-22: Shizuoka
+    JP-23: Aichi
+    JP-24: Mie
+    JP-25: Shiga
+    JP-26: Kyoto
+    JP-27: Osaka
+    JP-28: Hyogo
+    JP-29: Nara
+    JP-31: Tottori
+    JP-32: Shimane
+    JP-33: Okayama
+    JP-34: Hiroshima
+    JP-35: Yamaguchi
+    JP-36: Tokushima
+    JP-37: Kagawa
+    JP-38: Ehime
+    JP-39: Kochi
+    JP-40: Fukuoka
+    JP-41: Saga
+    JP-42: Nagasaki
+    JP-43: Kumamoto
+    JP-44: Oita
+    JP-45: Miyazaki
+    JP-46: Kagoshima
+    JP-47: Okinawa
+    LI-01: Balzers
+    LI-02: Eschen
+    LI-03: Gamprin
+    LI-04: Mauren
+    LI-05: Planken
+    LI-06: Ruggell
+    LI-07: Schaan
+    LI-08: Schellenberg
+    LI-09: Triesen
+    LI-10: Triesenberg
+    LI-11: Vaduz
+    LU-CA: Capellen
+    LU-CL: Clervaux
+    LU-DI: Diekirch
+    LU-EC: Echternach
+    LU-ES: Esch-sur-Alzette
+    LU-GR: Grevenmacher
+    LU-LU: Luxembourg
+    LU-ME: Mersch
+    LU-RD: Redange
+    LU-RM: Remich
+    LU-VD: Vianden
+    LU-WI: Wiltz
+    NZ-AUK: Auckland
+    NZ-BOP: Bay of Plenty
+    NZ-CAN: Canterbury
+    NZ-CIT: Chatham Islands Territory
+    NZ-GIS: Gisborne
+    NZ-HKB: Hawke's Bay
+    NZ-MBH: Marlborough
+    NZ-MWT: Manawatu-Wanganui
+    NZ-NSN: Nelson
+    NZ-NTL: Northland
+    NZ-OTA: Otago
+    NZ-STL: Southland
+    NZ-TAS: Tasman
+    NZ-TKI: Taranaki
+    NZ-WGN: Wellington
+    NZ-WKO: Waikato
+    NZ-WTC: West Coast
+    SM-01: Acquaviva
+    SM-02: Chiesanuova
+    SM-03: Domagnano
+    SM-04: Faetano
+    SM-05: Fiorentino
+    SM-06: Borgo Maggiore
+    SM-07: Città di San Marino
+    SM-08: Montegiardino
+    SM-09: Serravalle
+    US-AK: Alaska
+    US-AL: Alabama
+    US-AR: Arkansas
+    US-AZ: Arizona
+    US-CA: California
+    US-CO: Colorado
+    US-CT: Connecticut
+    US-DE: Delaware
+    US-FL: Florida
+    US-GA: Georgia
+    US-HI: Hawaii
+    US-IA: Iowa
+    US-ID: Idaho
+    US-IL: Illinois
+    US-IN: Indiana
+    US-KS: Kansas
+    US-KY: Kentucky
+    US-LA: Louisiana
+    US-MA: Massachusetts
+    US-MD: Maryland
+    US-ME: Maine
+    US-MI: Michigan
+    US-MN: Minnesota
+    US-MO: Missouri
+    US-MS: Mississippi
+    US-MT: Montana
+    US-NC: North Carolina
+    US-ND: North Dakota
+    US-NE: Nebraska
+    US-NH: New Hampshire
+    US-NJ: New Jersey
+    US-NM: New Mexico
+    US-NV: Nevada
+    US-NY: New York
+    US-OH: Ohio
+    US-OK: Oklahoma
+    US-OR: Oregon
+    US-PA: Pennsylvania
+    US-RI: Rhode Island
+    US-SC: South Carolina
+    US-SD: South Dakota
+    US-TN: Tennessee
+    US-TX: Texas
+    US-UT: Utah
+    US-VA: Virginia
+    US-VT: Vermont
+    US-WA: Washington
+    US-WI: Wisconsin
+    US-WV: West Virginia
+    US-WY: Wyoming

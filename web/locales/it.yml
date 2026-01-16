@@ -1,5 +1,4 @@
 pokemon:
-  # Given the large size of these lists, it is advised to add any new translation keys ABOVE this line
   species:
   - (None)
   - Bulbasaur
@@ -762,3 +761,12 @@ pokemon:
   - Spaccaroccia
   - Mulinello
   - Picchiaduro
+account:
+  pokemon-news-custom-opt-in: 'Pokémon Notizie: Preferenze notizie'
+  pokemon-news-custom-opt-in-blurb: Quando è attivata, i download di Pokémon Notizie possono utilizzare, se
+    disponibili, contenuti di notizie personalizzati creati dal team REON. Se non
+    esistono notizie personalizzate, verranno utilizzate quelle ufficiali.
+  pokemon-news-custom-opt-in-off: Solo notizie Pokémon ufficiali
+  pokemon-news-custom-opt-in-on: Notizie Pokémon personalizzate quando disponibili
+
+invalid-pokemon-news-setting: Preferenza Notizie Pokémon non valida.

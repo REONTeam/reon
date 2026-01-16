@@ -45,12 +45,27 @@
                             </details>
                             </small>
                             
-                            <select id="tradeRegions" name="tradeRegions">
-                                <option value="e,f,d,s,i,p,u,j">{{ "account.trade-option-1"|trans }}</option>
-                                <option value="efdsipu,j">{{ "account.trade-option-2"|trans }}</option>
-                                <option value="efdsipuj" selected>{{ "account.trade-option-3"|trans }}</option>
+                            <select id="tradeRegions" name="tradeRegions" class="form-select">
+                                <option value="e,f,d,s,i,p,u,j" {% if trade_regions == "e,f,d,s,i,p,u,j" %}selected{% endif %}>{{ "account.trade-option-1"|trans }}</option>
+                                <option value="efdsipu,j" {% if trade_regions == "efdsipu,j" %}selected{% endif %}>{{ "account.trade-option-2"|trans }}</option>
+                                <option value="efdsipuj" {% if trade_regions is not defined or trade_regions == "efdsipuj" %}selected{% endif %}>{{ "account.trade-option-3"|trans }}</option>
                             </select>
                         </div>
+						<div class="mb-3">
+							<label for="pokemonNewsCustomOptIn" class="form-label">{{ "account.pokemon-news-custom-opt-in"|trans }}</label>
+							
+							<small>
+							<details>
+								<summary>{{ "what-is-this"|trans }}</summary>
+								<p>{{ "account.pokemon-news-custom-opt-in-blurb"|trans }}</p>
+							</details>
+							</small>
+							
+							<select id="pokemonNewsCustomOptIn" name="pokemonNewsCustomOptIn" class="form-select">
+								<option value="0" {% if pokemon_news_custom_opt_in is not defined or pokemon_news_custom_opt_in == 0 %}selected{% endif %}>{{ "account.pokemon-news-custom-opt-in-off"|trans }}</option>
+								<option value="1" {% if pokemon_news_custom_opt_in is defined and pokemon_news_custom_opt_in == 1 %}selected{% endif %}>{{ "account.pokemon-news-custom-opt-in-on"|trans }}</option>
+							</select>
+						</div>
 						<button type="submit" class="btn btn-primary">{{'signup'|trans}}</button>
 					</fieldset>
 					<input type="hidden" name="id" value="{{ id|e }}" />

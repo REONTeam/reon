@@ -1,6 +1,4 @@
 pokemon:
-
-  # Given the large size of these lists, it is advised to add any new translation keys ABOVE this line
   species:
   - Ningún
   - Bulbasaur
@@ -763,3 +761,12 @@ pokemon:
   - Golpe Roca
   - Torbellino
   - Paliza
+account:
+  pokemon-news-custom-opt-in: 'Pokémon Noticias: Preferencias de noticias'
+  pokemon-news-custom-opt-in-blurb: Cuando está activado, las descargas de Pokémon Noticias pueden usar contenido de
+    noticias personalizado creado por el equipo de REON cuando esté disponible. Si
+    no existen noticias personalizadas, se usarán noticias oficiales.
+  pokemon-news-custom-opt-in-off: Solo noticias oficiales de Pokémon
+  pokemon-news-custom-opt-in-on: Noticias personalizadas de Pokémon cuando estén disponibles
+
+invalid-pokemon-news-setting: Preferencia de Noticias Pokémon no válida.

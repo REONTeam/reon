@@ -1,6 +1,17 @@
 const fs = require("fs");
 const path = require("path");
-const mysql = require("mysql2/promise");
+// mysql2 compat: some installs (or older versions) don't expose the /promise entrypoint.
+// We support both:
+//   - require('mysql2/promise') (preferred)
+//   - require('mysql2') + pool.promise() (fallback)
+let mysql2;
+let mysql2Mode = "promise";
+try {
+  mysql2 = require("mysql2/promise");
+} catch (e) {
+  mysql2Mode = "callback";
+  mysql2 = require("mysql2");
+}
 const { Command } = require("commander");
 
 const program = new Command();
@@ -34,7 +45,7 @@ try {
  * Helper: create a MySQL connection pool using the standard Reon config keys.
  */
 function createPool(cfg) {
-  return mysql.createPool({
+  const pool = mysql2.createPool({
     host: cfg.mysql_host,
     user: cfg.mysql_user,
     password: cfg.mysql_password,
@@ -43,6 +54,13 @@ function createPool(cfg) {
     connectionLimit: 5,
     queueLimit: 0,
   });
+
+  // mysql2/promise already returns a promise-based pool.
+  // mysql2 (callback) supports pool.promise() to get the same interface.
+  if (mysql2Mode === "callback" && typeof pool.promise === "function") {
+    return pool.promise();
+  }
+  return pool;
 }
 
 /**
@@ -200,6 +218,69 @@ function loadNewsConfig(rootDir) {
     } else {
       merged.articles_dir = path.resolve(__dirname, norm);
     }
+  }
+
+  // Normalize articles_dir if overridden as a relative path.
+  if (typeof merged.articles_dir === "string" && !path.isAbsolute(merged.articles_dir)) {
+    merged.articles_dir = path.resolve(__dirname, merged.articles_dir);
+  }
+  // Ensure schedule is an object map.
+  if (!merged.schedule || typeof merged.schedule !== "object" || Array.isArray(merged.schedule)) {
+    merged.schedule = {};
+  }
+
+  return merged;
+}
+/**
+ * Load the optional Pokemon News custom-track config (pokemon_news_custom_cycle).
+ *
+ * If missing or malformed, returns null.
+ */
+function loadPokemonNewsCustomConfig(rootDir) {
+  if (!newsConfigRaw || typeof newsConfigRaw !== "object") {
+    return null;
+  }
+  const root =
+    newsConfigRaw.pokemon_news_custom_cycle &&
+    typeof newsConfigRaw.pokemon_news_custom_cycle === "object"
+      ? newsConfigRaw.pokemon_news_custom_cycle
+      : null;
+
+  if (!root) return null;
+
+  const merged = { ...defaultNewsConfig };
+
+  for (const key of [
+    "articles_dir",
+    "region_folder_map",
+    "region_message_encoding",
+    "region_ranking_prefix",
+    "ranking_map",
+    "schedule",
+  ]) {
+    if (Object.prototype.hasOwnProperty.call(root, key)) {
+      if (
+        typeof merged[key] === "object" &&
+        merged[key] !== null &&
+        !Array.isArray(merged[key]) &&
+        typeof root[key] === "object" &&
+        root[key] !== null &&
+        !Array.isArray(root[key])
+      ) {
+        merged[key] = { ...merged[key], ...root[key] };
+      } else {
+        merged[key] = root[key];
+      }
+    }
+  }
+
+  // Normalize articles_dir if overridden as a relative path.
+  if (typeof merged.articles_dir === "string" && !path.isAbsolute(merged.articles_dir)) {
+    merged.articles_dir = path.resolve(__dirname, merged.articles_dir);
+  }
+  // Ensure schedule is an object map. (Step 4 uses an empty array to disable.)
+  if (!merged.schedule || typeof merged.schedule !== "object" || Array.isArray(merged.schedule)) {
+    merged.schedule = {};
   }
 
   return merged;
@@ -1010,289 +1091,504 @@ function findBinInDir(dir) {
   }
   return null;
 }
+function scheduleHasAnyEntries(cfg) {
+  if (!cfg || !cfg.schedule || typeof cfg.schedule !== "object" || Array.isArray(cfg.schedule)) {
+    return false;
+  }
+  for (const region of Object.keys(cfg.schedule)) {
+    const regionObj = cfg.schedule[region];
+    if (
+      regionObj &&
+      typeof regionObj === "object" &&
+      !Array.isArray(regionObj) &&
+      Object.keys(regionObj).length > 0
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function rankingSigFromRow(row) {
+  if (!row) return [];
+  const out = [];
+  if (row.ranking_category_1 !== null && row.ranking_category_1 !== undefined)
+    out.push(Number(row.ranking_category_1));
+  if (row.ranking_category_2 !== null && row.ranking_category_2 !== undefined)
+    out.push(Number(row.ranking_category_2));
+  if (row.ranking_category_3 !== null && row.ranking_category_3 !== undefined)
+    out.push(Number(row.ranking_category_3));
+  return out;
+}
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+async function getLatestBxtNewsRow(conn, region, isCustom) {
+  const [rows] = await conn.execute(
+    "SELECT id, timestamp, ranking_category_1, ranking_category_2, ranking_category_3 " +
+      "FROM bxt_news WHERE game_region = ? AND is_custom = ? ORDER BY timestamp DESC LIMIT 1",
+    [region, isCustom ? 1 : 0]
+  );
+  return rows.length ? rows[0] : null;
+}
+
+async function getBxtNewsPayloadById(conn, id) {
+  const [rows] = await conn.execute(
+    "SELECT ranking_category_1, ranking_category_1_decode, " +
+      "ranking_category_2, ranking_category_2_decode, " +
+      "ranking_category_3, ranking_category_3_decode, " +
+      "message, message_decode, news_binary, timestamp " +
+      "FROM bxt_news WHERE id = ? LIMIT 1",
+    [id]
+  );
+  return rows.length ? rows[0] : null;
+}
+
+async function mirrorVanillaToCustom(conn, region, vanillaId, existingCustomId) {
+  const payload = await getBxtNewsPayloadById(conn, vanillaId);
+  if (!payload) return existingCustomId || null;
+
+  if (existingCustomId != null) {
+    await conn.execute(
+      "UPDATE bxt_news SET ranking_category_1 = ?, ranking_category_1_decode = ?, " +
+        "ranking_category_2 = ?, ranking_category_2_decode = ?, " +
+        "ranking_category_3 = ?, ranking_category_3_decode = ?, " +
+        "message = ?, message_decode = ?, news_binary = ?, timestamp = ? " +
+        "WHERE id = ?",
+      [
+        payload.ranking_category_1,
+        payload.ranking_category_1_decode,
+        payload.ranking_category_2,
+        payload.ranking_category_2_decode,
+        payload.ranking_category_3,
+        payload.ranking_category_3_decode,
+        payload.message,
+        payload.message_decode,
+        payload.news_binary,
+        payload.timestamp instanceof Date ? payload.timestamp : new Date(payload.timestamp),
+        existingCustomId,
+      ]
+    );
+    return existingCustomId;
+  }
+
+  const [res] = await conn.execute(
+    "INSERT INTO bxt_news " +
+      "(is_custom, game_region, ranking_category_1, ranking_category_1_decode, " +
+      " ranking_category_2, ranking_category_2_decode, " +
+      " ranking_category_3, ranking_category_3_decode, " +
+      " message, message_decode, news_binary, timestamp) " +
+      "VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    [
+      region,
+      payload.ranking_category_1,
+      payload.ranking_category_1_decode,
+      payload.ranking_category_2,
+      payload.ranking_category_2_decode,
+      payload.ranking_category_3,
+      payload.ranking_category_3_decode,
+      payload.message,
+      payload.message_decode,
+      payload.news_binary,
+      payload.timestamp instanceof Date ? payload.timestamp : new Date(payload.timestamp),
+    ]
+  );
+  return res.insertId;
+}
+
+async function clearRankingsForNewsId(conn, region, newsId) {
+  if (newsId == null) return;
+  await conn.execute("DELETE FROM bxt_ranking WHERE game_region = ? AND news_id = ?", [
+    region,
+    newsId,
+  ]);
+  console.log(
+    `[news] Cleared bxt_ranking entries for region=${region} news_id=${newsId}`
+  );
+}
+
+async function processPokemonNewsCycle(
+  conn,
+  encoding,
+  newsCfg,
+  cycleState,
+  cycleStateKey,
+  todayDate,
+  isCustom,
+  trackLabel
+) {
+  const updatedByRegion = {};
+
+  for (const [region, folderName] of Object.entries(newsCfg.region_folder_map)) {
+    const regionDir = path.join(newsCfg.articles_dir, folderName);
+
+    if (!fs.existsSync(regionDir) || !fs.statSync(regionDir).isDirectory()) {
+      continue; // silently skip missing region folders
+    }
+
+    // Look up last bxt_news row for this region/track.
+    const [rows] = await conn.execute(
+      "SELECT id, timestamp FROM bxt_news WHERE game_region = ? AND is_custom = ? ORDER BY timestamp DESC LIMIT 1",
+      [region, isCustom ? 1 : 0]
+    );
+
+    let existingId = null;
+    let lastTs = null;
+    if (rows.length > 0) {
+      existingId = rows[0].id;
+      lastTs =
+        rows[0].timestamp instanceof Date ? rows[0].timestamp : new Date(rows[0].timestamp);
+    }
+
+    const regionScheduleRaw = (newsCfg.schedule && newsCfg.schedule[region]) || {};
+    const regionEntries = [];
+    let hasSlots = false;
+
+    for (const [articleId, rawEntry] of Object.entries(regionScheduleRaw)) {
+      const parsed = parseScheduleEntry(rawEntry);
+      if (!parsed) continue;
+      if (parsed.slot !== null) hasSlots = true;
+      regionEntries.push({ articleId, parsed });
+    }
+
+    if (!regionEntries.length) {
+      continue;
+    }
+
+    let chosenArticleId = null;
+
+    if (hasSlots) {
+      // Slot-based multi-year cycle, using JSON log file.
+      let lastSlot = -1;
+      if (
+        cycleState[cycleStateKey] &&
+        cycleState[cycleStateKey][region] &&
+        Number.isInteger(cycleState[cycleStateKey][region].lastSlot)
+      ) {
+        lastSlot = cycleState[cycleStateKey][region].lastSlot;
+      }
+
+      let monthsPassed = 0;
+      if (!lastTs) {
+        monthsPassed = 1; // seed the cycle
+      } else {
+        monthsPassed = monthsBetween(toDateOnly(lastTs), todayDate);
+      }
+
+      if (monthsPassed <= 0) {
+        // Nothing to do for this region on this run.
+        continue;
+      }
+
+      // Determine cycle length from the highest configured slot for this region.
+      let maxSlot = -1;
+      for (const entry of regionEntries) {
+        if (entry.parsed.slot !== null && entry.parsed.slot > maxSlot) {
+          maxSlot = entry.parsed.slot;
+        }
+      }
+      const cycleLength = maxSlot >= 0 ? maxSlot + 1 : 24;
+
+      // Clamp to avoid absurd jumps; skip at most one full cycle.
+      if (monthsPassed > cycleLength) {
+        monthsPassed = cycleLength;
+      }
+
+      const nextSlot = ((lastSlot >= 0 ? lastSlot : -1) + monthsPassed) % cycleLength;
+
+      // Find article matching this slot.
+      let candidate = null;
+      for (const entry of regionEntries) {
+        if (entry.parsed.slot === nextSlot) {
+          candidate = entry;
+          break;
+        }
+      }
+
+      if (!candidate) {
+        // No article for this slot; skip.
+        continue;
+      }
+
+      const mdMonth = candidate.parsed.month;
+      const mdDay = candidate.parsed.day;
+      if (!mdMonth || !mdDay) {
+        continue;
+      }
+
+      const todayMonth = todayDate.getMonth() + 1;
+      const todayDay = todayDate.getDate();
+      const isOnOrAfter =
+        todayMonth > mdMonth || (todayMonth === mdMonth && todayDay >= mdDay);
+
+      if (!isOnOrAfter) {
+        // Scheduled later in this month; do nothing yet.
+        continue;
+      }
+
+      chosenArticleId = candidate.articleId;
+
+      // Update cycle state for this region.
+      if (!cycleState[cycleStateKey] || typeof cycleState[cycleStateKey] !== "object") {
+        cycleState[cycleStateKey] = {};
+      }
+      cycleState[cycleStateKey][region] = { lastSlot: nextSlot };
+    } else {
+      // Pure date-based mode, no slots.
+      const selection = selectArticleForRegionDateOnly(regionEntries, lastTs, todayDate);
+      if (!selection) {
+        continue;
+      }
+      chosenArticleId = selection.articleId;
+      // No cycle state to update in this mode.
+    }
+
+    if (!chosenArticleId) {
+      continue;
+    }
+
+    // Per-article schedule entry for this chosen article (for ranking_categories overrides)
+    let chosenEntry = null;
+    for (const entry of regionEntries) {
+      if (entry.articleId === chosenArticleId) {
+        chosenEntry = entry;
+        break;
+      }
+    }
+    const chosenRankingCategories =
+      chosenEntry && chosenEntry.parsed && chosenEntry.parsed.rankingCategories
+        ? chosenEntry.parsed.rankingCategories
+        : null;
+
+    const binPath = path.join(regionDir, String(chosenArticleId));
+    if (!fs.existsSync(binPath) || !fs.statSync(binPath).isFile()) {
+      console.warn(
+        `[news:${trackLabel}] configured article ${chosenArticleId} for region=${region} but file not found at ${binPath}`
+      );
+      continue; // configured but no .bin present
+    }
+
+    const binData = fs.readFileSync(binPath);
+
+    // 1) message + message_decode
+    const messageBuf = extractMessageBytes(binData);
+    const encTableName = newsCfg.region_message_encoding[region] || "en";
+    const messageDecode = decodeMessageBytes(messageBuf, encTableName, encoding);
+
+    // 2) ranking categories
+    const slots = findRankingSlots(binData);
+    const rankingNumbers = [null, null, null];
+    const rankingDecodes = [null, null, null];
+
+    if (chosenRankingCategories && chosenRankingCategories.length) {
+      // Per-article override: ranking_categories array in schedule
+      for (let idx = 0; idx < 3; idx++) {
+        const catNum = idx < chosenRankingCategories.length ? chosenRankingCategories[idx] : null;
+        rankingNumbers[idx] = catNum;
+        if (catNum !== null) {
+          rankingDecodes[idx] = decodeRankingCategory(region, catNum, encoding, newsCfg);
+        }
+      }
+    } else {
+      // Default: derive from file slots
+      for (let idx = 0; idx < 3; idx++) {
+        const slot = idx < slots.length ? slots[idx] : null;
+        if (slot !== null) {
+          rankingNumbers[idx] = slot;
+          rankingDecodes[idx] = decodeRankingCategory(region, slot, encoding, newsCfg);
+        }
+      }
+    }
+
+    // 3) Upsert into bxt_news
+    if (existingId != null) {
+      await conn.execute(
+        "UPDATE bxt_news SET ranking_category_1 = ?, ranking_category_1_decode = ?, " +
+          "ranking_category_2 = ?, ranking_category_2_decode = ?, " +
+          "ranking_category_3 = ?, ranking_category_3_decode = ?, " +
+          "message = ?, message_decode = ?, news_binary = ?, timestamp = CURRENT_TIMESTAMP() " +
+          "WHERE id = ?",
+        [
+          rankingNumbers[0],
+          rankingDecodes[0],
+          rankingNumbers[1],
+          rankingDecodes[1],
+          rankingNumbers[2],
+          rankingDecodes[2],
+          messageBuf,
+          messageDecode,
+          binData,
+          existingId,
+        ]
+      );
+      updatedByRegion[region] = true;
+      console.log(
+        `[news:${trackLabel}] Updated bxt_news for region=${region}, id=${existingId}, article=${chosenArticleId}`
+      );
+    } else {
+      const [res] = await conn.execute(
+        "INSERT INTO bxt_news " +
+          "(is_custom, game_region, ranking_category_1, ranking_category_1_decode, " +
+          " ranking_category_2, ranking_category_2_decode, " +
+          " ranking_category_3, ranking_category_3_decode, " +
+          " message, message_decode, news_binary) " +
+          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+          isCustom ? 1 : 0,
+          region,
+          rankingNumbers[0],
+          rankingDecodes[0],
+          rankingNumbers[1],
+          rankingDecodes[1],
+          rankingNumbers[2],
+          rankingDecodes[2],
+          messageBuf,
+          messageDecode,
+          binData,
+        ]
+      );
+      updatedByRegion[region] = true;
+      console.log(
+        `[news:${trackLabel}] Inserted bxt_news for region=${region}, id=${res.insertId}, article=${chosenArticleId}`
+      );
+    }
+  }
+
+  return { updatedByRegion };
+}
+
+async function finalizePokemonNewsCustomAndRankings(
+  conn,
+  vanillaCfg,
+  customCfg,
+  vanillaUpdated,
+  customUpdatedReal,
+  customEnabled
+) {
+  const regions = Object.keys(vanillaCfg.region_folder_map || {});
+
+  for (const region of regions) {
+    const vanillaRow = await getLatestBxtNewsRow(conn, region, false);
+    if (!vanillaRow) continue;
+
+    let customRow = await getLatestBxtNewsRow(conn, region, true);
+
+    // Ensure the custom row exists (even if custom scheduling is disabled) so opt-in
+    // can safely fall back to vanilla.
+    if (!customRow) {
+      const newId = await mirrorVanillaToCustom(conn, region, vanillaRow.id, null);
+      customRow = await getLatestBxtNewsRow(conn, region, true);
+      if (customRow) {
+        console.log(
+          `[news] Created missing custom bxt_news row for region=${region} id=${newId} (mirrored from vanilla)`
+        );
+      }
+    }
+
+    // If the custom schedule is disabled, keep custom mirrored to vanilla whenever vanilla updates.
+    if (!customEnabled && vanillaUpdated && vanillaUpdated[region]) {
+      await mirrorVanillaToCustom(conn, region, vanillaRow.id, customRow ? customRow.id : null);
+      customRow = await getLatestBxtNewsRow(conn, region, true);
+      console.log(
+        `[news] Mirrored vanilla -> custom for region=${region} (custom track disabled)`
+      );
+    }
+
+    const vanillaSig = rankingSigFromRow(vanillaRow);
+    const customSig = rankingSigFromRow(customRow);
+    const shareRankings = arraysEqual(vanillaSig, customSig);
+
+    const vUpd = !!(vanillaUpdated && vanillaUpdated[region]);
+    const cUpd = !!(customUpdatedReal && customUpdatedReal[region]);
+
+    if (shareRankings) {
+      // If they share ranking categories, wipe only when BOTH tracks update together.
+      if (vUpd && cUpd) {
+        await clearRankingsForNewsId(conn, region, vanillaRow.id);
+        await clearRankingsForNewsId(conn, region, customRow ? customRow.id : null);
+      }
+    } else {
+      // Split rankings when category sets differ; wipe only the track(s) that updated.
+      if (vUpd) {
+        await clearRankingsForNewsId(conn, region, vanillaRow.id);
+      }
+      if (cUpd) {
+        await clearRankingsForNewsId(conn, region, customRow ? customRow.id : null);
+      }
+    }
+  }
+}
 
 async function main() {
   const rootDir = path.resolve(__dirname, "..", "..");
   const encoding = loadEncoding(rootDir);
+
   const newsCfg = loadNewsConfig(rootDir);
+  const pokemonNewsCustomCfg = loadPokemonNewsCustomConfig(rootDir);
+
   const rotationCfg = loadRotationConfig(rootDir);
+
+  const pokemonNewsCustomEnabled = scheduleHasAnyEntries(pokemonNewsCustomCfg);
+
   console.log("[news] rootDir:", rootDir);
   console.log("[news] articles_dir:", newsCfg.articles_dir);
+  console.log("[news] pokemon_news_custom_enabled:", pokemonNewsCustomEnabled);
 
   const pool = createPool(mainConfig);
 
   const todayDate = toDateOnly(new Date());
-  console.log(
-    "[news] today (server local):",
-    todayDate.toISOString().slice(0, 10)
-  );
+  console.log("[news] today (server local):", todayDate.toISOString().slice(0, 10));
+
   const cycleState = loadCycleState(newsCfg.articles_dir);
 
   try {
     const conn = await pool.getConnection();
 
     try {
-      for (const [region, folderName] of Object.entries(
-        newsCfg.region_folder_map
-      )) {
-        const regionDir = path.join(newsCfg.articles_dir, folderName);
+      // 1) Vanilla cycle (always)
+      const vanillaRes = await processPokemonNewsCycle(
+        conn,
+        encoding,
+        newsCfg,
+        cycleState,
+        "news",
+        todayDate,
+        false,
+        "vanilla"
+      );
 
-        if (
-          !fs.existsSync(regionDir) ||
-          !fs.statSync(regionDir).isDirectory()
-        ) {
-          continue; // silently skip missing region folders
-        }
-
-        // Look up last bxt_news row for this region.
-        const [rows] = await conn.execute(
-          "SELECT id, timestamp FROM bxt_news WHERE game_region = ? ORDER BY timestamp DESC LIMIT 1",
-          [region]
-        );
-
-        let existingId = null;
-        let lastTs = null;
-        if (rows.length > 0) {
-          existingId = rows[0].id;
-          lastTs =
-            rows[0].timestamp instanceof Date
-              ? rows[0].timestamp
-              : new Date(rows[0].timestamp);
-        }
-
-        const regionScheduleRaw = newsCfg.schedule[region] || {};
-        const regionEntries = [];
-        let hasSlots = false;
-
-        for (const [articleId, rawEntry] of Object.entries(regionScheduleRaw)) {
-          const parsed = parseScheduleEntry(rawEntry);
-          if (!parsed) continue;
-          if (parsed.slot !== null) hasSlots = true;
-          regionEntries.push({ articleId, parsed });
-        }
-
-        if (!regionEntries.length) {
-          continue;
-        }
-
-        let chosenArticleId = null;
-
-        if (hasSlots) {
-          // Slot-based multi-year cycle, using JSON log file.
-          let lastSlot = -1;
-          if (
-            cycleState.news &&
-            cycleState.news[region] &&
-            Number.isInteger(cycleState.news[region].lastSlot)
-          ) {
-            lastSlot = cycleState.news[region].lastSlot;
-          }
-
-          let monthsPassed = 0;
-          if (!lastTs) {
-            // If we have never set news before, treat as 1 month passed
-            // to start at slot 0.
-            monthsPassed = 1;
-          } else {
-            monthsPassed = monthsBetween(toDateOnly(lastTs), todayDate);
-          }
-
-          if (monthsPassed <= 0) {
-            // Nothing to do for this region on this run.
-            continue;
-          }
-          // Determine cycle length from the highest configured slot for this region.
-          let maxSlot = -1;
-          for (const entry of regionEntries) {
-            if (entry.parsed.slot !== null && entry.parsed.slot > maxSlot) {
-              maxSlot = entry.parsed.slot;
-            }
-          }
-          const cycleLength = maxSlot >= 0 ? maxSlot + 1 : 24;
-
-          // Clamp to avoid absurd jumps; skip at most one full cycle.
-          if (monthsPassed > cycleLength) {
-            monthsPassed = cycleLength;
-          }
-
-          const nextSlot =
-            ((lastSlot >= 0 ? lastSlot : -1) + monthsPassed) % cycleLength;
-
-          // Find article matching this slot.
-          let candidate = null;
-          for (const entry of regionEntries) {
-            if (entry.parsed.slot === nextSlot) {
-              candidate = entry;
-              break;
-            }
-          }
-
-          if (!candidate) {
-            // No article for this slot; skip.
-            continue;
-          }
-
-          const mdMonth = candidate.parsed.month;
-          const mdDay = candidate.parsed.day;
-          if (!mdMonth || !mdDay) {
-            continue;
-          }
-
-          const todayMonth = todayDate.getMonth() + 1;
-          const todayDay = todayDate.getDate();
-          const isOnOrAfter =
-            todayMonth > mdMonth ||
-            (todayMonth === mdMonth && todayDay >= mdDay);
-
-          if (!isOnOrAfter) {
-            // Scheduled later in this month; do nothing yet.
-            continue;
-          }
-
-          chosenArticleId = candidate.articleId;
-
-          // Update cycle state for this region.
-          if (!cycleState.news || typeof cycleState.news !== "object") {
-            cycleState.news = {};
-          }
-          cycleState.news[region] = { lastSlot: nextSlot };
-        } else {
-          // Pure date-based mode, no slots.
-          const selection = selectArticleForRegionDateOnly(
-            regionEntries,
-            lastTs,
-            todayDate
-          );
-          if (!selection) {
-            continue;
-          }
-          chosenArticleId = selection.articleId;
-          // No cycle state to update in this mode.
-        }
-
-        if (!chosenArticleId) {
-          continue;
-        }
-
-        // Per-article schedule entry for this chosen article (for ranking_categories overrides)
-        let chosenEntry = null;
-        for (const entry of regionEntries) {
-          if (entry.articleId === chosenArticleId) {
-            chosenEntry = entry;
-            break;
-          }
-        }
-        const chosenRankingCategories =
-          chosenEntry && chosenEntry.parsed && chosenEntry.parsed.rankingCategories
-            ? chosenEntry.parsed.rankingCategories
-            : null;
-
-        const binPath = path.join(regionDir, String(chosenArticleId));
-        if (!fs.existsSync(binPath) || !fs.statSync(binPath).isFile()) {
-          console.warn(
-            `[news] configured article ${chosenArticleId} for region=${region} but file not found at ${binPath}`
-          );
-          continue; // configured but no .bin present
-        }
-
-        const binData = fs.readFileSync(binPath);
-
-        // 1) message + message_decode
-        const messageBuf = extractMessageBytes(binData);
-        const encTableName =
-          newsCfg.region_message_encoding[region] || "en";
-        const messageDecode = decodeMessageBytes(
-          messageBuf,
+      // 2) Custom cycle (only if schedule is present)
+      let customRes = { updatedByRegion: {} };
+      if (pokemonNewsCustomCfg && pokemonNewsCustomEnabled) {
+        customRes = await processPokemonNewsCycle(
+          conn,
           encoding,
-          encTableName
-        );
-
-        // 2) ranking categories
-        const slots = findRankingSlots(binData);
-        const rankingNumbers = [null, null, null];
-        const rankingDecodes = [null, null, null];
-
-        if (chosenRankingCategories && chosenRankingCategories.length) {
-          // Per-article override: ranking_categories array in schedule
-          for (let idx = 0; idx < 3; idx++) {
-            const catNum =
-              idx < chosenRankingCategories.length
-                ? chosenRankingCategories[idx]
-                : null;
-            rankingNumbers[idx] = catNum;
-            if (catNum !== null) {
-              rankingDecodes[idx] = decodeRankingCategory(
-                region,
-                catNum,
-                encoding,
-                newsCfg
-              );
-            }
-          }
-        } else {
-          // No per-article categories defined: leave rankingNumbers/Decodes null.
-          // This means no ranking categories will be set for this news entry.
-        }
-
-        // 3) Upsert into bxt_news
-        if (existingId != null) {
-          await conn.execute(
-            "UPDATE bxt_news SET ranking_category_1 = ?, ranking_category_1_decode = ?, " +
-              "ranking_category_2 = ?, ranking_category_2_decode = ?, " +
-              "ranking_category_3 = ?, ranking_category_3_decode = ?, " +
-              "message = ?, message_decode = ?, news_binary = ?, timestamp = CURRENT_TIMESTAMP() " +
-              "WHERE id = ?",
-            [
-              rankingNumbers[0],
-              rankingDecodes[0],
-              rankingNumbers[1],
-              rankingDecodes[1],
-              rankingNumbers[2],
-              rankingDecodes[2],
-              messageBuf,
-              messageDecode,
-              binData,
-              existingId,
-            ]
-          );
-          console.log(
-            `Updated bxt_news for region=${region}, id=${existingId}, article=${chosenArticleId}`
-          );
-        } else {
-          const [res] = await conn.execute(
-            "INSERT INTO bxt_news " +
-              "(game_region, ranking_category_1, ranking_category_1_decode, " +
-              " ranking_category_2, ranking_category_2_decode, " +
-              " ranking_category_3, ranking_category_3_decode, " +
-              " message, message_decode, news_binary) " +
-              "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [
-              region,
-              rankingNumbers[0],
-              rankingDecodes[0],
-              rankingNumbers[1],
-              rankingDecodes[1],
-              rankingNumbers[2],
-              rankingDecodes[2],
-              messageBuf,
-              messageDecode,
-              binData,
-            ]
-          );
-          console.log(
-            `Inserted bxt_news for region=${region}, id=${res.insertId}, article=${chosenArticleId}`
-          );
-        }
-
-        // 4) Reset rankings for this region whenever news is updated
-        await conn.execute(
-          "DELETE FROM bxt_ranking WHERE game_region = ?",
-          [region]
-        );
-        console.log(
-          `[news] Cleared bxt_ranking entries for region=${region} after news update`
+          pokemonNewsCustomCfg,
+          cycleState,
+          "pokemon_news_custom",
+          todayDate,
+          true,
+          "pokemon_news_custom"
         );
       }
+
+      // 3) Ensure custom rows exist / mirror when disabled, then apply ranking wipe rules.
+      await finalizePokemonNewsCustomAndRankings(
+        conn,
+        newsCfg,
+        pokemonNewsCustomCfg,
+        vanillaRes.updatedByRegion,
+        customRes.updatedByRegion,
+        pokemonNewsCustomEnabled
+      );
 
       // Persist cycle state (for slot-based regions) and file rotations.
       if (rotationCfg) {
@@ -1311,18 +1607,18 @@ main().catch((err) => {
   console.error("auto-schedule failed:", err);
   process.exit(1);
 });
-// ---------- PHP BXT CONFIG: global_table_display ----------
 
+// ---------- PHP BXT CONFIG: global_table_display ----------
+//
+// Some deployments configure a "global" ranking-table display region inside
+// web/cgb/pokemon/bxt_config.php (e.g. ['e'] to force EN table labels).
+// The scheduler uses this to decode ranking-category names consistently.
+//
 function loadGlobalDisplayRegion(rootDir) {
   try {
-    const cfgPath = path.resolve(
-      rootDir,
-      "web",
-      "cgb",
-      "pokemon",
-      "bxt_config.php"
-    );
+    const cfgPath = path.resolve(rootDir, "web", "cgb", "pokemon", "bxt_config.php");
     const txt = fs.readFileSync(cfgPath, "utf8");
+
     const m = txt.match(/'global_table_display'\s*=>\s*\[([^\]]*)\]/);
     if (!m) return null;
 
@@ -1331,10 +1627,9 @@ function loadGlobalDisplayRegion(rootDir) {
 
     for (const part of inside.split(",")) {
       const mm = part.match(/'([a-zA-Z])'/);
-      if (mm) {
-        codes.push(mm[1].toLowerCase());
-      }
+      if (mm) codes.push(mm[1].toLowerCase());
     }
+
     if (!codes.length) return null;
     return codes[0];
   } catch (e) {

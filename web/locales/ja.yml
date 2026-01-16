@@ -1,7 +1,6 @@
 pokemon:
   shiny: 光る
   level: :L
-  # Given the large size of these lists, it is advised to add any new translation keys ABOVE this line
   species:
   - (なし)
   - フシギダネ
@@ -811,3 +810,10 @@ pokemon:
     JP-45: みやざきけん
     JP-46: かごしまけん
     JP-47: おきなわけん
+account:
+  pokemon-news-custom-opt-in: 'ポケモンニュース：ニュース設定'
+  pokemon-news-custom-opt-in-blurb: '有効にすると、ポケモンニュースのダウンロードで、利用可能な場合はREONチームが作成したカスタムニュースを使用します。カスタムニュースがない場合は、公式ニュースを使用します。'
+  pokemon-news-custom-opt-in-off: 公式ポケモンニュースのみ
+  pokemon-news-custom-opt-in-on: 利用可能な場合はカスタムポケモンニュース
+
+invalid-pokemon-news-setting: 無効なポケモンニュース設定です。

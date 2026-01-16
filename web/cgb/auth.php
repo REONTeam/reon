@@ -11,7 +11,7 @@
 		$cost = isset($_GET["name"]) ? getCost($_GET["name"]) : null;
 		$isAuthRequired = $type == 2 ? true : !is_null($cost);
 		if($isAuthRequired && !isset($_SERVER["HTTP_GB_AUTH_ID"])) { // is the Auth ID set?
-			if(!isset($_SERVER["HTTP_AUTHORIZATION"]) || $_SERVER["HTTP_AUTHORIZATION"] === "") { // If Auth ID isnt set but there's an Auth header, that means they've sent us something to check.
+			if(!isset($_SERVER["HTTP_AUTHORIZATION"]) || $_SERVER["HTTP_AUTHORIZATION"] === "") { // No auth response provided: issue a challenge.
 				// Generate a challenge
 				$randomBytes = random_bytes(36);
 				$challenge = base64_encode($randomBytes);
@@ -32,14 +32,38 @@
 				// Get the full challenge back
 				session_id(bin2hex(base64_decode(substr($authString, 0 , 44))));
 				session_start();
+
+				// If we've already authenticated this utility challenge session recently, accept it.
+				// The official client can reuse the same Authorization response across multiple requests
+				// (e.g. a follow-up POST), and it may not perform an additional 401-challenge retry.
+				if ($type == 2 && isset($_SESSION['utility_authed_user_id'], $_SESSION['utility_authed_until']) && time() <= intval($_SESSION['utility_authed_until'])) {
+					return intval($_SESSION['utility_authed_user_id']);
+				}
+
 				if (!isset($_SESSION['challenge'])) {
-					// If the challenge is not set here, something is wrong with the auth string
+					// Challenge missing/expired. Treat this as if no auth was provided and issue a fresh challenge.
+					if (session_status() == PHP_SESSION_ACTIVE) {
+						session_destroy();
+					}
+
+					$randomBytes = random_bytes(36);
+					$challenge = base64_encode($randomBytes);
+
+					session_id(substr(bin2hex($randomBytes), 0, 32 * 2));
+					session_start();
+					$_SESSION['challenge'] = $challenge;
+
 					header_remove();
 					http_response_code(401);
+					header('WWW-Authenticate: GB00 name="'.$challenge.'"');
 					exit();
 				}
 				$challenge = $_SESSION['challenge'];
-				session_destroy();
+				// For utility auth (type 2), keep the challenge session so the same Authorization can be reused.
+				// For normal/ranking auth (type 0/1), destroy the one-time challenge session.
+				if ($type != 2) {
+					session_destroy();
+				}
 				
 				// Validate what they sent
 				$data = decodeAuthorization($challenge, $authString);
@@ -49,7 +73,11 @@
 					// The download and upload functions give the user a session that is to be used for the next request
 					// The utility function however seems to immediately return the requested data
 					if ($type == 2) {
-						return $result["userId"];
+						// Cache utility auth for a short window so the client can reuse the same Authorization
+						// without re-challenging (notably for follow-up POSTs).
+						$_SESSION['utility_authed_user_id'] = intval($result["userId"]);
+						$_SESSION['utility_authed_until'] = time() + 900; // 15 minutes
+						return intval($result["userId"]);
 					} else {
 						// 
 						addCostToAccount($result["userId"], $cost);

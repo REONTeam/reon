@@ -69,8 +69,12 @@ function serveFileOrExecScript($filePath, $type, $sessionId = null) {
         http_response_code(404);
 	}
 	
+	// Some download scripts (e.g. Pokémon News config.php) use doAuth(type 2) which relies on
+	// the PHP session keyed by the Authorization challenge bytes. Destroying the session here
+	// prevents the client from reusing the same Authorization across follow-up requests.
+	// Close the session without deleting it.
 	if (session_status() == PHP_SESSION_ACTIVE && !isset($sessionId)) {
-		session_destroy();
+		session_write_close();
 	}
 }
 

@@ -14,6 +14,12 @@
         <li><a href="?country=p">{{'region.country.p'|trans}}</a></li>
     </ul>
 
+    {% set _country = selected_country|default('global') %}
+    <ul id="pokemon-news-mode-nav">
+        <li><a href="?country={{_country}}"{% if pokemon_news_custom|default(0) == 0 %} class="active"{% endif %}>Vanilla</a></li>
+        <li><a href="?country={{_country}}&pokemon_news_custom=1"{% if pokemon_news_custom|default(0) == 1 %} class="active"{% endif %}>Custom Pokémon News</a></li>
+    </ul>
+
     {% for cat in categories %}
     <div class="crystal-ranking">
         <table>
