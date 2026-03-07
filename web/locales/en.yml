@@ -468,465 +468,465 @@ gbwars:
     neutral: Neutral
 pokemon:
   pokerus:
-    cured: Pokérus (cured)
-    infected: Pokérus (infected)
-  shiny: Shiny
-  level: Lv.
-  name: Name
-  offerer: Offerer
-  item: Item
+    cured: POKÉRUS (Cured)
+    infected: POKÉRUS (Infected)
+  shiny: SHINY
+  level: :L
+  name: NAME
+  offerer: OFFERER
+  item: ITEM
   trainer: OT
-  wanted: Wanted
+  wanted: WANTED
   species:
-  - (None)
-  - Bulbasaur
-  - Ivysaur
-  - Venusaur
-  - Charmander
-  - Charmeleon
-  - Charizard
-  - Squirtle
-  - Wartortle
-  - Blastoise
-  - Caterpie
-  - Metapod
-  - Butterfree
-  - Weedle
-  - Kakuna
-  - Beedrill
-  - Pidgey
-  - Pidgeotto
-  - Pidgeot
-  - Rattata
-  - Raticate
-  - Spearow
-  - Fearow
-  - Ekans
-  - Arbok
-  - Pikachu
-  - Raichu
-  - Sandshrew
-  - Sandslash
-  - Nidoran♀
-  - Nidorina
-  - Nidoqueen
-  - Nidoran♂
-  - Nidorino
-  - Nidoking
-  - Clefairy
-  - Clefable
-  - Vulpix
-  - Ninetales
-  - Jigglypuff
-  - Wigglytuff
-  - Zubat
-  - Golbat
-  - Oddish
-  - Gloom
-  - Vileplume
-  - Paras
-  - Parasect
-  - Venonat
-  - Venomoth
-  - Diglett
-  - Dugtrio
-  - Meowth
-  - Persian
-  - Psyduck
-  - Golduck
-  - Mankey
-  - Primeape
-  - Growlithe
-  - Arcanine
-  - Poliwag
-  - Poliwhirl
-  - Poliwrath
-  - Abra
-  - Kadabra
-  - Alakazam
-  - Machop
-  - Machoke
-  - Machamp
-  - Bellsprout
-  - Weepinbell
-  - Victreebel
-  - Tentacool
-  - Tentacruel
-  - Geodude
-  - Graveler
-  - Golem
-  - Ponyta
-  - Rapidash
-  - Slowpoke
-  - Slowbro
-  - Magnemite
-  - Magneton
-  - Farfetch’d
-  - Doduo
-  - Dodrio
-  - Seel
-  - Dewgong
-  - Grimer
-  - Muk
-  - Shellder
-  - Cloyster
-  - Gastly
-  - Haunter
-  - Gengar
-  - Onix
-  - Drowzee
-  - Hypno
-  - Krabby
-  - Kingler
-  - Voltorb
-  - Electrode
-  - Exeggcute
-  - Exeggutor
-  - Cubone
-  - Marowak
-  - Hitmonlee
-  - Hitmonchan
-  - Lickitung
-  - Koffing
-  - Weezing
-  - Rhyhorn
-  - Rhydon
-  - Chansey
-  - Tangela
-  - Kangaskhan
-  - Horsea
-  - Seadra
-  - Goldeen
-  - Seaking
-  - Staryu
-  - Starmie
-  - Mr. Mime
-  - Scyther
-  - Jynx
-  - Electabuzz
-  - Magmar
-  - Pinsir
-  - Tauros
-  - Magikarp
-  - Gyarados
-  - Lapras
-  - Ditto
-  - Eevee
-  - Vaporeon
-  - Jolteon
-  - Flareon
-  - Porygon
-  - Omanyte
-  - Omastar
-  - Kabuto
-  - Kabutops
-  - Aerodactyl
-  - Snorlax
-  - Articuno
-  - Zapdos
-  - Moltres
-  - Dratini
-  - Dragonair
-  - Dragonite
-  - Mewtwo
-  - Mew
-  - Chikorita
-  - Bayleef
-  - Meganium
-  - Cyndaquil
-  - Quilava
-  - Typhlosion
-  - Totodile
-  - Croconaw
-  - Feraligatr
-  - Sentret
-  - Furret
-  - Hoothoot
-  - Noctowl
-  - Ledyba
-  - Ledian
-  - Spinarak
-  - Ariados
-  - Crobat
-  - Chinchou
-  - Lanturn
-  - Pichu
-  - Cleffa
-  - Igglybuff
-  - Togepi
-  - Togetic
-  - Natu
-  - Xatu
-  - Mareep
-  - Flaaffy
-  - Ampharos
-  - Bellossom
-  - Marill
-  - Azumarill
-  - Sudowoodo
-  - Politoed
-  - Hoppip
-  - Skiploom
-  - Jumpluff
-  - Aipom
-  - Sunkern
-  - Sunflora
-  - Yanma
-  - Wooper
-  - Quagsire
-  - Espeon
-  - Umbreon
-  - Murkrow
-  - Slowking
-  - Misdreavus
-  - Unown
-  - Wobbuffet
-  - Girafarig
-  - Pineco
-  - Forretress
-  - Dunsparce
-  - Gligar
-  - Steelix
-  - Snubbull
-  - Granbull
-  - Qwilfish
-  - Scizor
-  - Shuckle
-  - Heracross
-  - Sneasel
-  - Teddiursa
-  - Ursaring
-  - Slugma
-  - Magcargo
-  - Swinub
-  - Piloswine
-  - Corsola
-  - Remoraid
-  - Octillery
-  - Delibird
-  - Mantine
-  - Skarmory
-  - Houndour
-  - Houndoom
-  - Kingdra
-  - Phanpy
-  - Donphan
-  - Porygon2
-  - Stantler
-  - Smeargle
-  - Tyrogue
-  - Hitmontop
-  - Smoochum
-  - Elekid
-  - Magby
-  - Miltank
-  - Blissey
-  - Raikou
-  - Entei
-  - Suicune
-  - Larvitar
-  - Pupitar
-  - Tyranitar
-  - Lugia
-  - Ho-Oh
-  - Celebi
+  - (NONE)
+  - BULBASAUR
+  - IVYSAUR
+  - VENUSAUR
+  - CHARMANDER
+  - CHARMELEON
+  - CHARIZARD
+  - SQUIRTLE
+  - WARTORTLE
+  - BLASTOISE
+  - CATERPIE
+  - METAPOD
+  - BUTTERFREE
+  - WEEDLE
+  - KAKUNA
+  - BEEDRILL
+  - PIDGEY
+  - PIDGEOTTO
+  - PIDGEOT
+  - RATTATA
+  - RATICATE
+  - SPEAROW
+  - FEAROW
+  - EKANS
+  - ARBOK
+  - PIKACHU
+  - RAICHU
+  - SANDSHREW
+  - SANDSLASH
+  - NIDORAN♀
+  - NIDORINA
+  - NIDOQUEEN
+  - NIDORAN♂
+  - NIDORINO
+  - NIDOKING
+  - CLEFAIRY
+  - CLEFABLE
+  - VULPIX
+  - NINETALES
+  - JIGGLYPUFF
+  - WIGGLYTUFF
+  - ZUBAT
+  - GOLBAT
+  - ODDISH
+  - GLOOM
+  - VILEPLUME
+  - PARAS
+  - PARASECT
+  - VENONAT
+  - VENOMOTH
+  - DIGLETT
+  - DUGTRIO
+  - MEOWTH
+  - PERSIAN
+  - PSYDUCK
+  - GOLDUCK
+  - MANKEY
+  - PRIMEAPE
+  - GROWLITHE
+  - ARCANINE
+  - POLIWAG
+  - POLIWHIRL
+  - POLIWRATH
+  - ABRA
+  - KADABRA
+  - ALAKAZAM
+  - MACHOP
+  - MACHOKE
+  - MACHAMP
+  - BELLSPROUT
+  - WEEPINBELL
+  - VICTREEBEL
+  - TENTACOOL
+  - TENTACRUEL
+  - GEODUDE
+  - GRAVELER
+  - GOLEM
+  - PONYTA
+  - RAPIDASH
+  - SLOWPOKE
+  - SLOWBRO
+  - MAGNEMITE
+  - MAGNETON
+  - FARFETCH’D
+  - DODUO
+  - DODRIO
+  - SEEL
+  - DEWGONG
+  - GRIMER
+  - MUK
+  - SHELLDER
+  - CLOYSTER
+  - GASTLY
+  - HAUNTER
+  - GENGAR
+  - ONIX
+  - DROWZEE
+  - HYPNO
+  - KRABBY
+  - KINGLER
+  - VOLTORB
+  - ELECTRODE
+  - EXEGGCUTE
+  - EXEGGUTOR
+  - CUBONE
+  - MAROWAK
+  - HITMONLEE
+  - HITMONCHAN
+  - LICKITUNG
+  - KOFFING
+  - WEEZING
+  - RHYHORN
+  - RHYDON
+  - CHANSEY
+  - TANGELA
+  - KANGASKHAN
+  - HORSEA
+  - SEADRA
+  - GOLDEEN
+  - SEAKING
+  - STARYU
+  - STARMIE
+  - MR. MIME
+  - SCYTHER
+  - JYNX
+  - ELECTABUZZ
+  - MAGMAR
+  - PINSIR
+  - TAUROS
+  - MAGIKARP
+  - GYARADOS
+  - LAPRAS
+  - DITTO
+  - EEVEE
+  - VAPOREON
+  - JOLTEON
+  - FLAREON
+  - PORYGON
+  - OMANYTE
+  - OMASTAR
+  - KABUTO
+  - KABUTOPS
+  - AERODACTYL
+  - SNORLAX
+  - ARTICUNO
+  - ZAPDOS
+  - MOLTRES
+  - DRATINI
+  - DRAGONAIR
+  - DRAGONITE
+  - MEWTWO
+  - MEW
+  - CHIKORITA
+  - BAYLEEF
+  - MEGANIUM
+  - CYNDAQUIL
+  - QUILAVA
+  - TYPHLOSION
+  - TOTODILE
+  - CROCONAW
+  - FERALIGATR
+  - SENTRET
+  - FURRET
+  - HOOTHOOT
+  - NOCTOWL
+  - LEDYBA
+  - LEDIAN
+  - SPINARAK
+  - ARIADOS
+  - CROBAT
+  - CHINCHOU
+  - LANTURN
+  - PICHU
+  - CLEFFA
+  - IGGLYBUFF
+  - TOGEPI
+  - TOGETIC
+  - NATU
+  - XATU
+  - MAREEP
+  - FLAAFFY
+  - AMPHAROS
+  - BELLOSSOM
+  - MARILL
+  - AZUMARILL
+  - SUDOWOODO
+  - POLITOED
+  - HOPPIP
+  - SKIPLOOM
+  - JUMPLUFF
+  - AIPOM
+  - SUNKERN
+  - SUNFLORA
+  - YANMA
+  - WOOPER
+  - QUAGSIRE
+  - ESPEON
+  - UMBREON
+  - MURKROW
+  - SLOWKING
+  - MISDREAVUS
+  - UNOWN
+  - WOBBUFFET
+  - GIRAFARIG
+  - PINECO
+  - FORRETRESS
+  - DUNSPARCE
+  - GLIGAR
+  - STEELIX
+  - SNUBBULL
+  - GRANBULL
+  - QWILFISH
+  - SCIZOR
+  - SHUCKLE
+  - HERACROSS
+  - SNEASEL
+  - TEDDIURSA
+  - URSARING
+  - SLUGMA
+  - MAGCARGO
+  - SWINUB
+  - PILOSWINE
+  - CORSOLA
+  - REMORAID
+  - OCTILLERY
+  - DELIBIRD
+  - MANTINE
+  - SKARMORY
+  - HOUNDOUR
+  - HOUNDOOM
+  - KINGDRA
+  - PHANPY
+  - DONPHAN
+  - PORYGON2
+  - STANTLER
+  - SMEARGLE
+  - TYROGUE
+  - HITMONTOP
+  - SMOOCHUM
+  - ELEKID
+  - MAGBY
+  - MILTANK
+  - BLISSEY
+  - RAIKOU
+  - ENTEI
+  - SUICUNE
+  - LARVITAR
+  - PUPITAR
+  - TYRANITAR
+  - LUGIA
+  - HO-OH
+  - CELEBI
   items:
-  - (None)
-  - Master Ball
-  - Ultra Ball
-  - BrightPowder
-  - Great Ball
-  - Poké Ball
-  - Teru-sama (0)
-  - Bicycle
-  - Moon Stone
-  - Antidote
-  - Burn Heal
-  - Ice Heal
-  - Awakening
-  - Parlyz Heal
-  - Full Restore
-  - Max Potion
-  - Hyper Potion
-  - Super Potion
-  - Potion
-  - Escape Rope
-  - Repel
-  - Max Elixer
-  - Fire Stone
-  - Thunder Stone
-  - Water Stone
-  - Teru-sama (1)
-  - HP Up
-  - Protein
-  - Iron
-  - Carbos
-  - Lucky Punch
-  - Calcium
-  - Rare Candy
-  - X Accuracy
-  - Leaf Stone
-  - Metal Powder
-  - Nugget
-  - Poké Doll
-  - Full Heal
-  - Revive
-  - Max Revive
-  - Guard Spec.
-  - Super Repel
-  - Max Repel
-  - Dire Hit
-  - Teru-sama (2)
-  - Fresh Water
-  - Soda Pop
-  - Lemonade
-  - X Attack
-  - Teru-sama (3)
-  - X Defend
-  - X Speed
-  - X Special
-  - Coin Case
-  - Itemfinder
-  - Teru-sama (4)
-  - Exp Share
-  - Old Rod
-  - Good Rod
-  - Silver Leaf
-  - Super Rod
-  - PP Up
-  - Ether
-  - Max Ether
-  - Elixer
-  - Red Scale
-  - SecretPotion
-  - S.S. Ticket
-  - Mystery Egg
-  - Clear Bell
-  - Silver Wing
-  - Moomoo Milk
-  - Quick Claw
-  - PSNCureBerry
-  - Gold Leaf
-  - Soft Sand
-  - Sharp Beak
-  - PRZCureBerry
-  - Burnt Berry
-  - Ice Berry
-  - Poison Barb
-  - King's Rock
-  - Bitter Berry
-  - Mint Berry
-  - Red Apricorn
-  - TinyMushroom
-  - Big Mushroom
-  - SilverPowder
-  - Blu Apricorn
-  - Teru-sama (5)
-  - Amulet Coin
-  - Ylw Apricorn
-  - Grn Apricorn
-  - Cleanse Tag
-  - Mystic Water
-  - TwistedSpoon
-  - Wht Apricorn
-  - Black Belt
-  - Blk Apricorn
-  - Teru-sama (6)
-  - Pnk Apricorn
-  - BlackGlasses
-  - SlowpokeTail
-  - Pink Bow
-  - Stick
-  - Smoke Ball
-  - NeverMeltIce
-  - Magnet
-  - MiracleBerry
-  - Pearl
-  - Big Pearl
-  - Everstone
-  - Spell Tag
-  - RageCandyBar
-  - GS Ball
-  - Blue Card
-  - Miracle Seed
-  - Thick Club
-  - Focus Band
-  - Teru-sama (7)
-  - EnergyPowder
-  - Energy Root
-  - Heal Powder
-  - Revival Herb
-  - Hard Stone
-  - Lucky Egg
-  - Card Key
-  - Machine Part
-  - Egg Ticket
-  - Lost Item
-  - Stardust
-  - Star Piece
-  - Basement Key
-  - Pass
-  - Teru-sama (8)
-  - Teru-sama (9)
-  - Teru-sama (10)
-  - Charcoal
-  - Berry Juice
-  - Scope Lens
-  - Teru-sama (11)
-  - Teru-sama (12)
-  - Metal Coat
-  - Dragon Fang
-  - Teru-sama (13)
-  - Leftovers
-  - Teru-sama (14)
-  - Teru-sama (15)
-  - Teru-sama (16)
-  - MysteryBerry
-  - Dragon Scale
-  - Berserk Gene
-  - Teru-sama (17)
-  - Teru-sama (18)
-  - Teru-sama (19)
-  - Sacred Ash
-  - Heavy Ball
-  - Flower Mail
-  - Level Ball
-  - Lure Ball
-  - Fast Ball
-  - Teru-sama (20)
-  - Light Ball
-  - Friend Ball
-  - Moon Ball
-  - Love Ball
-  - Normal Box
-  - Gorgeous Box
-  - Sun Stone
-  - Polkadot Bow
-  - Teru-sama (21)
-  - Up-Grade
-  - Berry
-  - Gold Berry
-  - SquirtBottle
-  - Teru-sama (22)
-  - Park Ball
-  - Rainbow Wing
-  - Teru-sama (23)
-  - Brick Piece
-  - Surf Mail
-  - Litebluemail
-  - Portraitmail
-  - Lovely Mail
-  - Eon Mail
-  - Morph Mail
-  - Bluesky Mail
-  - Music Mail
-  - Mirage Mail
-  - Teru-sama (24)
+  - (NONE)
+  - MASTER BALL
+  - ULTRA BALL
+  - BRIGHTPOWDER
+  - GREAT BALL
+  - POKÉ BALL
+  - TERU-SAMA (0)
+  - BICYCLE
+  - MOON STONE
+  - ANTIDOTE
+  - BURN HEAL
+  - ICE HEAL
+  - AWAKENING
+  - PARLYZ HEAL
+  - FULL RESTORE
+  - MAX POTION
+  - HYPER POTION
+  - SUPER POTION
+  - POTION
+  - ESCAPE ROPE
+  - REPEL
+  - MAX ELIXER
+  - FIRE STONE
+  - THUNDER STONE
+  - WATER STONE
+  - TERU-SAMA (1)
+  - HP UP
+  - PROTEIN
+  - IRON
+  - CARBOS
+  - LUCKY PUNCH
+  - CALCIUM
+  - RARE CANDY
+  - X ACCURACY
+  - LEAF STONE
+  - METAL POWDER
+  - NUGGET
+  - POKÉ DOLL
+  - FULL HEAL
+  - REVIVE
+  - MAX REVIVE
+  - GUARD SPEC.
+  - SUPER REPEL
+  - MAX REPEL
+  - DIRE HIT
+  - TERU-SAMA (2)
+  - FRESH WATER
+  - SODA POP
+  - LEMONADE
+  - X ATTACK
+  - TERU-SAMA (3)
+  - X DEFEND
+  - X SPEED
+  - X SPECIAL
+  - COIN CASE
+  - ITEMFINDER
+  - TERU-SAMA (4)
+  - EXP SHARE
+  - OLD ROD
+  - GOOD ROD
+  - SILVER LEAF
+  - SUPER ROD
+  - PP UP
+  - ETHER
+  - MAX ETHER
+  - ELIXER
+  - RED SCALE
+  - SECRETPOTION
+  - S.S. TICKET
+  - MYSTERY EGG
+  - CLEAR BELL
+  - SILVER WING
+  - MOOMOO MILK
+  - QUICK CLAW
+  - PSNCUREBERRY
+  - GOLD LEAF
+  - SOFT SAND
+  - SHARP BEAK
+  - PRZCUREBERRY
+  - BURNT BERRY
+  - ICE BERRY
+  - POISON BARB
+  - KING'S ROCK
+  - BITTER BERRY
+  - MINT BERRY
+  - RED APRICORN
+  - TINYMUSHROOM
+  - BIG MUSHROOM
+  - SILVERPOWDER
+  - BLU APRICORN
+  - TERU-SAMA (5)
+  - AMULET COIN
+  - YLW APRICORN
+  - GRN APRICORN
+  - CLEANSE TAG
+  - MYSTIC WATER
+  - TWISTEDSPOON
+  - WHT APRICORN
+  - BLACK BELT
+  - BLK APRICORN
+  - TERU-SAMA (6)
+  - PNK APRICORN
+  - BLACKGLASSES
+  - SLOWPOKETAIL
+  - PINK BOW
+  - STICK
+  - SMOKE BALL
+  - NEVERMELTICE
+  - MAGNET
+  - MIRACLEBERRY
+  - PEARL
+  - BIG PEARL
+  - EVERSTONE
+  - SPELL TAG
+  - RAGECANDYBAR
+  - GS BALL
+  - BLUE CARD
+  - MIRACLE SEED
+  - THICK CLUB
+  - FOCUS BAND
+  - TERU-SAMA (7)
+  - ENERGYPOWDER
+  - ENERGY ROOT
+  - HEAL POWDER
+  - REVIVAL HERB
+  - HARD STONE
+  - LUCKY EGG
+  - CARD KEY
+  - MACHINE PART
+  - EGG TICKET
+  - LOST ITEM
+  - STARDUST
+  - STAR PIECE
+  - BASEMENT KEY
+  - PASS
+  - TERU-SAMA (8)
+  - TERU-SAMA (9)
+  - TERU-SAMA (10)
+  - CHARCOAL
+  - BERRY JUICE
+  - SCOPE LENS
+  - TERU-SAMA (11)
+  - TERU-SAMA (12)
+  - METAL COAT
+  - DRAGON FANG
+  - TERU-SAMA (13)
+  - LEFTOVERS
+  - TERU-SAMA (14)
+  - TERU-SAMA (15)
+  - TERU-SAMA (16)
+  - MYSTERYBERRY
+  - DRAGON SCALE
+  - BERSERK GENE
+  - TERU-SAMA (17)
+  - TERU-SAMA (18)
+  - TERU-SAMA (19)
+  - SACRED ASH
+  - HEAVY BALL
+  - FLOWER MAIL
+  - LEVEL BALL
+  - LURE BALL
+  - FAST BALL
+  - TERU-SAMA (20)
+  - LIGHT BALL
+  - FRIEND BALL
+  - MOON BALL
+  - LOVE BALL
+  - NORMAL BOX
+  - GORGEOUS BOX
+  - SUN STONE
+  - POLKADOT BOW
+  - TERU-SAMA (21)
+  - UP-GRADE
+  - BERRY
+  - GOLD BERRY
+  - SQUIRTBOTTLE
+  - TERU-SAMA (22)
+  - PARK BALL
+  - RAINBOW WING
+  - TERU-SAMA (23)
+  - BRICK PIECE
+  - SURF MAIL
+  - LITEBLUEMAIL
+  - PORTRAITMAIL
+  - LOVELY MAIL
+  - EON MAIL
+  - MORPH MAIL
+  - BLUESKY MAIL
+  - MUSIC MAIL
+  - MIRAGE MAIL
+  - TERU-SAMA (24)
   - TM01
   - TM02
   - TM03
   - TM04
-  - TM04 (Unused)
+  - TM04 (UNUSED)
   - TM05
   - TM06
   - TM07
@@ -951,7 +951,7 @@ pokemon:
   - TM26
   - TM27
   - TM28
-  - TM28 (Unused)
+  - TM28 (UNUSED)
   - TM29
   - TM30
   - TM31
@@ -981,264 +981,264 @@ pokemon:
   - HM05
   - HM06
   - HM07
-  - HM08 (Unused)
-  - HM09 (Unused)
-  - HM10 (Unused)
-  - HM11 (Unused)
-  - HM12 (Unused)
+  - HM08 (UNUSED)
+  - HM09 (UNUSED)
+  - HM10 (UNUSED)
+  - HM11 (UNUSED)
+  - HM12 (UNUSED)
   moves:
-  - (None)
-  - Pound
-  - Karate Chop
-  - Double Slap
-  - Comet Punch
-  - Mega Punch
-  - Pay Day
-  - Fire Punch
-  - Ice Punch
-  - Thunder Punch
-  - Scratch
-  - Vise Grip
-  - Guillotine
-  - Razor Wind
-  - Swords Dance
-  - Cut
-  - Gust
-  - Wing Attack
-  - Whirlwind
-  - Fly
-  - Bind
-  - Slam
-  - Vine Whip
-  - Stomp
-  - Double Kick
-  - Mega Kick
-  - Jump Kick
-  - Rolling Kick
-  - Sand Attack
-  - Headbutt
-  - Horn Attack
-  - Fury Attack
-  - Horn Drill
-  - Tackle
-  - Body Slam
-  - Wrap
-  - Take Down
-  - Thrash
-  - Double-Edge
-  - Tail Whip
-  - Poison Sting
-  - Twineedle
-  - Pin Missile
-  - Leer
-  - Bite
-  - Growl
-  - Roar
-  - Sing
-  - Supersonic
-  - Sonic Boom
-  - Disable
-  - Acid
-  - Ember
-  - Flamethrower
-  - Mist
-  - Water Gun
-  - Hydro Pump
-  - Surf
-  - Ice Beam
-  - Blizzard
-  - Psybeam
-  - Bubble Beam
-  - Aurora Beam
-  - Hyper Beam
-  - Peck
-  - Drill Peck
-  - Submission
-  - Low Kick
-  - Counter
-  - Seismic Toss
-  - Strength
-  - Absorb
-  - Mega Drain
-  - Leech Seed
-  - Growth
-  - Razor Leaf
-  - Solar Beam
-  - Poison Powder
-  - Stun Spore
-  - Sleep Powder
-  - Petal Dance
-  - String Shot
-  - Dragon Rage
-  - Fire Spin
-  - Thunder Shock
-  - Thunderbolt
-  - Thunder Wave
-  - Thunder
-  - Rock Throw
-  - Earthquake
-  - Fissure
-  - Dig
-  - Toxic
-  - Confusion
-  - Psychic
-  - Hypnosis
-  - Meditate
-  - Agility
-  - Quick Attack
-  - Rage
-  - Teleport
-  - Night Shade
-  - Mimic
-  - Screech
-  - Double Team
-  - Recover
-  - Harden
-  - Minimize
-  - Smokescreen
-  - Confuse Ray
-  - Withdraw
-  - Defense Curl
-  - Barrier
-  - Light Screen
-  - Haze
-  - Reflect
-  - Focus Energy
-  - Bide
-  - Metronome
-  - Mirror Move
-  - Self-Destruct
-  - Egg Bomb
-  - Lick
-  - Smog
-  - Sludge
-  - Bone Club
-  - Fire Blast
-  - Waterfall
-  - Clamp
-  - Swift
-  - Skull Bash
-  - Spike Cannon
-  - Constrict
-  - Amnesia
-  - Kinesis
-  - Soft-Boiled
-  - High Jump Kick
-  - Glare
-  - Dream Eater
-  - Poison Gas
-  - Barrage
-  - Leech Life
-  - Lovely Kiss
-  - Sky Attack
-  - Transform
-  - Bubble
-  - Dizzy Punch
-  - Spore
-  - Flash
-  - Psywave
-  - Splash
-  - Acid Armor
-  - Crabhammer
-  - Explosion
-  - Fury Swipes
-  - Bonemerang
-  - Rest
-  - Rock Slide
-  - Hyper Fang
-  - Sharpen
-  - Conversion
-  - Tri Attack
-  - Super Fang
-  - Slash
-  - Substitute
-  - Struggle
-  - Sketch
-  - Triple Kick
-  - Thief
-  - Spider Web
-  - Mind Reader
-  - Nightmare
-  - Flame Wheel
-  - Snore
-  - Curse
-  - Flail
-  - Conversion 2
-  - Aeroblast
-  - Cotton Spore
-  - Reversal
-  - Spite
-  - Powder Snow
-  - Protect
-  - Mach Punch
-  - Scary Face
-  - Feint Attack
-  - Sweet Kiss
-  - Belly Drum
-  - Sludge Bomb
-  - Mud-Slap
-  - Octazooka
-  - Spikes
-  - Zap Cannon
-  - Foresight
-  - Destiny Bond
-  - Perish Song
-  - Icy Wind
-  - Detect
-  - Bone Rush
-  - Lock-On
-  - Outrage
-  - Sandstorm
-  - Giga Drain
-  - Endure
-  - Charm
-  - Rollout
-  - False Swipe
-  - Swagger
-  - Milk Drink
-  - Spark
-  - Fury Cutter
-  - Steel Wing
-  - Mean Look
-  - Attract
-  - Sleep Talk
-  - Heal Bell
-  - Return
-  - Present
-  - Frustration
-  - Safeguard
-  - Pain Split
-  - Sacred Fire
-  - Magnitude
-  - Dynamic Punch
-  - Megahorn
-  - Dragon Breath
-  - Baton Pass
-  - Encore
-  - Pursuit
-  - Rapid Spin
-  - Sweet Scent
-  - Iron Tail
-  - Metal Claw
-  - Vital Throw
-  - Morning Sun
-  - Synthesis
-  - Moonlight
-  - Hidden Power
-  - Cross Chop
-  - Twister
-  - Rain Dance
-  - Sunny Day
-  - Crunch
-  - Mirror Coat
-  - Psych Up
-  - Extreme Speed
-  - Ancient Power
-  - Shadow Ball
-  - Future Sight
-  - Rock Smash
-  - Whirlpool
-  - Beat Up
+  - (NONE)
+  - POUND
+  - KARATE CHOP
+  - DOUBLE SLAP
+  - COMET PUNCH
+  - MEGA PUNCH
+  - PAY DAY
+  - FIRE PUNCH
+  - ICE PUNCH
+  - THUNDER PUNCH
+  - SCRATCH
+  - VISE GRIP
+  - GUILLOTINE
+  - RAZOR WIND
+  - SWORDS DANCE
+  - CUT
+  - GUST
+  - WING ATTACK
+  - WHIRLWIND
+  - FLY
+  - BIND
+  - SLAM
+  - VINE WHIP
+  - STOMP
+  - DOUBLE KICK
+  - MEGA KICK
+  - JUMP KICK
+  - ROLLING KICK
+  - SAND ATTACK
+  - HEADBUTT
+  - HORN ATTACK
+  - FURY ATTACK
+  - HORN DRILL
+  - TACKLE
+  - BODY SLAM
+  - WRAP
+  - TAKE DOWN
+  - THRASH
+  - DOUBLE-EDGE
+  - TAIL WHIP
+  - POISON STING
+  - TWINEEDLE
+  - PIN MISSILE
+  - LEER
+  - BITE
+  - GROWL
+  - ROAR
+  - SING
+  - SUPERSONIC
+  - SONIC BOOM
+  - DISABLE
+  - ACID
+  - EMBER
+  - FLAMETHROWER
+  - MIST
+  - WATER GUN
+  - HYDRO PUMP
+  - SURF
+  - ICE BEAM
+  - BLIZZARD
+  - PSYBEAM
+  - BUBBLE BEAM
+  - AURORA BEAM
+  - HYPER BEAM
+  - PECK
+  - DRILL PECK
+  - SUBMISSION
+  - LOW KICK
+  - COUNTER
+  - SEISMIC TOSS
+  - STRENGTH
+  - ABSORB
+  - MEGA DRAIN
+  - LEECH SEED
+  - GROWTH
+  - RAZOR LEAF
+  - SOLAR BEAM
+  - POISON POWDER
+  - STUN SPORE
+  - SLEEP POWDER
+  - PETAL DANCE
+  - STRING SHOT
+  - DRAGON RAGE
+  - FIRE SPIN
+  - THUNDER SHOCK
+  - THUNDERBOLT
+  - THUNDER WAVE
+  - THUNDER
+  - ROCK THROW
+  - EARTHQUAKE
+  - FISSURE
+  - DIG
+  - TOXIC
+  - CONFUSION
+  - PSYCHIC
+  - HYPNOSIS
+  - MEDITATE
+  - AGILITY
+  - QUICK ATTACK
+  - RAGE
+  - TELEPORT
+  - NIGHT SHADE
+  - MIMIC
+  - SCREECH
+  - DOUBLE TEAM
+  - RECOVER
+  - HARDEN
+  - MINIMIZE
+  - SMOKESCREEN
+  - CONFUSE RAY
+  - WITHDRAW
+  - DEFENSE CURL
+  - BARRIER
+  - LIGHT SCREEN
+  - HAZE
+  - REFLECT
+  - FOCUS ENERGY
+  - BIDE
+  - METRONOME
+  - MIRROR MOVE
+  - SELF-DESTRUCT
+  - EGG BOMB
+  - LICK
+  - SMOG
+  - SLUDGE
+  - BONE CLUB
+  - FIRE BLAST
+  - WATERFALL
+  - CLAMP
+  - SWIFT
+  - SKULL BASH
+  - SPIKE CANNON
+  - CONSTRICT
+  - AMNESIA
+  - KINESIS
+  - SOFT-BOILED
+  - HIGH JUMP KICK
+  - GLARE
+  - DREAM EATER
+  - POISON GAS
+  - BARRAGE
+  - LEECH LIFE
+  - LOVELY KISS
+  - SKY ATTACK
+  - TRANSFORM
+  - BUBBLE
+  - DIZZY PUNCH
+  - SPORE
+  - FLASH
+  - PSYWAVE
+  - SPLASH
+  - ACID ARMOR
+  - CRABHAMMER
+  - EXPLOSION
+  - FURY SWIPES
+  - BONEMERANG
+  - REST
+  - ROCK SLIDE
+  - HYPER FANG
+  - SHARPEN
+  - CONVERSION
+  - TRI ATTACK
+  - SUPER FANG
+  - SLASH
+  - SUBSTITUTE
+  - STRUGGLE
+  - SKETCH
+  - TRIPLE KICK
+  - THIEF
+  - SPIDER WEB
+  - MIND READER
+  - NIGHTMARE
+  - FLAME WHEEL
+  - SNORE
+  - CURSE
+  - FLAIL
+  - CONVERSION 2
+  - AEROBLAST
+  - COTTON SPORE
+  - REVERSAL
+  - SPITE
+  - POWDER SNOW
+  - PROTECT
+  - MACH PUNCH
+  - SCARY FACE
+  - FEINT ATTACK
+  - SWEET KISS
+  - BELLY DRUM
+  - SLUDGE BOMB
+  - MUD-SLAP
+  - OCTAZOOKA
+  - SPIKES
+  - ZAP CANNON
+  - FORESIGHT
+  - DESTINY BOND
+  - PERISH SONG
+  - ICY WIND
+  - DETECT
+  - BONE RUSH
+  - LOCK-ON
+  - OUTRAGE
+  - SANDSTORM
+  - GIGA DRAIN
+  - ENDURE
+  - CHARM
+  - ROLLOUT
+  - FALSE SWIPE
+  - SWAGGER
+  - MILK DRINK
+  - SPARK
+  - FURY CUTTER
+  - STEEL WING
+  - MEAN LOOK
+  - ATTRACT
+  - SLEEP TALK
+  - HEAL BELL
+  - RETURN
+  - PRESENT
+  - FRUSTRATION
+  - SAFEGUARD
+  - PAIN SPLIT
+  - SACRED FIRE
+  - MAGNITUDE
+  - DYNAMIC PUNCH
+  - MEGAHORN
+  - DRAGON BREATH
+  - BATON PASS
+  - ENCORE
+  - PURSUIT
+  - RAPID SPIN
+  - SWEET SCENT
+  - IRON TAIL
+  - METAL CLAW
+  - VITAL THROW
+  - MORNING SUN
+  - SYNTHESIS
+  - MOONLIGHT
+  - HIDDEN POWER
+  - CROSS CHOP
+  - TWISTER
+  - RAIN DANCE
+  - SUNNY DAY
+  - CRUNCH
+  - MIRROR COAT
+  - PSYCH UP
+  - EXTREME SPEED
+  - ANCIENT POWER
+  - SHADOW BALL
+  - FUTURE SIGHT
+  - ROCK SMASH
+  - WHIRLPOOL
+  - BEAT UP
   prefectures:
     AD-02: Escut Encamp
     AD-03: Massana

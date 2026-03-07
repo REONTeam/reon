@@ -1,454 +1,460 @@
 pokemon:
+  level: :N
+  name: NOMBRE
+  offerer: OFRECE
+  item: OBJETOS
+  trainer: EO
+  wanted: SE BUSCA
   species:
-  - Ningún
-  - Bulbasaur
-  - Ivysaur
-  - Venusaur
-  - Charmander
-  - Charmeleon
-  - Charizard
-  - Squirtle
-  - Wartortle
-  - Blastoise
-  - Caterpie
-  - Metapod
-  - Butterfree
-  - Weedle
-  - Kakuna
-  - Beedrill
-  - Pidgey
-  - Pidgeotto
-  - Pidgeot
-  - Rattata
-  - Raticate
-  - Spearow
-  - Fearow
-  - Ekans
-  - Arbok
-  - Pikachu
-  - Raichu
-  - Sandshrew
-  - Sandslash
-  - Nidoran♀
-  - Nidorina
-  - Nidoqueen
-  - Nidoran♂
-  - Nidorino
-  - Nidoking
-  - Clefairy
-  - Clefable
-  - Vulpix
-  - Ninetales
-  - Jigglypuff
-  - Wigglytuff
-  - Zubat
-  - Golbat
-  - Oddish
-  - Gloom
-  - Vileplume
-  - Paras
-  - Parasect
-  - Venonat
-  - Venomoth
-  - Diglett
-  - Dugtrio
-  - Meowth
-  - Persian
-  - Psyduck
-  - Golduck
-  - Mankey
-  - Primeape
-  - Growlithe
-  - Arcanine
-  - Poliwag
-  - Poliwhirl
-  - Poliwrath
-  - Abra
-  - Kadabra
-  - Alakazam
-  - Machop
-  - Machoke
-  - Machamp
-  - Bellsprout
-  - Weepinbell
-  - Victreebel
-  - Tentacool
-  - Tentacruel
-  - Geodude
-  - Graveler
-  - Golem
-  - Ponyta
-  - Rapidash
-  - Slowpoke
-  - Slowbro
-  - Magnemite
-  - Magneton
-  - Farfetch’d
-  - Doduo
-  - Dodrio
-  - Seel
-  - Dewgong
-  - Grimer
-  - Muk
-  - Shellder
-  - Cloyster
-  - Gastly
-  - Haunter
-  - Gengar
-  - Onix
-  - Drowzee
-  - Hypno
-  - Krabby
-  - Kingler
-  - Voltorb
-  - Electrode
-  - Exeggcute
-  - Exeggutor
-  - Cubone
-  - Marowak
-  - Hitmonlee
-  - Hitmonchan
-  - Lickitung
-  - Koffing
-  - Weezing
-  - Rhyhorn
-  - Rhydon
-  - Chansey
-  - Tangela
-  - Kangaskhan
-  - Horsea
-  - Seadra
-  - Goldeen
-  - Seaking
-  - Staryu
-  - Starmie
-  - Mr. Mime
-  - Scyther
-  - Jynx
-  - Electabuzz
-  - Magmar
-  - Pinsir
-  - Tauros
-  - Magikarp
-  - Gyarados
-  - Lapras
-  - Ditto
-  - Eevee
-  - Vaporeon
-  - Jolteon
-  - Flareon
-  - Porygon
-  - Omanyte
-  - Omastar
-  - Kabuto
-  - Kabutops
-  - Aerodactyl
-  - Snorlax
-  - Articuno
-  - Zapdos
-  - Moltres
-  - Dratini
-  - Dragonair
-  - Dragonite
-  - Mewtwo
-  - Mew
-  - Chikorita
-  - Bayleef
-  - Meganium
-  - Cyndaquil
-  - Quilava
-  - Typhlosion
-  - Totodile
-  - Croconaw
-  - Feraligatr
-  - Sentret
-  - Furret
-  - Hoothoot
-  - Noctowl
-  - Ledyba
-  - Ledian
-  - Spinarak
-  - Ariados
-  - Crobat
-  - Chinchou
-  - Lanturn
-  - Pichu
-  - Cleffa
-  - Igglybuff
-  - Togepi
-  - Togetic
-  - Natu
-  - Xatu
-  - Mareep
-  - Flaaffy
-  - Ampharos
-  - Bellossom
-  - Marill
-  - Azumarill
-  - Sudowoodo
-  - Politoed
-  - Hoppip
-  - Skiploom
-  - Jumpluff
-  - Aipom
-  - Sunkern
-  - Sunflora
-  - Yanma
-  - Wooper
-  - Quagsire
-  - Espeon
-  - Umbreon
-  - Murkrow
-  - Slowking
-  - Misdreavus
-  - Unown
-  - Wobbuffet
-  - Girafarig
-  - Pineco
-  - Forretress
-  - Dunsparce
-  - Gligar
-  - Steelix
-  - Snubbull
-  - Granbull
-  - Qwilfish
-  - Scizor
-  - Shuckle
-  - Heracross
-  - Sneasel
-  - Teddiursa
-  - Ursaring
-  - Slugma
-  - Magcargo
-  - Swinub
-  - Piloswine
-  - Corsola
-  - Remoraid
-  - Octillery
-  - Delibird
-  - Mantine
-  - Skarmory
-  - Houndour
-  - Houndoom
-  - Kingdra
-  - Phanpy
-  - Donphan
-  - Porygon2
-  - Stantler
-  - Smeargle
-  - Tyrogue
-  - Hitmontop
-  - Smoochum
-  - Elekid
-  - Magby
-  - Miltank
-  - Blissey
-  - Raikou
-  - Entei
-  - Suicune
-  - Larvitar
-  - Pupitar
-  - Tyranitar
-  - Lugia
-  - Ho-Oh
-  - Celebi
+  - NINGÚN
+  - BULBASAUR
+  - IVYSAUR
+  - VENUSAUR
+  - CHARMANDER
+  - CHARMELEON
+  - CHARIZARD
+  - SQUIRTLE
+  - WARTORTLE
+  - BLASTOISE
+  - CATERPIE
+  - METAPOD
+  - BUTTERFREE
+  - WEEDLE
+  - KAKUNA
+  - BEEDRILL
+  - PIDGEY
+  - PIDGEOTTO
+  - PIDGEOT
+  - RATTATA
+  - RATICATE
+  - SPEAROW
+  - FEAROW
+  - EKANS
+  - ARBOK
+  - PIKACHU
+  - RAICHU
+  - SANDSHREW
+  - SANDSLASH
+  - NIDORAN♀
+  - NIDORINA
+  - NIDOQUEEN
+  - NIDORAN♂
+  - NIDORINO
+  - NIDOKING
+  - CLEFAIRY
+  - CLEFABLE
+  - VULPIX
+  - NINETALES
+  - JIGGLYPUFF
+  - WIGGLYTUFF
+  - ZUBAT
+  - GOLBAT
+  - ODDISH
+  - GLOOM
+  - VILEPLUME
+  - PARAS
+  - PARASECT
+  - VENONAT
+  - VENOMOTH
+  - DIGLETT
+  - DUGTRIO
+  - MEOWTH
+  - PERSIAN
+  - PSYDUCK
+  - GOLDUCK
+  - MANKEY
+  - PRIMEAPE
+  - GROWLITHE
+  - ARCANINE
+  - POLIWAG
+  - POLIWHIRL
+  - POLIWRATH
+  - ABRA
+  - KADABRA
+  - ALAKAZAM
+  - MACHOP
+  - MACHOKE
+  - MACHAMP
+  - BELLSPROUT
+  - WEEPINBELL
+  - VICTREEBEL
+  - TENTACOOL
+  - TENTACRUEL
+  - GEODUDE
+  - GRAVELER
+  - GOLEM
+  - PONYTA
+  - RAPIDASH
+  - SLOWPOKE
+  - SLOWBRO
+  - MAGNEMITE
+  - MAGNETON
+  - FARFETCH’D
+  - DODUO
+  - DODRIO
+  - SEEL
+  - DEWGONG
+  - GRIMER
+  - MUK
+  - SHELLDER
+  - CLOYSTER
+  - GASTLY
+  - HAUNTER
+  - GENGAR
+  - ONIX
+  - DROWZEE
+  - HYPNO
+  - KRABBY
+  - KINGLER
+  - VOLTORB
+  - ELECTRODE
+  - EXEGGCUTE
+  - EXEGGUTOR
+  - CUBONE
+  - MAROWAK
+  - HITMONLEE
+  - HITMONCHAN
+  - LICKITUNG
+  - KOFFING
+  - WEEZING
+  - RHYHORN
+  - RHYDON
+  - CHANSEY
+  - TANGELA
+  - KANGASKHAN
+  - HORSEA
+  - SEADRA
+  - GOLDEEN
+  - SEAKING
+  - STARYU
+  - STARMIE
+  - MR. MIME
+  - SCYTHER
+  - JYNX
+  - ELECTABUZZ
+  - MAGMAR
+  - PINSIR
+  - TAUROS
+  - MAGIKARP
+  - GYARADOS
+  - LAPRAS
+  - DITTO
+  - EEVEE
+  - VAPOREON
+  - JOLTEON
+  - FLAREON
+  - PORYGON
+  - OMANYTE
+  - OMASTAR
+  - KABUTO
+  - KABUTOPS
+  - AERODACTYL
+  - SNORLAX
+  - ARTICUNO
+  - ZAPDOS
+  - MOLTRES
+  - DRATINI
+  - DRAGONAIR
+  - DRAGONITE
+  - MEWTWO
+  - MEW
+  - CHIKORITA
+  - BAYLEEF
+  - MEGANIUM
+  - CYNDAQUIL
+  - QUILAVA
+  - TYPHLOSION
+  - TOTODILE
+  - CROCONAW
+  - FERALIGATR
+  - SENTRET
+  - FURRET
+  - HOOTHOOT
+  - NOCTOWL
+  - LEDYBA
+  - LEDIAN
+  - SPINARAK
+  - ARIADOS
+  - CROBAT
+  - CHINCHOU
+  - LANTURN
+  - PICHU
+  - CLEFFA
+  - IGGLYBUFF
+  - TOGEPI
+  - TOGETIC
+  - NATU
+  - XATU
+  - MAREEP
+  - FLAAFFY
+  - AMPHAROS
+  - BELLOSSOM
+  - MARILL
+  - AZUMARILL
+  - SUDOWOODO
+  - POLITOED
+  - HOPPIP
+  - SKIPLOOM
+  - JUMPLUFF
+  - AIPOM
+  - SUNKERN
+  - SUNFLORA
+  - YANMA
+  - WOOPER
+  - QUAGSIRE
+  - ESPEON
+  - UMBREON
+  - MURKROW
+  - SLOWKING
+  - MISDREAVUS
+  - UNOWN
+  - WOBBUFFET
+  - GIRAFARIG
+  - PINECO
+  - FORRETRESS
+  - DUNSPARCE
+  - GLIGAR
+  - STEELIX
+  - SNUBBULL
+  - GRANBULL
+  - QWILFISH
+  - SCIZOR
+  - SHUCKLE
+  - HERACROSS
+  - SNEASEL
+  - TEDDIURSA
+  - URSARING
+  - SLUGMA
+  - MAGCARGO
+  - SWINUB
+  - PILOSWINE
+  - CORSOLA
+  - REMORAID
+  - OCTILLERY
+  - DELIBIRD
+  - MANTINE
+  - SKARMORY
+  - HOUNDOUR
+  - HOUNDOOM
+  - KINGDRA
+  - PHANPY
+  - DONPHAN
+  - PORYGON2
+  - STANTLER
+  - SMEARGLE
+  - TYROGUE
+  - HITMONTOP
+  - SMOOCHUM
+  - ELEKID
+  - MAGBY
+  - MILTANK
+  - BLISSEY
+  - RAIKOU
+  - ENTEI
+  - SUICUNE
+  - LARVITAR
+  - PUPITAR
+  - TYRANITAR
+  - LUGIA
+  - HO-OH
+  - CELEBI
   items:
-  - Ningún
-  - Master Ball
-  - Ultra Ball
-  - Polvo brillo
-  - Super Ball
-  - Poké Ball
-  - Teru-sama (0)
-  - Bicicleta
-  - Piedra Lunar
-  - Antídoto
-  - Antiquemar
-  - Antihielo
-  - Despertar
-  - Antiparalizador
-  - Restaurar Todo
-  - Poción Máxima
-  - Hiperpoción
-  - Superpoción
-  - Poción
-  - Cuerda Huida
-  - Repelente
-  - Elixir Máximo
-  - Piedra Fuego
-  - Piedra Trueno
-  - Piedra Agua
-  - Teru-sama (1)
-  - Más PS
-  - Proteína
-  - Hierro
-  - Carburante
-  - Puño suerte
-  - Calcio
-  - Caramelo Raro
-  - Precisión X
-  - Piedra Hoja
-  - Polvo metálico
-  - Pepita
-  - Poké Muñeco
-  - Cura Total
-  - Revivir
-  - Revivir Máximo
-  - Protec. Especial
-  - Superrepelente
-  - Repelente Máximo
-  - Directo
-  - Teru-sama (2)
-  - Agua Fresca
-  - Refresco
-  - Limonada
-  - Ataque X
-  - Teru-sama (3)
-  - Defensa X
-  - Velocidad X
-  - Especial X
-  - Monedero
-  - Buscaobjetos
-  - Teru-sama (4)
-  - Repartir Exp
-  - Caña Vieja
-  - Caña Buena
-  - Hoja plata
-  - Supercaña
-  - Más PP
-  - Éter
-  - Éter Máximo
-  - Elixir
-  - Escama roja
-  - Poción secreta
-  - Ticket barco
-  - Huevo misterioso
-  - Campana clara
-  - Ala plateada
-  - Leche Mu-mu
-  - Garra Rápida
-  - Bayantídoto
-  - Hoja oro
-  - Arena Fina
-  - Pico Afilado
-  - Antiparabaya
-  - Antiquembaya
-  - Baya Hielo
-  - Flecha venenosa
-  - Roca del Rey
-  - Bayamarga
-  - Baya Menta
-  - Bonguri rojo
-  - Mini Seta
-  - Seta Grande
-  - Polvo Plata
-  - Bonguri azul
-  - Teru-sama (5)
-  - Moneda Amuleto
-  - Bonguri amarillo
-  - Bonguri verde
-  - Amuleto
-  - Agua Mística
-  - Cuchara Torcida
-  - Bonguri blanco
-  - Cinturón Negro
-  - Bonguri negro
-  - Teru-sama (6)
-  - Bonguri rosa
-  - Gafas de Sol
-  - Cola Slowpoke
-  - Lazo rosa
-  - Palo
-  - Bola humo
-  - Antiderretir
-  - Imán
-  - Baya Milagro
-  - Perla
-  - Perla Grande
-  - Piedra Eterna
-  - Hechizo
-  - Caramelo furia
-  - GS Ball
-  - Tarjeta azul
-  - Semilla milagro
-  - Hueso grueso
-  - Cinta Focus
-  - Teru-sama (7)
-  - Polvo Energía
-  - Raíz Energía
-  - Polvo Curación
-  - Hierba Revivir
-  - Piedra dura
-  - Huevo Suerte
-  - Llave magnética
-  - Maquinaria
-  - Ticket huevo
-  - Objeto perdido
-  - Polvoestelar
-  - Trozo Estrella
-  - Llave sótano
-  - Pase del tren
-  - Teru-sama (8)
-  - Teru-sama (9)
-  - Teru-sama (10)
-  - Carbón
-  - Zumo de Baya
-  - Periscopio
-  - Teru-sama (11)
-  - Teru-sama (12)
-  - Revest. Metálico
-  - Colmillo Dragón
-  - Teru-sama (13)
-  - Restos
-  - Teru-sama (14)
-  - Teru-sama (15)
-  - Teru-sama (16)
-  - Baya Misterio
-  - Escamadragón
-  - Gen loco
-  - Teru-sama (17)
-  - Teru-sama (18)
-  - Teru-sama (19)
-  - Ceniza Sagrada
-  - Peso Ball
-  - Carta flor
-  - Nivel Ball
-  - Cebo Ball
-  - Rapid Ball
-  - Teru-sama (20)
-  - Bolaluminosa
-  - Amigo Ball
-  - Luna Ball
-  - Amor Ball
-  - Caja Normal
-  - Caja Grande
-  - Piedra Solar
-  - Cinta lunares
-  - Teru-sama (21)
-  - Mejora
-  - Baya
-  - Baya Dorada
-  - Regadera
-  - Teru-sama (22)
-  - Parque Ball
-  - Ala arcoíris
-  - Teru-sama (23)
-  - Ladrillo
-  - Carta surf
-  - Carta azul
-  - Carta retrato
-  - Carta amor
-  - Carta eón
-  - Carta morfosis
-  - Carta celeste
-  - Carta música
-  - Carta espejismo
-  - Teru-sama (24)
+  - NINGÚN
+  - MASTER BALL
+  - ULTRA BALL
+  - POLVO BRILLO
+  - SUPER BALL
+  - POKÉ BALL
+  - TERU-SAMA (0)
+  - BICICLETA
+  - PIEDRA LUNAR
+  - ANTÍDOTO
+  - ANTIQUEMAR
+  - ANTIHIELO
+  - DESPERTAR
+  - ANTIPARALIZADOR
+  - RESTAURAR TODO
+  - POCIÓN MÁXIMA
+  - HIPERPOCIÓN
+  - SUPERPOCIÓN
+  - POCIÓN
+  - CUERDA HUIDA
+  - REPELENTE
+  - ELIXIR MÁXIMO
+  - PIEDRA FUEGO
+  - PIEDRA TRUENO
+  - PIEDRA AGUA
+  - TERU-SAMA (1)
+  - MÁS PS
+  - PROTEÍNA
+  - HIERRO
+  - CARBURANTE
+  - PUÑO SUERTE
+  - CALCIO
+  - CARAMELO RARO
+  - PRECISIÓN X
+  - PIEDRA HOJA
+  - POLVO METÁLICO
+  - PEPITA
+  - POKÉ MUÑECO
+  - CURA TOTAL
+  - REVIVIR
+  - REVIVIR MÁXIMO
+  - PROTEC. ESPECIAL
+  - SUPERREPELENTE
+  - REPELENTE MÁXIMO
+  - DIRECTO
+  - TERU-SAMA (2)
+  - AGUA FRESCA
+  - REFRESCO
+  - LIMONADA
+  - ATAQUE X
+  - TERU-SAMA (3)
+  - DEFENSA X
+  - VELOCIDAD X
+  - ESPECIAL X
+  - MONEDERO
+  - BUSCAOBJETOS
+  - TERU-SAMA (4)
+  - REPARTIR EXP
+  - CAÑA VIEJA
+  - CAÑA BUENA
+  - HOJA PLATA
+  - SUPERCAÑA
+  - MÁS PP
+  - ÉTER
+  - ÉTER MÁXIMO
+  - ELIXIR
+  - ESCAMA ROJA
+  - POCIÓN SECRETA
+  - TICKET BARCO
+  - HUEVO MISTERIOSO
+  - CAMPANA CLARA
+  - ALA PLATEADA
+  - LECHE MU-MU
+  - GARRA RÁPIDA
+  - BAYANTÍDOTO
+  - HOJA ORO
+  - ARENA FINA
+  - PICO AFILADO
+  - ANTIPARABAYA
+  - ANTIQUEMBAYA
+  - BAYA HIELO
+  - FLECHA VENENOSA
+  - ROCA DEL REY
+  - BAYAMARGA
+  - BAYA MENTA
+  - BONGURI ROJO
+  - MINI SETA
+  - SETA GRANDE
+  - POLVO PLATA
+  - BONGURI AZUL
+  - TERU-SAMA (5)
+  - MONEDA AMULETO
+  - BONGURI AMARILLO
+  - BONGURI VERDE
+  - AMULETO
+  - AGUA MÍSTICA
+  - CUCHARA TORCIDA
+  - BONGURI BLANCO
+  - CINTURÓN NEGRO
+  - BONGURI NEGRO
+  - TERU-SAMA (6)
+  - BONGURI ROSA
+  - GAFAS DE SOL
+  - COLA SLOWPOKE
+  - LAZO ROSA
+  - PALO
+  - BOLA HUMO
+  - ANTIDERRETIR
+  - IMÁN
+  - BAYA MILAGRO
+  - PERLA
+  - PERLA GRANDE
+  - PIEDRA ETERNA
+  - HECHIZO
+  - CARAMELO FURIA
+  - GS BALL
+  - TARJETA AZUL
+  - SEMILLA MILAGRO
+  - HUESO GRUESO
+  - CINTA FOCUS
+  - TERU-SAMA (7)
+  - POLVO ENERGÍA
+  - RAÍZ ENERGÍA
+  - POLVO CURACIÓN
+  - HIERBA REVIVIR
+  - PIEDRA DURA
+  - HUEVO SUERTE
+  - LLAVE MAGNÉTICA
+  - MAQUINARIA
+  - TICKET HUEVO
+  - OBJETO PERDIDO
+  - POLVOESTELAR
+  - TROZO ESTRELLA
+  - LLAVE SÓTANO
+  - PASE DEL TREN
+  - TERU-SAMA (8)
+  - TERU-SAMA (9)
+  - TERU-SAMA (10)
+  - CARBÓN
+  - ZUMO DE BAYA
+  - PERISCOPIO
+  - TERU-SAMA (11)
+  - TERU-SAMA (12)
+  - REVEST. METÁLICO
+  - COLMILLO DRAGÓN
+  - TERU-SAMA (13)
+  - RESTOS
+  - TERU-SAMA (14)
+  - TERU-SAMA (15)
+  - TERU-SAMA (16)
+  - BAYA MISTERIO
+  - ESCAMADRAGÓN
+  - GEN LOCO
+  - TERU-SAMA (17)
+  - TERU-SAMA (18)
+  - TERU-SAMA (19)
+  - CENIZA SAGRADA
+  - PESO BALL
+  - CARTA FLOR
+  - NIVEL BALL
+  - CEBO BALL
+  - RAPID BALL
+  - TERU-SAMA (20)
+  - BOLALUMINOSA
+  - AMIGO BALL
+  - LUNA BALL
+  - AMOR BALL
+  - CAJA NORMAL
+  - CAJA GRANDE
+  - PIEDRA SOLAR
+  - CINTA LUNARES
+  - TERU-SAMA (21)
+  - MEJORA
+  - BAYA
+  - BAYA DORADA
+  - REGADERA
+  - TERU-SAMA (22)
+  - PARQUE BALL
+  - ALA ARCOÍRIS
+  - TERU-SAMA (23)
+  - LADRILLO
+  - CARTA SURF
+  - CARTA AZUL
+  - CARTA RETRATO
+  - CARTA AMOR
+  - CARTA EÓN
+  - CARTA MORFOSIS
+  - CARTA CELESTE
+  - CARTA MÚSICA
+  - CARTA ESPEJISMO
+  - TERU-SAMA (24)
   - MT01
   - MT02
   - MT03
   - MT04
-  - MT04 (Sin uso)
+  - MT04 (SIN USO)
   - MT05
   - MT06
   - MT07
@@ -473,7 +479,7 @@ pokemon:
   - MT26
   - MT27
   - MT28
-  - MT28 (Sin uso)
+  - MT28 (SIN USO)
   - MT29
   - MT30
   - MT31
@@ -503,264 +509,264 @@ pokemon:
   - MO05
   - MO06
   - MO07
-  - MO08 (Sin uso)
-  - MO09 (Sin uso)
-  - MO10 (Sin uso)
-  - MO11 (Sin uso)
-  - MO12 (Sin uso)
+  - MO08 (SIN USO)
+  - MO09 (SIN USO)
+  - MO10 (SIN USO)
+  - MO11 (SIN USO)
+  - MO12 (SIN USO)
   moves:
-  - Ningún
-  - Destructor
-  - Golpe Kárate
-  - Doble Bofetón
-  - Puño Cometa
-  - Megapuño
-  - Día de Pago
-  - Puño Fuego
-  - Puño Hielo
-  - Puño Trueno
-  - Arañazo
-  - Agarre
-  - Guillotina
-  - Viento Cortante
-  - Danza Espada
-  - Corte
-  - Tornado
-  - Ataque Ala
-  - Remolino
-  - Vuelo
-  - Atadura
-  - Atizar
-  - Látigo Cepa
-  - Pisotón
-  - Doble Patada
-  - Megapatada
-  - Patada Salto
-  - Patada Giro
-  - Ataque Arena
-  - Golpe Cabeza
-  - Cornada
-  - Ataque Furia
-  - Perforador
-  - Placaje
-  - Golpe Cuerpo
-  - Constricción
-  - Derribo
-  - Saña
-  - Doble Filo
-  - Látigo
-  - Picotazo Veneno
-  - Doble Ataque
-  - Pin Misil
-  - Malicioso
-  - Mordisco
-  - Gruñido
-  - Rugido
-  - Canto
-  - Supersónico
-  - Bomba Sónica
-  - Anulación
-  - Ácido
-  - Ascuas
-  - Lanzallamas
-  - Neblina
-  - Pistola Agua
-  - Hidrobomba
-  - Surf
-  - Rayo Hielo
-  - Ventisca
-  - Psicorrayo
-  - Rayo Burbuja
-  - Rayo Aurora
-  - Hiperrayo
-  - Picotazo
-  - Pico Taladro
-  - Sumisión
-  - Patada Baja
-  - Contraataque
-  - Sísmico
-  - Fuerza
-  - Absorber
-  - Megaagotar
-  - Drenadoras
-  - Desarrollo
-  - Hoja Afilada
-  - Rayo Solar
-  - Polvo Veneno
-  - Paralizador
-  - Somnífero
-  - Danza Pétalo
-  - Disparo Demora
-  - Furia Dragón
-  - Giro Fuego
-  - Impactrueno
-  - Rayo
-  - Onda Trueno
-  - Trueno
-  - Lanzarrocas
-  - Terremoto
-  - Fisura
-  - Excavar
-  - Tóxico
-  - Confusión
-  - Psíquico
-  - Hipnosis
-  - Meditación
-  - Agilidad
-  - Ataque Rápido
-  - Furia
-  - Teletransporte
-  - Tinieblas
-  - Mimético
-  - Chirrido
-  - Doble Equipo
-  - Recuperación
-  - Fortaleza
-  - Reducción
-  - Pantalla de Humo
-  - Rayo Confuso
-  - Refugio
-  - Rizo Defensa
-  - Barrera
-  - Pantalla de Luz
-  - Niebla
-  - Reflejo
-  - Foco Energía
-  - Venganza
-  - Metrónomo
-  - Espejo
-  - Autodestrucción
-  - Bomba Huevo
-  - Lengüetazo
-  - Polución
-  - Residuos
-  - Hueso Palo
-  - Llamarada
-  - Cascada
-  - Tenaza
-  - Meteoros
-  - Cabezazo
-  - Clavo Cañón
-  - Restricción
-  - Amnesia
-  - Kinético
-  - Ovocuración
-  - Pat. Salto Alta
-  - Deslumbrar
-  - Comesueños
-  - Gas Venenoso
-  - Bombardeo
-  - Chupavidas
-  - Beso Amoroso
-  - Ataque Aéreo
-  - Transformación
-  - Burbuja
-  - Puño Mareo
-  - Espora
-  - Destello
-  - Psicoonda
-  - Salpicadura
-  - Armadura Ácida
-  - Martillazo
-  - Explosión
-  - Golpes Furia
-  - Huesomerang
-  - Descanso
-  - Avalancha
-  - Hipercolmillo
-  - Afilar
-  - Conversión
-  - Triataque
-  - Superdiente
-  - Cuchillada
-  - Sustituto
-  - Forcejeo
-  - Esquema
-  - Triple Patada
-  - Ladrón
-  - Telaraña
-  - Telépata
-  - Pesadilla
-  - Rueda Fuego
-  - Ronquido
-  - Maldición
-  - Azote
-  - Conversión2
-  - Aerochorro
-  - Esporagodón
-  - Inversión
-  - Rencor
-  - Nieve Polvo
-  - Protección
-  - Ultrapuño
-  - Cara Susto
-  - Finta
-  - Beso Dulce
-  - Tambor
-  - Bomba Lodo
-  - Bofetón Lodo
-  - Pulpocañón
-  - Púas
-  - Electrocañón
-  - Profecía
-  - Mismo Destino
-  - Canto Mortal
-  - Viento Hielo
-  - Detección
-  - Ataque Óseo
-  - Fijar Blanco
-  - Enfado
-  - Tormenta Arena
-  - Gigadrenado
-  - Aguante
-  - Encanto
-  - Rodar
-  - Falso Tortazo
-  - Contoneo
-  - Batido
-  - Chispa
-  - Corte Furia
-  - Ala de Acero
-  - Mal de Ojo
-  - Atracción
-  - Sonámbulo
-  - Cascabel Cura
-  - Retribución
-  - Presente
-  - Frustración
-  - Velo Sagrado
-  - Divide Dolor
-  - Fuego Sagrado
-  - Magnitud
-  - Puño Dinámico
-  - Megacuerno
-  - Dragoaliento
-  - Relevo
-  - Otra Vez
-  - Persecución
-  - Giro Rápido
-  - Dulce Aroma
-  - Cola Férrea
-  - Garra Metal
-  - Llave Vital
-  - Sol Matinal
-  - Síntesis
-  - Luz Lunar
-  - Poder Oculto
-  - Tajo Cruzado
-  - Ciclón
-  - Danza Lluvia
-  - Día Soleado
-  - Triturar
-  - Manto Espejo
-  - Autosugestión
-  - Veloc. Extrema
-  - Poder Pasado
-  - Bola Sombra
-  - Premonición
-  - Golpe Roca
-  - Torbellino
-  - Paliza
+  - NINGÚN
+  - DESTRUCTOR
+  - GOLPE KÁRATE
+  - DOBLE BOFETÓN
+  - PUÑO COMETA
+  - MEGAPUÑO
+  - DÍA DE PAGO
+  - PUÑO FUEGO
+  - PUÑO HIELO
+  - PUÑO TRUENO
+  - ARAÑAZO
+  - AGARRE
+  - GUILLOTINA
+  - VIENTO CORTANTE
+  - DANZA ESPADA
+  - CORTE
+  - TORNADO
+  - ATAQUE ALA
+  - REMOLINO
+  - VUELO
+  - ATADURA
+  - ATIZAR
+  - LÁTIGO CEPA
+  - PISOTÓN
+  - DOBLE PATADA
+  - MEGAPATADA
+  - PATADA SALTO
+  - PATADA GIRO
+  - ATAQUE ARENA
+  - GOLPE CABEZA
+  - CORNADA
+  - ATAQUE FURIA
+  - PERFORADOR
+  - PLACAJE
+  - GOLPE CUERPO
+  - CONSTRICCIÓN
+  - DERRIBO
+  - SAÑA
+  - DOBLE FILO
+  - LÁTIGO
+  - PICOTAZO VENENO
+  - DOBLE ATAQUE
+  - PIN MISIL
+  - MALICIOSO
+  - MORDISCO
+  - GRUÑIDO
+  - RUGIDO
+  - CANTO
+  - SUPERSÓNICO
+  - BOMBA SÓNICA
+  - ANULACIÓN
+  - ÁCIDO
+  - ASCUAS
+  - LANZALLAMAS
+  - NEBLINA
+  - PISTOLA AGUA
+  - HIDROBOMBA
+  - SURF
+  - RAYO HIELO
+  - VENTISCA
+  - PSICORRAYO
+  - RAYO BURBUJA
+  - RAYO AURORA
+  - HIPERRAYO
+  - PICOTAZO
+  - PICO TALADRO
+  - SUMISIÓN
+  - PATADA BAJA
+  - CONTRAATAQUE
+  - SÍSMICO
+  - FUERZA
+  - ABSORBER
+  - MEGAAGOTAR
+  - DRENADORAS
+  - DESARROLLO
+  - HOJA AFILADA
+  - RAYO SOLAR
+  - POLVO VENENO
+  - PARALIZADOR
+  - SOMNÍFERO
+  - DANZA PÉTALO
+  - DISPARO DEMORA
+  - FURIA DRAGÓN
+  - GIRO FUEGO
+  - IMPACTRUENO
+  - RAYO
+  - ONDA TRUENO
+  - TRUENO
+  - LANZARROCAS
+  - TERREMOTO
+  - FISURA
+  - EXCAVAR
+  - TÓXICO
+  - CONFUSIÓN
+  - PSÍQUICO
+  - HIPNOSIS
+  - MEDITACIÓN
+  - AGILIDAD
+  - ATAQUE RÁPIDO
+  - FURIA
+  - TELETRANSPORTE
+  - TINIEBLAS
+  - MIMÉTICO
+  - CHIRRIDO
+  - DOBLE EQUIPO
+  - RECUPERACIÓN
+  - FORTALEZA
+  - REDUCCIÓN
+  - PANTALLA DE HUMO
+  - RAYO CONFUSO
+  - REFUGIO
+  - RIZO DEFENSA
+  - BARRERA
+  - PANTALLA DE LUZ
+  - NIEBLA
+  - REFLEJO
+  - FOCO ENERGÍA
+  - VENGANZA
+  - METRÓNOMO
+  - ESPEJO
+  - AUTODESTRUCCIÓN
+  - BOMBA HUEVO
+  - LENGÜETAZO
+  - POLUCIÓN
+  - RESIDUOS
+  - HUESO PALO
+  - LLAMARADA
+  - CASCADA
+  - TENAZA
+  - METEOROS
+  - CABEZAZO
+  - CLAVO CAÑÓN
+  - RESTRICCIÓN
+  - AMNESIA
+  - KINÉTICO
+  - OVOCURACIÓN
+  - PAT. SALTO ALTA
+  - DESLUMBRAR
+  - COMESUEÑOS
+  - GAS VENENOSO
+  - BOMBARDEO
+  - CHUPAVIDAS
+  - BESO AMOROSO
+  - ATAQUE AÉREO
+  - TRANSFORMACIÓN
+  - BURBUJA
+  - PUÑO MAREO
+  - ESPORA
+  - DESTELLO
+  - PSICOONDA
+  - SALPICADURA
+  - ARMADURA ÁCIDA
+  - MARTILLAZO
+  - EXPLOSIÓN
+  - GOLPES FURIA
+  - HUESOMERANG
+  - DESCANSO
+  - AVALANCHA
+  - HIPERCOLMILLO
+  - AFILAR
+  - CONVERSIÓN
+  - TRIATAQUE
+  - SUPERDIENTE
+  - CUCHILLADA
+  - SUSTITUTO
+  - FORCEJEO
+  - ESQUEMA
+  - TRIPLE PATADA
+  - LADRÓN
+  - TELARAÑA
+  - TELÉPATA
+  - PESADILLA
+  - RUEDA FUEGO
+  - RONQUIDO
+  - MALDICIÓN
+  - AZOTE
+  - CONVERSIÓN2
+  - AEROCHORRO
+  - ESPORAGODÓN
+  - INVERSIÓN
+  - RENCOR
+  - NIEVE POLVO
+  - PROTECCIÓN
+  - ULTRAPUÑO
+  - CARA SUSTO
+  - FINTA
+  - BESO DULCE
+  - TAMBOR
+  - BOMBA LODO
+  - BOFETÓN LODO
+  - PULPOCAÑÓN
+  - PÚAS
+  - ELECTROCAÑÓN
+  - PROFECÍA
+  - MISMO DESTINO
+  - CANTO MORTAL
+  - VIENTO HIELO
+  - DETECCIÓN
+  - ATAQUE ÓSEO
+  - FIJAR BLANCO
+  - ENFADO
+  - TORMENTA ARENA
+  - GIGADRENADO
+  - AGUANTE
+  - ENCANTO
+  - RODAR
+  - FALSO TORTAZO
+  - CONTONEO
+  - BATIDO
+  - CHISPA
+  - CORTE FURIA
+  - ALA DE ACERO
+  - MAL DE OJO
+  - ATRACCIÓN
+  - SONÁMBULO
+  - CASCABEL CURA
+  - RETRIBUCIÓN
+  - PRESENTE
+  - FRUSTRACIÓN
+  - VELO SAGRADO
+  - DIVIDE DOLOR
+  - FUEGO SAGRADO
+  - MAGNITUD
+  - PUÑO DINÁMICO
+  - MEGACUERNO
+  - DRAGOALIENTO
+  - RELEVO
+  - OTRA VEZ
+  - PERSECUCIÓN
+  - GIRO RÁPIDO
+  - DULCE AROMA
+  - COLA FÉRREA
+  - GARRA METAL
+  - LLAVE VITAL
+  - SOL MATINAL
+  - SÍNTESIS
+  - LUZ LUNAR
+  - PODER OCULTO
+  - TAJO CRUZADO
+  - CICLÓN
+  - DANZA LLUVIA
+  - DÍA SOLEADO
+  - TRITURAR
+  - MANTO ESPEJO
+  - AUTOSUGESTIÓN
+  - VELOC. EXTREMA
+  - PODER PASADO
+  - BOLA SOMBRA
+  - PREMONICIÓN
+  - GOLPE ROCA
+  - TORBELLINO
+  - PALIZA
 account:
   pokemon-news-custom-opt-in: 'Pokémon Noticias: Preferencias de noticias'
   pokemon-news-custom-opt-in-blurb: Cuando está activado, las descargas de Pokémon Noticias pueden usar contenido de
