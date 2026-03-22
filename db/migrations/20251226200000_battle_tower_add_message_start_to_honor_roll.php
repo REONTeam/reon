@@ -117,8 +117,18 @@ final class BattleTowerAddMessageStartToHonorRoll extends AbstractMigration
                     'decimal','numeric','float','double','real',
                     'bit','bool','boolean',
                 ];
+                $defaultlessTypes = [
+                    'binary','varbinary',
+                    'tinyblob','blob','mediumblob','longblob',
+                    'tinytext','text','mediumtext','longtext',
+                    'json','geometry','point','linestring','polygon',
+                    'multipoint','multilinestring','multipolygon','geometrycollection',
+                ];
 
-                if (in_array($dataType, $numericTypes, true)) {
+                if (in_array($dataType, $defaultlessTypes, true)) {
+                    // Older MySQL/MariaDB variants reject explicit defaults for binary/blob/text/json columns.
+                    // Rebuilding the column for position changes must therefore omit DEFAULT entirely.
+                } elseif (in_array($dataType, $numericTypes, true)) {
                     $sql .= " DEFAULT {$defaultStr}";
                 } else {
                     $sql .= " DEFAULT " . $pdo->quote($defaultStr);
