@@ -1,0 +1,31 @@
+{
+  "feature_availability": {
+    "bxt_config_path": "web/cgb/pokemon/bxt_config.php",
+    "windows": [
+      {
+        "id": "trade_corner_december_news_holiday",
+        "feature": "trade_corner",
+        "start": "12-14 00:00:00",
+        "end": "01-01 00:00:00",
+        "slot": 6,
+        "attach_to": "news"
+      },
+      {
+        "id": "pokemon_news_december_news_holiday",
+        "feature": "pokemon_news",
+        "start": "12-14 00:00:00",
+        "end": "01-01 00:00:00",
+        "slot": 6,
+        "attach_to": "news"
+      },
+      {
+        "id": "battle_tower_december_news_holiday",
+        "feature": "battle_tower",
+        "start": "12-14 00:00:00",
+        "end": "01-01 00:00:00",
+        "slot": 6,
+        "attach_to": "news"
+      }
+    ]
+  }
+}

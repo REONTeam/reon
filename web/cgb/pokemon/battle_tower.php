@@ -6,6 +6,23 @@ require_once(CORE_PATH."/pokemon/battle_tower_trainers.php");
 require_once(CORE_PATH."/pokemon/bxt_config.php");
 require_once(__DIR__ . "/../../scripts/bxt_name_conversion.php");
 
+function bxt_battle_tower_is_enabled() {
+    if (function_exists('bxt_get_config_array')) {
+        $cfg = bxt_get_config_array();
+        if (isset($cfg['battle_tower_enabled'])) {
+            return (bool)$cfg['battle_tower_enabled'];
+        }
+    }
+    return true;
+}
+
+function bxt_battle_tower_require_enabled() {
+    if (!bxt_battle_tower_is_enabled()) {
+        http_response_code(503);
+        exit('Battle Tower is currently disabled.');
+    }
+}
+
 
 /**
  * Apply default species nickname for a Pokémon blob for the given download region.
@@ -13,6 +30,7 @@ require_once(__DIR__ . "/../../scripts/bxt_name_conversion.php");
  * may not be directly compatible.
  */
 function battleTowerGetRoomCount($region = null) {
+    bxt_battle_tower_require_enabled();
     // Number of rooms per level (1–20).
     $num_rooms_per_level = 20;
 
@@ -32,6 +50,7 @@ function battleTowerGetRoomCount($region = null) {
  * Build one room: 7 trainers → encoded binary room blob.
  */
 function battleTowerGetRoom($region, $roomNo) {
+    bxt_battle_tower_require_enabled();
     $region = strtolower($region);
 
     $room  = roomNoToRoom($roomNo);
@@ -270,6 +289,7 @@ if ($numRecords === 0) {
  * Leaders list: 30 max leader names per room/level.
  */
 function battleTowerGetLeaders($region, $roomNo, $bxte = false) {
+    bxt_battle_tower_require_enabled();
     $room  = roomNoToRoom($roomNo);
     $level = roomNoToLevel($roomNo);
 
@@ -317,6 +337,7 @@ function battleTowerGetLeaders($region, $roomNo, $bxte = false) {
  * Raw record insertion. Uses decodeBattleTowerRecord() directly.
  */
 function battleTowerSubmitRecord($inputStream, $bxte = false) {
+    bxt_battle_tower_require_enabled();
 $data = decodeBattleTowerRecord($inputStream, $bxte);
 if (!is_array($data)) {
     error_log('BXT_DEBUG_BT_SUBMIT: decodeBattleTowerRecord returned non-array account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none'));

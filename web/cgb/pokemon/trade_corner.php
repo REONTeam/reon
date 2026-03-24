@@ -10,6 +10,23 @@ require_once(CORE_PATH . "/pokemon/bxt_config.php");
 require_once(__DIR__ . '/../../scripts/bxt_legality_check.php');
 require_once(__DIR__ . "/../../scripts/bxt_legality_policy.php");
 
+function bxt_trade_corner_is_enabled() {
+    if (function_exists('bxt_get_config_array')) {
+        $cfg = bxt_get_config_array();
+        if (isset($cfg['trade_corner_enabled'])) {
+            return (bool)$cfg['trade_corner_enabled'];
+        }
+    }
+    return true;
+}
+
+function bxt_trade_corner_require_enabled() {
+    if (!bxt_trade_corner_is_enabled()) {
+        http_response_code(503);
+        exit('Trade Corner is currently disabled.');
+    }
+}
+
 /**
  * Handle Trade Corner entry upload.
  * - Decodes the binary blob from the CGB client.
@@ -18,6 +35,8 @@ require_once(__DIR__ . "/../../scripts/bxt_legality_policy.php");
  */
 function process_trade_request($region, $request_data) {
     $region = strtolower($region);
+
+    bxt_trade_corner_require_enabled();
 
     error_log('BXT_DEBUG process_trade_request: entry account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' region=' . $region . ' raw_len=' . strlen($request_data));
 
@@ -190,13 +209,7 @@ $db = connectMySQL(); // Connect to DION Database
 function process_cancel_request($region, $request_data) {
     $region = strtolower($region);
 
-    if (function_exists('bxt_get_config_array')) {
-        $cfg = bxt_get_config_array();
-        if (isset($cfg['trade_corner_enabled']) && !$cfg['trade_corner_enabled']) {
-            http_response_code(503);
-            exit('Trade Corner is currently disabled.');
-        }
-    }
+    bxt_trade_corner_require_enabled();
 
     error_log('BXT_DEBUG process_cancel_request: entry account_id=' . (isset($_SESSION['userId']) ? $_SESSION['userId'] : 'none') . ' region=' . $region . ' raw_len=' . strlen($request_data));
 
@@ -290,11 +303,8 @@ function tradeCornerListOffers(string $region, int $limit = 100): array
     $region = strtolower($region);
 
     // Respect the global feature toggle and allowed regions for this feature.
-    if (function_exists('bxt_get_config_array')) {
-        $cfg = bxt_get_config_array();
-        if (isset($cfg['trade_corner_enabled']) && !$cfg['trade_corner_enabled']) {
-            return [];
-        }
+    if (!bxt_trade_corner_is_enabled()) {
+        return [];
     }
     $db = connectMySQL();
 

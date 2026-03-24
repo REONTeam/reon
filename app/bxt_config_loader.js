@@ -9,6 +9,8 @@ const path = require("path");
  *
  *   - trade_corner_enabled
  *   - battle_tower_enabled
+ *   - news_distribution_enabled
+ *   - news_ranking_enabled
  *   - feature_allowed_regions.trade
  *   - feature_allowed_regions.battle_tower
  *   - region_groups.trade_corner
@@ -50,6 +52,8 @@ function loadBxtConfig(bxtConfigPath) {
         return {
             trade_corner_enabled: true,
             battle_tower_enabled: true,
+            news_distribution_enabled: true,
+            news_ranking_enabled: true,
             feature_allowed_regions: {
                 trade: ["e","f","d","s","i","j","p","u"],
                 battle_tower: ["e","f","d","s","i","j","p","u"],
@@ -65,16 +69,24 @@ function loadBxtConfig(bxtConfigPath) {
     const cfg = {
         trade_corner_enabled: true,
         battle_tower_enabled: true,
+        news_distribution_enabled: true,
+        news_ranking_enabled: true,
         feature_allowed_regions: {},
         region_groups: {},
     };
 
-    // trade_corner_enabled / battle_tower_enabled
+    // trade_corner_enabled / battle_tower_enabled / news_*
     const mTradeCorner = text.match(/'trade_corner_enabled'\s*=>\s*(true|false)/);
     if (mTradeCorner) cfg.trade_corner_enabled = mTradeCorner[1] === "true";
 
     const mBattleTower = text.match(/'battle_tower_enabled'\s*=>\s*(true|false)/);
     if (mBattleTower) cfg.battle_tower_enabled = mBattleTower[1] === "true";
+
+    const mNewsDistribution = text.match(/'news_distribution_enabled'\s*=>\s*(true|false)/);
+    if (mNewsDistribution) cfg.news_distribution_enabled = mNewsDistribution[1] === "true";
+
+    const mNewsRanking = text.match(/'news_ranking_enabled'\s*=>\s*(true|false)/);
+    if (mNewsRanking) cfg.news_ranking_enabled = mNewsRanking[1] === "true";
 
     // feature_allowed_regions block
     const mFeat = text.match(/'feature_allowed_regions'\s*=>\s*\[([\s\S]*?)\]\s*,\s*\/\/ Region groups/m);

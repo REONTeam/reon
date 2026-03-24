@@ -21,11 +21,13 @@ const defaultMainConfigPath = path.resolve(__dirname, "..", "..", "config.json")
 // Separate news config – lives next to this script by default
 const defaultNewsConfigPath = path.resolve(__dirname, "bxt_news_cycle.config.json");
 const defaultRotationConfigPath = path.resolve(__dirname, "file_rotation.config.json");
+const defaultFeatureAvailabilityConfigPath = path.resolve(__dirname, "feature_availability.config.json");
 
 program
   .option("-c, --config <path>", "Main Reon config file path.", defaultMainConfigPath)
   .option("-n, --news-config <path>", "News cycle config file path.", defaultNewsConfigPath)
   .option("-r, --rotation-config <path>", "File rotation config file path.", defaultRotationConfigPath)
+  .option("-f, --feature-config <path>", "Timed feature availability config file path.", defaultFeatureAvailabilityConfigPath)
   .parse(process.argv);
 
 const options = program.opts();
@@ -39,6 +41,16 @@ try {
 } catch (e) {
   console.error("Failed to load rotation config:", e);
   rotationConfigRaw = null;
+}
+
+let featureAvailabilityConfigRaw = null;
+try {
+  if (options.featureConfig && fs.existsSync(options.featureConfig)) {
+    featureAvailabilityConfigRaw = JSON.parse(fs.readFileSync(options.featureConfig, "utf8"));
+  }
+} catch (e) {
+  console.error("Failed to load feature availability config:", e);
+  featureAvailabilityConfigRaw = null;
 }
 
 /**
@@ -294,6 +306,410 @@ function loadPokemonNewsCustomConfig(rootDir) {
  * or:
  *   { "source_root": "...", "jobs": [ ... ] }
  */
+function loadFeatureAvailabilityConfig(rootDir) {
+  if (!featureAvailabilityConfigRaw || typeof featureAvailabilityConfigRaw !== "object") {
+    return null;
+  }
+
+  const root =
+    featureAvailabilityConfigRaw.feature_availability &&
+    typeof featureAvailabilityConfigRaw.feature_availability === "object"
+      ? featureAvailabilityConfigRaw.feature_availability
+      : featureAvailabilityConfigRaw;
+
+  if (!root || typeof root !== "object") {
+    return null;
+  }
+
+  const cfg = {
+    bxt_config_path: path.resolve(rootDir, "web", "cgb", "pokemon", "bxt_config.php"),
+    windows: [],
+  };
+
+  if (typeof root.bxt_config_path === "string" && root.bxt_config_path.length) {
+    if (path.isAbsolute(root.bxt_config_path)) {
+      cfg.bxt_config_path = root.bxt_config_path;
+    } else {
+      const norm = root.bxt_config_path.replace(/^[./\\]+/, "");
+      if (
+        norm.startsWith("app/") ||
+        norm.startsWith("web/") ||
+        norm.startsWith("app\\") ||
+        norm.startsWith("web\\")
+      ) {
+        cfg.bxt_config_path = path.resolve(rootDir, norm);
+      } else {
+        cfg.bxt_config_path = path.resolve(__dirname, norm);
+      }
+    }
+  }
+
+  if (Array.isArray(root.windows)) {
+    cfg.windows = root.windows;
+  } else if (Array.isArray(root.jobs)) {
+    cfg.windows = root.jobs;
+  }
+
+  return cfg;
+}
+
+function parseDateTimeSpec(spec) {
+  if (!spec || typeof spec !== "string") return null;
+  const s = spec.trim();
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const d = new Date(`${s}T00:00:00`);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(?::\d{2})?$/.test(s)) {
+    const normalized = s.replace(" ", "T");
+    const d = new Date(normalized);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  return null;
+}
+
+function parseFeatureDateTimeSpec(spec) {
+  if (!spec || typeof spec !== "string") return null;
+  const s = spec.trim();
+
+  const full = parseDateTimeSpec(s);
+  if (full) {
+    return {
+      kind: "full",
+      date: full,
+      month: full.getMonth() + 1,
+      day: full.getDate(),
+      hour: full.getHours(),
+      minute: full.getMinutes(),
+      second: full.getSeconds(),
+    };
+  }
+
+  const m = s.match(/^(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/);
+  if (!m) return null;
+
+  const month = Number(m[1]);
+  const day = Number(m[2]);
+  const hour = m[3] !== undefined ? Number(m[3]) : 0;
+  const minute = m[4] !== undefined ? Number(m[4]) : 0;
+  const second = m[5] !== undefined ? Number(m[5]) : 0;
+
+  if (!Number.isInteger(month) || month < 1 || month > 12) return null;
+  if (!Number.isInteger(day) || day < 1 || day > 31) return null;
+  if (!Number.isInteger(hour) || hour < 0 || hour > 23) return null;
+  if (!Number.isInteger(minute) || minute < 0 || minute > 59) return null;
+  if (!Number.isInteger(second) || second < 0 || second > 59) return null;
+
+  return {
+    kind: "md",
+    date: null,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+  };
+}
+
+function buildFeatureWindowDate(year, parsed) {
+  if (!parsed) return null;
+  return new Date(
+    year,
+    parsed.month - 1,
+    parsed.day,
+    parsed.hour || 0,
+    parsed.minute || 0,
+    parsed.second || 0,
+    0
+  );
+}
+
+function getYearlessWindowBounds(startSpec, endSpec, now) {
+  if (!startSpec || !endSpec) return null;
+  if (startSpec.kind !== "md" || endSpec.kind !== "md") return null;
+
+  const candidateYears = [now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1];
+  for (const year of candidateYears) {
+    const start = buildFeatureWindowDate(year, startSpec);
+    let end = buildFeatureWindowDate(year, endSpec);
+    if (!start || !end) continue;
+
+    if (end <= start) {
+      end = buildFeatureWindowDate(year + 1, endSpec);
+    }
+    if (!end || end <= start) continue;
+
+    if (now >= start && now < end) {
+      return { start, end };
+    }
+  }
+
+  return null;
+}
+
+function resolveFeatureWindowCycleTrack(window) {
+  const raw = String(window && (window.attach_to || window.cycle || window.track || "news")).toLowerCase();
+  switch (raw) {
+    case "news":
+    case "news_cycle":
+    case "vanilla":
+    case "default":
+      return "news";
+    case "pokemon_news_custom":
+    case "news_custom":
+    case "custom":
+    case "custom_news":
+      return "pokemon_news_custom";
+    default:
+      return raw;
+  }
+}
+
+function resolveFeatureWindowCycleRegion(window, newsCfg, cycleStateKey, cycleState) {
+  const explicit = typeof window.region === "string" ? window.region.trim().toLowerCase() : "";
+  if (explicit) return explicit;
+
+  const cycleRegionState =
+    cycleState && cycleState[cycleStateKey] && typeof cycleState[cycleStateKey] === "object"
+      ? cycleState[cycleStateKey]
+      : null;
+
+  if (cycleRegionState) {
+    const stateRegions = Object.keys(cycleRegionState).filter((key) => /^[a-z]$/i.test(key));
+    if (stateRegions.length) {
+      stateRegions.sort();
+      return stateRegions[0].toLowerCase();
+    }
+  }
+
+  if (newsCfg && newsCfg.schedule && typeof newsCfg.schedule === "object") {
+    const cfgRegions = Object.keys(newsCfg.schedule).filter((key) => /^[a-z]$/i.test(key));
+    if (cfgRegions.length) {
+      cfgRegions.sort();
+      return cfgRegions[0].toLowerCase();
+    }
+  }
+
+  return null;
+}
+
+function getFeatureWindowActiveCycleSlot(window, cycleState, newsCfg) {
+  if (!window || typeof window !== "object") return null;
+
+  const slotValue =
+    window.slot !== undefined && window.slot !== null
+      ? Number(window.slot)
+      : window.schedule && typeof window.schedule === "object" && window.schedule.slot !== undefined && window.schedule.slot !== null
+      ? Number(window.schedule.slot)
+      : null;
+
+  if (slotValue === null) return null;
+  if (!Number.isInteger(slotValue)) return null;
+
+  const cycleStateKey = resolveFeatureWindowCycleTrack(window);
+  const region = resolveFeatureWindowCycleRegion(window, newsCfg, cycleStateKey, cycleState);
+  if (!region) return null;
+
+  const regionState =
+    cycleState &&
+    cycleState[cycleStateKey] &&
+    cycleState[cycleStateKey][region] &&
+    typeof cycleState[cycleStateKey][region] === "object"
+      ? cycleState[cycleStateKey][region]
+      : null;
+
+  if (!regionState || !Number.isInteger(regionState.lastSlot)) return null;
+
+  return {
+    requiredSlot: slotValue,
+    activeSlot: regionState.lastSlot,
+    region,
+    cycleStateKey,
+  };
+}
+
+function getFeatureFlagKeys(featureName) {
+  switch (String(featureName || "").toLowerCase()) {
+    case "trade_corner":
+    case "trade-corner":
+    case "tradecorner":
+      return ["trade_corner_enabled"];
+    case "battle_tower":
+    case "battle-tower":
+    case "battletower":
+      return ["battle_tower_enabled"];
+    case "pokemon_news":
+    case "pokemon-news":
+    case "pokemonnews":
+    case "news":
+      return ["news_distribution_enabled", "news_ranking_enabled"];
+    case "pokemon_news_distribution":
+    case "pokemon-news-distribution":
+    case "pokemonnewsdistribution":
+    case "news_distribution":
+    case "news-distribution":
+      return ["news_distribution_enabled"];
+    case "pokemon_news_ranking":
+    case "pokemon-news-ranking":
+    case "pokemonnewsranking":
+    case "news_ranking":
+    case "news-ranking":
+      return ["news_ranking_enabled"];
+    default:
+      return [];
+  }
+}
+
+function getFeatureWindowRepeatDays(window) {
+  if (!window || typeof window !== "object") return null;
+
+  const repeatSpec =
+    (typeof window.repeat === "string" && window.repeat) ||
+    (window.schedule &&
+      typeof window.schedule === "object" &&
+      typeof window.schedule.repeat === "string" &&
+      window.schedule.repeat) ||
+    null;
+
+  if (!repeatSpec) return null;
+  return repeatKindToDays(normalizeRepeat(repeatSpec));
+}
+
+function evaluateFeatureWindowActive(window, now, cycleState, newsCfg) {
+  if (!window || typeof window !== "object") return false;
+  if (window.disabled === true) return false;
+
+  const startRaw = window.start || window.starts_at || window.from;
+  const endRaw = window.end || window.ends_at || window.until;
+  const start = parseFeatureDateTimeSpec(startRaw);
+  const end = parseFeatureDateTimeSpec(endRaw);
+  if (!start || !end) return false;
+
+  if (start.kind === "full" || end.kind === "full") {
+    if (start.kind !== "full" || end.kind !== "full") return false;
+    if (end.date <= start.date) return false;
+
+    const repeatDays = getFeatureWindowRepeatDays(window);
+    if (!repeatDays) {
+      return now >= start.date && now < end.date;
+    }
+
+    const durationMs = end.date.getTime() - start.date.getTime();
+    const repeatMs = repeatDays * 24 * 60 * 60 * 1000;
+    const deltaMs = now.getTime() - start.date.getTime();
+    if (deltaMs < 0) return false;
+
+    const offsetMs = deltaMs % repeatMs;
+    return offsetMs >= 0 && offsetMs < durationMs;
+  }
+
+  const bounds = getYearlessWindowBounds(start, end, now);
+  if (!bounds) return false;
+
+  const slotInfo = getFeatureWindowActiveCycleSlot(window, cycleState, newsCfg);
+  if (slotInfo && slotInfo.activeSlot !== slotInfo.requiredSlot) {
+    return false;
+  }
+
+  return now >= bounds.start && now < bounds.end;
+}
+
+function ensureBooleanFlagInPhpConfig(phpText, flagName, defaultValue) {
+  const re = new RegExp(`'${flagName}'\\s*=>\\s*(true|false)`);
+  if (re.test(phpText)) {
+    return phpText.replace(re, `'${flagName}' => ${defaultValue ? "true" : "false"}`);
+  }
+
+  const anchor = "// Map of cartridge IDs to our internal single-letter region codes.";
+  if (phpText.includes(anchor)) {
+    return phpText.replace(
+      anchor,
+      `    '${flagName}' => ${defaultValue ? "true" : "false"},
+
+    ${anchor}`
+    );
+  }
+
+  return phpText;
+}
+
+function writeJsonAtomic(filePath, data) {
+  const tmp = `${filePath}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + "\n", "utf8");
+  fs.renameSync(tmp, filePath);
+}
+
+function applyTimedFeatureAvailability(rootDir, featureCfg, cycleState, now, newsCfg) {
+  if (!featureCfg || !Array.isArray(featureCfg.windows) || featureCfg.windows.length === 0) {
+    return;
+  }
+
+  const bxtConfigPath = featureCfg.bxt_config_path || path.resolve(rootDir, "web", "cgb", "pokemon", "bxt_config.php");
+  if (!fs.existsSync(bxtConfigPath) || !fs.statSync(bxtConfigPath).isFile()) {
+    console.warn(`[feature_availability] bxt_config.php not found at ${bxtConfigPath}; skipping`);
+    return;
+  }
+
+  const runtimeStatePath = featureCfg.runtime_state_path
+    ? (path.isAbsolute(featureCfg.runtime_state_path)
+        ? featureCfg.runtime_state_path
+        : path.resolve(rootDir, featureCfg.runtime_state_path))
+    : path.resolve(path.dirname(bxtConfigPath), "bxt_runtime_state.json");
+
+  if (!cycleState.featureAvailability || typeof cycleState.featureAvailability !== "object") {
+    cycleState.featureAvailability = {};
+  }
+
+  const desiredFlags = {
+    trade_corner_enabled: true,
+    battle_tower_enabled: true,
+    news_distribution_enabled: true,
+    news_ranking_enabled: true,
+  };
+
+  for (const window of featureCfg.windows) {
+    const keys = getFeatureFlagKeys(window && window.feature);
+    if (!keys.length) continue;
+    if (evaluateFeatureWindowActive(window, now, cycleState, newsCfg)) {
+      for (const key of keys) {
+        desiredFlags[key] = false;
+      }
+    }
+  }
+
+  let phpText = fs.readFileSync(bxtConfigPath, "utf8");
+  let phpChanged = false;
+
+  for (const [flagName, desiredValue] of Object.entries(desiredFlags)) {
+    const before = phpText;
+    phpText = ensureBooleanFlagInPhpConfig(phpText, flagName, desiredValue);
+    if (phpText !== before) {
+      phpChanged = true;
+    }
+    cycleState.featureAvailability[flagName] = {
+      value: desiredValue,
+      updatedAt: now.toISOString(),
+    };
+  }
+
+  if (phpChanged) {
+    const tmp = `${bxtConfigPath}.tmp`;
+    fs.writeFileSync(tmp, phpText, "utf8");
+    fs.renameSync(tmp, bxtConfigPath);
+    console.log(`[feature_availability] updated ${bxtConfigPath}`);
+  }
+
+  const runtimeState = {
+    generated_at: now.toISOString(),
+    flags: desiredFlags,
+  };
+  writeJsonAtomic(runtimeStatePath, runtimeState);
+  console.log(`[feature_availability] updated ${runtimeStatePath}`);
+}
+
 function loadRotationConfig(rootDir) {
   if (!rotationConfigRaw || typeof rotationConfigRaw !== "object") {
     return null;
@@ -1535,6 +1951,7 @@ async function main() {
   const pokemonNewsCustomCfg = loadPokemonNewsCustomConfig(rootDir);
 
   const rotationCfg = loadRotationConfig(rootDir);
+  const featureAvailabilityCfg = loadFeatureAvailabilityConfig(rootDir);
 
   const pokemonNewsCustomEnabled = scheduleHasAnyEntries(pokemonNewsCustomCfg);
 
@@ -1590,9 +2007,12 @@ async function main() {
         pokemonNewsCustomEnabled
       );
 
-      // Persist cycle state (for slot-based regions) and file rotations.
+      // Persist cycle state (for slot-based regions), file rotations, and timed feature windows.
       if (rotationCfg) {
         processFileRotations(rootDir, rotationCfg, cycleState, todayDate);
+      }
+      if (featureAvailabilityCfg) {
+        applyTimedFeatureAvailability(rootDir, featureAvailabilityCfg, cycleState, new Date(), newsCfg);
       }
       saveCycleState(newsCfg.articles_dir, cycleState);
     } finally {

@@ -6,6 +6,13 @@ $bxt_config = [
     // Which region's tables are shown on the public web UI by default.
     'global_table_display' => ['e'],
 
+    // Global feature toggles. These are intentionally plain booleans so
+    // app/auto-schedule can flip them on timed windows without executing PHP.
+    'trade_corner_enabled' => true,
+    'battle_tower_enabled' => true,
+    'news_distribution_enabled' => true,
+    'news_ranking_enabled' => true,
+
     // Map of cartridge IDs to our internal single-letter region codes.
     'game_region_map' => [
         'CGB-BXTE' => 'e',
@@ -53,11 +60,78 @@ if (!function_exists('reon_bxt_region_groups')) {
 
 // -------- Helper functions --------
 
+if (!function_exists('bxt_runtime_feature_flags_path')) {
+    function bxt_runtime_feature_flags_path(): string {
+        return __DIR__ . DIRECTORY_SEPARATOR . 'bxt_runtime_state.json';
+    }
+}
+
+if (!function_exists('bxt_parse_runtime_bool')) {
+    function bxt_parse_runtime_bool($value): ?bool {
+        if (is_bool($value)) {
+            return $value;
+        }
+        if (is_int($value)) {
+            return $value !== 0;
+        }
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+            if ($normalized === 'true' || $normalized === '1' || $normalized === 'yes' || $normalized === 'on') {
+                return true;
+            }
+            if ($normalized === 'false' || $normalized === '0' || $normalized === 'no' || $normalized === 'off') {
+                return false;
+            }
+        }
+        return null;
+    }
+}
+
+if (!function_exists('bxt_get_runtime_feature_flags')) {
+    function bxt_get_runtime_feature_flags(): array {
+        $path = bxt_runtime_feature_flags_path();
+        if (!is_file($path) || !is_readable($path)) {
+            return [];
+        }
+
+        $raw = @file_get_contents($path);
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        $flags = [];
+        $source = isset($decoded['flags']) && is_array($decoded['flags']) ? $decoded['flags'] : $decoded;
+        foreach (['trade_corner_enabled', 'battle_tower_enabled', 'news_distribution_enabled', 'news_ranking_enabled'] as $key) {
+            if (!array_key_exists($key, $source)) {
+                continue;
+            }
+            $parsed = bxt_parse_runtime_bool($source[$key]);
+            if ($parsed !== null) {
+                $flags[$key] = $parsed;
+            }
+        }
+
+        return $flags;
+    }
+}
+
 // Generic accessor, in case other code expects it.
 if (!function_exists('bxt_get_config_array')) {
     function bxt_get_config_array(): array {
         global $bxt_config;
-        return (isset($bxt_config) && is_array($bxt_config)) ? $bxt_config : [];
+        $cfg = (isset($bxt_config) && is_array($bxt_config)) ? $bxt_config : [];
+        $runtimeFlags = bxt_get_runtime_feature_flags();
+        if (!empty($runtimeFlags)) {
+            foreach ($runtimeFlags as $key => $value) {
+                $cfg[$key] = $value;
+            }
+        }
+        return $cfg;
     }
 }
 

@@ -8,6 +8,33 @@ require_once(__DIR__ . "/../../scripts/bxt_decode_helpers.php");
 require_once(__DIR__ . "/../../scripts/bxt_value_validation.php");
 require_once(__DIR__ . "/../../scripts/bxt_name_conversion.php");
 
+function bxt_pokemon_news_distribution_enabled() {
+    if (function_exists('bxt_get_config_array')) {
+        $cfg = bxt_get_config_array();
+        if (isset($cfg['news_distribution_enabled'])) {
+            return (bool)$cfg['news_distribution_enabled'];
+        }
+    }
+    return true;
+}
+
+function bxt_pokemon_news_ranking_enabled() {
+    if (function_exists('bxt_get_config_array')) {
+        $cfg = bxt_get_config_array();
+        if (isset($cfg['news_ranking_enabled'])) {
+            return (bool)$cfg['news_ranking_enabled'];
+        }
+    }
+    return true;
+}
+
+function bxt_pokemon_news_require_distribution_enabled() {
+    if (!bxt_pokemon_news_distribution_enabled()) {
+        http_response_code(503);
+        exit('Pokemon News is currently disabled.');
+    }
+}
+
 /**
  * Authentication + per-user Pokémon News (custom track) selection helpers.
  *
@@ -432,6 +459,7 @@ function bxt_filter_ranking_rows_by_news_config($rows, $download_region) {
 
 
 function get_news_parameters_bin($region) {
+    bxt_pokemon_news_require_distribution_enabled();
     $userId    = bxt_pokemon_news_require_authenticated_user_id();
     $region    = strtolower(trim((string)$region));
     $is_custom  = bxt_pokemon_news_select_is_custom_for_user($region, $userId);
@@ -509,6 +537,7 @@ function get_news_parameters_bin($region) {
 
 
 function get_news_file($region) {
+    bxt_pokemon_news_require_distribution_enabled();
     $userId   = bxt_pokemon_news_require_authenticated_user_id();
     $region   = strtolower(trim((string)$region));
     $is_custom = bxt_pokemon_news_select_is_custom_for_user($region, $userId);
@@ -556,7 +585,7 @@ function set_ranking($region, $content, $length) {
     // Global feature toggle.
     if (function_exists('bxt_get_config_array')) {
         $cfg = bxt_get_config_array();
-        if (isset($cfg['news_ranking_enabled']) && !$cfg['news_ranking_enabled']) {
+        if (!bxt_pokemon_news_ranking_enabled()) {
             $is_allowed = false;
         }
     }
@@ -927,7 +956,7 @@ function get_ranking($region, $post_string) {
     // Global feature toggle.
     if (function_exists('bxt_get_config_array')) {
         $cfg = bxt_get_config_array();
-        if (isset($cfg['news_ranking_enabled']) && !$cfg['news_ranking_enabled']) {
+        if (!bxt_pokemon_news_ranking_enabled()) {
             $is_allowed = false;
         }
     }

@@ -33,163 +33,299 @@
     },
     "schedule": {
       "j": {
-        "january_jp.bin": {
-          "date": "01-01",
+        "june_2002.bin": {
+          "date": "05-22",
           "slot": 0,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 29, 8]
         },
-        "february_jp.bin": {
-          "date": "11-01",
+        "july_2002.bin": {
+          "date": "06-26",
           "slot": 1,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 8, 12]
+        },
+        "august_2002.bin": {
+          "date": "07-31",
+          "slot": 2,
+          "ranking_categories": [5, 12, 14]
+        },
+        "september_2002.bin": {
+          "date": "08-28",
+          "slot": 3,
+          "ranking_categories": [5, 14, 16]
+        },
+        "october_2002.bin": {
+          "date": "09-25",
+          "slot": 4,
+          "ranking_categories": [5, 16, 15]
+        },
+        "november_2002.bin": {
+          "date": "10-30",
+          "slot": 5,
+          "ranking_categories": [5, 15, 13]
+        },
+        "december_2002.bin": {
+          "date": "11-27",
+          "slot": 6,
+          "ranking_categories": [5, 13, 18]
         }
       },
       "e": {
-        "january_en.bin": {
-          "date": "01-01",
+        "june_2002.bin": {
+          "date": "05-22",
           "slot": 0,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 29, 8]
         },
-        "february_en.bin": {
-          "date": "11-01",
+        "july_2002.bin": {
+          "date": "06-26",
           "slot": 1,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 8, 12]
+        },
+        "august_2002.bin": {
+          "date": "07-31",
+          "slot": 2,
+          "ranking_categories": [5, 12, 14]
+        },
+        "september_2002.bin": {
+          "date": "08-28",
+          "slot": 3,
+          "ranking_categories": [5, 14, 16]
+        },
+        "october_2002.bin": {
+          "date": "09-25",
+          "slot": 4,
+          "ranking_categories": [5, 16, 15]
+        },
+        "november_2002.bin": {
+          "date": "10-30",
+          "slot": 5,
+          "ranking_categories": [5, 15, 13]
+        },
+        "december_2002.bin": {
+          "date": "11-27",
+          "slot": 6,
+          "ranking_categories": [5, 13, 18]
         }
       },
       "f": {
-        "january_fr.bin": {
-          "date": "01-01",
+        "june_2002.bin": {
+          "date": "05-22",
           "slot": 0,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 29, 8]
         },
-        "february_fr.bin": {
-          "date": "11-01",
+        "july_2002.bin": {
+          "date": "06-26",
           "slot": 1,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 8, 12]
+        },
+        "august_2002.bin": {
+          "date": "07-31",
+          "slot": 2,
+          "ranking_categories": [5, 12, 14]
+        },
+        "september_2002.bin": {
+          "date": "08-28",
+          "slot": 3,
+          "ranking_categories": [5, 14, 16]
+        },
+        "october_2002.bin": {
+          "date": "09-25",
+          "slot": 4,
+          "ranking_categories": [5, 16, 15]
+        },
+        "november_2002.bin": {
+          "date": "10-30",
+          "slot": 5,
+          "ranking_categories": [5, 15, 13]
+        },
+        "december_2002.bin": {
+          "date": "11-27",
+          "slot": 6,
+          "ranking_categories": [5, 13, 18]
         }
       },
       "d": {
-        "january_de.bin": {
-          "date": "01-01",
+        "june_2002.bin": {
+          "date": "05-22",
           "slot": 0,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 29, 8]
         },
-        "february_de.bin": {
-          "date": "11-01",
+        "july_2002.bin": {
+          "date": "06-26",
           "slot": 1,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 8, 12]
+        },
+        "august_2002.bin": {
+          "date": "07-31",
+          "slot": 2,
+          "ranking_categories": [5, 12, 14]
+        },
+        "september_2002.bin": {
+          "date": "08-28",
+          "slot": 3,
+          "ranking_categories": [5, 14, 16]
+        },
+        "october_2002.bin": {
+          "date": "09-25",
+          "slot": 4,
+          "ranking_categories": [5, 16, 15]
+        },
+        "november_2002.bin": {
+          "date": "10-30",
+          "slot": 5,
+          "ranking_categories": [5, 15, 13]
+        },
+        "december_2002.bin": {
+          "date": "11-27",
+          "slot": 6,
+          "ranking_categories": [5, 13, 18]
         }
       },
       "s": {
-        "january_es.bin": {
-          "date": "01-01",
+        "june_2002.bin": {
+          "date": "05-22",
           "slot": 0,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 29, 8]
         },
-        "february_es.bin": {
-          "date": "11-01",
+        "july_2002.bin": {
+          "date": "06-26",
           "slot": 1,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 8, 12]
+        },
+        "august_2002.bin": {
+          "date": "07-31",
+          "slot": 2,
+          "ranking_categories": [5, 12, 14]
+        },
+        "september_2002.bin": {
+          "date": "08-28",
+          "slot": 3,
+          "ranking_categories": [5, 14, 16]
+        },
+        "october_2002.bin": {
+          "date": "09-25",
+          "slot": 4,
+          "ranking_categories": [5, 16, 15]
+        },
+        "november_2002.bin": {
+          "date": "10-30",
+          "slot": 5,
+          "ranking_categories": [5, 15, 13]
+        },
+        "december_2002.bin": {
+          "date": "11-27",
+          "slot": 6,
+          "ranking_categories": [5, 13, 18]
         }
       },
       "i": {
-        "january_it.bin": {
-          "date": "01-01",
+        "june_2002.bin": {
+          "date": "05-22",
           "slot": 0,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 29, 8]
         },
-        "february_it.bin": {
-          "date": "11-01",
+        "july_2002.bin": {
+          "date": "06-26",
           "slot": 1,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 8, 12]
+        },
+        "august_2002.bin": {
+          "date": "07-31",
+          "slot": 2,
+          "ranking_categories": [5, 12, 14]
+        },
+        "september_2002.bin": {
+          "date": "08-28",
+          "slot": 3,
+          "ranking_categories": [5, 14, 16]
+        },
+        "october_2002.bin": {
+          "date": "09-25",
+          "slot": 4,
+          "ranking_categories": [5, 16, 15]
+        },
+        "november_2002.bin": {
+          "date": "10-30",
+          "slot": 5,
+          "ranking_categories": [5, 15, 13]
+        },
+        "december_2002.bin": {
+          "date": "11-27",
+          "slot": 6,
+          "ranking_categories": [5, 13, 18]
         }
       },
       "p": {
-        "january_eu.bin": {
-          "date": "01-01",
+        "june_2002.bin": {
+          "date": "05-22",
           "slot": 0,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 29, 8]
         },
-        "february_eu.bin": {
-          "date": "11-01",
+        "july_2002.bin": {
+          "date": "06-26",
           "slot": 1,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 8, 12]
+        },
+        "august_2002.bin": {
+          "date": "07-31",
+          "slot": 2,
+          "ranking_categories": [5, 12, 14]
+        },
+        "september_2002.bin": {
+          "date": "08-28",
+          "slot": 3,
+          "ranking_categories": [5, 14, 16]
+        },
+        "october_2002.bin": {
+          "date": "09-25",
+          "slot": 4,
+          "ranking_categories": [5, 16, 15]
+        },
+        "november_2002.bin": {
+          "date": "10-30",
+          "slot": 5,
+          "ranking_categories": [5, 15, 13]
+        },
+        "december_2002.bin": {
+          "date": "11-27",
+          "slot": 6,
+          "ranking_categories": [5, 13, 18]
         }
       },
       "u": {
-        "january_au.bin": {
-          "date": "01-01",
+        "june_2002.bin": {
+          "date": "05-22",
           "slot": 0,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 29, 8]
         },
-        "february_au.bin": {
-          "date": "11-01",
+        "july_2002.bin": {
+          "date": "06-26",
           "slot": 1,
-          "ranking_categories": [
-            5,
-            41,
-            39
-          ]
+          "ranking_categories": [5, 8, 12]
+        },
+        "august_2002.bin": {
+          "date": "07-31",
+          "slot": 2,
+          "ranking_categories": [5, 12, 14]
+        },
+        "september_2002.bin": {
+          "date": "08-28",
+          "slot": 3,
+          "ranking_categories": [5, 14, 16]
+        },
+        "october_2002.bin": {
+          "date": "09-25",
+          "slot": 4,
+          "ranking_categories": [5, 16, 15]
+        },
+        "november_2002.bin": {
+          "date": "10-30",
+          "slot": 5,
+          "ranking_categories": [5, 15, 13]
+        },
+        "december_2002.bin": {
+          "date": "11-27",
+          "slot": 6,
+          "ranking_categories": [5, 13, 18]
         }
       }
     }
