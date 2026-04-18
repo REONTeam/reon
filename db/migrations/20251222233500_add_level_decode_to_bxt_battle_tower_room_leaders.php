@@ -47,6 +47,10 @@ final class AddLevelDecodeToBxtBattleTowerRoomLeaders extends AbstractMigration
             return;
         }
 
+        if (!$this->columnExists('bxt_battle_tower_room_leaders', 'level')) {
+            $this->execute("ALTER TABLE bxt_battle_tower_room_leaders ADD level tinyint(3) unsigned DEFAULT NULL");
+        }
+
         $this->table('bxt_battle_tower_room_leaders')
             ->addColumn('level_decode', 'string', [
                 'limit' => 16,
