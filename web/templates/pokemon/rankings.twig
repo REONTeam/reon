@@ -1,47 +1,174 @@
-{% extends "main.twig" %}
+﻿{% extends "main.twig" %}
+{% set nav_item = "games" %}
 
-{% block title %}Pokémon - Rankings{% endblock %}
-{% block content %}
-	<ul id="country-nav">
-        <li><a href="?country=global">{{'region.global'|trans}}</a></li>
-        <li><a href="?country=j">{{'region.country.j'|trans}}</a></li>
-        <li><a href="?country=e">{{'region.country.e'|trans}}</a></li>
-        <li><a href="?country=f">{{'region.country.f'|trans}}</a></li>
-        <li><a href="?country=i">{{'region.country.i'|trans}}</a></li>
-        <li><a href="?country=s">{{'region.country.s'|trans}}</a></li>
-        <li><a href="?country=d">{{'region.country.d'|trans}}</a></li>
-        <li><a href="?country=u">{{'region.country.u'|trans}}</a></li>
-        <li><a href="?country=p">{{'region.country.p'|trans}}</a></li>
-    </ul>
+{% block title %}Pok&eacute;mon - Rankings{% endblock %}
 
-    {% set _country = selected_country|default('global') %}
-    <ul id="pokemon-news-mode-nav">
-        <li><a href="?country={{_country}}"{% if pokemon_news_custom|default(0) == 0 %} class="active"{% endif %}>Vanilla</a></li>
-        <li><a href="?country={{_country}}&pokemon_news_custom=1"{% if pokemon_news_custom|default(0) == 1 %} class="active"{% endif %}>Custom Pokémon News</a></li>
-    </ul>
-
-    {% for cat in categories %}
-    <div class="crystal-ranking">
-        <table>
-            <thead>
-                <tr class="ranking-name"><th colspan="3">{{cat.name}}</th></tr>
-                <tr>
-                    <th>{{'name'|trans}}</th>
-                    <th>{{'region.text'|trans}}</th>
-                    <th>{{'score'|trans}}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entry in cat.entries %}
-                <tr>
-                    <td>{{entry.player_name}}</td>
-                    {% set p_region_tmpl = 'pokemon.prefectures.'~entry.player_region %}
-                    <td title="{{p_region_tmpl|trans}}">{{entry.player_region}}</td>
-                    <td>{{entry.score}}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% endfor %}
+{% block head %}
+<link href="/css/rankings.css?v=trainer-rankings-v5" rel="stylesheet">
 {% endblock %}
+
+{% block content %}
+<div class="trainer-rankings-page">
+    <h1 class="trade-corner-title">Trainer Rankings</h1>
+
+    <form id="trainer-rankings-form" class="trainer-rankings-controls" method="get">
+        <div class="trainer-rankings-control-row">
+            <select name="country" class="trade-region-filter" aria-label="Select game region" onchange="this.form.submit()">
+                {% for option in country_options %}
+                    <option value="{{ option.value }}"{% if option.value == selected_country %} selected{% endif %}>{{ option.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="trainer-rankings-control-row">
+            <select name="mode" class="trade-region-filter" aria-label="Select ranking mode" onchange="this.form.submit()">
+                {% for option in mode_options %}
+                    <option value="{{ option.value }}"{% if option.value == selected_mode %} selected{% endif %}>{{ option.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {% if selected_mode == 'address' and selected_country != 'global' and address_options is not empty %}
+            <div class="trainer-rankings-control-row">
+                <select name="address" class="trade-region-filter" aria-label="Select address" onchange="this.form.submit()">
+                    {% for option in address_options %}
+                        <option value="{{ option }}"{% if option == selected_address %} selected{% endif %}>{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+
+        {% if pokemon_news_custom|default(0) == 1 %}
+            <input type="hidden" name="pokemon_news_custom" value="1">
+        {% endif %}
+    </form>
+
+    <div class="trade-search-wrap rankings-search-wrap">
+        <input
+            id="ranking-search-input"
+            class="trade-search-input"
+            type="text"
+            placeholder="Search..."
+            aria-label="Search rankings"
+            autocomplete="off"
+            spellcheck="false"
+        >
+    </div>
+
+    <div class="trainer-rankings-grid">
+        {% for cat in categories %}
+            <section class="trainer-ranking-panel" data-ranking-panel>
+                <table class="trainer-ranking-table" style="table-layout:auto;">
+                    <colgroup>
+                        <col class="ranking-colgroup-rank" style="width:48px;">
+                        <col class="ranking-colgroup-name" style="width:68px;">
+                        <col class="ranking-colgroup-address" style="width:78px;">
+                        <col class="ranking-colgroup-message">
+                        <col class="ranking-colgroup-score" style="width:58px;">
+                    </colgroup>
+                    <thead>
+                        <tr class="trainer-ranking-category-row">
+                            <th colspan="5">{{ cat.name }}</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Message</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody data-ranking-body>
+                        {% for entry in cat.entries %}
+                            <tr
+                                data-ranking-row
+                                data-ranking-search="{{ (entry.rank ~ ' ' ~ entry.name ~ ' ' ~ entry.address ~ ' ' ~ entry.message ~ ' ' ~ entry.score)|lower }}"
+                                {% if entry.rank <= 10 %}class="ranking-top10-row"{% endif %}
+                            >
+                                <td class="ranking-col-rank">{{ entry.rank }}</td>
+                                <td class="ranking-col-name">{{ entry.name }}</td>
+                                <td class="ranking-col-address">{{ entry.address }}</td>
+                                <td class="ranking-col-message"><div class="ranking-message-box">{{ entry.message }}</div></td>
+                                <td class="ranking-col-score">{{ entry.score }}</td>
+                            </tr>
+                        {% endfor %}
+
+                        {% if cat.entries is empty %}
+                            <tr class="ranking-empty-row">
+                                <td colspan="5">No results found.</td>
+                            </tr>
+                        {% endif %}
+
+                        <tr class="ranking-search-empty-row" data-ranking-search-empty hidden>
+                            <td colspan="5">No results found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        {% endfor %}
+
+        {% if categories is empty %}
+            <div class="ranking-page-empty">No results found.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block body %}
+<script>
+(() => {
+    const searchInput = document.getElementById("ranking-search-input");
+    if (!searchInput) {
+        return;
+    }
+
+    const panels = Array.from(document.querySelectorAll("[data-ranking-panel]"));
+    if (panels.length === 0) {
+        return;
+    }
+
+    const normalize = (value) => String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const applyFilter = () => {
+        const query = normalize(searchInput.value);
+
+        panels.forEach((panel) => {
+            const rows = Array.from(panel.querySelectorAll("[data-ranking-row]"));
+            const emptyRow = panel.querySelector("[data-ranking-search-empty]");
+            if (rows.length === 0) {
+                if (emptyRow) {
+                    emptyRow.hidden = true;
+                }
+                return;
+            }
+
+            let visibleCount = 0;
+            rows.forEach((row) => {
+                const text = normalize(row.getAttribute("data-ranking-search") || row.textContent || "");
+                const visible = (query === "" || text.indexOf(query) !== -1);
+                row.style.display = visible ? "" : "none";
+                if (visible) {
+                    visibleCount += 1;
+                }
+            });
+
+            if (emptyRow) {
+                emptyRow.hidden = visibleCount !== 0;
+            }
+        });
+    };
+
+    searchInput.addEventListener("input", applyFilter);
+    applyFilter();
+})();
+</script>
+{% endblock %}
+
+
+
+

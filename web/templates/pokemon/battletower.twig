@@ -1,0 +1,200 @@
+{% extends "main.twig" %}
+{% set nav_item = "games" %}
+
+{% block title %}Pok&eacute;mon - Battle Tower{% endblock %}
+
+{% block head %}
+<link href="/css/battle-tower.css?v=battle-tower-v1" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="battle-tower-page">
+    <h1 class="trade-corner-title">BATTLE TOWER</h1>
+
+    <form class="battle-tower-controls" method="get">
+        <div class="battle-control-level">
+            <select name="level" class="trade-region-filter" aria-label="Select level" onchange="this.form.submit()">
+                {% for level_value in level_options %}
+                    <option value="{{ level_value }}"{% if level_value == selected_level %} selected{% endif %}>L:{{ "%d"|format(level_value) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="battle-control-room">
+            <select name="room" class="trade-region-filter" aria-label="Select room" onchange="this.form.submit()">
+                {% for room_value in room_options %}
+                    <option value="{{ room_value }}"{% if room_value == selected_room %} selected{% endif %}>ROOM:{{ "%03d"|format(room_value) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="battle-honor-roll-label">HONOR ROLL</div>
+    </form>
+
+    <div class="battle-table-shell">
+        <div class="battle-table-grid" data-bt-table-wrap>
+            <div class="battle-table-panel" data-bt-primary>
+                <table class="battle-honor-table">
+                    <thead>
+                        <tr>
+                            <th>ROOM LEADER</th>
+                            <th>POKéMON</th>
+                            <th>MESSAGE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leader in leaders %}
+                            <tr class="bt-row">
+                                <td class="bt-leader-cell">
+                                    <img class="bt-trainer-sprite" src="{{ leader.sprite_path }}" alt="{{ leader.trainer_class }}" loading="lazy">
+                                    <div class="bt-leader-text">
+                                        <div class="bt-trainer-class">{{ leader.trainer_class }}</div>
+                                        <div class="bt-player-name">{{ leader.player_name }}</div>
+                                    </div>
+                                </td>
+                                <td class="bt-pokemon-cell">
+                                    <ul class="bt-pokemon-list">
+                                        {% for pokemon_name in leader.pokemon_names %}
+                                            <li>{{ pokemon_name }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td class="bt-message-cell">
+                                    <div class="bt-message-box">{{ leader.message }}</div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+
+                        {% if leaders is empty %}
+                            <tr class="bt-empty-row">
+                                <td colspan="3">No Trainers found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="battle-table-panel" data-bt-secondary hidden>
+                <table class="battle-honor-table">
+                    <thead>
+                        <tr>
+                            <th>ROOM LEADER</th>
+                            <th>POKéMON</th>
+                            <th>MESSAGE</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body %}
+<script>
+(() => {
+    const tableWrap = document.querySelector("[data-bt-table-wrap]");
+    if (!tableWrap) {
+        return;
+    }
+
+    const primaryPanel = tableWrap.querySelector("[data-bt-primary]");
+    const secondaryPanel = tableWrap.querySelector("[data-bt-secondary]");
+    if (!primaryPanel || !secondaryPanel) {
+        return;
+    }
+
+    const primaryBody = primaryPanel.querySelector("tbody");
+    const secondaryBody = secondaryPanel.querySelector("tbody");
+    if (!primaryBody || !secondaryBody) {
+        return;
+    }
+
+    const sourceRows = Array.from(primaryBody.querySelectorAll("tr.bt-row"));
+    if (sourceRows.length === 0) {
+        secondaryPanel.hidden = true;
+        return;
+    }
+
+    const rowMarkup = sourceRows.map((row) => row.outerHTML);
+
+    const makeRow = (markup) => {
+        const template = document.createElement("template");
+        template.innerHTML = markup.trim();
+        return template.content.firstElementChild;
+    };
+
+    const clearBodies = () => {
+        primaryBody.innerHTML = "";
+        secondaryBody.innerHTML = "";
+    };
+
+    const appendRange = (tbody, start, end) => {
+        for (let i = start; i < end; i += 1) {
+            const rowNode = makeRow(rowMarkup[i]);
+            if (rowNode) {
+                tbody.appendChild(rowNode);
+            }
+        }
+    };
+
+    const rebalance = () => {
+        clearBodies();
+        appendRange(primaryBody, 0, rowMarkup.length);
+        secondaryPanel.hidden = true;
+        tableWrap.classList.remove("is-split");
+
+        const availableHeight = Math.max(
+            220,
+            window.innerHeight - primaryPanel.getBoundingClientRect().top - 20
+        );
+
+        if (primaryPanel.offsetHeight <= availableHeight) {
+            return;
+        }
+
+        clearBodies();
+        let splitIndex = rowMarkup.length;
+        for (let i = 0; i < rowMarkup.length; i += 1) {
+            const rowNode = makeRow(rowMarkup[i]);
+            if (!rowNode) {
+                continue;
+            }
+            primaryBody.appendChild(rowNode);
+            if (primaryPanel.offsetHeight > availableHeight) {
+                primaryBody.removeChild(primaryBody.lastElementChild);
+                splitIndex = i;
+                break;
+            }
+        }
+
+        if (splitIndex <= 0 || splitIndex >= rowMarkup.length) {
+            splitIndex = Math.ceil(rowMarkup.length / 2);
+            clearBodies();
+            appendRange(primaryBody, 0, splitIndex);
+        }
+
+        appendRange(secondaryBody, splitIndex, rowMarkup.length);
+
+        const shouldSplit = secondaryBody.children.length > 0;
+        secondaryPanel.hidden = !shouldSplit;
+        tableWrap.classList.toggle("is-split", shouldSplit);
+    };
+
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+        if (resizeTimer) {
+            clearTimeout(resizeTimer);
+        }
+        resizeTimer = setTimeout(rebalance, 120);
+    });
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", rebalance);
+    } else {
+        rebalance();
+    }
+})();
+</script>
+{% endblock %}

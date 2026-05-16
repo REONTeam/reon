@@ -1,0 +1,48 @@
+{% extends "main.twig" %}
+{% set nav_item = "games" %}
+
+{% block title %}Pok&eacute;mon - BXT Save Converter{% endblock %}
+
+{% block head %}
+<link href="/css/saveconverter.css?v=bxt-save-converter-v2" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="save-converter-page">
+    <h1 class="trade-corner-title">BXT Save Converter</h1>
+
+    <div class="save-converter-card">
+        <p class="save-converter-note">
+            Conversion runs entirely in your browser.
+        </p>
+
+        <div class="save-converter-row">
+            <label for="save-file-input" class="save-converter-label">Original <code>.sav</code> file</label>
+            <input id="save-file-input" class="save-file-input" type="file" accept=".sav,application/octet-stream">
+        </div>
+
+        <div class="save-converter-row">
+            <div class="save-converter-label">Language</div>
+            <div class="save-language-grid" id="save-language-grid" role="radiogroup" aria-label="Save language">
+                <label><input type="radio" name="save-lang" value="E"> English</label>
+                <label><input type="radio" name="save-lang" value="F"> French</label>
+                <label><input type="radio" name="save-lang" value="D"> German</label>
+                <label><input type="radio" name="save-lang" value="S"> Spanish</label>
+                <label><input type="radio" name="save-lang" value="I"> Italian</label>
+            </div>
+        </div>
+
+        <div class="save-converter-actions">
+            <button id="save-convert-btn" class="save-convert-btn" type="button">Convert</button>
+        </div>
+
+        <div class="save-converter-status" id="save-converter-status" aria-live="polite">
+            Ready.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body %}
+<script src="/js/saveconverter.js?v=bxt-save-converter-v2"></script>
+{% endblock %}

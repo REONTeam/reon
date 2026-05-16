@@ -106,6 +106,21 @@
   clear: both;
 }
 
+.trade-no-results {
+  width: 100%;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 1.1em;
+  color: #545b66;
+}
+
+.trade-no-results-hidden {
+  display: none;
+}
+
 .crystal-trade-slot {
   float: left;
   width: 250px;

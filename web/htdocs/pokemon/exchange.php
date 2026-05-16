@@ -128,6 +128,62 @@
         $entry["exchange_expire_epoch"] = $created_epoch + intval($lifetime_seconds);
     }
 
+    /**
+     * Return a map of columns for a table: ['column_name' => true, ...]
+     */
+    function bxt_exchange_table_columns($db, $table_name) {
+        $table_name = str_replace("`", "``", (string)$table_name);
+        $columns = array();
+
+        $result = $db->query("SHOW COLUMNS FROM `" . $table_name . "`");
+        if (!$result) {
+            return $columns;
+        }
+
+        while ($row = $result->fetch_assoc()) {
+            $field = strtolower((string)($row["Field"] ?? ""));
+            if ($field !== "") {
+                $columns[$field] = true;
+            }
+        }
+        $result->close();
+        return $columns;
+    }
+
+    /**
+     * True when a table exists.
+     */
+    function bxt_exchange_has_table($db, $table_name) {
+        $escaped = $db->real_escape_string((string)$table_name);
+        $result = $db->query("SHOW TABLES LIKE '" . $escaped . "'");
+        if (!$result) {
+            return false;
+        }
+        $exists = $result->num_rows > 0;
+        $result->close();
+        return $exists;
+    }
+
+    /**
+     * True when a column exists in the given columns map.
+     */
+    function bxt_exchange_has_column($columns_map, $column_name) {
+        $name = strtolower((string)$column_name);
+        return isset($columns_map[$name]);
+    }
+
+    /**
+     * Pick the first available column name from the candidate list.
+     */
+    function bxt_exchange_pick_column($columns_map, $candidates) {
+        foreach ($candidates as $candidate) {
+            if (bxt_exchange_has_column($columns_map, $candidate)) {
+                return (string)$candidate;
+            }
+        }
+        return null;
+    }
+
     $valid_regions = array("global", "j", "int", "eng", "e", "p", "u", "f", "d", "i", "s");
 
     $region = strtolower($_GET["region"] ?? "global");
@@ -155,7 +211,38 @@
         $where_clause = "where bxt_exchange.game_region = '" . $region . "' ";
     }
 
-    $stmt = $db->prepare(
+    $exchange_columns = bxt_exchange_table_columns($db, "bxt_exchange");
+    $sys_users_exists = bxt_exchange_has_table($db, "sys_users");
+    $sys_users_columns = $sys_users_exists ? bxt_exchange_table_columns($db, "sys_users") : array();
+
+    $timestamp_column = bxt_exchange_pick_column($exchange_columns, array("timestamp", "entry_time"));
+    $player_name_column = bxt_exchange_pick_column($exchange_columns, array("player_name", "trainer_name"));
+    $mail_column = bxt_exchange_has_column($exchange_columns, "mail") ? "mail" : null;
+    $has_trade_allowlist = bxt_exchange_has_column($sys_users_columns, "trade_region_allowlist");
+
+    $timestamp_select = "NOW() AS timestamp, UNIX_TIMESTAMP(NOW()) AS timestamp_epoch, ";
+    $order_by = "bxt_exchange.trainer_id DESC";
+    if (!empty($timestamp_column)) {
+        $safe_timestamp_column = str_replace("`", "``", (string)$timestamp_column);
+        $timestamp_select =
+            "bxt_exchange.`" . $safe_timestamp_column . "` AS timestamp, " .
+            "UNIX_TIMESTAMP(bxt_exchange.`" . $safe_timestamp_column . "`) AS timestamp_epoch, ";
+        $order_by = "bxt_exchange.`" . $safe_timestamp_column . "` DESC";
+    }
+
+    $player_name_select = "'' AS player_name, ";
+    if (!empty($player_name_column)) {
+        $safe_player_name_column = str_replace("`", "``", (string)$player_name_column);
+        $player_name_select = "bxt_exchange.`" . $safe_player_name_column . "` AS player_name, ";
+    }
+
+    $mail_select = "NULL AS mail, ";
+    if (!empty($mail_column)) {
+        $safe_mail_column = str_replace("`", "``", (string)$mail_column);
+        $mail_select = "bxt_exchange.`" . $safe_mail_column . "` AS mail, ";
+    }
+
+    $query_with_users =
         "select " .
             "bxt_exchange.account_id, " .
             "bxt_exchange.trainer_id, " .
@@ -165,23 +252,73 @@
             "bxt_exchange.offer_gender, " .
             "bxt_exchange.request_species, " .
             "bxt_exchange.request_gender, " .
-            "bxt_exchange.player_name, " .
-            "bxt_exchange.timestamp, " .
-            "UNIX_TIMESTAMP(bxt_exchange.timestamp) AS timestamp_epoch, " .
+            $player_name_select .
+            $timestamp_select .
             "bxt_exchange.pokemon, " .
-            "bxt_exchange.mail, " .
-            "sys_users.trade_region_allowlist " .
+            $mail_select;
+
+    if ($sys_users_exists && $has_trade_allowlist) {
+        $query_with_users .=
+            "COALESCE(sys_users.trade_region_allowlist, 'efdsipuj') AS trade_region_allowlist " .
+            "from bxt_exchange " .
+            "left join sys_users on bxt_exchange.account_id = sys_users.id " .
+            $where_clause .
+            "order by " . $order_by;
+    } else {
+        $query_with_users .=
+            "'efdsipuj' AS trade_region_allowlist " .
+            "from bxt_exchange " .
+            $where_clause .
+            "order by " . $order_by;
+    }
+
+    $query_without_users =
+        "select " .
+            "bxt_exchange.account_id, " .
+            "bxt_exchange.trainer_id, " .
+            "bxt_exchange.secret_id, " .
+            "bxt_exchange.game_region, " .
+            "bxt_exchange.offer_species, " .
+            "bxt_exchange.offer_gender, " .
+            "bxt_exchange.request_species, " .
+            "bxt_exchange.request_gender, " .
+            $player_name_select .
+            $timestamp_select .
+            "bxt_exchange.pokemon, " .
+            $mail_select .
+            "'efdsipuj' AS trade_region_allowlist " .
         "from bxt_exchange " .
-        "join sys_users on bxt_exchange.account_id = sys_users.id " .
         $where_clause .
-        "order by bxt_exchange.timestamp desc"
-    );
-    
+        "order by " . $order_by;
+
     $genders = [null, "male", "female", null];
     $genders_symbols = [null, "♂", "♀", null];
 
-    $stmt->execute();
-    $data = DBUtil::fancy_get_result($stmt);
+    $data = array();
+    try {
+        $stmt = $db->prepare($query_with_users);
+        if ($stmt) {
+            $stmt->execute();
+            $data = DBUtil::fancy_get_result($stmt);
+        }
+    } catch (Exception $e) {
+        $data = array();
+    }
+
+    if (!is_array($data) || count($data) === 0) {
+        try {
+            $fallback_stmt = $db->prepare($query_without_users);
+            if ($fallback_stmt) {
+                $fallback_stmt->execute();
+                $fallback_data = DBUtil::fancy_get_result($fallback_stmt);
+                if (is_array($fallback_data)) {
+                    $data = $fallback_data;
+                }
+            }
+        } catch (Exception $e) {
+            $data = array();
+        }
+    }
     foreach ($data as &$entry) {
         $pc = $entry['game_region'];
         $entry["player_name"] = $pkm_util->getString($pc, $entry['player_name']);

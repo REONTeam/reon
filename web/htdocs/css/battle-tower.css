@@ -1,0 +1,184 @@
+.battle-tower-page {
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.battle-tower-controls {
+  width: min(900px, 100%);
+  margin: 0 auto 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "level room"
+    "honor .";
+  align-items: center;
+  row-gap: 8px;
+}
+
+.battle-control-level {
+  grid-area: level;
+  justify-self: start;
+}
+
+.battle-control-room {
+  grid-area: room;
+  justify-self: end;
+}
+
+.battle-honor-roll-label {
+  grid-area: honor;
+  justify-self: start;
+  font-size: 1.05em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.battle-tower-controls .trade-region-filter {
+  min-width: 122px;
+}
+
+.battle-table-shell {
+  width: min(940px, 100%);
+  margin: 0 auto;
+  padding: 12px 10px;
+  border: 4px solid #000;
+  box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 6px #000;
+  background: #f2f2f2;
+}
+
+.battle-table-grid {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.battle-table-panel {
+  width: 100%;
+  max-width: 440px;
+}
+
+.battle-honor-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #f8f8f8;
+}
+
+.battle-honor-table th,
+.battle-honor-table td {
+  border: 1px solid #c6c6c6;
+  padding: 5px 6px;
+  vertical-align: middle;
+  font-size: .92em;
+  line-height: 1.2;
+}
+
+.battle-honor-table th {
+  text-align: center;
+  background: #dfdfdf;
+  font-size: .9em;
+  letter-spacing: .03em;
+  font-weight: 600;
+}
+
+.battle-honor-table th:nth-child(1) {
+  width: 38%;
+}
+
+.battle-honor-table th:nth-child(2) {
+  width: 27%;
+}
+
+.battle-honor-table th:nth-child(3) {
+  width: 35%;
+}
+
+.bt-leader-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bt-trainer-sprite {
+  width: 56px;
+  height: 56px;
+  image-rendering: pixelated;
+  flex: 0 0 auto;
+}
+
+.bt-leader-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 56px;
+}
+
+.bt-player-name {
+  margin-top: 2px;
+}
+
+.bt-pokemon-list {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.bt-pokemon-list li {
+  margin: 0;
+}
+
+.bt-message-cell {
+  vertical-align: top;
+}
+
+.bt-message-box {
+  border: 1px solid #8e8e8e;
+  background: #fff;
+  padding: 4px 5px;
+  min-height: 42px;
+  white-space: pre-line;
+  line-height: 1.2;
+}
+
+.bt-empty-row td {
+  text-align: center;
+  padding: 14px;
+}
+
+@media (max-width: 960px) {
+  .battle-table-grid {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .battle-table-panel {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .battle-tower-controls .trade-region-filter {
+    min-width: 96px;
+    font-size: .82em;
+    padding: 5px 6px;
+  }
+
+  .battle-honor-roll-label {
+    font-size: .98em;
+  }
+
+  .battle-honor-table th,
+  .battle-honor-table td {
+    font-size: .78em;
+    padding: 4px;
+  }
+
+  .bt-trainer-sprite {
+    width: 44px;
+    height: 44px;
+  }
+
+  .bt-leader-text {
+    min-height: 44px;
+  }
+}

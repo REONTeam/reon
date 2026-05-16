@@ -110,6 +110,9 @@
     </div>
     {% endfor %}
     </div>
+    <div id="trade-no-results" class="trade-no-results"{% if trades|length > 0 %} style="display:none"{% endif %}>
+        No results found.
+    </div>
 
 {% endblock %}
 

@@ -30,6 +30,7 @@
   var searchEntries = [];
   var searchInput = null;
   var regionFilterSelect = null;
+  var noResultsNode = null;
 
   function normalizeSearchText(value) {
     return String(value || "")
@@ -908,12 +909,44 @@
     return true;
   }
 
-  function applySearchFilter() {
-    if (!searchInput) {
+  function updateNoResultsState(visibleCount) {
+    if (!noResultsNode) {
+      noResultsNode = document.getElementById("trade-no-results");
+    }
+    if (!noResultsNode) {
       return;
     }
 
-    var query = parseSearchQuery(searchInput.value || "");
+    var hasVisible = visibleCount > 0;
+    if (!hasVisible) {
+      var slotsInDom = document.querySelectorAll(".crystal-trade-slot");
+      for (var i = 0; i < slotsInDom.length; i++) {
+        if (slotsInDom[i].style.display !== "none") {
+          hasVisible = true;
+          break;
+        }
+      }
+    }
+
+    noResultsNode.style.display = hasVisible ? "none" : "flex";
+  }
+
+  function applySearchFilter() {
+    var queryText = searchInput ? String(searchInput.value || "") : "";
+    var normalizedQuery = normalizeSearchText(queryText);
+
+    // Empty query should always show every card by default.
+    if (normalizedQuery === "") {
+      var allSlots = document.querySelectorAll(".crystal-trade-slot");
+      for (var s = 0; s < allSlots.length; s++) {
+        allSlots[s].style.display = "";
+      }
+      updateNoResultsState(allSlots.length);
+      return;
+    }
+
+    var query = parseSearchQuery(queryText);
+    var visibleCount = 0;
     for (var i = 0; i < searchEntries.length; i++) {
       var entry = searchEntries[i];
       if (!entry.slot || !entry.slot.isConnected) {
@@ -921,7 +954,11 @@
       }
       var shouldShow = entryMatchesQuery(entry, query);
       entry.slot.style.display = shouldShow ? "" : "none";
+      if (shouldShow) {
+        visibleCount += 1;
+      }
     }
+    updateNoResultsState(visibleCount);
   }
 
   function pruneStaleEntries() {
@@ -1005,10 +1042,9 @@
 
   function initSearch() {
     searchInput = document.getElementById("trade-search-input");
-    if (!searchInput) {
-      return;
+    if (searchInput) {
+      searchInput.addEventListener("input", applySearchFilter);
     }
-    searchInput.addEventListener("input", applySearchFilter);
     applySearchFilter();
   }
 
