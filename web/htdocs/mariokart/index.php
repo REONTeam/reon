@@ -16,7 +16,7 @@
     $tracks = array();
 
     $stmt = $db->prepare(
-		"SELECT a.id, a.player_id, a.course_no, a.driver, a.name, a.state, a.unk18, a.course, a.`time`, ".
+		"SELECT a.id, a.course, a.player_id, a.name, a.state, a.driver, a.`time`, ".
 		"a.input_data, a.full_name, a.phone_number, a.postal_code, a.address, a.`timestamp` ".
 		"FROM amk_ghosts a ".
 		"LEFT OUTER JOIN amk_ghosts b ".
