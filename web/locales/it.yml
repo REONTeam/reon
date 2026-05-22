@@ -8,7 +8,7 @@ pokemon:
   trade-warning-only-own-game: "⚠️ Questo utente ha abilitato gli scambi solo con %game_id%."
   trade-warning-no-japanese: "⚠️ Questo utente ha disattivato gli scambi con lingue non europee."
   species:
-  - (NONE)
+  - "---"
   - BULBASAUR
   - IVYSAUR
   - VENUSAUR
@@ -261,7 +261,7 @@ pokemon:
   - HO-OH
   - CELEBI
   items:
-  - (NONE)
+  - "---"
   - MASTER BALL
   - ULTRA BALL
   - LUMINPOLVERE
@@ -517,7 +517,7 @@ pokemon:
   - MN11 (UNUSED)
   - MN12 (UNUSED)
   moves:
-  - (NONE)
+  - "---"
   - BOTTA
   - COLPOKARATE
   - DOPPIASBERLA

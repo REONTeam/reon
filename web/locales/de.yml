@@ -8,7 +8,7 @@ pokemon:
   trade-warning-only-own-game: "⚠️ Dieser Nutzer hat nur Tausche mit %game_id% aktiviert."
   trade-warning-no-japanese: "⚠️ Dieser Nutzer hat Tausche mit nicht-europäischen Sprachen deaktiviert."
   species:
-  - (KEINS)
+  - "---"
   - BISASAM
   - BISAKNOSP
   - BISAFLOR
@@ -261,7 +261,7 @@ pokemon:
   - HO-OH
   - CELEBI
   items:
-  - (KEINS)
+  - "---"
   - MEISTERBALL
   - HYPERBALL
   - BLENDPUDER
@@ -517,7 +517,7 @@ pokemon:
   - VM11 (UNBENUTZT)
   - VM12 (UNBENUTZT)
   moves:
-  - (KEINS)
+  - "---"
   - KLAPS
   - KARATESCHLAG
   - DUPLEXHIEB

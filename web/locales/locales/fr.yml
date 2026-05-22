@@ -153,7 +153,7 @@ pokemon:
   trade-warning-only-own-game: "⚠️ Cet utilisateur a seulement activé les échanges avec %game_id%."
   trade-warning-no-japanese: "⚠️ Cet utilisateur a désactivé les échanges avec les langues non européennes."
   species:
-  - (AUCUN)
+  - "---"
   - BULBIZARRE
   - HERBIZARRE
   - FLORIZARRE
@@ -406,7 +406,7 @@ pokemon:
   - HO-OH
   - CELEBI
   items:
-  - (AUCUN)
+  - "---"
   - MASTER BALL
   - HYPER BALL
   - POUDRECLAIRE
@@ -662,7 +662,7 @@ pokemon:
   - CS11 (INUTILISÉ)
   - CS12 (INUTILISÉ)
   moves:
-  - (AUCUN)
+  - "---"
   - ÉCRAS’FACE
   - POING KARATÉ
   - TORGNOLES

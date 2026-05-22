@@ -516,7 +516,7 @@ pokemon:
   trade-warning-only-own-game: "⚠️ This user has only enabled trades with %game_id%"
   trade-warning-no-japanese: "⚠️ This user has disabled trades with non-European languages."
   species:
-  - (NONE)
+  - "---"
   - BULBASAUR
   - IVYSAUR
   - VENUSAUR
@@ -769,7 +769,7 @@ pokemon:
   - HO-OH
   - CELEBI
   items:
-  - (NONE)
+  - "---"
   - MASTER BALL
   - ULTRA BALL
   - BRIGHTPOWDER
@@ -1025,7 +1025,7 @@ pokemon:
   - HM11 (UNUSED)
   - HM12 (UNUSED)
   moves:
-  - (NONE)
+  - "---"
   - POUND
   - KARATE CHOP
   - DOUBLE SLAP
