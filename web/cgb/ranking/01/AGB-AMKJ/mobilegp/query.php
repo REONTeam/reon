@@ -13,7 +13,8 @@
 		return;
 	}
 	$myid = hex2bin($params["myid"]);
-	if (!checkPlayerID($myid, null)) {
+	$user_id = checkPlayerID($myid);
+	if ($user_id === false) {
 		http_response_code(400);
 		return;
 	}
@@ -22,11 +23,12 @@
 
 	$gp_id = getCurrentMobileGP();
 	
-	echo pack("n", date("Y", time() + 32400)); // Year
-	echo pack("C", date("m", time() + 32400)); // Month
-	echo pack("C", date("d", time() + 32400)); // Day
-	echo pack("C", date("H", time() + 32400)); // Hour
-	echo pack("C", date("i")); // Minute
+	$time = get_user_local_time($user_id);
+	echo pack("n", $time->format("Y")); // Year
+	echo pack("C", $time->format("m")); // Month
+	echo pack("C", $time->format("d")); // Day
+	echo pack("C", $time->format("H")); // Hour
+	echo pack("C", $time->format("i")); // Minute
 	
 	echo pack("N", getTotalRankingEntriesMobileGP($gp_id));
 	

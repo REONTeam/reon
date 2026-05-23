@@ -1,6 +1,7 @@
 <?php
 	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/database.php");
+	require_once(CORE_PATH."/timezone.php");
 
 	function getDownloadGameRegions() {
 		$game_region = getCurrentGameRegion();
@@ -79,7 +80,7 @@
 		);
 	}
 
-	function checkPlayerID($myid, $user_id) {
+	function checkPlayerID($myid, $user_id = null) {
 		$config = getConfig();
 
 		$decoded = decodePlayerID($myid);
@@ -88,19 +89,21 @@
 		}
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
-		$stmt->bind_param("i", $user_id);
+		$stmt = $db->prepare("select id from sys_users where dion_email_local = ?");
+		$stmt->bind_param("s", $decoded["email_id"]);
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 		if (sizeof($result) == 0) {
 			return false;
 		}
-		
-		if ($result[0]["dion_email_local"] !== $decoded["email_id"]) {
+
+		if (is_null($user_id)) {
+			return $result[0]["id"];
+		} elseif ($result[0]["id"] !== $user_id) {
 			return false;
+		} else {
+			return true;
 		}
-		
-		return true;
 	}
 
 	function getCurrentMobileGP() {
@@ -279,11 +282,12 @@
 	}
 
 	function makeGhostDownload($result, $course) {
-		$output = pack("n", date("Y", time() + 32400)) // Year
-		         .pack("C", date("m", time() + 32400)) // Month
-		         .pack("C", date("d", time() + 32400)) // Day
-		         .pack("C", date("H", time() + 32400)) // Hour
-		         .pack("C", date("i")); // Minute
+		$time = get_user_local_time();
+		$output = pack("n", $time->format("Y")) // Year
+		         .pack("C", $time->format("m")) // Month
+		         .pack("C", $time->format("d")) // Day
+		         .pack("C", $time->format("H")) // Hour
+		         .pack("C", $time->format("i")); // Minute
 
 		$total = getTotalRankingEntries($course);
 		
@@ -394,11 +398,12 @@
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
-		$output = pack("n", date("Y", time() + 32400)) // Year
-		         .pack("C", date("m", time() + 32400)) // Month
-		         .pack("C", date("d", time() + 32400)) // Day
-		         .pack("C", date("H", time() + 32400)) // Hour
-		         .pack("C", date("i")); // Minute
+		$time = get_user_local_time();
+		$output = pack("n", $time->format("Y")) // Year
+		         .pack("C", $time->format("m")) // Month
+		         .pack("C", $time->format("d")) // Day
+		         .pack("C", $time->format("H")) // Hour
+		         .pack("C", $time->format("i")); // Minute
 		
 		$output = $output.pack("N", getTotalRankingEntries($course)); // Seems to indicate if something was found
 		$output = $output.pack("n", sizeof($result)); // Seems to indicate if data is present
@@ -431,11 +436,12 @@
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
-		$output = pack("n", date("Y", time() + 32400)) // Year
-		         .pack("C", date("m", time() + 32400)) // Month
-		         .pack("C", date("d", time() + 32400)) // Day
-		         .pack("C", date("H", time() + 32400)) // Hour
-		         .pack("C", date("i")); // Minute
+		$time = get_user_local_time();
+		$output = pack("n", $time->format("Y")) // Year
+		         .pack("C", $time->format("m")) // Month
+		         .pack("C", $time->format("d")) // Day
+		         .pack("C", $time->format("H")) // Hour
+		         .pack("C", $time->format("i")); // Minute
 		
 		$output = $output.pack("N", getTotalRankingEntriesState($course, $state)); // Seems to indicate if something was found
 		$output = $output.pack("n", sizeof($result)); // Seems to indicate if data is present
@@ -468,11 +474,12 @@
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
 
-		$output = pack("n", date("Y", time() + 32400)) // Year
-		         .pack("C", date("m", time() + 32400)) // Month
-		         .pack("C", date("d", time() + 32400)) // Day
-		         .pack("C", date("H", time() + 32400)) // Hour
-		         .pack("C", date("i")); // Minute
+		$time = get_user_local_time();
+		$output = pack("n", $time->format("Y")) // Year
+		         .pack("C", $time->format("m")) // Month
+		         .pack("C", $time->format("d")) // Day
+		         .pack("C", $time->format("H")) // Hour
+		         .pack("C", $time->format("i")); // Minute
 		
 		$output = $output.pack("N", getTotalRankingEntriesDriver($course, $driver)); // Seems to indicate if something was found
 		$output = $output.pack("n", sizeof($result)); // Seems to indicate if data is present
@@ -595,10 +602,11 @@
 			return;
 		}
 		$myid = hex2bin($params["myid"]);
-		/*if (!checkPlayerID($myid, null)) {
+		$user_id = checkPlayerID($myid);
+		if ($user_id === false) {
 			http_response_code(400);
 			return;
-		}*/
+		}
 		$state = hexdec($params["state"]);
 		$driver = hexdec($params["driver"]);
 		$rk = array();
@@ -606,11 +614,12 @@
 			array_push($rk, hexdec($params["rk_".$i]));
 		}
 		
-		echo pack("n", date("Y", time() + 32400)); // Year
-		echo pack("C", date("m", time() + 32400)); // Month
-		echo pack("C", date("d", time() + 32400)); // Day
-		echo pack("C", date("H", time() + 32400)); // Hour
-		echo pack("C", date("i")); // Minute
+		$time = get_user_local_time($user_id);
+		echo pack("n", $time->format("Y")); // Year
+		echo pack("C", $time->format("m")); // Month
+		echo pack("C", $time->format("d")); // Day
+		echo pack("C", $time->format("H")); // Hour
+		echo pack("C", $time->format("i")); // Minute
 		
 		echo pack("N", getTotalRankingEntries($course)); // Probably total amount of ranked players
 		
@@ -656,11 +665,11 @@
 
 	// --- State top 10 --- //
 		
-		echo pack("n", date("Y", time() + 32400)); // Year
-		echo pack("C", date("m", time() + 32400)); // Month
-		echo pack("C", date("d", time() + 32400)); // Day
-		echo pack("C", date("H", time() + 32400)); // Hour
-		echo pack("C", date("i")); // Minute
+		echo pack("n", $time->format("Y")); // Year
+		echo pack("C", $time->format("m")); // Month
+		echo pack("C", $time->format("d")); // Day
+		echo pack("C", $time->format("H")); // Hour
+		echo pack("C", $time->format("i")); // Minute
 		
 		echo pack("N", getTotalRankingEntriesState($course, $state)); // Probably total amount of ranked players
 		
@@ -690,11 +699,11 @@
 
 	// --- Driver top 10 --- //
 		
-		echo pack("n", date("Y", time() + 32400)); // Year
-		echo pack("C", date("m", time() + 32400)); // Month
-		echo pack("C", date("d", time() + 32400)); // Day
-		echo pack("C", date("H", time() + 32400)); // Hour
-		echo pack("C", date("i")); // Minute
+		echo pack("n", $time->format("Y")); // Year
+		echo pack("C", $time->format("m")); // Month
+		echo pack("C", $time->format("d")); // Day
+		echo pack("C", $time->format("H")); // Hour
+		echo pack("C", $time->format("i")); // Minute
 		
 		echo pack("N", getTotalRankingEntriesDriver($course, $driver)); // Probably total amount of ranked players
 		

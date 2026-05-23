@@ -26,11 +26,12 @@
 		http_response_code(500);
 		return;
 	}
-$stmt = $db->prepare("select count(*) from sys_users where dion_email_local = ?");
+
+	$stmt = $db->prepare("select id from sys_users where dion_email_local = ?");
 	$stmt->bind_param("s", $dion_email_local);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
-	if ($result[0]["count(*)"] == 0) {
+	if (sizeof($result) == 0) {
 		http_response_code(400);
 		return;
 	}
@@ -41,9 +42,10 @@ $stmt = $db->prepare("select count(*) from sys_users where dion_email_local = ?"
 		return;
 	}
 
-	echo pack("n", date("Y", time() + 32400));
-	echo pack("C", date("m", time() + 32400));
-	echo pack("C", date("d", time() + 32400));
+	$time = get_user_local_time($result[0]["id"]);
+	echo pack("n", $time->format("Y")); // Year
+	echo pack("C", $time->format("m")); // Month
+	echo pack("C", $time->format("d")); // Day
 
 	$stmt = $db->prepare("select id, weight from amg_rankings where ident = ? and game_region = ?");
 	$stmt->bind_param("ss", $ident, $game_region);
