@@ -18,6 +18,20 @@ final class FixAmkGhostsTables extends AbstractMigration
         return (bool)$row;
     }
 
+    private function columnExists(string $table, string $column): bool
+    {
+        $pdo = $this->getAdapter()->getConnection();
+        $row = $this->fetchRow(
+            "SELECT 1
+               FROM INFORMATION_SCHEMA.COLUMNS
+              WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = " . $pdo->quote($table) . "
+                AND COLUMN_NAME = " . $pdo->quote($column) . "
+              LIMIT 1"
+        );
+        return (bool)$row;
+    }
+
     private function columnRow(string $table, string $column): ?array
     {
         $pdo = $this->getAdapter()->getConnection();
