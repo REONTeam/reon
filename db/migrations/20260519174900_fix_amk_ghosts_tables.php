@@ -99,7 +99,7 @@ final class FixAmkGhostsTables extends AbstractMigration
         $aft = $this->columnRow($table, $after);
         if (!$col || !$aft) return;
 
-        if ($this->isImmediatelyAfter($table, $column, $after)) {
+        if ($this->isImmediatelyAfter($table, $after, $column)) {
             return; // already positioned correctly
         }
 
