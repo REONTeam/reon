@@ -20,7 +20,7 @@ final class AddTimeZoneUserSetting extends AbstractMigration
     public function change(): void
     {
         $table = $this->table('sys_users');
-        $table->addColumn('timezone', 'string', ['limit' => 255, 'null' => false, 'default' => 'Asia/Tokyo']);
+        $table->addColumn('timezone', 'string', ['limit' => 255, 'null' => false, 'default' => 'Asia/Tokyo'])
               ->update();
     }
 }
