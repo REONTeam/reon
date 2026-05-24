@@ -4,7 +4,7 @@
 
 	function get_user_local_time($user_id = null) {
 		$tz = "Asia/Tokyo";
-		if (array_key_exists('userId', $_SESSION)) {
+		if (session_status() == PHP_SESSION_ACTIVE) {
 			$user_id = $_SESSION['userId'];
 		}
 		if (!is_null($user_id)) {
