@@ -26,7 +26,7 @@ body.mariokart-theme::after {
   background-color: #08162c;
   background-image: url("/images/mariokart/StarsRepeat.png");
   background-repeat: repeat;
-  background-size: 320px 320px;
+  background-size: 256px 256px;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
