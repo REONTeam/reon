@@ -1,3 +1,11 @@
+locale:
+  en: English
+  ja: 日本語
+  de: Deutsch
+  es: Español
+  it: Italiano
+  fr: Français
+
 pokemon:
   name: NAME
   offerer: ANBIETER
@@ -261,7 +269,7 @@ pokemon:
   - HO-OH
   - CELEBI
   items:
-  - "---"
+  - (KEINS)
   - MEISTERBALL
   - HYPERBALL
   - BLENDPUDER
@@ -517,7 +525,7 @@ pokemon:
   - VM11 (UNBENUTZT)
   - VM12 (UNBENUTZT)
   moves:
-  - "---"
+  - (KEINS)
   - KLAPS
   - KARATESCHLAG
   - DUPLEXHIEB

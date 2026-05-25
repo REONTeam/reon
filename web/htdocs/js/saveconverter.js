@@ -38,6 +38,7 @@
   };
 
   var fileInput = document.getElementById("save-file-input");
+  var fileNameNode = document.getElementById("save-file-name");
   var convertBtn = document.getElementById("save-convert-btn");
   var statusNode = document.getElementById("save-converter-status");
 
@@ -47,6 +48,13 @@
 
   function setStatus(text) {
     statusNode.textContent = String(text || "");
+  }
+
+  function setSelectedFileName(file) {
+    if (!fileNameNode) {
+      return;
+    }
+    fileNameNode.textContent = (file && file.name) ? String(file.name) : "No file chosen";
   }
 
   function getSelectedLanguage() {
@@ -135,6 +143,13 @@
       URL.revokeObjectURL(url);
     }, 0);
   }
+
+  fileInput.addEventListener("change", function () {
+    var file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+    setSelectedFileName(file);
+  });
+
+  setSelectedFileName(null);
 
   convertBtn.addEventListener("click", function () {
     var file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;

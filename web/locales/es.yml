@@ -1,3 +1,11 @@
+locale:
+  en: English
+  ja: 日本語
+  de: Deutsch
+  es: Español
+  it: Italiano
+  fr: Français
+
 pokemon:
   level: :N
   name: NOMBRE
@@ -262,7 +270,7 @@ pokemon:
   - HO-OH
   - CELEBI
   items:
-  - "---"
+  - NINGÚN
   - MASTER BALL
   - ULTRA BALL
   - POLVO BRILLO
@@ -518,7 +526,7 @@ pokemon:
   - MO11 (SIN USO)
   - MO12 (SIN USO)
   moves:
-  - "---"
+  - NINGÚN
   - DESTRUCTOR
   - GOLPE KÁRATE
   - DOBLE BOFETÓN

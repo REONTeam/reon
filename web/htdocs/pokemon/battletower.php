@@ -369,30 +369,35 @@
             return "";
         }
 
-        $line_one_word_limit = bxt_battle_tower_message_wrap_word_limit($game_region);
-        $line_one_tokens = [];
-        $line_two_tokens = [];
-        $word_count = 0;
+        $word_limit = bxt_battle_tower_message_wrap_word_limit($game_region);
+        $lines = [];
+        $current_line_tokens = [];
+        $current_line_words = 0;
 
         foreach ($tokens as $token) {
-            if ($word_count < $line_one_word_limit) {
-                $line_one_tokens[] = $token;
-                if (bxt_battle_tower_token_has_word($token)) {
-                    $word_count++;
+            $current_line_tokens[] = $token;
+            if (bxt_battle_tower_token_has_word($token)) {
+                $current_line_words++;
+            }
+
+            if ($current_line_words >= $word_limit) {
+                $line_text = bxt_battle_tower_tokens_to_text($current_line_tokens);
+                if ($line_text !== "") {
+                    $lines[] = $line_text;
                 }
-            } else {
-                $line_two_tokens[] = $token;
+                $current_line_tokens = [];
+                $current_line_words = 0;
             }
         }
 
-        $line_one = bxt_battle_tower_tokens_to_text($line_one_tokens);
-        $line_two = bxt_battle_tower_tokens_to_text($line_two_tokens);
-
-        if ($line_two === "") {
-            return $line_one;
+        if (count($current_line_tokens) > 0) {
+            $line_text = bxt_battle_tower_tokens_to_text($current_line_tokens);
+            if ($line_text !== "") {
+                $lines[] = $line_text;
+            }
         }
 
-        return $line_one . "\n" . $line_two;
+        return implode("\n\n", $lines);
     }
 
     function bxt_battle_tower_decode_trainer_class_name($game_region, $class_id, $fallback = "") {
@@ -470,8 +475,30 @@
         "order by timestamp desc, id desc"
     );
 
+    if (!$stmt) {
+        error_log("Battle Tower query prepare failed: " . $db->error);
+        echo TemplateUtil::render("/pokemon/battletower", [
+            "leaders" => [],
+            "selected_level" => $selected_level,
+            "selected_room" => $selected_room,
+            "level_options" => range(10, 100, 10),
+            "room_options" => range(1, 20),
+        ]);
+        exit;
+    }
+
     $stmt->bind_param("ii", $db_level, $db_room);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        error_log("Battle Tower query execute failed: " . $stmt->error);
+        echo TemplateUtil::render("/pokemon/battletower", [
+            "leaders" => [],
+            "selected_level" => $selected_level,
+            "selected_room" => $selected_room,
+            "level_options" => range(10, 100, 10),
+            "room_options" => range(1, 20),
+        ]);
+        exit;
+    }
 
     $data = DBUtil::fancy_get_result($stmt);
     foreach ($data as $entry) {

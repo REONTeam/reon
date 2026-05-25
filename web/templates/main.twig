@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
@@ -6,16 +6,16 @@
 		<title>{% block title %}Default Title{% endblock %} - REON</title>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-		<link href="/css/main.css?v=core-main-css-v1" rel="stylesheet">
+		<link href="/css/main.css?v=core-main-css-v35" rel="stylesheet">
 		<link href="/css/mobile-trainer.css" rel="stylesheet">
 		{% block head %}
 		{% endblock %}
 	</head>
-	<body>
+	<body{% if body_class is defined and body_class %} class="{{ body_class|e('html_attr') }}"{% endif %}>
 		<header class="navbar navbar-expand-lg bg-body-tertiary cgb-gradient-border container-xxl">
 			<nav class="container-xxl">
 				<a href="/index.php" class="navbar-brand">
-					<span class="fs-4">REON</span>
+					<img src="/images/REON_Logo.svg" alt="REON" class="reon-navbar-logo">
 				</a>
 				
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -35,17 +35,17 @@
 				
 				<div class="d-flex">
 					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-						<li class="nav-item dropdown">
-							<a href="#" class="nav-link dropdown-toggle" id="localeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+						<li class="nav-item dropdown locale-nav-item">
+							<a href="#" class="nav-link dropdown-toggle" id="localeDropdown" role="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
 								{% set lang_tmpl = 'locale.' ~ curr_locale %}{{ lang_tmpl|trans }}
 							</a>
-							<ul class="dropdown-menu" aria-labelledby="localeDropdown">
-								<li><a class="dropdown-item" href="#" onclick="changeLocale('en');">{{'locale.en'|trans}}</a></li>
-								<li><a class="dropdown-item" href="#" onclick="changeLocale('ja');">{{'locale.ja'|trans}}</a></li>
-								<li><a class="dropdown-item" href="#" onclick="changeLocale('de');">{{'locale.de'|trans}}</a></li>
-								<li><a class="dropdown-item" href="#" onclick="changeLocale('es');">{{'locale.es'|trans}}</a></li>
-								<li><a class="dropdown-item" href="#" onclick="changeLocale('it');">{{'locale.it'|trans}}</a></li>
-								<li><a class="dropdown-item" href="#" onclick="changeLocale('fr');">{{'locale.fr'|trans}}</a></li>
+							<ul id="localeDropdownMenu" class="dropdown-menu locale-dropdown-menu" aria-labelledby="localeDropdown">
+								<li><a class="dropdown-item" href="?lang=en" data-locale-code="en">{{'locale.en'|trans}}</a></li>
+								<li><a class="dropdown-item" href="?lang=ja" data-locale-code="ja">{{'locale.ja'|trans}}</a></li>
+								<li><a class="dropdown-item" href="?lang=de" data-locale-code="de">{{'locale.de'|trans}}</a></li>
+								<li><a class="dropdown-item" href="?lang=es" data-locale-code="es">{{'locale.es'|trans}}</a></li>
+								<li><a class="dropdown-item" href="?lang=it" data-locale-code="it">{{'locale.it'|trans}}</a></li>
+								<li><a class="dropdown-item" href="?lang=fr" data-locale-code="fr">{{'locale.fr'|trans}}</a></li>
 							</ul>
 						</li>
 						{% if session_active %}
@@ -83,12 +83,6 @@
 		</div>
 
 		<script>
-			function changeLocale(newLocale) {
-				var url = new URL(window.location);
-				url.searchParams.set('lang', newLocale);
-				window.location = url.toString();
-			}
-
 			function openGbcModal() {
 				var modal = document.getElementById('gbc-modal');
 				var iframe = document.getElementById('gbc-iframe');
@@ -146,6 +140,74 @@
 			document.addEventListener('keydown', function(e) {
 				if (e.key === 'Escape') closeGbcModal();
 			});
+
+			(function localeDropdownLayerFix() {
+				function init() {
+					var toggle = document.getElementById('localeDropdown');
+					var menu = document.getElementById('localeDropdownMenu');
+					if (!toggle || !menu) return;
+
+					function positionMenu() {
+						var rect = toggle.getBoundingClientRect();
+						var spacer = 2;
+						var contentWidth = Math.ceil(menu.scrollWidth || 0);
+						var minWidth = Math.max(Math.ceil(rect.width), contentWidth);
+						menu.style.setProperty('position', 'fixed', 'important');
+						menu.style.setProperty('left', Math.round(rect.left) + 'px', 'important');
+						menu.style.setProperty('top', Math.round(rect.bottom + spacer) + 'px', 'important');
+						menu.style.setProperty('right', 'auto', 'important');
+						menu.style.setProperty('margin-top', '0', 'important');
+						menu.style.setProperty('transform', 'none', 'important');
+						menu.style.setProperty('min-width', minWidth + 'px', 'important');
+					}
+
+					function ensureTopLayer() {
+						menu.style.zIndex = '2147483647';
+						menu.style.pointerEvents = 'auto';
+						positionMenu();
+					}
+
+					toggle.addEventListener('show.bs.dropdown', function() {
+						document.body.classList.add('locale-menu-open');
+						ensureTopLayer();
+					});
+					toggle.addEventListener('shown.bs.dropdown', ensureTopLayer);
+
+					window.addEventListener('resize', function() {
+						if (menu.classList.contains('show')) {
+							positionMenu();
+						}
+					}, { passive: true });
+
+					window.addEventListener('scroll', function() {
+						if (menu.classList.contains('show')) {
+							positionMenu();
+						}
+					}, { passive: true });
+
+					menu.querySelectorAll('a[data-locale-code]').forEach(function(anchor) {
+						anchor.addEventListener('click', function(event) {
+							event.preventDefault();
+							var code = anchor.getAttribute('data-locale-code');
+							if (!code) return;
+							var url = new URL(window.location.href);
+							url.searchParams.set('lang', code);
+							window.location.assign(url.toString());
+						});
+					});
+
+					toggle.addEventListener('hidden.bs.dropdown', function() {
+						document.body.classList.remove('locale-menu-open');
+					});
+				}
+
+				if (document.readyState === 'loading') {
+					document.addEventListener('DOMContentLoaded', init);
+				} else {
+					init();
+				}
+			})();
+
 		</script>
 
 	</body>

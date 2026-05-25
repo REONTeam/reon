@@ -1,3 +1,11 @@
+locale:
+  en: English
+  ja: 日本語
+  de: Deutsch
+  es: Español
+  it: Italiano
+  fr: Français
+
 pokemon:
   name: NOME
   offerer: OFFER.
@@ -261,7 +269,7 @@ pokemon:
   - HO-OH
   - CELEBI
   items:
-  - "---"
+  - '---'
   - MASTER BALL
   - ULTRA BALL
   - LUMINPOLVERE
@@ -517,7 +525,7 @@ pokemon:
   - MN11 (UNUSED)
   - MN12 (UNUSED)
   moves:
-  - "---"
+  - (NONE)
   - BOTTA
   - COLPOKARATE
   - DOPPIASBERLA

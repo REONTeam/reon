@@ -1,15 +1,50 @@
-﻿{% extends "main.twig" %}
+{% extends "main.twig" %}
 {% set nav_item = "games" %}
 
 {% block title %}Pok&eacute;mon - Rankings{% endblock %}
 
 {% block head %}
-<link href="/css/rankings.css?v=trainer-rankings-v5" rel="stylesheet">
+<link href="/css/rankings.css?v=trainer-rankings-v46" rel="stylesheet">
+<link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v41" rel="stylesheet">
+<style>
+    @font-face {
+        font-family: "PokeCrystalInline";
+        src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+    }
+    .trainer-rankings-page,
+    .trainer-rankings-page * {
+        font-family: "PokeCrystalInline", "PokeCrystal", monospace !important;
+        font-weight: 400 !important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="trainer-rankings-page">
-    <h1 class="trade-corner-title">Trainer Rankings</h1>
+    <h1 class="trade-corner-title">&#xFF34;&#xFF32;&#xFF21;&#xFF29;&#xFF2E;&#xFF25;&#xFF32;&#x3000;&#xFF32;&#xFF21;&#xFF2E;&#xFF2B;&#xFF29;&#xFF2E;&#xFF27;&#xFF33;</h1>
+    {% if ranking_cycle_end_epoch|default(0) > 0 %}
+        <div
+            id="ranking-issue-label"
+            class="trainer-rankings-issue"
+            data-cycle-end-epoch="{{ ranking_cycle_end_epoch|e('html_attr') }}"
+            data-locale="{{ curr_locale|default('en')|e('html_attr') }}"
+            data-issue-text="{{ ranking_issue_label_text|default('')|e('html_attr') }}"
+        ></div>
+    {% endif %}
+
+    {% if ranking_cycle_end_epoch|default(0) > 0 %}
+        <div class="trainer-rankings-cycle">
+            <span class="ranking-cycle-prefix">Next Issue:</span>
+            <span
+                id="ranking-cycle-timer"
+                class="ranking-cycle-timer"
+                data-cycle-end-epoch="{{ ranking_cycle_end_epoch|e('html_attr') }}"
+                data-cycle-total-seconds="{{ ranking_cycle_total_seconds|default(0)|e('html_attr') }}"
+            >--h:--m:--s</span>
+        </div>
+    {% endif %}
 
     <form id="trainer-rankings-form" class="trainer-rankings-controls" method="get">
         <div class="trainer-rankings-control-row">
@@ -55,27 +90,35 @@
         >
     </div>
 
+    <div class="rankings-zoom-wrap" aria-label="Ranking table zoom">
+        <label class="rankings-zoom-label" for="rankings-zoom-btn-1">Zoom:</label>
+        <div class="trade-size-buttons rankings-zoom-buttons" role="group" aria-label="Rankings zoom">
+            <button id="rankings-zoom-btn-1" class="trade-size-btn rankings-zoom-btn" type="button" data-rankings-zoom="1" aria-pressed="true">1x</button>
+            <button class="trade-size-btn rankings-zoom-btn" type="button" data-rankings-zoom="2" aria-pressed="false">2x</button>
+        </div>
+    </div>
+
     <div class="trainer-rankings-grid">
         {% for cat in categories %}
             <section class="trainer-ranking-panel" data-ranking-panel>
-                <table class="trainer-ranking-table" style="table-layout:auto;">
+                <table class="trainer-ranking-table">
                     <colgroup>
-                        <col class="ranking-colgroup-rank" style="width:48px;">
-                        <col class="ranking-colgroup-name" style="width:68px;">
-                        <col class="ranking-colgroup-address" style="width:78px;">
-                        <col class="ranking-colgroup-message">
-                        <col class="ranking-colgroup-score" style="width:58px;">
+                        <col class="ranking-colgroup-rank" style="width:40px;">
+                        <col class="ranking-colgroup-name" style="width:72px;">
+                        <col class="ranking-colgroup-address">
+                        <col class="ranking-colgroup-message" style="width:160px;">
+                        <col class="ranking-colgroup-score" style="width:56px;">
                     </colgroup>
                     <thead>
                         <tr class="trainer-ranking-category-row">
                             <th colspan="5">{{ cat.name }}</th>
                         </tr>
                         <tr>
-                            <th>Rank</th>
-                            <th>Name</th>
-                            <th>Address</th>
-                            <th>Message</th>
-                            <th>Score</th>
+                            <th>RANK</th>
+                            <th>NAME</th>
+                            <th>ADDRESS</th>
+                            <th>MESSAGE</th>
+                            <th>SCORE</th>
                         </tr>
                     </thead>
                     <tbody data-ranking-body>
@@ -95,12 +138,12 @@
 
                         {% if cat.entries is empty %}
                             <tr class="ranking-empty-row">
-                                <td colspan="5">No results found.</td>
+                                <td colspan="5" class="crystal-empty-message">No Rankings found.</td>
                             </tr>
                         {% endif %}
 
                         <tr class="ranking-search-empty-row" data-ranking-search-empty hidden>
-                            <td colspan="5">No results found.</td>
+                            <td colspan="5" class="crystal-empty-message">No Rankings found.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -108,24 +151,86 @@
         {% endfor %}
 
         {% if categories is empty %}
-            <div class="ranking-page-empty">No results found.</div>
+            <div class="ranking-page-empty crystal-empty-message">No Rankings found.</div>
         {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block body %}
+<script src="/js/crystal-search-ui.js?v=crystal-search-ui-v8"></script>
 <script>
 (() => {
-    const searchInput = document.getElementById("ranking-search-input");
-    if (!searchInput) {
-        return;
+    "use strict";
+
+    const SIDE_EDGE_WIDTH = 320;
+    const TOP_EDGE_HEIGHT = 150;
+
+    const findSideBackgroundAnchor = () => document.querySelector(
+        "header.navbar.container-xxl, header.navbar, main#content.container-xxl, #content.container-xxl, .container-xxl"
+    );
+
+    const findNavbarAnchor = () => document.querySelector("header.navbar.container-xxl, header.navbar");
+
+    const applyRankingsSideBackgroundVars = () => {
+        const anchor = findSideBackgroundAnchor();
+        if (!anchor) {
+            return;
+        }
+
+        const anchorRect = anchor.getBoundingClientRect();
+        const sideLeft = Math.max(0, Math.round(anchorRect.left));
+        const sideRight = Math.max(0, Math.round(window.innerWidth - anchorRect.right));
+
+        const header = findNavbarAnchor();
+        const topEdgeTop = header ? Math.max(0, Math.round(header.getBoundingClientRect().bottom)) : 0;
+        const topEdgeLeft = sideLeft - SIDE_EDGE_WIDTH;
+        const topEdgeRight = window.innerWidth - sideRight + SIDE_EDGE_WIDTH;
+        const topEdgeWidth = Math.max(0, Math.round(topEdgeRight - topEdgeLeft));
+        const sideStart = topEdgeTop + TOP_EDGE_HEIGHT;
+
+        document.documentElement.style.setProperty("--trade-corner-nav-side-left", `${sideLeft}px`);
+        document.documentElement.style.setProperty("--trade-corner-nav-side-right", `${sideRight}px`);
+        document.documentElement.style.setProperty("--rankings-top-edge-left", `${topEdgeLeft}px`);
+        document.documentElement.style.setProperty("--rankings-top-edge-top", `${topEdgeTop}px`);
+        document.documentElement.style.setProperty("--rankings-top-edge-width", `${topEdgeWidth}px`);
+        document.documentElement.style.setProperty("--rankings-side-start", `${sideStart}px`);
+    };
+
+    const initRankingsBackground = () => {
+        document.body.classList.add("rankings-theme");
+        applyRankingsSideBackgroundVars();
+        window.addEventListener("resize", applyRankingsSideBackgroundVars, { passive: true });
+        window.addEventListener("load", applyRankingsSideBackgroundVars, { passive: true });
+        if (document.fonts && typeof document.fonts.ready === "object") {
+            document.fonts.ready.then(applyRankingsSideBackgroundVars);
+        }
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initRankingsBackground);
+    } else {
+        initRankingsBackground();
     }
+})();
+</script>
+<script>
+(() => {
+    const COLOR_GREEN = [15, 122, 34];
+    const COLOR_YELLOW = [138, 103, 0];
+    const COLOR_RED = [180, 35, 24];
+    const CYCLE_REFRESH_KEY = "ranking_cycle_refresh_attempt_ms";
+    const CYCLE_REFRESH_THROTTLE_MS = 15000;
+
+    const timerNode = document.getElementById("ranking-cycle-timer");
+    const issueLabelNode = document.getElementById("ranking-issue-label");
+    const searchInput = document.getElementById("ranking-search-input");
 
     const panels = Array.from(document.querySelectorAll("[data-ranking-panel]"));
-    if (panels.length === 0) {
-        return;
-    }
+    const controlSelects = Array.from(
+        document.querySelectorAll(".trainer-rankings-controls .trade-region-filter")
+    );
+    let hasTriggeredCycleRefresh = false;
 
     const normalize = (value) => String(value || "")
         .toLowerCase()
@@ -133,6 +238,219 @@
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/\s+/g, " ")
         .trim();
+
+    const leftPad = (value, width) => {
+        let out = String(Math.max(0, Math.floor(value)));
+        while (out.length < width) {
+            out = "0" + out;
+        }
+        return out;
+    };
+
+    const clamp01 = (value) => Math.min(1, Math.max(0, value));
+
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    const blendColor = (fromColor, toColor, t) => {
+        const ratio = clamp01(t);
+        return [
+            Math.round(lerp(fromColor[0], toColor[0], ratio)),
+            Math.round(lerp(fromColor[1], toColor[1], ratio)),
+            Math.round(lerp(fromColor[2], toColor[2], ratio)),
+        ];
+    };
+
+    const rgbCss = (rgb) => `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+
+    const buildCycleRefreshUrl = () => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("_cycle_refresh", String(Date.now()));
+        return url.toString();
+    };
+
+    const triggerCycleRefresh = () => {
+        if (hasTriggeredCycleRefresh) {
+            return;
+        }
+        const nowMs = Date.now();
+        const lastMs = parseInt(sessionStorage.getItem(CYCLE_REFRESH_KEY) || "0", 10);
+        if (Number.isFinite(lastMs) && (nowMs - lastMs) < CYCLE_REFRESH_THROTTLE_MS) {
+            return;
+        }
+        sessionStorage.setItem(CYCLE_REFRESH_KEY, String(nowMs));
+        hasTriggeredCycleRefresh = true;
+
+        const grid = document.querySelector(".trainer-rankings-grid");
+        if (grid) {
+            grid.classList.add("is-fading-out");
+            window.setTimeout(() => {
+                window.location.replace(buildCycleRefreshUrl());
+            }, 420);
+            return;
+        }
+        window.location.replace(buildCycleRefreshUrl());
+    };
+
+    const initIssueLabel = () => {
+        if (!issueLabelNode) {
+            return;
+        }
+
+        const configuredIssueText = String(issueLabelNode.getAttribute("data-issue-text") || "").trim();
+        if (configuredIssueText !== "") {
+            issueLabelNode.textContent = configuredIssueText;
+            return;
+        }
+
+        const endEpoch = parseInt(issueLabelNode.getAttribute("data-cycle-end-epoch") || "0", 10);
+        if (!Number.isFinite(endEpoch) || endEpoch <= 0) {
+            issueLabelNode.textContent = "";
+            return;
+        }
+
+        const locale = String(issueLabelNode.getAttribute("data-locale") || "en").toLowerCase();
+        const issueDate = new Date(endEpoch * 1000);
+        const localeMap = {
+            en: "en-US",
+            ja: "ja-JP",
+            de: "de-DE",
+            es: "es-ES",
+            it: "it-IT",
+            fr: "fr-FR",
+        };
+
+        const rawMonthName = issueDate.toLocaleString(localeMap[locale] || "en-US", { month: "long" });
+        const monthName = rawMonthName
+            ? rawMonthName.charAt(0).toUpperCase() + rawMonthName.slice(1)
+            : "";
+        const monthForLabel = (locale === "ja") ? `${issueDate.getMonth() + 1}月` : monthName;
+
+        const formatters = {
+            en: (month) => `${month} News Issue`,
+            ja: (month) => `${month} ニュース号`,
+            de: (month) => `${month} News Ausgabe`,
+            es: (month) => `${month} Edicion News`,
+            it: (month) => `${month} Edizione News`,
+            fr: (month) => `${month} Edition News`,
+        };
+
+        const formatLabel = formatters[locale] || formatters.en;
+        issueLabelNode.textContent = formatLabel(monthForLabel);
+    };
+
+    const formatCountdown = (totalSeconds) => {
+        const seconds = Math.max(0, Math.floor(totalSeconds));
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        const hourWidth = hours >= 100 ? 3 : 2;
+        return `${leftPad(hours, hourWidth)}h:${leftPad(minutes, 2)}m:${leftPad(secs, 2)}s`;
+    };
+
+    const applyCountdownColor = (node, remainingSeconds, lifetimeSeconds) => {
+        const safeLifetime = lifetimeSeconds > 0 ? lifetimeSeconds : 1;
+        const remainingRatio = Math.min(1, Math.max(0, remainingSeconds / safeLifetime));
+        let colorRgb;
+
+        if (remainingRatio <= 0.05) {
+            colorRgb = COLOR_RED;
+        } else if (remainingRatio <= 0.25) {
+            colorRgb = blendColor(COLOR_RED, COLOR_YELLOW, (remainingRatio - 0.05) / 0.20);
+        } else {
+            colorRgb = blendColor(COLOR_YELLOW, COLOR_GREEN, (remainingRatio - 0.25) / 0.75);
+        }
+
+        node.style.color = rgbCss(colorRgb);
+    };
+
+    const initCycleTimer = () => {
+        if (!timerNode) {
+            return;
+        }
+
+        const endEpoch = parseInt(timerNode.getAttribute("data-cycle-end-epoch") || "0", 10);
+        if (!Number.isFinite(endEpoch) || endEpoch <= 0) {
+            return;
+        }
+
+        const nowEpochAtInit = Math.floor(Date.now() / 1000);
+        const totalSecondsFromAttr = parseInt(
+            timerNode.getAttribute("data-cycle-total-seconds") || "0",
+            10
+        );
+        const lifetimeSeconds = (
+            Number.isFinite(totalSecondsFromAttr) && totalSecondsFromAttr > 0
+        )
+            ? totalSecondsFromAttr
+            : Math.max(1, endEpoch - nowEpochAtInit);
+
+        const tick = () => {
+            const nowEpoch = Math.floor(Date.now() / 1000);
+            const remainingSeconds = Math.max(0, endEpoch - nowEpoch);
+            timerNode.textContent = formatCountdown(remainingSeconds);
+            applyCountdownColor(timerNode, remainingSeconds, lifetimeSeconds);
+
+            if (remainingSeconds <= 0) {
+                triggerCycleRefresh();
+            }
+        };
+
+        tick();
+        window.setInterval(tick, 1000);
+    };
+
+    const measureLongestOptionWidth = (selectNode) => {
+        if (!selectNode || !selectNode.options || selectNode.options.length === 0) {
+            return 0;
+        }
+        const style = window.getComputedStyle(selectNode);
+        const font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+
+        let canvas = measureLongestOptionWidth._canvas;
+        if (!canvas) {
+            canvas = document.createElement("canvas");
+            measureLongestOptionWidth._canvas = canvas;
+        }
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+            return 0;
+        }
+        ctx.font = font;
+
+        let maxWidth = 0;
+        for (let i = 0; i < selectNode.options.length; i++) {
+            const label = String(selectNode.options[i].text || "");
+            maxWidth = Math.max(maxWidth, ctx.measureText(label).width);
+        }
+        return Math.ceil(maxWidth + 52);
+    };
+
+    const applyControlWidths = () => {
+        if (controlSelects.length === 0) {
+            return;
+        }
+
+        let longest = 0;
+        controlSelects.forEach((selectNode) => {
+            longest = Math.max(longest, measureLongestOptionWidth(selectNode));
+        });
+        if (longest <= 0) {
+            return;
+        }
+
+        const maxViewportWidth = Math.max(220, window.innerWidth - 24);
+        const widthPx = `${Math.min(longest, maxViewportWidth)}px`;
+        controlSelects.forEach((selectNode) => {
+            selectNode.style.setProperty("width", widthPx, "important");
+            selectNode.style.setProperty("min-width", widthPx, "important");
+        });
+
+        const searchWrap = document.querySelector(".rankings-search-wrap");
+        if (searchWrap) {
+            searchWrap.style.setProperty("width", widthPx, "important");
+            searchWrap.style.setProperty("max-width", widthPx, "important");
+        }
+    };
 
     const applyFilter = () => {
         const query = normalize(searchInput.value);
@@ -163,11 +481,72 @@
         });
     };
 
-    searchInput.addEventListener("input", applyFilter);
-    applyFilter();
+    if (searchInput && panels.length > 0) {
+        searchInput.addEventListener("input", applyFilter);
+        applyFilter();
+    }
+
+    initCycleTimer();
+    initIssueLabel();
+    applyControlWidths();
+    window.addEventListener("resize", applyControlWidths);
+
+    if (document.fonts && typeof document.fonts.ready === "object") {
+        document.fonts.ready.then(() => {
+            applyControlWidths();
+        });
+    }
+    window.addEventListener("load", applyControlWidths);
+    window.setTimeout(applyControlWidths, 120);
+})();
+</script>
+<script>
+(() => {
+    const STORAGE_KEY = "reon_rankings_zoom";
+    const page = document.querySelector(".trainer-rankings-page");
+    const buttons = Array.from(document.querySelectorAll(".rankings-zoom-btn[data-rankings-zoom]"));
+    if (!page || buttons.length === 0) {
+        return;
+    }
+
+    const clamp = (value) => String(value) === "2" ? "2" : "1";
+
+    const setActive = (zoom) => {
+        buttons.forEach((button) => {
+            const active = button.getAttribute("data-rankings-zoom") === zoom;
+            button.classList.toggle("is-active", active);
+            button.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+    };
+
+    const applyZoom = (rawZoom) => {
+        const zoom = clamp(rawZoom);
+        page.setAttribute("data-rankings-zoom", zoom);
+        setActive(zoom);
+        window.setTimeout(() => {
+            window.dispatchEvent(new Event("resize"));
+        }, 0);
+        return zoom;
+    };
+
+    const initialZoom = applyZoom(localStorage.getItem(STORAGE_KEY) || "1");
+    localStorage.setItem(STORAGE_KEY, initialZoom);
+
+    buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const zoom = applyZoom(button.getAttribute("data-rankings-zoom") || "1");
+            localStorage.setItem(STORAGE_KEY, zoom);
+        });
+    });
 })();
 </script>
 {% endblock %}
+
+
+
+
+
+
 
 
 

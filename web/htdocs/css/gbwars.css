@@ -2,6 +2,109 @@
  * Game Boy Wars 3 - Stylesheet
  */
 
+@font-face {
+    font-family: "GBWars3";
+    src:
+        url("/fonts/GBWars3/gbwars3.ttf?v=gbwars-font-v2") format("truetype"),
+        url("/fonts/gbwars3/gbwars3.ttf?v=gbwars-font-v2") format("truetype"),
+        url("/fonts/GBWars3/GBWARS3.TTF?v=gbwars-font-v2") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --gbwars-nav-side-left: 0px;
+    --gbwars-nav-side-right: 0px;
+}
+
+body.gbwars-theme::before,
+body.gbwars-theme::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-color: #08162c;
+    background-repeat: repeat-y, repeat;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+body.gbwars-theme::before {
+    left: 0;
+    width: var(--gbwars-nav-side-left);
+    background-image: url("/images/gbwars/gbwarsrepeat.png"), url("/images/gbwars/gbwarsrepeat_alt_2.png");
+    background-size: auto auto, 640px 320px;
+    background-position: right top, right top;
+}
+
+body.gbwars-theme::after {
+    right: 0;
+    width: var(--gbwars-nav-side-right);
+    background-image: url("/images/gbwars/gbwarsrepeat2.png"), url("/images/gbwars/gbwarsrepeat_alt_1.png");
+    background-size: auto auto, 640px 320px;
+    background-position: left top, left top;
+}
+
+body.gbwars-theme > .container-xxl,
+body.gbwars-theme > main {
+    position: relative;
+    z-index: 1;
+}
+
+main#content .gbwars-page,
+main#content .gbwars-page * {
+    font-family: "GBWars3", monospace !important;
+    font-size: 16px !important;
+    line-height: 16px !important;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-rendering: optimizeSpeed !important;
+    -webkit-font-smoothing: none !important;
+    -moz-osx-font-smoothing: auto !important;
+    font-smooth: never !important;
+    font-kerning: none !important;
+    font-variant-ligatures: normal !important;
+    font-feature-settings: "kern" 0, "liga" 1, "clig" 1 !important;
+    font-synthesis: none !important;
+}
+
+.gbwars-page h1,
+.gbwars-page .map-detail-header h1 {
+    font-size: 40px;
+    line-height: 40px;
+    margin-bottom: 8px;
+}
+
+.gbwars-page h4,
+.gbwars-page h5,
+.gbwars-page .lead,
+.gbwars-page .badge,
+.gbwars-page .btn,
+.gbwars-page .map-meta,
+.gbwars-page .info-label,
+.gbwars-page .info-value,
+.gbwars-page code {
+    font-size: 16px !important;
+    line-height: 16px !important;
+}
+
+.gbwars-page small,
+.gbwars-page .visually-hidden {
+    font-size: 8px !important;
+    line-height: 8px !important;
+}
+
+@media (max-width: 991.98px) {
+    body.gbwars-theme::before,
+    body.gbwars-theme::after {
+        display: none;
+    }
+}
+
 /* ==========================================================================
    Map Gallery (index page)
    ========================================================================== */
@@ -165,8 +268,8 @@
 }
 
 .zoom-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -204,8 +307,12 @@
 .unit-item .unit-pos {
     color: var(--bs-secondary);
     margin-left: auto;
-    font-family: monospace;
+    font-family: "GBWars3", monospace;
     font-size: 0.8rem;
+    white-space: nowrap;
+    word-break: keep-all;
+    overflow-wrap: normal;
+    flex: 0 0 auto;
 }
 
 /* Faction colors */

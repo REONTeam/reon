@@ -1764,15 +1764,29 @@ async function mirrorVanillaToCustom(conn, region, vanillaId, existingCustomId) 
   return res.insertId;
 }
 
-async function clearRankingsForNewsId(conn, region, newsId) {
-  if (newsId == null) return;
-  await conn.execute("DELETE FROM bxt_ranking WHERE game_region = ? AND news_id = ?", [
-    region,
-    newsId,
-  ]);
+async function clearRankingsForRegion(conn, region, reason) {
+  if (!region) return;
+  await conn.execute("DELETE FROM bxt_ranking WHERE game_region = ?", [region]);
   console.log(
-    `[news] Cleared bxt_ranking entries for region=${region} news_id=${newsId}`
+    `[news] Cleared bxt_ranking entries for region=${region}` +
+      (reason ? ` (${reason})` : "")
   );
+}
+
+function allRegionsUpdatedForRun(regionFolderMap, updatedByRegion) {
+  const regions = Object.keys(regionFolderMap || {});
+  if (!regions.length) return false;
+  for (const region of regions) {
+    if (!updatedByRegion || !updatedByRegion[region]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+async function clearAllRankings(conn, reason) {
+  await conn.execute("DELETE FROM bxt_ranking");
+  console.log(`[news] Cleared full bxt_ranking table (${reason})`);
 }
 
 async function processPokemonNewsCycle(
@@ -2063,6 +2077,7 @@ async function finalizePokemonNewsCustomAndRankings(
   customEnabled
 ) {
   const regions = Object.keys(vanillaCfg.region_folder_map || {});
+  const customMirroredByRegion = {};
 
   for (const region of regions) {
     const vanillaRow = await getLatestBxtNewsRow(conn, region, false);
@@ -2086,6 +2101,7 @@ async function finalizePokemonNewsCustomAndRankings(
     if (!customEnabled && vanillaUpdated && vanillaUpdated[region]) {
       await mirrorVanillaToCustom(conn, region, vanillaRow.id, customRow ? customRow.id : null);
       customRow = await getLatestBxtNewsRow(conn, region, true);
+      customMirroredByRegion[region] = true;
       console.log(
         `[news] Mirrored vanilla -> custom for region=${region} (custom track disabled)`
       );
@@ -2096,22 +2112,27 @@ async function finalizePokemonNewsCustomAndRankings(
     const shareRankings = arraysEqual(vanillaSig, customSig);
 
     const vUpd = !!(vanillaUpdated && vanillaUpdated[region]);
-    const cUpd = !!(customUpdatedReal && customUpdatedReal[region]);
+    const cUpd =
+      !!(customUpdatedReal && customUpdatedReal[region]) ||
+      !!customMirroredByRegion[region];
 
     if (shareRankings) {
-      // If they share ranking categories, wipe only when BOTH tracks update together.
+      // Shared ranking categories: wipe once when both tracks roll over together.
       if (vUpd && cUpd) {
-        await clearRankingsForNewsId(conn, region, vanillaRow.id);
-        await clearRankingsForNewsId(conn, region, customRow ? customRow.id : null);
+        await clearRankingsForRegion(
+          conn,
+          region,
+          "shared ranking categories; vanilla+custom rolled together"
+        );
       }
-    } else {
-      // Split rankings when category sets differ; wipe only the track(s) that updated.
-      if (vUpd) {
-        await clearRankingsForNewsId(conn, region, vanillaRow.id);
-      }
-      if (cUpd) {
-        await clearRankingsForNewsId(conn, region, customRow ? customRow.id : null);
-      }
+    } else if (vUpd || cUpd) {
+      // Split ranking categories: wipe once when either relevant track updates.
+      const source = vUpd && cUpd ? "vanilla+custom" : (vUpd ? "vanilla" : "custom");
+      await clearRankingsForRegion(
+        conn,
+        region,
+        `split ranking categories; ${source} track updated`
+      );
     }
   }
 }
@@ -2179,6 +2200,13 @@ async function main() {
         customRes.updatedByRegion,
         pokemonNewsCustomEnabled
       );
+
+      if (allRegionsUpdatedForRun(newsCfg.region_folder_map, vanillaRes.updatedByRegion)) {
+        await clearAllRankings(
+          conn,
+          `all vanilla news regions updated for ${todayDate.toISOString().slice(0, 10)}`
+        );
+      }
 
       // Persist cycle state (for slot-based regions), file rotations, and timed feature windows.
       if (rotationCfg) {

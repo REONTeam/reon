@@ -1,14 +1,26 @@
-﻿.trainer-rankings-page {
-  width: min(1680px, calc(100% - 16px));
+.trainer-rankings-page {
+  width: min(1800px, calc(100% - 16px));
   margin: 0 auto;
 }
 
 .trainer-rankings-controls {
   width: min(420px, 100%);
-  margin: 0 auto;
+  margin: 0 auto 0 auto;
   display: grid;
   row-gap: 8px;
   justify-items: center;
+}
+
+.trainer-rankings-page .trainer-rankings-issue {
+  width: min(980px, 100%);
+  margin: 86px auto 12px auto;
+  text-align: center;
+  font-size: 24px !important;
+  line-height: 24px !important;
+  letter-spacing: 0 !important;
+  font-weight: 400 !important;
+  white-space: normal;
+  font-family: "PokeCrystalInline", "PokeCrystal", monospace !important;
 }
 
 .trainer-rankings-control-row {
@@ -18,12 +30,61 @@
 }
 
 .trainer-rankings-controls .trade-region-filter {
-  min-width: 220px;
+  min-width: 0;
+  width: auto;
 }
 
 .rankings-search-wrap {
   margin-top: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+}
+
+.rankings-zoom-wrap {
+  width: 640px;
+  max-width: calc(100% - 12px);
+  margin: 0 auto 40px auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: center;
+  column-gap: 16px;
+  row-gap: 0;
+}
+
+.trainer-rankings-page .rankings-zoom-label {
+  font-size: 16px !important;
+  line-height: 16px !important;
+  white-space: nowrap;
+}
+
+.rankings-zoom-buttons {
+  width: auto;
+  min-width: 0;
+}
+
+.rankings-zoom-wrap .rankings-zoom-btn {
+  min-height: 32px !important;
+  padding: 4px 0.75ch !important;
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.trainer-rankings-cycle {
+  margin: 0 auto 56px;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.trainer-rankings-cycle .ranking-cycle-prefix,
+.trainer-rankings-cycle .ranking-cycle-timer {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.trainer-rankings-cycle .ranking-cycle-timer {
+  color: rgb(15, 122, 34);
 }
 
 .trainer-rankings-grid {
@@ -32,112 +93,184 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   align-items: start;
+  opacity: 1;
+  animation: rankingTablesFadeIn .35s ease;
+  transition: opacity .4s ease;
+}
+
+.trainer-rankings-grid.is-fading-out {
+  opacity: 0;
+}
+
+@keyframes rankingTablesFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .trainer-ranking-panel {
+  --rankings-zoom-scale: 1;
+  width: calc(100% / var(--rankings-zoom-scale));
+  max-width: calc(100% / var(--rankings-zoom-scale));
   min-width: 0;
+  zoom: var(--rankings-zoom-scale);
+}
+
+.trainer-rankings-page[data-rankings-zoom="2"] .trainer-ranking-panel {
+  --rankings-zoom-scale: 2;
+}
+
+.trainer-rankings-page[data-rankings-zoom="2"] .trainer-rankings-grid {
+  grid-template-columns: 1fr;
+  row-gap: 18px;
+  justify-items: center;
 }
 
 .trainer-ranking-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
   background: #f8f8f8;
 }
 
 .trainer-ranking-table col.ranking-colgroup-rank {
-  width: 48px;
+  width: 40px;
 }
 
 .trainer-ranking-table col.ranking-colgroup-name {
-  width: 68px;
+  width: 72px;
 }
 
 .trainer-ranking-table col.ranking-colgroup-address {
-  width: 78px;
+  width: auto;
+}
+
+.trainer-ranking-table col.ranking-colgroup-message {
+  width: 160px;
 }
 
 .trainer-ranking-table col.ranking-colgroup-score {
-  width: 58px;
+  width: 56px;
 }
 
 .trainer-ranking-table th,
 .trainer-ranking-table td {
   border: 1px solid #cfcfcf;
   padding: 5px 6px;
-  font-size: .76em;
-  line-height: 1.15;
+  font-size: 8px;
+  line-height: 1;
   vertical-align: middle;
 }
 
 .trainer-ranking-table thead th {
   background: #dfdfdf;
   text-align: center;
-  letter-spacing: .02em;
-  font-weight: 600;
+  letter-spacing: 0;
+  font-weight: 400;
+  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
-.trainer-ranking-category-row th {
-  font-size: .9em;
-  letter-spacing: .04em;
+.trainer-rankings-page .trainer-ranking-table tr.trainer-ranking-category-row th {
+  font-size: 16px !important;
+  line-height: 1 !important;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
-.trainer-ranking-table th:nth-child(1),
+.trainer-ranking-table thead tr:last-child th:nth-child(1),
 .ranking-col-rank {
-  width: 5ch;
-  min-width: 5ch;
-  max-width: 5ch;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
   text-align: center;
 }
 
-.trainer-ranking-table th:nth-child(2),
+.trainer-ranking-table thead tr:last-child th:nth-child(2),
 .ranking-col-name {
-  width: 7ch;
-  min-width: 7ch;
-  max-width: 7ch;
+  width: 72px !important;
+  min-width: 72px !important;
+  max-width: 72px !important;
+}
+
+.trainer-ranking-table thead tr:last-child th:nth-child(2) {
   text-align: left;
 }
 
-.trainer-ranking-table th:nth-child(3),
+.ranking-col-name {
+  text-align: left;
+}
+
+.trainer-ranking-table thead tr:last-child th:nth-child(3),
 .ranking-col-address {
-  width: 8ch;
-  min-width: 8ch;
-  max-width: 8ch;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
-.trainer-ranking-table th:nth-child(4),
+.trainer-ranking-table thead tr:last-child th:nth-child(4),
 .ranking-col-message {
-  width: auto;
-  min-width: 0;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
 }
 
-.trainer-ranking-table th:nth-child(5),
+.trainer-ranking-table thead tr:last-child th:nth-child(4) {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.ranking-col-message {
+  padding: 0 !important;
+  vertical-align: top !important;
+}
+
+.trainer-ranking-table thead tr:last-child th:nth-child(5),
 .ranking-col-score {
-  width: 6ch;
-  min-width: 6ch;
-  max-width: 6ch;
-  text-align: right;
-  font-weight: 600;
+  width: 56px !important;
+  min-width: 56px !important;
+  max-width: 56px !important;
+  font-weight: 400;
   white-space: nowrap;
   letter-spacing: 0;
   padding-left: 3px;
   padding-right: 3px;
 }
 
+.trainer-ranking-table thead tr:last-child th:nth-child(3),
+.ranking-col-address {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+.trainer-ranking-table thead tr:last-child th:nth-child(5) {
+  text-align: right;
+}
+
+.ranking-col-score {
+  text-align: right;
+}
+
 .ranking-message-box {
-  width: 100%;
+  width: 160px;
+  max-width: 160px;
+  min-width: 160px;
+  height: 48px;
+  min-height: 48px;
   box-sizing: border-box;
   white-space: pre;
   overflow-wrap: normal;
   word-break: normal;
   overflow: hidden;
-  border: 1px solid #8f8f8f;
-  background: #fff;
-  padding: 3px 5px;
-  min-height: 40px;
-  font-size: .76em;
-  line-height: 1.15;
+  border: 0;
+  background: url("/images/crystal/MessageBoxRankings.png") no-repeat left top;
+  background-size: 160px 48px;
+  image-rendering: pixelated;
+  padding: 16px 6px 0 8px;
+  font-size: 8px;
+  line-height: 1;
 }
 
 .ranking-top10-row td {
@@ -145,13 +278,26 @@
 }
 
 .ranking-top10-row .ranking-message-box {
-  background: #fffdf1;
+  background-image: url("/images/crystal/MessageBoxRankings.png");
 }
 
 .ranking-empty-row td,
 .ranking-search-empty-row td {
   text-align: center;
   padding: 14px 10px;
+}
+
+.ranking-empty-row td.crystal-empty-message,
+.ranking-search-empty-row td.crystal-empty-message,
+.ranking-page-empty.crystal-empty-message {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.trainer-rankings-page .trainer-ranking-table td.crystal-empty-message,
+.trainer-rankings-page .ranking-page-empty.crystal-empty-message {
+  font-size: 16px !important;
+  line-height: 16px !important;
 }
 
 .ranking-page-empty {
@@ -170,28 +316,161 @@
   }
 }
 
+@media (max-width: 991.98px) {
+  .trainer-rankings-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 0;
+    padding-right: 0;
+    box-sizing: border-box;
+  }
+
+  .trainer-rankings-controls {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .trainer-rankings-page .trainer-rankings-issue {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 86px;
+    margin-bottom: 12px;
+  }
+
+  .trainer-ranking-panel {
+    overflow: visible;
+    padding-bottom: 2px;
+  }
+
+  .trainer-ranking-table {
+    --ranking-mobile-message-width: min(160px, max(112px, calc(100vw - 196px)));
+    --ranking-mobile-message-height: clamp(36px, calc(var(--ranking-mobile-message-width) * 0.3), 48px);
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .trainer-ranking-table col.ranking-colgroup-rank,
+  .trainer-ranking-table thead tr:last-child th:nth-child(1),
+  .ranking-col-rank {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+  }
+
+  .trainer-ranking-table col.ranking-colgroup-name,
+  .trainer-ranking-table thead tr:last-child th:nth-child(2),
+  .ranking-col-name {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+  }
+
+  .trainer-ranking-table col.ranking-colgroup-message,
+  .trainer-ranking-table thead tr:last-child th:nth-child(4),
+  .ranking-col-message {
+    width: var(--ranking-mobile-message-width) !important;
+    min-width: var(--ranking-mobile-message-width) !important;
+    max-width: var(--ranking-mobile-message-width) !important;
+  }
+
+  .trainer-ranking-table col.ranking-colgroup-score,
+  .trainer-ranking-table thead tr:last-child th:nth-child(5),
+  .ranking-col-score {
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+  }
+
+  .trainer-ranking-table th,
+  .trainer-ranking-table td {
+    padding: 4px;
+  }
+
+  .ranking-col-name,
+  .ranking-col-address {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+
+  .ranking-message-box {
+    width: var(--ranking-mobile-message-width);
+    max-width: var(--ranking-mobile-message-width);
+    min-width: var(--ranking-mobile-message-width);
+    height: var(--ranking-mobile-message-height);
+    min-height: var(--ranking-mobile-message-height);
+    background-size: var(--ranking-mobile-message-width) var(--ranking-mobile-message-height);
+    padding: clamp(10px, calc(var(--ranking-mobile-message-height) * 0.28), 14px) 5px 0 6px;
+    line-height: 1 !important;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: none;
+  }
+}
+
 @media (max-width: 680px) {
   .trainer-rankings-controls .trade-region-filter {
     min-width: 0;
     width: 100%;
-    font-size: .84em;
+    font-size: 16px;
   }
 
   .rankings-search-wrap {
     margin-bottom: 10px;
   }
 
+  .rankings-zoom-wrap {
+    width: 100%;
+    max-width: calc(100% - 12px);
+    margin-bottom: 18px;
+    column-gap: 8px;
+  }
+
   .trainer-ranking-table th,
   .trainer-ranking-table td {
-    font-size: .76em;
-    padding: 4px;
+    font-size: 8px;
+    padding: 3px;
+  }
+
+  .trainer-ranking-table col.ranking-colgroup-name,
+  .trainer-ranking-table thead tr:last-child th:nth-child(2),
+  .ranking-col-name {
+    width: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+  }
+
+  .trainer-ranking-table col.ranking-colgroup-message,
+  .trainer-ranking-table thead tr:last-child th:nth-child(4),
+  .ranking-col-message {
+    width: min(148px, max(110px, calc(100vw - 186px))) !important;
+    min-width: min(148px, max(110px, calc(100vw - 186px))) !important;
+    max-width: min(148px, max(110px, calc(100vw - 186px))) !important;
+  }
+
+  .trainer-ranking-table col.ranking-colgroup-score,
+  .trainer-ranking-table thead tr:last-child th:nth-child(5),
+  .ranking-col-score {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
   }
 
   .ranking-message-box {
-    width: 100%;
+    width: min(148px, max(110px, calc(100vw - 186px)));
+    max-width: min(148px, max(110px, calc(100vw - 186px)));
+    min-width: min(148px, max(110px, calc(100vw - 186px)));
+    height: clamp(36px, calc(min(148px, max(110px, calc(100vw - 186px))) * 0.3), 44px);
+    min-height: clamp(36px, calc(min(148px, max(110px, calc(100vw - 186px))) * 0.3), 44px);
+    background-size: min(148px, max(110px, calc(100vw - 186px))) clamp(36px, calc(min(148px, max(110px, calc(100vw - 186px))) * 0.3), 44px);
     box-sizing: border-box;
-    min-height: 34px;
-    padding: 3px 4px;
+    padding: clamp(10px, calc(min(148px, max(110px, calc(100vw - 186px))) * 0.08), 12px) 4px 0 5px;
+    line-height: 1 !important;
+    white-space: pre-wrap;
   }
 }
 

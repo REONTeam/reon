@@ -77,6 +77,136 @@
     }
 
     /**
+     * Region label text mirroring the Trade Corner dropdown wording.
+     */
+    function bxt_trade_region_dropdown_label($game_region) {
+        switch (strtolower(trim((string)$game_region))) {
+            case "j":
+                return "JAPAN";
+            case "e":
+                return "USA";
+            case "p":
+                return "EUROPE";
+            case "u":
+                return "AUSTRALIA";
+            case "f":
+                return "FRANCE";
+            case "d":
+                return "GERMANY";
+            case "i":
+                return "ITALY";
+            case "s":
+                return "SPAIN";
+            default:
+                return bxt_trade_game_id_label($game_region);
+        }
+    }
+
+    function bxt_trade_to_fullwidth_caps($text) {
+        $text = strtoupper((string)$text);
+        $map = array(
+            "A" => "\u{FF21}", "B" => "\u{FF22}", "C" => "\u{FF23}", "D" => "\u{FF24}", "E" => "\u{FF25}",
+            "F" => "\u{FF26}", "G" => "\u{FF27}", "H" => "\u{FF28}", "I" => "\u{FF29}", "J" => "\u{FF2A}",
+            "K" => "\u{FF2B}", "L" => "\u{FF2C}", "M" => "\u{FF2D}", "N" => "\u{FF2E}", "O" => "\u{FF2F}",
+            "P" => "\u{FF30}", "Q" => "\u{FF31}", "R" => "\u{FF32}", "S" => "\u{FF33}", "T" => "\u{FF34}",
+            "U" => "\u{FF35}", "V" => "\u{FF36}", "W" => "\u{FF37}", "X" => "\u{FF38}", "Y" => "\u{FF39}",
+            "Z" => "\u{FF3A}", " " => "\u{3000}",
+        );
+        return strtr($text, $map);
+    }
+
+    /**
+     * Build a locale-agnostic species-name search string across all supported UI locales.
+     */
+    function bxt_trade_species_search_names($species_id) {
+        static $cache = array();
+        static $supported_locales = array('en', 'es', 'de', 'ja', 'it', 'fr');
+        static $translator = null;
+
+        $species_id = intval($species_id);
+        if ($species_id <= 0) {
+            return "";
+        }
+
+        if (isset($cache[$species_id])) {
+            return $cache[$species_id];
+        }
+
+        if ($translator === null) {
+            $translator = TemplateUtil::getTranslator();
+        }
+
+        $translation_key = "pokemon.species." . $species_id;
+        $names = array();
+        foreach ($supported_locales as $locale) {
+            $name = trim((string)$translator->trans($translation_key, array(), null, $locale));
+            if ($name === "" || $name === $translation_key) {
+                continue;
+            }
+            $names[$name] = true;
+        }
+
+        $cache[$species_id] = implode(" ", array_keys($names));
+        return $cache[$species_id];
+    }
+
+    function bxt_trade_menu_icon_by_species_id($species_id) {
+        static $icons_by_species_id = null;
+        static $available_icon_names = null;
+
+        if ($icons_by_species_id === null) {
+            $icons_by_species_id = array();
+            $map_path = realpath(dirname(__DIR__) . "/images/crystal/menu_anims/MenuSprites.txt");
+            if ($map_path !== false && is_file($map_path)) {
+                $lines = @file($map_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                if (is_array($lines)) {
+                    $curr_id = 1;
+                    foreach ($lines as $line) {
+                        if (preg_match('/^\s*(ICON_[A-Z0-9_]+)\s*;/', (string)$line, $m) === 1) {
+                            $icons_by_species_id[$curr_id] = strtoupper((string)$m[1]);
+                            $curr_id++;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($available_icon_names === null) {
+            $available_icon_names = array();
+            $icons_dir = dirname(__DIR__) . "/images/crystal/menu_anims";
+            $icon_files = @glob($icons_dir . "/*.gif");
+            if (is_array($icon_files)) {
+                foreach ($icon_files as $icon_file) {
+                    $base = strtoupper(pathinfo((string)$icon_file, PATHINFO_FILENAME));
+                    if ($base !== "") {
+                        $available_icon_names[$base] = true;
+                    }
+                }
+            }
+        }
+
+        $species_id = intval($species_id);
+        $icon = "ICON_MONSTER";
+        if ($species_id > 0 && isset($icons_by_species_id[$species_id])) {
+            $icon = (string)$icons_by_species_id[$species_id];
+        }
+
+        if (isset($available_icon_names[$icon])) {
+            return $icon;
+        }
+
+        // Be tolerant if either historical filename is present.
+        if ($icon === "ICON_MOTH" && isset($available_icon_names["ICON_MONTH"])) {
+            return "ICON_MONTH";
+        }
+        if ($icon === "ICON_MONTH" && isset($available_icon_names["ICON_MOTH"])) {
+            return "ICON_MOTH";
+        }
+
+        return "ICON_MONSTER";
+    }
+
+    /**
      * Build the translation key for the exchange-card warning.
      */
     function bxt_trade_warning_key($game_region, $allowlist) {
@@ -292,7 +422,7 @@
         "order by " . $order_by;
 
     $genders = [null, "male", "female", null];
-    $genders_symbols = [null, "♂", "♀", null];
+    $genders_symbols = [null, "\u{2642}\u{FE0E}", "\u{2640}\u{FE0E}", null];
 
     $data = array();
     try {
@@ -324,23 +454,30 @@
         $entry["player_name"] = $pkm_util->getString($pc, $entry['player_name']);
         $entry["pokemon"] = $pkm_util->unpackPokemon($pc, $entry["pokemon"]);
         //$entry["mail"] = $pkm_util->unpackMail($pc, $entry["mail"]);
+        $request_menu_icon = bxt_trade_menu_icon_by_species_id($entry["request_species"]);
         $entry["request"] = [
             "id" => $entry["request_species"],
             "name" => $pkm_util->getSpeciesName($entry["request_species"]),
             "gender" => $genders[$entry["request_gender"]],
             "gender_symbol" => $genders_symbols[$entry["request_gender"]],
+            "search_names" => bxt_trade_species_search_names($entry["request_species"]),
+            "menu_icon" => $request_menu_icon,
+            "menu_icon_path" => "/images/crystal/menu_anims/" . $request_menu_icon . ".gif",
         ];
         $entry["offer"] = [
             "id" => $entry["offer_species"],
             "name" => $pkm_util->getSpeciesName($entry["offer_species"]),
             "gender" => $genders[$entry["offer_gender"]],
             "gender_symbol" => $genders_symbols[$entry["offer_gender"]],
+            "search_names" => bxt_trade_species_search_names($entry["offer_species"]),
         ];
         $entry["trade_warning_key"] = bxt_trade_warning_key(
             $entry["game_region"],
             $entry["trade_region_allowlist"] ?? ""
         );
         $entry["trade_warning_game_id"] = bxt_trade_game_id_label($entry["game_region"]);
+        $entry["region_display_fullwidth"] = bxt_trade_to_fullwidth_caps(bxt_trade_game_id_label($entry["game_region"]));
+        $entry["region_hover_text"] = bxt_trade_region_dropdown_label($entry["game_region"]);
         bxt_exchange_apply_timer_meta($entry, $exchange_lifetime_seconds, $exchange_now_epoch);
         array_push($trades, $entry);
     }
@@ -358,12 +495,16 @@
                 "name" => $pkm_util->getSpeciesName(250),
                 "gender" => $genders[0],
                 "gender_symbol" => $genders_symbols[0],
+                "search_names" => bxt_trade_species_search_names(250),
+                "menu_icon" => bxt_trade_menu_icon_by_species_id(250),
+                "menu_icon_path" => "/images/crystal/menu_anims/" . bxt_trade_menu_icon_by_species_id(250) . ".gif",
             ],
             "offer" => [
                 "id" => $pkm["species"]["id"],
                 "name" => $pkm["species"]["name"],
                 "gender" => $genders[1],
                 "gender_symbol" => $genders_symbols[1],
+                "search_names" => bxt_trade_species_search_names($pkm["species"]["id"]),
             ],
         ]);
         bxt_exchange_apply_timer_meta($trades[count($trades) - 1], $exchange_lifetime_seconds, $exchange_now_epoch);
@@ -378,19 +519,23 @@
                 "name" => $pkm_util->getSpeciesName(200),
                 "gender" => $genders[2],
                 "gender_symbol" => $genders_symbols[2],
+                "search_names" => bxt_trade_species_search_names(200),
+                "menu_icon" => bxt_trade_menu_icon_by_species_id(200),
+                "menu_icon_path" => "/images/crystal/menu_anims/" . bxt_trade_menu_icon_by_species_id(200) . ".gif",
             ],
             "offer" => [
                 "id" => $pkm["species"]["id"],
                 "name" => $pkm["species"]["name"],
                 "gender" => $genders[2],
                 "gender_symbol" => $genders_symbols[2],
+                "search_names" => bxt_trade_species_search_names($pkm["species"]["id"]),
             ],
         ]);
         bxt_exchange_apply_timer_meta($trades[count($trades) - 1], $exchange_lifetime_seconds, $exchange_now_epoch);
         end($trades)["pokemon"]["pokerus"]["cured"] = true;
     }
 
-    echo TemplateUtil::render("/pokemon/exchange", [
+    echo TemplateUtil::render("/pokemon/tradecorner", [
         'trades' => $trades,
         'region_filter' => $region
     ]);

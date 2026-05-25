@@ -4,12 +4,26 @@
 {% block title %}Pok&eacute;mon - BXT Save Converter{% endblock %}
 
 {% block head %}
-<link href="/css/saveconverter.css?v=bxt-save-converter-v2" rel="stylesheet">
+<link href="/css/saveconverter.css?v=bxt-save-converter-v4" rel="stylesheet">
+<link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v41" rel="stylesheet">
+<style>
+    @font-face {
+        font-family: "PokeCrystalInline";
+        src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+    }
+    .save-converter-page,
+    .save-converter-page * {
+        font-family: "PokeCrystalInline", "PokeCrystal", monospace !important;
+        font-weight: 400 !important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="save-converter-page">
-    <h1 class="trade-corner-title">BXT Save Converter</h1>
+    <h1 class="trade-corner-title">&#xFF22;&#xFF38;&#xFF34;&#x3000;&#xFF33;&#xFF21;&#xFF36;&#xFF25;&#x3000;&#xFF23;&#xFF2F;&#xFF2E;&#xFF36;&#xFF25;&#xFF32;&#xFF34;&#xFF25;&#xFF32;</h1>
 
     <div class="save-converter-card">
         <p class="save-converter-note">
@@ -17,8 +31,12 @@
         </p>
 
         <div class="save-converter-row">
-            <label for="save-file-input" class="save-converter-label">Original <code>.sav</code> file</label>
-            <input id="save-file-input" class="save-file-input" type="file" accept=".sav,application/octet-stream">
+            <div class="save-converter-label">Original <code>.sav</code> file</div>
+            <div class="save-file-picker">
+                <input id="save-file-input" class="save-file-input" type="file" accept=".sav,application/octet-stream" aria-label="Choose .sav file">
+                <label for="save-file-input" id="save-file-input-label" class="save-file-button">Choose File</label>
+                <div id="save-file-name" class="save-file-name">No file chosen</div>
+            </div>
         </div>
 
         <div class="save-converter-row">
@@ -44,5 +62,11 @@
 {% endblock %}
 
 {% block body %}
-<script src="/js/saveconverter.js?v=bxt-save-converter-v2"></script>
+<script src="/js/saveconverter.js?v=bxt-save-converter-v3"></script>
 {% endblock %}
+
+
+
+
+
+
