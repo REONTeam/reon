@@ -1,12 +1,14 @@
 {% extends "main.twig" %}
+{% set body_class = "gbwars-theme" %}
 
 {% block title %}{{ map.map_name }} - {{'gameboy-wars'|trans}}{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="/css/gbwars.css">
+<link rel="stylesheet" href="/css/gbwars.css?v=gbwars-v6">
 {% endblock %}
 
 {% block content %}
+<div class="gbwars-page">
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="index.php">{{'gameboy-wars'|trans}}</a></li>
@@ -205,5 +207,45 @@
 
     // Initialize on page load
     initMap();
+</script>
+</div>
+{% endblock %}
+
+{% block body %}
+<script>
+(() => {
+    function findGBWarsAnchor() {
+        return document.querySelector(
+            "header.navbar.container-xxl, header.navbar, main#content.container-xxl, #content.container-xxl, .container-xxl"
+        );
+    }
+
+    function applyGBWarsSideBackgroundVars() {
+        const anchor = findGBWarsAnchor();
+        if (!anchor) {
+            return;
+        }
+        const rect = anchor.getBoundingClientRect();
+        const sideLeft = Math.max(0, Math.round(rect.left));
+        const sideRight = Math.max(0, Math.round(window.innerWidth - rect.right));
+        document.documentElement.style.setProperty("--gbwars-nav-side-left", `${sideLeft}px`);
+        document.documentElement.style.setProperty("--gbwars-nav-side-right", `${sideRight}px`);
+    }
+
+    function initGBWarsSideBackgrounds() {
+        applyGBWarsSideBackgroundVars();
+        window.addEventListener("resize", applyGBWarsSideBackgroundVars, { passive: true });
+        window.addEventListener("load", applyGBWarsSideBackgroundVars, { passive: true });
+        if (document.fonts && typeof document.fonts.ready === "object") {
+            document.fonts.ready.then(applyGBWarsSideBackgroundVars);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initGBWarsSideBackgrounds);
+    } else {
+        initGBWarsSideBackgrounds();
+    }
+})();
 </script>
 {% endblock %}

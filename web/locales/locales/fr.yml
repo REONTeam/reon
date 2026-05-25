@@ -1,3 +1,11 @@
+locale:
+  en: English
+  ja: 日本語
+  de: Deutsch
+  es: Español
+  it: Italiano
+  fr: Français
+
 language:
   en: Anglais
   ja: Japonais
@@ -410,7 +418,7 @@ pokemon:
   - HO-OH
   - CELEBI
   items:
-  - "---"
+  - (AUCUN)
   - MASTER BALL
   - HYPER BALL
   - POUDRECLAIRE
@@ -666,7 +674,7 @@ pokemon:
   - CS11 (INUTILISÉ)
   - CS12 (INUTILISÉ)
   moves:
-  - "---"
+  - (AUCUN)
   - ÉCRAS’FACE
   - POING KARATÉ
   - TORGNOLES

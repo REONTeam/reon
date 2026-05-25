@@ -127,30 +127,35 @@
 			return "";
 		}
 
-		$line_one_word_limit = bxt_rankings_message_wrap_word_limit($game_region);
-		$line_one_tokens = [];
-		$line_two_tokens = [];
-		$word_count = 0;
+		$word_limit = bxt_rankings_message_wrap_word_limit($game_region);
+		$lines = [];
+		$current_line_tokens = [];
+		$current_line_words = 0;
 
 		foreach ($tokens as $token) {
-			if ($word_count < $line_one_word_limit) {
-				$line_one_tokens[] = $token;
-				if (bxt_rankings_token_has_word($token)) {
-					$word_count++;
+			$current_line_tokens[] = $token;
+			if (bxt_rankings_token_has_word($token)) {
+				$current_line_words++;
+			}
+
+			if ($current_line_words >= $word_limit) {
+				$line_text = bxt_rankings_tokens_to_text($current_line_tokens);
+				if ($line_text !== "") {
+					$lines[] = $line_text;
 				}
-			} else {
-				$line_two_tokens[] = $token;
+				$current_line_tokens = [];
+				$current_line_words = 0;
 			}
 		}
 
-		$line_one = bxt_rankings_tokens_to_text($line_one_tokens);
-		$line_two = bxt_rankings_tokens_to_text($line_two_tokens);
-
-		if ($line_two === "") {
-			return $line_one;
+		if (count($current_line_tokens) > 0) {
+			$line_text = bxt_rankings_tokens_to_text($current_line_tokens);
+			if ($line_text !== "") {
+				$lines[] = $line_text;
+			}
 		}
 
-		return $line_one . "\n" . $line_two;
+		return implode("\n\n", $lines);
 	}
 
 	function bxt_rankings_player_region_table_id($region) {
@@ -236,16 +241,256 @@
 		});
 	}
 
+
+	function bxt_rankings_to_fullwidth_caps($text) {
+		$text = strtoupper((string)$text);
+
+		$map = array(
+			"A" => "\u{FF21}", "B" => "\u{FF22}", "C" => "\u{FF23}", "D" => "\u{FF24}", "E" => "\u{FF25}",
+			"F" => "\u{FF26}", "G" => "\u{FF27}", "H" => "\u{FF28}", "I" => "\u{FF29}", "J" => "\u{FF2A}",
+			"K" => "\u{FF2B}", "L" => "\u{FF2C}", "M" => "\u{FF2D}", "N" => "\u{FF2E}", "O" => "\u{FF2F}",
+			"P" => "\u{FF30}", "Q" => "\u{FF31}", "R" => "\u{FF32}", "S" => "\u{FF33}", "T" => "\u{FF34}",
+			"U" => "\u{FF35}", "V" => "\u{FF36}", "W" => "\u{FF37}", "X" => "\u{FF38}", "Y" => "\u{FF39}",
+			"Z" => "\u{FF3A}",
+			":" => "\u{FF1A}",
+			"!" => "\u{FF01}",
+			"&" => "\u{FF06}",
+			"-" => "\u{FF0D}",
+			"/" => "\u{FF0F}",
+			" " => "\u{3000}",
+		);
+
+		return strtr($text, $map);
+	}
+
+	function bxt_rankings_country_label($prefix, $suffix = null) {
+		$wide_prefix = bxt_rankings_to_fullwidth_caps((string)$prefix);
+		if ($suffix === null || $suffix === "") {
+			return $wide_prefix;
+		}
+		return $wide_prefix . ":" . strtoupper((string)$suffix);
+	}
+
+	function bxt_rankings_load_news_cycle_config() {
+		static $cfg = null;
+		static $loaded = false;
+
+		if ($loaded) {
+			return $cfg;
+		}
+		$loaded = true;
+		$cfg = [];
+
+		$config_path = realpath(__DIR__ . "/../../../app/auto-schedule/bxt_news_cycle.config.json");
+		if ($config_path === false || !is_file($config_path)) {
+			return $cfg;
+		}
+
+		$json_raw = @file_get_contents($config_path);
+		if (!is_string($json_raw) || trim($json_raw) === "") {
+			return $cfg;
+		}
+
+		$parsed = json_decode($json_raw, true);
+		if (!is_array($parsed)) {
+			return $cfg;
+		}
+
+		if (isset($parsed["news_cycle"]) && is_array($parsed["news_cycle"])) {
+			$cfg = $parsed["news_cycle"];
+		} else {
+			$cfg = $parsed;
+		}
+		return $cfg;
+	}
+
+	function bxt_rankings_cycle_dates_for_region($region_code) {
+		$cfg = bxt_rankings_load_news_cycle_config();
+		if (!isset($cfg["schedule"]) || !is_array($cfg["schedule"])) {
+			return [];
+		}
+
+		$region_code = strtolower(trim((string)$region_code));
+		$region_schedule = $cfg["schedule"][$region_code] ?? null;
+		if (!is_array($region_schedule) && $region_code !== "e") {
+			$region_schedule = $cfg["schedule"]["e"] ?? null;
+		}
+		if (!is_array($region_schedule)) {
+			return [];
+		}
+
+		$date_map = [];
+		foreach ($region_schedule as $entry) {
+			if (!is_array($entry)) {
+				continue;
+			}
+			$date = trim((string)($entry["date"] ?? ""));
+			if (preg_match('/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/', $date) === 1) {
+				$date_map[$date] = true;
+			}
+		}
+
+		$dates = array_keys($date_map);
+		sort($dates, SORT_STRING);
+		return $dates;
+	}
+
+	function bxt_rankings_cycle_timing($region_code) {
+		$dates = bxt_rankings_cycle_dates_for_region($region_code);
+		if (count($dates) === 0) {
+			return [
+				"end_epoch" => 0,
+				"cycle_seconds" => 0,
+			];
+		}
+
+		$tz_name = (string)date_default_timezone_get();
+		if ($tz_name === "") {
+			$tz_name = "UTC";
+		}
+		$tz = new DateTimeZone($tz_name);
+		$now = new DateTimeImmutable("now", $tz);
+		$year = intval($now->format("Y"));
+
+		$candidates = [];
+		foreach ($dates as $mmdd) {
+			list($mm, $dd) = array_map("intval", explode("-", $mmdd, 2));
+			for ($y = $year - 1; $y <= $year + 1; $y++) {
+				$dt = DateTimeImmutable::createFromFormat("!Y-n-j H:i:s", sprintf("%04d-%d-%d 00:00:00", $y, $mm, $dd), $tz);
+				if ($dt instanceof DateTimeImmutable) {
+					$candidates[$dt->getTimestamp()] = $dt;
+				}
+			}
+		}
+
+		if (count($candidates) === 0) {
+			return [
+				"end_epoch" => 0,
+				"cycle_seconds" => 0,
+			];
+		}
+
+		ksort($candidates, SORT_NUMERIC);
+		$timeline = array_values($candidates);
+
+		$next = null;
+		$prev = null;
+		foreach ($timeline as $candidate) {
+			if ($candidate->getTimestamp() > $now->getTimestamp()) {
+				$next = $candidate;
+				break;
+			}
+			$prev = $candidate;
+		}
+
+		if (!$next) {
+			$last_mmdd = end($dates);
+			list($mm, $dd) = array_map("intval", explode("-", $last_mmdd, 2));
+			$next = DateTimeImmutable::createFromFormat(
+				"!Y-n-j H:i:s",
+				sprintf("%04d-%d-%d 00:00:00", $year + 1, $mm, $dd),
+				$tz
+			);
+		}
+
+		if (!$prev) {
+			$first_mmdd = reset($dates);
+			list($mm, $dd) = array_map("intval", explode("-", $first_mmdd, 2));
+			$prev = DateTimeImmutable::createFromFormat(
+				"!Y-n-j H:i:s",
+				sprintf("%04d-%d-%d 00:00:00", $year - 1, $mm, $dd),
+				$tz
+			);
+		}
+
+		$next_epoch = ($next instanceof DateTimeImmutable) ? intval($next->getTimestamp()) : 0;
+		$prev_epoch = ($prev instanceof DateTimeImmutable) ? intval($prev->getTimestamp()) : 0;
+		$cycle_seconds = max(1, $next_epoch - $prev_epoch);
+
+		return [
+			"end_epoch" => $next_epoch,
+			"cycle_seconds" => $cycle_seconds,
+		];
+	}
+
+	function bxt_rankings_cycle_current_issue_text($region_code) {
+		$cfg = bxt_rankings_load_news_cycle_config();
+		if (!isset($cfg["schedule"]) || !is_array($cfg["schedule"])) {
+			return "";
+		}
+
+		$region_code = strtolower(trim((string)$region_code));
+		$region_schedule = $cfg["schedule"][$region_code] ?? null;
+		if (!is_array($region_schedule) && $region_code !== "e") {
+			$region_schedule = $cfg["schedule"]["e"] ?? null;
+		}
+		if (!is_array($region_schedule)) {
+			return "";
+		}
+
+		$tz_name = (string)date_default_timezone_get();
+		if ($tz_name === "") {
+			$tz_name = "UTC";
+		}
+		$tz = new DateTimeZone($tz_name);
+		$now = new DateTimeImmutable("now", $tz);
+		$year = intval($now->format("Y"));
+		$now_ts = intval($now->getTimestamp());
+
+		$best_ts = null;
+		$best_message = "";
+
+		foreach ($region_schedule as $entry) {
+			if (!is_array($entry)) {
+				continue;
+			}
+			$date = trim((string)($entry["date"] ?? ""));
+			$message = trim((string)($entry["message"] ?? ""));
+			if ($message === "") {
+				continue;
+			}
+			if (preg_match('/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/', $date) !== 1) {
+				continue;
+			}
+			list($mm, $dd) = array_map("intval", explode("-", $date, 2));
+
+			for ($y = $year - 1; $y <= $year + 1; $y++) {
+				$dt = DateTimeImmutable::createFromFormat(
+					"!Y-n-j H:i:s",
+					sprintf("%04d-%d-%d 00:00:00", $y, $mm, $dd),
+					$tz
+				);
+				if (!($dt instanceof DateTimeImmutable)) {
+					continue;
+				}
+				$ts = intval($dt->getTimestamp());
+				if ($ts > $now_ts) {
+					continue;
+				}
+				if ($best_ts === null || $ts > $best_ts) {
+					$best_ts = $ts;
+					$best_message = $message;
+				}
+			}
+		}
+
+		if ($best_message === "") {
+			return "";
+		}
+
+		return str_replace(["#", "＃"], "POK\u{00E9}", $best_message);
+	}
+
 	$country_options = array(
-		array("value" => "global", "label" => "Global"),
-		array("value" => "j", "label" => "JPN: Japan"),
-		array("value" => "e", "label" => "ENG: USA & Canada"),
-		array("value" => "p", "label" => "ENG: Europe"),
-		array("value" => "u", "label" => "ENG: Australia"),
-		array("value" => "f", "label" => "FRA: France"),
-		array("value" => "d", "label" => "GER: Germany"),
-		array("value" => "i", "label" => "ITA: Italy"),
-		array("value" => "s", "label" => "SPA: Spain"),
+		array("value" => "global", "label" => bxt_rankings_country_label("GLOBAL")),
+		array("value" => "j", "label" => bxt_rankings_country_label("JPN", "JAPAN")),
+		array("value" => "e", "label" => bxt_rankings_country_label("ENG", "USA")),
+		array("value" => "p", "label" => bxt_rankings_country_label("ENG", "EUROPE")),
+		array("value" => "u", "label" => bxt_rankings_country_label("ENG", "AUSTRALIA")),
+		array("value" => "f", "label" => bxt_rankings_country_label("FRA", "FRANCE")),
+		array("value" => "d", "label" => bxt_rankings_country_label("GER", "GERMANY")),
+		array("value" => "i", "label" => bxt_rankings_country_label("ITA", "ITALY")),
+		array("value" => "s", "label" => bxt_rankings_country_label("SPA", "SPAIN")),
 	);
 
 	$int_countries = array("e", "f", "d", "i", "s", "u", "p");
@@ -265,10 +510,10 @@
 	}
 
 	$mode_options = array(
-		array("value" => "national", "label" => "National Top 10!"),
+		array("value" => "national", "label" => "NATIONAL TOP 10!"),
 	);
 	if ($country !== "global") {
-		$mode_options[] = array("value" => "address", "label" => "Address Top 10!");
+		$mode_options[] = array("value" => "address", "label" => "ADDRESS TOP 10!");
 	}
 
 	$address_options = ($country !== "global") ? bxt_rankings_address_options($country) : [];
@@ -282,6 +527,25 @@
 	} else {
 		$selected_address = "";
 	}
+
+	$ui_locale = strtolower((string)SessionUtil::getInstance()->getLocale());
+	$global_cycle_region_by_locale = array(
+		"en" => "e",
+		"ja" => "j",
+		"de" => "d",
+		"es" => "s",
+		"it" => "i",
+		"fr" => "f",
+		// Dutch can follow the English cycle.
+		"nl" => "e",
+	);
+	$global_cycle_region = $global_cycle_region_by_locale[$ui_locale] ?? "e";
+	$cycle_timer_region = ($country === "global") ? $global_cycle_region : $country;
+	$issue_label_region = $global_cycle_region;
+	$cycle_timing = bxt_rankings_cycle_timing($cycle_timer_region);
+	$ranking_cycle_end_epoch = intval($cycle_timing["end_epoch"] ?? 0);
+	$ranking_cycle_total_seconds = intval($cycle_timing["cycle_seconds"] ?? 0);
+	$ranking_issue_label_text = bxt_rankings_cycle_current_issue_text($issue_label_region);
 
 	// Optional: force custom Pokemon News rankings preview in the web UI.
 	$force_pokemon_news_custom = (($_GET["pokemon_news_custom"] ?? '') === '1');
@@ -366,6 +630,9 @@
 			'address_options' => $address_options,
 			'pokemon_news_custom' => 0,
 			'pokemon_news_custom_available' => $pokemon_news_custom_available,
+			'ranking_cycle_end_epoch' => $ranking_cycle_end_epoch,
+			'ranking_cycle_total_seconds' => $ranking_cycle_total_seconds,
+			'ranking_issue_label_text' => $ranking_issue_label_text,
 		]);
 		exit;
 	}
@@ -470,6 +737,7 @@
 		if ($category_name === "") {
 			$category_name = "CATEGORY " . $cat_id;
 		}
+		$category_name = bxt_rankings_to_fullwidth_caps($category_name);
 
 		$from_clause = " from bxt_ranking r ";
 		if ($can_join_news) {
@@ -610,4 +878,7 @@
 		'address_options' => $address_options,
 		'pokemon_news_custom' => $pokemon_news_custom_used,
 		'pokemon_news_custom_available' => $pokemon_news_custom_available,
+		'ranking_cycle_end_epoch' => $ranking_cycle_end_epoch,
+		'ranking_cycle_total_seconds' => $ranking_cycle_total_seconds,
+		'ranking_issue_label_text' => $ranking_issue_label_text,
 	]);

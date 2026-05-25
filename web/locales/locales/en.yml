@@ -2,9 +2,9 @@ locale:
   en: English
   ja: 日本語
   de: Deutsch
-  fr: Français
   es: Español
   it: Italiano
+  fr: Français
 language:
   en: English
   ja: Japanese
@@ -773,7 +773,7 @@ pokemon:
   - HO-OH
   - CELEBI
   items:
-  - "---"
+  - '---'
   - MASTER BALL
   - ULTRA BALL
   - BRIGHTPOWDER
@@ -1029,7 +1029,7 @@ pokemon:
   - HM11 (UNUSED)
   - HM12 (UNUSED)
   moves:
-  - "---"
+  - (NONE)
   - POUND
   - KARATE CHOP
   - DOUBLE SLAP

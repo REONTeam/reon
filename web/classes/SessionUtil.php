@@ -24,20 +24,31 @@
 		}
 		
 		public function setLocale($locale) {
-			$_SESSION["locale"] = $lang;
+			$supported = array("en", "ja", "de", "es", "it", "fr");
+			$normalized = strtolower(trim((string)$locale));
+			if (!in_array($normalized, $supported, true)) {
+				$normalized = "en";
+			}
+			$_SESSION["locale"] = $normalized;
 			// TODO: Persist to user prefs if signed in
 			return;
 		}
 
 		public function getLocale() {
+			$supported = array("en", "ja", "de", "es", "it", "fr");
 			// TODO: Initial value from user prefs if signed in
 			if(isset($_GET["lang"])) {
-				$_SESSION["locale"] = $_GET["lang"];
+				$this->setLocale($_GET["lang"]);
 			}
 			elseif (!isset($_SESSION["locale"])) {
 				if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && strlen($_SERVER['HTTP_ACCEPT_LANGUAGE'])>0) {
-					$_SESSION["locale"] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+					$this->setLocale(substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2));
+				} else {
+					$_SESSION["locale"] = "en";
 				}
+			}
+			elseif (!in_array(strtolower((string)$_SESSION["locale"]), $supported, true)) {
+				$_SESSION["locale"] = "en";
 			}
 			return $_SESSION["locale"];
 		}

@@ -10,6 +10,69 @@
   border-style: solid;
 }
 
+.reon-navbar-logo {
+  height: 24px;
+  width: auto;
+  display: block;
+}
+
+header.navbar {
+  position: relative;
+  z-index: 2147483646;
+  overflow: visible;
+}
+
+header.navbar > nav,
+header.navbar .navbar-nav,
+header.navbar .nav-item,
+header.navbar .nav-item.dropdown {
+  position: relative;
+  overflow: visible;
+}
+
+header.navbar #localeDropdown {
+  position: relative;
+  z-index: 2147483647;
+}
+
+header.navbar .dropdown-menu,
+header.navbar .dropdown-menu.show,
+header.navbar #localeDropdownMenu,
+header.navbar #localeDropdownMenu.show {
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+}
+
+body > header.navbar .dropdown-menu.show {
+  z-index: 2147483647 !important;
+}
+
+header.navbar .locale-nav-item {
+  position: relative;
+  overflow: visible;
+}
+
+header.navbar #localeDropdownMenu {
+  position: absolute !important;
+  top: calc(100% + var(--bs-dropdown-spacer, 0.125rem)) !important;
+  left: 0 !important;
+  right: auto !important;
+  margin-top: var(--bs-dropdown-spacer, 0.125rem);
+  transform: none !important;
+  min-width: max-content;
+}
+
+header.navbar #localeDropdownMenu * {
+  pointer-events: auto !important;
+}
+
+header.navbar #localeDropdownMenu li,
+header.navbar #localeDropdownMenu .dropdown-item {
+  position: relative;
+  pointer-events: auto !important;
+  z-index: 2147483647 !important;
+}
+
 .crystal-ranking {
   width: 33%;
   float: left;
@@ -75,14 +138,15 @@
   position: absolute;
   left: 10px;
   top: 50%;
-  width: 14px;
-  height: 14px;
+  width: 24px;
+  height: 24px;
   transform: translateY(-50%);
   pointer-events: none;
   opacity: .75;
   background-repeat: no-repeat;
-  background-size: 14px 14px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2362697a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4.3-4.3'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
+  background-image: var(--search-icon-image, url("/images/crystal/Slowpoke_0.png"));
+  image-rendering: pixelated;
 }
 
 .trade-search-input {
@@ -100,10 +164,102 @@
   border-color: #4f88d8;
 }
 
+.trade-size-wrap {
+  width: 320px;
+  max-width: calc(100% - 12px);
+  margin: 32px auto 10px auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 8px;
+  row-gap: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.trade-size-label {
+  font-size: .9em;
+  white-space: nowrap;
+  text-align: left;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.trade-size-buttons {
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: stretch;
+  justify-content: stretch;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.trade-size-btn {
+  flex: 1 1 50%;
+  min-width: 0;
+  border: 1px solid #a6a6a6;
+  background: #fff;
+  color: #000;
+  margin: 0;
+  padding: 2px 0.6ch;
+  font-size: 1em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.trade-size-btn + .trade-size-btn {
+  border-left: 0;
+}
+
+.trade-size-btn.is-active {
+  background: #dceaff;
+}
+
+.trade-size-btn:focus {
+  outline: 2px solid #84b6ff;
+  outline-offset: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.trade-size-btn:first-child {
+  border-radius: 3px 0 0 3px;
+}
+
+.trade-size-btn:last-child {
+  border-radius: 0 3px 3px 0;
+}
+
+.trade-size-slider {
+  grid-column: 2;
+  grid-row: 1;
+  width: 10%;
+  margin: 0;
+}
+
+.trade-size-hints {
+  width: 10%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 6.8em;
+  line-height: 1;
+  text-align: center;
+  grid-column: 2;
+  grid-row: 2;
+}
+
 .trade-corner-list::after {
   content: "";
   display: block;
   clear: both;
+}
+
+.trade-corner-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .trade-no-results {
@@ -117,17 +273,23 @@
   color: #545b66;
 }
 
+.crystal-empty-message {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
 .trade-no-results-hidden {
   display: none;
 }
 
 .crystal-trade-slot {
-  float: left;
-  width: 250px;
+  float: none;
+  width: calc(250px - 1ch);
   margin: 5px;
   max-height: 480px;
-  overflow: hidden;
+  overflow: visible;
   transition: opacity .45s ease, transform .45s ease, max-height .45s ease, margin .45s ease;
+  zoom: var(--trade-card-scale, 1);
 }
 
 .crystal-trade-slot.trade-slot-expiring {
@@ -142,18 +304,51 @@
 .crystal-trade {
   --trade-sprite-size: 56px;
   float: left;
-  border: 1px solid gray;
-  border-radius: 5px;
+  border: 0;
+  border-radius: 0;
   margin: 5px;
-  width: 250px;
+  width: 222px;
+  height: 134px;
   position: relative;
   line-height: 1.3;
+  background: none;
+  isolation: isolate;
+}
+
+.crystal-trade::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  bottom: -2px;
+  left: -2px;
+  border-radius: 0;
+  background:
+    linear-gradient(#000, #000) 1px 0 / calc(100% - 2px) 2px no-repeat,
+    linear-gradient(#000, #000) 1px 100% / calc(100% - 2px) 2px no-repeat,
+    linear-gradient(#000, #000) 0 1px / 2px calc(100% - 2px) no-repeat,
+    linear-gradient(#000, #000) 100% 1px / 2px calc(100% - 2px) no-repeat;
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 2;
+}
+
+.crystal-trade .trade-card-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 222px;
+  height: 134px;
+  image-rendering: pixelated;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .crystal-trade-slot .crystal-trade {
   float: none;
-  margin: 0;
-  width: 100%;
+  margin: 0 auto;
+  width: 222px;
+  height: 134px;
 }
 
 .crystal-trade-slot .trade-warning {
@@ -205,46 +400,35 @@
 .crystal-trade td, .crystal-trade th {
   padding: 2px;
 }
+
+.crystal-trade img {
+  image-rendering: pixelated;
+}
 .crystal-trade .trade-offer {
   display: flex;
+  align-items: flex-start;
+  gap: 8px;
   padding: 6px;
+  position: relative;
+  z-index: 1;
 }
 
 .crystal-trade .trade-separator {
-  border-top: 1px solid;
+  border-top: 0;
   margin: 0px;
 }
 .crystal-trade .trade-request {
   padding: 6px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
 }
 
 .crystal-trade .marks-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding-right: calc(3.5em *.7);
-  line-height: .9em;
-  padding-top: calc(1.7em * .7);
-  padding-right: 3px;
-  text-align: right;
-  vertical-align: middle;
-}
-
-.crystal-trade .region {
-  font-size: .7em;
-  text-transform: uppercase;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  display: inline-block;
-  color: gray;
-  padding: 1px 3px;
-  text-decoration: none;
-  border: solid lightslategray;
-  border-width: 0 0 1px 1px;
-  border-bottom-left-radius: 3px;
-  width: 3.2em;
-  text-align: center;
+  display: none;
 }
 .crystal-trade .gender-male,
 .crystal-trade .gender-female {
@@ -268,10 +452,6 @@
 .crystal-trade .gender-female  {
   background-color: #e82010;
   mask-image: url('/images/crystal/gender-female.svg');
-}
-
-.crystal-trade .request-gender {
-  margin-left: calc(var(--icon-size) * -1);
 }
 
 .crystal-trade .shiny-mark,
@@ -341,44 +521,150 @@
   bottom: -.15em;
 }
 
-.crystal-trade .region {
-  font-size: .7em;
-  text-transform: uppercase;
-  position: absolute;
-  top: 0px;
-  right: 0px;
+.crystal-trade .offer-details {
+  padding-left: 0;
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0;
+}
+
+.crystal-trade .offer-species-line {
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
+  margin-top: 8px;
+  margin-bottom: 2px;
+  margin-left: -1ch;
+  position: relative;
+  left: 2px;
+  top: -4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crystal-trade .offer-species-gap {
+  height: 16px;
+  line-height: 16px;
+}
+
+.crystal-trade .offer-species-fixed {
   display: inline-block;
-  color: gray;
-  padding: 1px 3px;
-  text-decoration: none;
-  border: solid lightslategray;
-  border-width: 0 0 1px 1px;
-  border-bottom-left-radius: 3px;
-  width: 3.2em;
+  width: 10ch;
+  min-width: 10ch;
+  max-width: 10ch;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.crystal-trade .offer-level-fixed {
+  display: inline-flex;
+  align-items: baseline;
+  width: 3ch;
+  min-width: 3ch;
+  max-width: 3ch;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.crystal-trade .offer-level-prefix {
+  display: inline-block;
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 1ch;
+  overflow: hidden;
+  letter-spacing: -0.45ch;
+}
+
+.crystal-trade .offer-level-digits {
+  display: inline-block;
+  width: 2ch;
+  min-width: 2ch;
+  max-width: 2ch;
+  overflow: hidden;
+}
+
+.crystal-trade .offer-inline-space {
+  display: inline-block;
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 1ch;
+}
+
+.crystal-trade .offer-gender-fixed {
+  display: inline-block;
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 1ch;
   text-align: center;
 }
 
-.crystal-trade .offer-details {
-  padding-left: 10px;
+.crystal-trade .offer-shiny-fixed {
+  display: inline-block;
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 1ch;
+  text-align: center;
+}
+
+.crystal-trade .offer-tail-space {
+  display: inline-block;
+  width: 1ch;
+}
+
+.crystal-trade .offer-details .offer-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 1ch;
+  line-height: 1.15;
+  margin-left: -1ch;
+  position: relative;
+  top: -7px;
+  left: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0;
+}
+
+.crystal-trade .offer-row-gap {
+  height: 8px;
+  line-height: 8px;
 }
 
 .crystal-trade .offer-species {
-  font-size: 1.2em;
-  min-width: 80px;
-  display: inline-block
+  font-size: 1.15em;
+  min-width: 0;
+  display: inline;
+}
+
+.crystal-trade .offer-level-inline {
+  font-size: .85em;
+  color: #10293a;
+  letter-spacing: 0;
 }
 
 
 .crystal-trade .offer-name,
+.crystal-trade .offer-ot,
 .crystal-trade .offer-item,
 .crystal-trade .offer-trainer,
 .crystal-trade .offer-offerer {
   font-size: .9em;
+  color: #000;
+  padding-left: 2px;
 }
 
 .crystal-trade .trade-offer .media-area {
-  line-height: .9;
+  line-height: 1;
   min-width: var(--trade-sprite-size);
+  width: 58px;
+  text-align: center;
+  flex: 0 0 58px;
+  position: relative;
 }
 
 .crystal-trade .sprite-pokemon {
@@ -386,6 +672,9 @@
   width: var(--trade-sprite-size);
   height: var(--trade-sprite-size);
   image-rendering: pixelated;
+  position: relative;
+  left: -6px;
+  top: -6px;
 }
 
 .crystal-trade .sprite-pokemon-hoveranim {
@@ -397,26 +686,156 @@
   font-size: .8em;
 }
 
+.crystal-trade .offer-region-line {
+  margin-top: 8px;
+  font-size: .72em;
+  color: #000;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: nowrap;
+  position: relative;
+  top: -5px;
+  left: -5px;
+}
+
+.crystal-trade .offer-pkrs-tag {
+  display: block;
+  width: 32px;
+  height: 13px;
+  margin-left: 8px;
+  margin-top: 0;
+  image-rendering: pixelated;
+}
+
+.crystal-trade .offer-pokerus-line {
+  margin-top: 2px;
+  font-size: .7em;
+  color: #f8f8f8;
+  text-align: center;
+  min-height: 1em;
+  position: relative;
+  top: 3px;
+  left: -6px;
+}
+
+.crystal-trade .offer-pokerus-line .offer-pokerus-cured {
+  color: #000;
+}
+
+.crystal-trade .offer-pokerus-line .offer-pokerus-infected {
+  color: #f8f8f8;
+}
+
+.crystal-trade .offer-pokerus-line.pokerus-active {
+  width: 32px;
+  min-width: 32px;
+  margin-left: 14px;
+  margin-top: -13px;
+  left: -5px;
+  text-align: center;
+  line-height: 13px;
+}
+
+.crystal-trade .offer-after-pokerus-line {
+  height: 0;
+  line-height: 0;
+}
+
+.crystal-trade .trade-request-text {
+  display: inline-flex;
+  align-items: flex-end;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: 0.5ch;
+  color: #f8f8f8;
+  position: relative;
+  top: -2px;
+}
+
 .crystal-trade .label {
   font-size: .7em;
   font-style: italic;
-  color: gray;
+  color: #f8f8f8;
   text-transform: uppercase;
   display: inline-block;
-  width: 56px;
+  width: 6ch;
+  min-width: 6ch;
+  max-width: 6ch;
+  overflow: hidden;
+}
+
+.crystal-trade .offer-row-offerer .label {
+  width: 9ch;
+  min-width: 9ch;
+  max-width: 9ch;
 }
 
 .crystal-trade .wanted-label {
   font-size: .8em;
   text-transform: uppercase;
   font-style: italic;
-  color: gray;
-  min-width: 64px;
+  color: #f8f8f8;
+  min-width: 0;
+  display: inline;
+}
+
+.crystal-trade .wanted-gender-char {
   display: inline-block;
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 1ch;
+  text-align: center;
+  font-size: .9em;
+  line-height: 1;
+  white-space: pre;
+  color: #f8f8f8;
+}
+
+.crystal-trade .wanted-gap-before-gender {
+  display: inline-block;
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 1ch;
+}
+
+.crystal-trade .wanted-gap-after-gender {
+  display: inline-block;
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 1ch;
+}
+
+.crystal-trade .wanted-gap-after-gender.wanted-gap-no-gender {
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 1ch;
 }
 
 .crystal-trade .request-species {
-  padding-left: 7px;
+  padding-left: 0;
+  margin-right: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #f8f8f8;
+}
+
+.crystal-trade .wanted-menu-sprite {
+  width: auto;
+  height: 16px;
+  max-width: 16px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  margin-left: auto;
+  margin-right: calc(1px + 1.5ch);
+  align-self: flex-end;
+  flex: 0 0 auto;
+}
+
+.crystal-trade .trade-request-bottom-spacer {
+  height: 8px;
+  line-height: 8px;
 }
 
 .mariokart-rankings td,

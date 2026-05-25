@@ -1,0 +1,216 @@
+@font-face {
+  font-family: "MarioKartAdvance";
+  src:
+    url("/fonts/MarioKartAdvance/MarioKartAdvance.ttf?v=mkgba-font-v2") format("truetype"),
+    url("/fonts/mariokartadvance/MarioKartAdvance.ttf?v=mkgba-font-v2") format("truetype"),
+    url("/fonts/MarioKartAdvance/mariokartadvance.ttf?v=mkgba-font-v2") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --mkgba-nav-side-left: 0px;
+  --mkgba-nav-side-right: 0px;
+}
+
+body.mariokart-theme::before,
+body.mariokart-theme::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-color: #08162c;
+  background-image: url("/images/mariokart/StarsRepeat.png");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+body.mariokart-theme::before {
+  left: 0;
+  width: var(--mkgba-nav-side-left);
+  background-position: right top;
+}
+
+body.mariokart-theme::after {
+  right: 0;
+  width: var(--mkgba-nav-side-right);
+  background-position: left top;
+}
+
+body.mariokart-theme > .container-xxl,
+body.mariokart-theme > main {
+  position: relative;
+  z-index: 1;
+}
+
+.mkgba-page,
+.mkgba-page * {
+  font-family: "MarioKartAdvance", monospace !important;
+  font-weight: 400 !important;
+  font-kerning: none !important;
+  font-variant-ligatures: normal !important;
+  font-feature-settings: "kern" 0, "liga" 1, "clig" 1 !important;
+  font-synthesis: none !important;
+  -webkit-font-smoothing: none !important;
+  -moz-osx-font-smoothing: auto !important;
+  font-smooth: never !important;
+  text-rendering: optimizeSpeed !important;
+}
+
+.mkgba-page {
+  width: min(1200px, calc(100% - 16px));
+  margin: 0 auto;
+}
+
+.mkgba-title {
+  margin: 8px 0 20px;
+  text-align: center;
+  font-size: 64px !important;
+  line-height: 64px !important;
+  color: #ff9408;
+  -webkit-text-stroke: 4px #6b0094;
+  paint-order: stroke fill;
+  text-shadow:
+    4px 0 #6b0094,
+    -4px 0 #6b0094,
+    0 4px #6b0094,
+    0 -4px #6b0094;
+}
+
+.mkgba-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #ffffff;
+}
+
+.mkgba-table th,
+.mkgba-table td {
+  border: 1px solid #17264f;
+  padding: 8px 10px;
+  vertical-align: top;
+  font-size: 16px !important;
+  line-height: 16px !important;
+  color: #a5f7ff;
+  -webkit-text-stroke: 0;
+  paint-order: stroke fill;
+  text-shadow:
+    1px 0 0 #212952,
+    -1px 0 0 #212952,
+    0 1px 0 #212952,
+    0 -1px 0 #212952,
+    1px 1px 0 #212952,
+    -1px 1px 0 #212952,
+    1px -1px 0 #212952,
+    -1px -1px 0 #212952;
+}
+
+.mkgba-table thead th {
+  color: #ff9408;
+  font-size: 32px !important;
+  line-height: 32px !important;
+  -webkit-text-stroke: 0;
+  text-shadow:
+    2px 0 0 #6b0094,
+    -2px 0 0 #6b0094,
+    0 2px 0 #6b0094,
+    0 -2px 0 #6b0094,
+    2px 2px 0 #6b0094,
+    -2px 2px 0 #6b0094,
+    2px -2px 0 #6b0094,
+    -2px -2px 0 #6b0094;
+  text-align: left;
+}
+
+.mkgba-course-cell,
+.mkgba-driver-cell {
+  white-space: nowrap;
+}
+
+.mkgba-table thead th:nth-child(1),
+.mkgba-table thead th:nth-child(2),
+.mkgba-table thead th:nth-child(3),
+.mkgba-table thead th:nth-child(4),
+.mkgba-table thead th:nth-child(5),
+.mkgba-course-cell,
+.mkgba-player-cell,
+.mkgba-driver-cell,
+.mkgba-time-cell,
+.mkgba-date-cell {
+  text-align: center;
+}
+
+.mkgba-main-text {
+  display: block;
+}
+
+.mkgba-track-icon,
+.mkgba-driver-icon {
+  display: block;
+  margin-top: 4px;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.mkgba-player-cell {
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.mkgba-table em {
+  font-style: normal;
+}
+
+@media (max-width: 991.98px) {
+  body.mariokart-theme::before,
+  body.mariokart-theme::after {
+    display: none;
+  }
+
+  .mkgba-page {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .mkgba-title {
+    font-size: 32px !important;
+    line-height: 32px !important;
+    -webkit-text-stroke: 2px #6b0094;
+    text-shadow:
+      2px 0 #6b0094,
+      -2px 0 #6b0094,
+      0 2px #6b0094,
+      0 -2px #6b0094;
+  }
+
+  .mkgba-table th,
+  .mkgba-table td {
+    font-size: 16px !important;
+    line-height: 16px !important;
+  }
+
+  .mkgba-table thead th {
+    font-size: 16px !important;
+    line-height: 16px !important;
+    text-shadow:
+      2px 0 0 #6b0094,
+      -2px 0 0 #6b0094,
+      0 2px 0 #6b0094,
+      0 -2px 0 #6b0094,
+      2px 2px 0 #6b0094,
+      -2px 2px 0 #6b0094,
+      2px -2px 0 #6b0094,
+      -2px -2px 0 #6b0094;
+  }
+}

@@ -1,36 +1,113 @@
 {% extends "main.twig" %}
+{% set nav_item = "games" %}
+{% set body_class = "mariokart-theme" %}
 
 {% block title %}Mario Kart{% endblock %}
-{% block content %}
 
-    <table class="mariokart-rankings">
+{% block head %}
+<link href="/css/mariokart.css?v=mkgba-v5" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="mkgba-page">
+    <h1 class="mkgba-title">Mario Kart: Super Circuit</h1>
+
+    <table class="mariokart-rankings mkgba-table">
         <thead>
-            <th>Course</th>
-            <th>Player</th>
-            <th>Driver</th>
-            <th>Time</th>
-            <th>Date Set</th>
+            <tr>
+                <th>Course</th>
+                <th>Player</th>
+                <th>Driver</th>
+                <th>Time</th>
+                <th>Date Set</th>
+            </tr>
         </thead>
         <tbody>
-    {% for i in 0..19 %}
-        <tr>
-            {% set ghost = ghosts[i] %}
-            {% set course = 'mario-kart.tracks.' ~ i %}
-            {% set driver = 'mario-kart.drivers.' ~ ghost.driver %}
-            <th>{{course|trans}}</th>
-            {% if ghost %}
-            <td>{{ghost.player_name}}</td>
-            <td>{{driver|trans}}</td>
-            <td>{{ghost.formatted_time}}</td>
-            <td>{{ghost.timestamp|date('Y-m-d')}}</td>
+        {% for i in 0..19 %}
+            {% if ghosts[i] is defined %}
+                {% set ghost = ghosts[i] %}
             {% else %}
-            <td><em>no record</em></td>
-            <td><em>n/a</em></td>
-            <td><em>n/a</em></td>
-            <td><em>n/a</em></td>
+                {% set ghost = null %}
             {% endif %}
-        </tr>
-    {% endfor %}
+            {% set course = 'mario-kart.tracks.' ~ i %}
+            {% set default_track_icon_slug = track_icon_by_course[i]|default('peach_circuit') %}
+            {% set track_icon_slug = default_track_icon_slug %}
+            {% if ghost and ghost.track_icon_slug is defined %}
+                {% set track_icon_slug = ghost.track_icon_slug %}
+            {% endif %}
+            <tr>
+                <td class="mkgba-course-cell">
+                    <div class="mkgba-main-text">{{ course|trans }}</div>
+                    <img
+                        class="mkgba-track-icon"
+                        src="/images/mariokart/icon_track_{{ track_icon_slug }}.png"
+                        alt="{{ course|trans }}"
+                        loading="lazy"
+                    >
+                </td>
+                {% if ghost %}
+                {% set driver_key = 'mario-kart.drivers.' ~ ghost.driver %}
+                {% set date_set = (ghost.timestamp is defined and ghost.timestamp) ? (ghost.timestamp|date('Y-m-d')) : 'n/a' %}
+                <td class="mkgba-player-cell">{{ ghost.player_name_display|default(ghost.player_name) }}</td>
+                <td class="mkgba-driver-cell">
+                    <div class="mkgba-main-text">{{ driver_key|trans }}</div>
+                    <img
+                        class="mkgba-driver-icon"
+                        src="/images/mariokart/icon_big_{{ ghost.driver_icon_slug|default('mario') }}.png"
+                        alt="{{ driver_key|trans }}"
+                        loading="lazy"
+                    >
+                </td>
+                <td class="mkgba-time-cell">{{ ghost.formatted_time }}</td>
+                <td class="mkgba-date-cell">{{ date_set }}</td>
+                {% else %}
+                <td class="mkgba-player-cell"><em>No record</em></td>
+                <td class="mkgba-driver-cell"><em>n/a</em></td>
+                <td class="mkgba-time-cell"><em>n/a</em></td>
+                <td class="mkgba-date-cell"><em>n/a</em></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
+</div>
+{% endblock %}
+
+{% block body %}
+<script>
+(() => {
+    function findMarioKartAnchor() {
+        return document.querySelector(
+            "header.navbar.container-xxl, header.navbar, main#content.container-xxl, #content.container-xxl, .container-xxl"
+        );
+    }
+
+    function applyMarioKartSideBackgroundVars() {
+        const anchor = findMarioKartAnchor();
+        if (!anchor) {
+            return;
+        }
+        const rect = anchor.getBoundingClientRect();
+        const sideLeft = Math.max(0, Math.round(rect.left));
+        const sideRight = Math.max(0, Math.round(window.innerWidth - rect.right));
+        document.documentElement.style.setProperty("--mkgba-nav-side-left", `${sideLeft}px`);
+        document.documentElement.style.setProperty("--mkgba-nav-side-right", `${sideRight}px`);
+    }
+
+    function initMarioKartSideBackgrounds() {
+        applyMarioKartSideBackgroundVars();
+        window.addEventListener("resize", applyMarioKartSideBackgroundVars, { passive: true });
+        window.addEventListener("load", applyMarioKartSideBackgroundVars, { passive: true });
+        if (document.fonts && typeof document.fonts.ready === "object") {
+            document.fonts.ready.then(applyMarioKartSideBackgroundVars);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initMarioKartSideBackgrounds);
+    } else {
+        initMarioKartSideBackgrounds();
+    }
+})();
+</script>
 {% endblock %}

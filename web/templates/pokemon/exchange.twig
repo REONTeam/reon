@@ -1,10 +1,14 @@
 {% extends "main.twig" %}
 
-{% block title %}Pokémon - Trade Corner{% endblock %}
+{% block title %}PokÃ©mon - Trade Corner{% endblock %}
+{% block head %}
+    <link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v41" rel="stylesheet">
+{% endblock %}
 {% block content %}
+    <div class="exchange-page">
     {% set trade_asset_rev = 'trade-card-ui-v4' %}
 
-    <h1 class="trade-corner-title">Trade Corner</h1>
+    <h1 class="trade-corner-title">ï¼´ï¼²ï¼¡ï¼¤ï¼¥ã€€ï¼£ï¼¯ï¼²ï¼®ï¼¥ï¼²</h1>
     {% set current_region_filter = region_filter|default('global') %}
     <div class="trade-region-filter-wrap">
         <select id="trade-region-filter" class="trade-region-filter" aria-label="{{'region.text'|trans}}">
@@ -110,12 +114,19 @@
     </div>
     {% endfor %}
     </div>
-    <div id="trade-no-results" class="trade-no-results"{% if trades|length > 0 %} style="display:none"{% endif %}>
+    <div id="trade-no-results" class="trade-no-results crystal-empty-message"{% if trades|length > 0 %} style="display:none"{% endif %}>
         No results found.
+    </div>
     </div>
 
 {% endblock %}
 
 {% block body %}
-<script src="/js/exchange-hover-anim.js?v={{ trade_asset_rev }}"></script>
+<script src="/js/crystal-search-ui.js?v=crystal-search-ui-v7"></script>
+<script src="/js/exchange-hover-anim.js?v=exchange-hover-anim-v2"></script>
 {% endblock %}
+
+
+
+
+

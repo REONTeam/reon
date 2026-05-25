@@ -6,7 +6,7 @@
 
 		private static $instance;
 		private $twig;
-		private $translator;
+		private static $translator = null;
 
 		private final function  __construct() {
 			$loader = new \Twig\Loader\FilesystemLoader(dirname(__DIR__)."/templates");
@@ -32,15 +32,50 @@
 		}
 
 		public static function getTranslator() {
+			if (self::$translator !== null) {
+				return self::$translator;
+			}
+
 			$locale = SessionUtil::getInstance()->getLocale();
 			$translator = new \Symfony\Component\Translation\Translator($locale);
 			$translator->setFallbackLocales(['en']);
-			$translator->addLoader('yaml', new \Symfony\Component\Translation\Loader\YamlFileLoader());
-			$supported_locales =  ['en', 'es', 'de', 'ja', 'it', 'fr'];
-			foreach($supported_locales as $l) {
-				$translator->addResource('yaml',  dirname(__DIR__).'/locales/'.$l.'.yml', $l);
+
+			if (!class_exists('\Symfony\Component\Translation\Loader\YamlFileLoader')) {
+				error_log("Translation YAML loader class unavailable; locale resources cannot be loaded.");
+				self::$translator = $translator;
+				return self::$translator;
 			}
-			return $translator;
+
+			$translator->addLoader('yaml', new \Symfony\Component\Translation\Loader\YamlFileLoader());
+
+			$supported_locales = ['en', 'es', 'de', 'ja', 'it', 'fr'];
+			foreach ($supported_locales as $l) {
+				$path = dirname(__DIR__) . '/locales/' . $l . '.yml';
+				if (!is_file($path)) {
+					continue;
+				}
+
+				try {
+					if (class_exists('\Symfony\Component\Yaml\Yaml')) {
+						$raw = @file_get_contents($path);
+						if (!is_string($raw) || $raw === '') {
+							throw new \RuntimeException("Locale file is empty or unreadable");
+						}
+
+						$sanitized = preg_replace('/^\xEF\xBB\xBF/', '', $raw);
+						$sanitized = preg_replace('/^\s*---\s*(\r?\n)/m', '', $sanitized);
+						$sanitized = preg_replace('/^\s*\.\.\.\s*(\r?\n)/m', '', $sanitized);
+						\Symfony\Component\Yaml\Yaml::parse($sanitized);
+					}
+
+					$translator->addResource('yaml', $path, $l);
+				} catch (\Throwable $e) {
+					error_log("Skipping invalid locale YAML [{$l}] at {$path}: " . $e->getMessage());
+				}
+			}
+
+			self::$translator = $translator;
+			return self::$translator;
 		}
 
 	}

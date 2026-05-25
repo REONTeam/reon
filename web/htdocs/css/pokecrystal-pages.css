@@ -1,0 +1,502 @@
+@font-face {
+  font-family: "PokeCrystal";
+  src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.exchange-page,
+.exchange-page *,
+.battle-tower-page,
+.battle-tower-page *,
+.trainer-rankings-page,
+.trainer-rankings-page *,
+.save-converter-page,
+.save-converter-page * {
+  font-family: "PokeCrystal", monospace !important;
+  font-size: 8px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  font-kerning: none !important;
+  font-variant-ligatures: normal !important;
+  font-feature-settings: "kern" 0, "liga" 1, "clig" 1 !important;
+  font-synthesis: none !important;
+  -webkit-font-smoothing: none !important;
+  -moz-osx-font-smoothing: auto !important;
+  font-smooth: never !important;
+  text-rendering: optimizeSpeed !important;
+  text-size-adjust: 100% !important;
+}
+
+.exchange-page :is(input, select, option, textarea, button),
+.battle-tower-page :is(input, select, option, textarea, button),
+.trainer-rankings-page :is(input, select, option, textarea, button),
+.save-converter-page :is(input, select, option, textarea, button) {
+  font-family: "PokeCrystal", monospace !important;
+  font-size: 8px !important;
+  font-weight: 400 !important;
+}
+
+.exchange-page .trade-corner-title,
+.battle-tower-page .trade-corner-title,
+.trainer-rankings-page .trade-corner-title,
+.save-converter-page .trade-corner-title {
+  font-size: 32px !important;
+  line-height: 32px !important;
+  margin: 8px 0 40px !important;
+  letter-spacing: 0 !important;
+  font-weight: 400 !important;
+}
+
+.exchange-page .trade-region-filter,
+.battle-tower-page .trade-region-filter,
+.trainer-rankings-page .trade-region-filter,
+.save-converter-page .trade-region-filter {
+  font-size: 16px !important;
+  min-height: 34px !important;
+  line-height: 22px !important;
+  padding: 5px 24px 3px 8px !important;
+  overflow-y: auto !important;
+}
+
+.exchange-page .trade-region-filter option,
+.battle-tower-page .trade-region-filter option,
+.trainer-rankings-page .trade-region-filter option,
+.save-converter-page .trade-region-filter option {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.exchange-page .trade-search-wrap,
+.trainer-rankings-page .trade-search-wrap {
+  width: 640px !important;
+  max-width: calc(100% - 12px) !important;
+}
+
+.exchange-page .trade-size-wrap {
+  width: 640px !important;
+  max-width: calc(100% - 12px) !important;
+  justify-content: center !important;
+  align-items: center !important;
+  grid-template-columns: auto auto !important;
+  column-gap: 16px !important;
+  row-gap: 0 !important;
+}
+
+.exchange-page .trade-size-label,
+.exchange-page .trade-size-btn {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.exchange-page .trade-size-buttons {
+  width: auto !important;
+  min-width: 0 !important;
+  display: inline-flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+}
+
+.exchange-page .trade-size-btn {
+  min-height: 32px !important;
+  padding: 4px 0.75ch !important;
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.exchange-page .trade-search-input,
+.trainer-rankings-page .trade-search-input {
+  font-size: 16px !important;
+  min-height: 34px !important;
+  line-height: 22px !important;
+  padding: 5px 30px 3px 40px !important;
+}
+
+.exchange-page .trade-search-wrap::before,
+.trainer-rankings-page .trade-search-wrap::before {
+  width: 24px !important;
+  height: 24px !important;
+  background-size: 24px 24px !important;
+  left: 8px !important;
+  background-image: var(--search-icon-image, url("/images/crystal/Slowpoke_0.png")) !important;
+  image-rendering: pixelated !important;
+}
+
+.exchange-page .trade-remaining {
+  font-size: 16px !important;
+  line-height: 16px !important;
+  white-space: nowrap !important;
+}
+
+.battle-tower-page .battle-honor-roll-label {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.exchange-page .trade-warning,
+.battle-tower-page .battle-honor-table th,
+.battle-tower-page .battle-honor-table td,
+.trainer-rankings-page .trainer-ranking-table th,
+.trainer-rankings-page .trainer-ranking-table td {
+  letter-spacing: 0 !important;
+  text-rendering: optimizeSpeed !important;
+  font-size: 8px !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+  font-synthesis: none !important;
+  -webkit-font-smoothing: none !important;
+}
+
+.exchange-page .gender-male,
+.exchange-page .gender-female {
+  width: auto !important;
+  height: auto !important;
+  mask-image: none !important;
+  -webkit-mask-image: none !important;
+  background: none !important;
+  color: inherit !important;
+  vertical-align: baseline !important;
+}
+
+.battle-tower-page .battle-honor-roll-label,
+.battle-tower-page .battle-honor-table th,
+.trainer-rankings-page .trainer-ranking-table thead th,
+.save-converter-page .save-converter-label,
+.save-converter-page .save-convert-btn {
+  letter-spacing: 0 !important;
+  font-weight: 400 !important;
+}
+
+/* Keep numeric text tight (no wide-spacing on digits). */
+.exchange-page :is(input, select, option, .trade-search-input, .trade-region-filter, .trade-remaining, .offer-level, .offer-gender),
+.battle-tower-page :is(input, select, option, td, .bt-message-box, .bt-pokemon-list),
+.trainer-rankings-page :is(input, select, option, td, .ranking-col-rank, .ranking-col-score, .ranking-message-box),
+.save-converter-page :is(input, select, option, .save-file-input, .save-converter-status) {
+  letter-spacing: normal !important;
+}
+
+:root {
+  --trade-corner-nav-side-left: 0px;
+  --trade-corner-nav-side-right: 0px;
+  --trade-corner-container-width: 100vw;
+  --trade-corner-nav-side-fallback: 0px;
+  --rankings-top-edge-left: 0px;
+  --rankings-top-edge-top: 0px;
+  --rankings-top-edge-width: 1983px;
+  --rankings-side-start: 0px;
+}
+
+@media (min-width: 576px) {
+  :root {
+    --trade-corner-container-width: 540px;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --trade-corner-container-width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+  :root {
+    --trade-corner-container-width: 960px;
+  }
+}
+
+@media (min-width: 1200px) {
+  :root {
+    --trade-corner-container-width: 1140px;
+  }
+}
+
+@media (min-width: 1400px) {
+  :root {
+    --trade-corner-container-width: 1320px;
+  }
+}
+
+body.trade-corner-theme,
+body.honor-roll-theme {
+  background-color: #fff;
+  --trade-corner-nav-side-fallback: max(0px, calc((100vw - var(--trade-corner-container-width)) / 2));
+}
+
+body.rankings-theme {
+  background-color: #fff;
+  background-image:
+    url("/images/crystal/RankingsPageTopEdge.png"),
+    linear-gradient(#1e4a93, #1e4a93),
+    linear-gradient(#1e4a93, #1e4a93),
+    linear-gradient(#fff, #fff);
+  background-repeat: repeat-x, no-repeat, no-repeat, no-repeat;
+  background-size:
+    auto 150px,
+    max(var(--trade-corner-nav-side-left), var(--trade-corner-nav-side-fallback)) 150px,
+    max(var(--trade-corner-nav-side-right), var(--trade-corner-nav-side-fallback)) 150px,
+    100% 100%;
+  background-position:
+    var(--rankings-top-edge-left) var(--rankings-top-edge-top),
+    left var(--rankings-top-edge-top),
+    right var(--rankings-top-edge-top),
+    left top;
+  background-attachment: fixed;
+  --trade-corner-nav-side-fallback: max(0px, calc((100vw - var(--trade-corner-container-width)) / 2));
+}
+
+body.trade-corner-theme::before,
+body.trade-corner-theme::after,
+body.honor-roll-theme::before,
+body.honor-roll-theme::after,
+body.rankings-theme::before,
+body.rankings-theme::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  background-repeat: repeat-y, repeat;
+  background-size: auto auto, auto auto;
+}
+
+body.trade-corner-theme::before,
+body.honor-roll-theme::before,
+body.rankings-theme::before {
+  left: 0;
+  width: max(var(--trade-corner-nav-side-left), var(--trade-corner-nav-side-fallback));
+  background-position: right top, left top;
+}
+
+body.trade-corner-theme::after,
+body.honor-roll-theme::after,
+body.rankings-theme::after {
+  right: 0;
+  width: max(var(--trade-corner-nav-side-right), var(--trade-corner-nav-side-fallback));
+  background-position: left top, right top;
+}
+
+body.rankings-theme::before,
+body.rankings-theme::after {
+  top: var(--rankings-side-start);
+}
+
+body.trade-corner-theme::before {
+  background-color: #1e4a93;
+  background-image: url("/images/crystal/TradeCornerPageLeftEdge.png"), url("/images/crystal/TradeCornerPageRepeatAltRL.png");
+  background-size: auto auto, 640px 320px;
+  background-position: right top, right top;
+}
+
+body.trade-corner-theme::after {
+  background-color: #1e4a93;
+  background-image: url("/images/crystal/TradeCornerPageRightEdge.png"), url("/images/crystal/TradeCornerPageRepeatAltRL.png");
+  background-size: auto auto, 640px 320px;
+  background-position: left top, left top;
+}
+
+body.honor-roll-theme::before {
+  background-image: url("/images/crystal/HonorRollPageLeftEdge.png"), url("/images/crystal/HonorRollPageRepeat.png");
+}
+
+body.honor-roll-theme::after {
+  background-image: url("/images/crystal/HonorRollPageRightEdge.png"), url("/images/crystal/HonorRollPageRepeat.png");
+}
+
+body.rankings-theme::before {
+  background-image: url("/images/crystal/RankingsPageLeftEdge.png"), linear-gradient(#1e4a93, #1e4a93);
+}
+
+body.rankings-theme::after {
+  background-image: url("/images/crystal/RankingsPageRightEdge.png"), linear-gradient(#1e4a93, #1e4a93);
+}
+
+body.trade-corner-theme > header,
+body.honor-roll-theme > header,
+body.rankings-theme > header {
+  position: relative;
+  z-index: 2147483646;
+}
+
+body.trade-corner-theme > .container-xxl,
+body.trade-corner-theme > main,
+body.honor-roll-theme > .container-xxl,
+body.honor-roll-theme > main,
+body.rankings-theme > .container-xxl,
+body.rankings-theme > main {
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 991.98px) {
+  body.trade-corner-theme::before,
+  body.trade-corner-theme::after,
+  body.honor-roll-theme::before,
+  body.honor-roll-theme::after,
+  body.rankings-theme::before,
+  body.rankings-theme::after {
+    display: none;
+  }
+
+  body.rankings-theme {
+    background-image: none;
+  }
+}
+
+.exchange-page .trade-no-results,
+.exchange-page .trade-no-results.crystal-empty-message {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.trainer-rankings-page .crystal-empty-message,
+.battle-tower-page .crystal-empty-message {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.trainer-rankings-page .trainer-rankings-issue {
+  font-size: 24px !important;
+  line-height: 24px !important;
+  letter-spacing: 0 !important;
+  font-weight: 400 !important;
+}
+
+.trainer-rankings-page .trainer-ranking-table td.crystal-empty-message,
+.trainer-rankings-page .ranking-page-empty.crystal-empty-message,
+.battle-tower-page .battle-honor-table td.crystal-empty-message {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.trainer-rankings-page .rankings-zoom-label,
+.battle-tower-page .battle-zoom-label {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+@media (max-width: 768px) {
+  .exchange-page {
+    overflow-x: visible !important;
+  }
+
+  .exchange-page .trade-corner-title,
+  .battle-tower-page .trade-corner-title,
+  .trainer-rankings-page .trade-corner-title,
+  .save-converter-page .trade-corner-title {
+    font-size: clamp(20px, 8vw, 24px) !important;
+    line-height: clamp(20px, 8vw, 24px) !important;
+    margin-bottom: 20px !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+  }
+
+  .exchange-page .trade-region-filter-wrap,
+  .exchange-page .trade-search-wrap,
+  .exchange-page .trade-size-wrap {
+    width: 100% !important;
+    max-width: calc(100% - 12px) !important;
+  }
+
+  .exchange-page .trade-size-wrap {
+    margin-top: 16px !important;
+    margin-bottom: 12px !important;
+    column-gap: 8px !important;
+  }
+
+  .exchange-page .trade-corner-list {
+    row-gap: 8px !important;
+  }
+
+  .exchange-page .crystal-trade-slot {
+    width: 100% !important;
+    max-width: 262px !important;
+    margin: 6px auto 10px auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    zoom: var(--trade-card-scale, 1) !important;
+  }
+
+  .exchange-page .crystal-trade-slot .trade-warning {
+    min-height: 3.4em !important;
+    line-height: 1.2 !important;
+    padding: 0 2px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .exchange-page .crystal-trade .offer-species-line,
+  .exchange-page .crystal-trade .offer-details .offer-row,
+  .exchange-page .crystal-trade .trade-request,
+  .exchange-page .crystal-trade .trade-request-text {
+    min-width: 0 !important;
+  }
+
+  .exchange-page .crystal-trade .offer-species-line,
+  .exchange-page .crystal-trade .offer-details .offer-row,
+  .exchange-page .crystal-trade .request-species {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+  }
+
+  .exchange-page .crystal-trade .offer-species-line,
+  .exchange-page .crystal-trade .offer-details .offer-row,
+  .exchange-page .crystal-trade .request-species,
+  .exchange-page .crystal-trade .offer-species-fixed,
+  .exchange-page .crystal-trade .offer-name,
+  .exchange-page .crystal-trade .offer-ot,
+  .exchange-page .crystal-trade .offer-item,
+  .exchange-page .crystal-trade .offer-offerer,
+  .exchange-page .crystal-trade .label,
+  .exchange-page .crystal-trade .wanted-label {
+    line-height: 1 !important;
+  }
+
+  .exchange-page .crystal-trade .trade-warning,
+  .exchange-page .trade-remaining {
+    line-height: 1.15 !important;
+  }
+
+  .exchange-page .crystal-trade .wanted-menu-sprite {
+    margin-right: calc(1px + 1.5ch) !important;
+  }
+
+  .exchange-page .crystal-trade .trade-request {
+    align-items: flex-end !important;
+    gap: 1px !important;
+  }
+
+  .exchange-page .crystal-trade .trade-request-text {
+    top: -1px !important;
+    margin-left: 0 !important;
+    line-height: 1 !important;
+  }
+
+  .exchange-page .crystal-trade .request-species {
+    max-width: 11ch !important;
+    min-width: 0 !important;
+  }
+
+  .exchange-page.trade-scale-transform-fallback .crystal-trade-slot {
+    zoom: 1 !important;
+    width: var(--trade-mobile-fallback-slot-width, 248px) !important;
+    max-width: var(--trade-mobile-fallback-slot-width, 248px) !important;
+    min-height: var(--trade-mobile-fallback-slot-height, 182px) !important;
+  }
+
+  .exchange-page.trade-scale-transform-fallback .crystal-trade-slot .crystal-trade {
+    transform: var(--trade-mobile-fallback-transform, none) !important;
+    transform-origin: top center !important;
+  }
+}
+
+

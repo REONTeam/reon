@@ -10,7 +10,7 @@
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     "level room"
-    "honor .";
+    "honor zoom";
   align-items: center;
   row-gap: 8px;
 }
@@ -28,34 +28,143 @@
 .battle-honor-roll-label {
   grid-area: honor;
   justify-self: start;
-  font-size: 1.05em;
+  font-size: 8px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
+}
+
+.battle-control-zoom {
+  grid-area: zoom;
+  justify-self: end;
+  width: 244px;
+  max-width: 244px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: 12px;
+  margin: 2px 0 4px;
+}
+
+.battle-tower-page .battle-zoom-label {
+  font-size: 16px !important;
+  line-height: 16px !important;
+  white-space: nowrap;
+}
+
+.battle-zoom-buttons {
+  width: auto;
+  min-width: 0;
+}
+
+.battle-control-zoom .battle-zoom-btn {
+  min-height: 32px !important;
+  padding: 4px 0.75ch !important;
+  font-size: 16px !important;
+  line-height: 16px !important;
 }
 
 .battle-tower-controls .trade-region-filter {
-  min-width: 122px;
+  min-width: 244px;
 }
 
 .battle-table-shell {
-  width: min(940px, 100%);
+  --bt-frame-left: 30px;
+  --bt-frame-right: 37px;
+  --bt-frame-top: 45px;
+  --bt-frame-bottom: 48px;
+  width: min(980px, 100%);
   margin: 0 auto;
-  padding: 12px 10px;
-  border: 4px solid #000;
-  box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 6px #000;
-  background: #f2f2f2;
+  padding: var(--bt-frame-top) var(--bt-frame-right) var(--bt-frame-bottom) var(--bt-frame-left);
+  box-sizing: border-box;
+  position: relative;
+  background: transparent;
+  overflow: visible;
+}
+
+.battle-table-shell::before,
+.battle-table-shell::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 3;
+}
+
+.battle-table-shell::before {
+  top: 0;
+  height: var(--bt-frame-top);
+  background: url("/images/crystal/HonorRollBorderTop.png") no-repeat left top;
+  background-size: 100% var(--bt-frame-top);
+}
+
+.battle-table-shell::after {
+  bottom: 0;
+  height: var(--bt-frame-bottom);
+  background: url("/images/crystal/HonorRollBorderBottom.png") no-repeat left bottom;
+  background-size: 100% var(--bt-frame-bottom);
 }
 
 .battle-table-grid {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   gap: 20px;
+  z-index: 2;
+}
+
+.battle-table-grid::before,
+.battle-table-grid::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 1;
+}
+
+.battle-table-grid::before {
+  left: calc(-1 * var(--bt-frame-left));
+  width: var(--bt-frame-left);
+  background: url("/images/crystal/HonorRollBorderLeft.png") no-repeat left top;
+  background-size: var(--bt-frame-left) 100%;
+}
+
+.battle-table-grid::after {
+  right: calc(-1 * var(--bt-frame-right));
+  width: var(--bt-frame-right);
+  background: url("/images/crystal/HonorRollBorderRight.png") no-repeat right top;
+  background-size: var(--bt-frame-right) 100%;
 }
 
 .battle-table-panel {
-  width: 100%;
+  --battle-zoom-scale: 1;
+  width: 440px;
   max-width: 440px;
+  zoom: var(--battle-zoom-scale);
+}
+
+.battle-tower-page[data-battle-zoom="2"] .battle-table-panel {
+  --battle-zoom-scale: 2;
+}
+
+.battle-tower-page[data-battle-zoom="2"] .battle-table-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  row-gap: 32px;
+}
+
+.battle-tower-page[data-battle-zoom="2"] .battle-table-shell {
+  min-height: 0;
+  overflow: visible;
+}
+
+.battle-tower-page[data-battle-zoom="2"] .battle-table-panel[data-bt-secondary][hidden] {
+  display: none !important;
 }
 
 .battle-honor-table {
@@ -70,34 +179,50 @@
   border: 1px solid #c6c6c6;
   padding: 5px 6px;
   vertical-align: middle;
-  font-size: .92em;
-  line-height: 1.2;
+  font-size: 8px;
+  line-height: 1;
 }
 
 .battle-honor-table th {
   text-align: center;
   background: #dfdfdf;
-  font-size: .9em;
-  letter-spacing: .03em;
+  font-size: 8px;
+  letter-spacing: 0;
   font-weight: 600;
 }
 
 .battle-honor-table th:nth-child(1) {
-  width: 38%;
+  width: auto;
 }
 
 .battle-honor-table th:nth-child(2) {
-  width: 27%;
+  width: 24%;
 }
 
 .battle-honor-table th:nth-child(3) {
-  width: 35%;
+  width: 159px;
+  min-width: 159px;
+  max-width: 159px;
 }
 
 .bt-leader-cell {
-  display: flex;
+  padding: 0 !important;
+}
+
+.bt-leader-subcols {
+  display: grid;
+  grid-template-columns: 60px minmax(0, 1fr);
   align-items: center;
-  gap: 8px;
+  column-gap: 8px;
+}
+
+.bt-leader-sprite-col {
+  padding: 5px 0 5px 6px;
+}
+
+.bt-leader-name-col {
+  border-left: 1px solid #c6c6c6;
+  padding: 5px 6px 5px 8px;
 }
 
 .bt-trainer-sprite {
@@ -107,7 +232,7 @@
   flex: 0 0 auto;
 }
 
-.bt-leader-text {
+.bt-leader-name-col {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -120,29 +245,81 @@
 
 .bt-pokemon-list {
   margin: 0;
-  padding-left: 16px;
+  padding-left: 0;
+  list-style: none;
+  display: block;
 }
 
 .bt-pokemon-list li {
   margin: 0;
+  display: block !important;
+  position: relative;
+  padding-left: calc(7px + 1ch);
+  white-space: nowrap;
+}
+
+.bt-pokemon-list li + li {
+  margin-top: 2px;
+}
+
+.bt-pokemon-list li::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  min-width: 7px;
+  position: absolute;
+  left: 0;
+  top: 1px;
+  transform: none;
+  background: url("/images/crystal/PokeballBulletPoint.png") no-repeat center center;
+  background-size: 7px 7px;
+  image-rendering: pixelated;
 }
 
 .bt-message-cell {
   vertical-align: top;
+  width: 159px;
+  min-width: 159px;
+  max-width: 159px;
+  padding: 2px !important;
 }
 
 .bt-message-box {
-  border: 1px solid #8e8e8e;
-  background: #fff;
-  padding: 4px 5px;
-  min-height: 42px;
+  width: 155px;
+  min-width: 155px;
+  max-width: 155px;
+  height: 44px;
+  min-height: 44px;
+  box-sizing: border-box;
+  border: 0;
+  background: url("/images/crystal/MessageBox.png") no-repeat left top;
+  background-size: 155px 44px;
+  image-rendering: pixelated;
+  padding: 13px 6px 0 6px;
   white-space: pre-line;
-  line-height: 1.2;
+  line-height: 1;
+  overflow: hidden;
 }
 
 .bt-empty-row td {
   text-align: center;
   padding: 14px;
+}
+
+.bt-empty-row td.crystal-empty-message {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.battle-honor-table .crystal-empty-message {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.battle-tower-page .battle-honor-table td.crystal-empty-message {
+  font-size: 16px !important;
+  line-height: 16px !important;
 }
 
 @media (max-width: 960px) {
@@ -156,21 +333,140 @@
   }
 }
 
-@media (max-width: 680px) {
-  .battle-tower-controls .trade-region-filter {
-    min-width: 96px;
-    font-size: .82em;
-    padding: 5px 6px;
+@media (max-width: 991.98px) {
+  .battle-tower-page {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    box-sizing: border-box;
   }
 
+  .battle-tower-controls {
+    width: 100%;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "level"
+      "room"
+      "zoom"
+      "honor";
+    justify-items: center;
+    row-gap: 8px;
+  }
+
+  .battle-control-level,
+  .battle-control-room,
   .battle-honor-roll-label {
-    font-size: .98em;
+    justify-self: center;
+    text-align: center;
+  }
+
+  .battle-control-zoom {
+    justify-self: center;
+    width: 100%;
+    max-width: calc(100% - 12px);
+    column-gap: 8px;
+  }
+
+  .battle-zoom-label {
+    font-size: 16px !important;
+    line-height: 16px !important;
+  }
+
+  .battle-tower-controls .trade-region-filter {
+    min-width: min(320px, 100%);
+    width: min(320px, 100%);
+  }
+
+  .battle-table-shell {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .battle-table-shell::before,
+  .battle-table-shell::after,
+  .battle-table-grid::before,
+  .battle-table-grid::after {
+    display: none;
+  }
+
+  .battle-table-grid {
+    min-width: 0;
+    width: 100%;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .battle-table-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .battle-honor-table {
+    --bt-mobile-msg-cell-width: min(155px, max(112px, calc(100vw - 198px)));
+    --bt-mobile-msg-box-width: calc(var(--bt-mobile-msg-cell-width) - 4px);
+    --bt-mobile-msg-height: clamp(36px, calc(var(--bt-mobile-msg-cell-width) * 0.28), 44px);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .battle-honor-table th:nth-child(2) {
+    width: 22%;
+  }
+
+  .battle-honor-table th:nth-child(3),
+  .bt-message-cell {
+    width: var(--bt-mobile-msg-cell-width);
+    min-width: var(--bt-mobile-msg-cell-width);
+    max-width: var(--bt-mobile-msg-cell-width);
+  }
+
+  .bt-message-box {
+    width: var(--bt-mobile-msg-box-width);
+    min-width: var(--bt-mobile-msg-box-width);
+    max-width: var(--bt-mobile-msg-box-width);
+    height: var(--bt-mobile-msg-height);
+    min-height: var(--bt-mobile-msg-height);
+    background-size: var(--bt-mobile-msg-box-width) var(--bt-mobile-msg-height);
+    padding: clamp(10px, calc(var(--bt-mobile-msg-height) * 0.28), 13px) 5px 0 5px;
+    line-height: 1 !important;
+  }
+
+  .bt-pokemon-list li {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    hyphens: none;
   }
 
   .battle-honor-table th,
   .battle-honor-table td {
-    font-size: .78em;
     padding: 4px;
+    line-height: 1.1 !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .battle-tower-controls .trade-region-filter {
+    min-width: 96px;
+    font-size: 8px;
+    padding: 5px 6px;
+  }
+
+  .battle-honor-roll-label {
+    font-size: 8px;
+  }
+
+  .battle-honor-table th,
+  .battle-honor-table td {
+    font-size: 8px;
+    padding: 3px;
   }
 
   .bt-trainer-sprite {
@@ -178,7 +474,31 @@
     height: 44px;
   }
 
-  .bt-leader-text {
+  .bt-leader-subcols {
+    grid-template-columns: 48px minmax(0, 1fr);
+    column-gap: 6px;
+  }
+
+  .bt-leader-name-col {
     min-height: 44px;
+    padding-left: 6px;
+  }
+
+  .battle-honor-table th:nth-child(3),
+  .bt-message-cell {
+    width: min(145px, max(110px, calc(100vw - 186px)));
+    min-width: min(145px, max(110px, calc(100vw - 186px)));
+    max-width: min(145px, max(110px, calc(100vw - 186px)));
+  }
+
+  .bt-message-box {
+    width: calc(min(145px, max(110px, calc(100vw - 186px))) - 4px);
+    min-width: calc(min(145px, max(110px, calc(100vw - 186px))) - 4px);
+    max-width: calc(min(145px, max(110px, calc(100vw - 186px))) - 4px);
+    height: clamp(36px, calc(min(145px, max(110px, calc(100vw - 186px))) * 0.28), 42px);
+    min-height: clamp(36px, calc(min(145px, max(110px, calc(100vw - 186px))) * 0.28), 42px);
+    background-size: calc(min(145px, max(110px, calc(100vw - 186px))) - 4px) clamp(36px, calc(min(145px, max(110px, calc(100vw - 186px))) * 0.28), 42px);
+    padding: clamp(10px, calc(min(145px, max(110px, calc(100vw - 186px))) * 0.08), 12px) 4px 0 4px;
+    line-height: 1 !important;
   }
 }

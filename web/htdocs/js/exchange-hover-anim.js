@@ -330,40 +330,103 @@
     }
   }
 
-  function bindHoverAnimation(slot) {
-    var sprite = slot.querySelector(".sprite-pokemon-hoveranim");
+  function extractGifFirstFrameDataUrl(animSrc, callback) {
+    var probe = new Image();
+    probe.onload = function () {
+      try {
+        var canvas = document.createElement("canvas");
+        var width = probe.naturalWidth || probe.width || 16;
+        var height = probe.naturalHeight || probe.height || 16;
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext("2d");
+        if (!ctx) {
+          callback(animSrc);
+          return;
+        }
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(probe, 0, 0, width, height);
+        callback(canvas.toDataURL("image/png"));
+      } catch (err) {
+        callback(animSrc);
+      }
+    };
+    probe.onerror = function () {
+      callback(animSrc);
+    };
+    probe.src = animSrc;
+  }
+
+  function bindHoverAnimation(slot, sprite) {
     if (!sprite) {
       return;
     }
 
-    var staticSrc = sprite.getAttribute("data-static-src");
-    var animSrc = sprite.getAttribute("data-anim-src");
-    if (!staticSrc || !animSrc) {
+    var staticSrc = String(sprite.getAttribute("data-static-src") || "");
+    var animSrc = String(sprite.getAttribute("data-anim-src") || "");
+    var fallbackSrc = String(sprite.getAttribute("data-fallback-src") || "");
+    if (!animSrc) {
       return;
     }
 
+    var applyFallback = function () {
+      if (!fallbackSrc) {
+        return;
+      }
+      sprite.setAttribute("src", fallbackSrc);
+      sprite.setAttribute("data-anim-src", fallbackSrc);
+      sprite.setAttribute("data-static-src", fallbackSrc);
+      sprite.setAttribute("data-state", "static");
+      staticSrc = fallbackSrc;
+      animSrc = fallbackSrc;
+    };
+
+    sprite.addEventListener("error", applyFallback);
+
     var preload = new Image();
+    preload.onerror = applyFallback;
     preload.src = animSrc;
 
     var showAnim = function () {
+      var liveAnimSrc = String(sprite.getAttribute("data-anim-src") || animSrc || "");
+      if (!liveAnimSrc) {
+        return;
+      }
       if (sprite.getAttribute("data-state") !== "anim") {
-        sprite.setAttribute("src", animSrc);
+        sprite.setAttribute("src", liveAnimSrc);
         sprite.setAttribute("data-state", "anim");
       }
     };
 
     var showStatic = function () {
+      var liveStaticSrc = String(sprite.getAttribute("data-static-src") || staticSrc || "");
+      if (!liveStaticSrc) {
+        return;
+      }
       if (sprite.getAttribute("data-state") !== "static") {
-        sprite.setAttribute("src", staticSrc);
+        sprite.setAttribute("src", liveStaticSrc);
         sprite.setAttribute("data-state", "static");
       }
     };
 
-    showStatic();
-    slot.addEventListener("mouseenter", showAnim);
-    slot.addEventListener("mouseleave", showStatic);
-    slot.addEventListener("focusin", showAnim);
-    slot.addEventListener("focusout", showStatic);
+    var finalizeBinding = function () {
+      showStatic();
+      slot.addEventListener("mouseenter", showAnim);
+      slot.addEventListener("mouseleave", showStatic);
+      slot.addEventListener("focusin", showAnim);
+      slot.addEventListener("focusout", showStatic);
+    };
+
+    if (!staticSrc) {
+      extractGifFirstFrameDataUrl(animSrc, function (dataUrl) {
+        staticSrc = dataUrl || animSrc;
+        sprite.setAttribute("data-static-src", staticSrc);
+        finalizeBinding();
+      });
+      return;
+    }
+
+    finalizeBinding();
   }
 
   function leftPad(value, width) {
@@ -382,9 +445,9 @@
     var hourWidth = hours >= 100 ? 3 : 2;
     return (
       leftPad(hours, hourWidth) +
-      "h : " +
+      "h:" +
       leftPad(minutes, 2) +
-      "m : " +
+      "m:" +
       leftPad(secs, 2) +
       "s"
     );
@@ -529,26 +592,64 @@
     return normalizeSearchText(node.textContent || "");
   }
 
-  function extractOfferGender(slot) {
-    var node = slot.querySelector(".offer-gender");
-    if (!node) {
-      return "";
-    }
-    if (node.classList.contains("gender-male")) {
-      return "male";
-    }
-    if (node.classList.contains("gender-female")) {
-      return "female";
+  function textOfAny(slot, selectors) {
+    for (var i = 0; i < selectors.length; i++) {
+      var node = slot.querySelector(selectors[i]);
+      if (!node) {
+        continue;
+      }
+      var text = normalizeSearchText(node.textContent || "");
+      if (text) {
+        return text;
+      }
     }
     return "";
   }
 
+  function normalizedDataAttribute(node, attrName) {
+    if (!node) {
+      return "";
+    }
+    return normalizeSearchText(node.getAttribute(attrName) || "");
+  }
+
+  function mergeSearchParts(parts) {
+    return normalizeSearchText(parts.join(" "));
+  }
+
+  function extractOfferGender(slot) {
+    var node = slot.querySelector(".offer-gender");
+    if (node) {
+      if (node.classList.contains("gender-male")) {
+        return "male";
+      }
+      if (node.classList.contains("gender-female")) {
+        return "female";
+      }
+    }
+
+    var fixedNode = slot.querySelector(".offer-gender-fixed");
+    if (!fixedNode) {
+      return "";
+    }
+    var symbolText = String(fixedNode.textContent || "");
+    if (symbolText.indexOf("\u2642") >= 0) {
+      return "male";
+    }
+    if (symbolText.indexOf("\u2640") >= 0) {
+      return "female";
+    }
+
+    return "";
+  }
+
   function extractOfferLevel(slot) {
-    var node = slot.querySelector(".offer-level");
+    var node = slot.querySelector(".offer-level, .offer-level-digits, .offer-level-fixed");
     if (!node) {
       return 0;
     }
-    var parsed = parseInt((node.textContent || "").trim(), 10);
+    var numeric = String(node.textContent || "").replace(/[^\d]/g, "");
+    var parsed = parseInt(numeric, 10);
     if (!Number.isFinite(parsed)) {
       return 0;
     }
@@ -579,15 +680,19 @@
   }
 
   function getSearchEntry(slot) {
-    var regionNode = slot.querySelector(".region");
+    var regionNode = slot.querySelector(".region, .offer-region-line");
     var languageCode = regionNode
       ? normalizeSearchText(regionNode.textContent || "")
       : "";
     var languageTitle = regionNode
       ? normalizeSearchText(regionNode.getAttribute("title") || "")
       : "";
-    var offerSpecies = textOf(slot, ".offer-species");
-    var wantedSpecies = textOf(slot, ".request-species");
+    var offerSpeciesVisible = textOfAny(slot, [".offer-species", ".offer-species-fixed"]);
+    var wantedSpeciesVisible = textOfAny(slot, [".request-species"]);
+    var offerSpeciesLocalized = normalizedDataAttribute(slot, "data-offer-species-search");
+    var wantedSpeciesLocalized = normalizedDataAttribute(slot, "data-request-species-search");
+    var offerSpecies = mergeSearchParts([offerSpeciesVisible, offerSpeciesLocalized]);
+    var wantedSpecies = mergeSearchParts([wantedSpeciesVisible, wantedSpeciesLocalized]);
     var nickname = textOf(slot, ".offer-name");
     var offerer = textOf(slot, ".offer-offerer");
     var item = textOf(slot, ".offer-item");
@@ -689,13 +794,15 @@
   function splitTokenOnColon(token) {
     var value = String(token || "");
     var idxAscii = value.indexOf(":");
-    var idxWide = value.indexOf("：");
+    var idxWide = value.indexOf("\uFF1A");
     var idx = -1;
+
     if (idxAscii >= 0 && idxWide >= 0) {
       idx = Math.min(idxAscii, idxWide);
     } else {
       idx = Math.max(idxAscii, idxWide);
     }
+
     if (idx <= 0) {
       return null;
     }
@@ -1011,8 +1118,10 @@
     var controlPaddingAndArrow = 52;
     var targetWidth = Math.ceil(maxWidth + controlPaddingAndArrow);
     var maxViewportWidth = Math.max(180, window.innerWidth - 20);
-    regionFilterSelect.style.width =
-      Math.min(targetWidth, maxViewportWidth) + "px";
+    var finalWidth = Math.min(targetWidth, maxViewportWidth) + "px";
+    regionFilterSelect.style.setProperty("width", finalWidth, "important");
+    regionFilterSelect.style.setProperty("min-width", finalWidth, "important");
+    regionFilterSelect.style.setProperty("max-width", finalWidth, "important");
   }
 
   function initRegionFilter() {
@@ -1023,6 +1132,11 @@
 
     sizeRegionFilterToLongestOption();
     window.addEventListener("resize", sizeRegionFilterToLongestOption);
+    if (document.fonts && typeof document.fonts.ready === "object") {
+      document.fonts.ready.then(sizeRegionFilterToLongestOption);
+    }
+    window.addEventListener("load", sizeRegionFilterToLongestOption);
+    window.setTimeout(sizeRegionFilterToLongestOption, 120);
 
     regionFilterSelect.addEventListener("change", function () {
       var selectedValue = normalizeSearchText(regionFilterSelect.value || "global");
@@ -1054,7 +1168,10 @@
 
     var slots = document.querySelectorAll(".crystal-trade-slot");
     slots.forEach(function (slot) {
-      bindHoverAnimation(slot);
+      var hoverSprites = slot.querySelectorAll("img[data-anim-src]");
+      hoverSprites.forEach(function (sprite) {
+        bindHoverAnimation(slot, sprite);
+      });
       bindCountdown(slot);
       bindSearch(slot);
     });
@@ -1074,3 +1191,4 @@
     init();
   }
 })();
+

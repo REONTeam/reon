@@ -1,6 +1,6 @@
-@font-face {
+﻿@font-face {
   font-family: "PokeCrystal";
-  src: url("/fonts/Crystal/pokecrystal.ttf") format("truetype");
+  src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -66,7 +66,7 @@ body.trade-corner-theme {
 }
 
 .trade-search-wrap::before {
-  content: "⌕";
+  content: "âŒ•";
   position: absolute;
   right: 7px;
   top: 50%;
@@ -101,6 +101,21 @@ body.trade-corner-theme {
   flex-wrap: wrap;
   gap: 14px 10px;
   justify-content: center;
+}
+
+.trade-no-results {
+  width: 100%;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 11px;
+  color: #2b2b2b;
+}
+
+.trade-no-results-hidden {
+  display: none;
 }
 
 .crystal-trade-slot {
@@ -150,8 +165,8 @@ body.trade-corner-theme {
 
 .crystal-trade .marks-panel {
   position: absolute;
-  top: 16px;
-  right: 8px;
+  top: 7px;
+  right: 5px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -159,10 +174,8 @@ body.trade-corner-theme {
 }
 
 .crystal-trade .region {
-  position: absolute;
-  left: 10px;
-  top: 57px;
-  width: 32px;
+  position: static;
+  width: 36px;
   height: 13px;
   display: flex;
   align-items: center;
@@ -170,10 +183,10 @@ body.trade-corner-theme {
   text-decoration: none;
   color: #fff;
   background: url("/images/crystal/TradeCornerLanguageTag.png") no-repeat center center;
-  background-size: 32px 13px;
-  font-size: 7px;
+  background-size: 36px 13px;
+  font-size: 6px;
   line-height: 1;
-  letter-spacing: .04em;
+  letter-spacing: 0;
   font-weight: 400;
 }
 
@@ -298,7 +311,18 @@ body.trade-corner-theme {
   opacity: .95;
 }
 
+.crystal-trade .offer-details .offer-row {
+  display: block;
+  white-space: nowrap;
+}
+
+.crystal-trade .offer-details .offer-row-offerer,
+.crystal-trade .offer-details .offer-row-item {
+  margin-top: 2px;
+}
+
 .crystal-trade .offer-name,
+.crystal-trade .offer-ot,
 .crystal-trade .offer-offerer,
 .crystal-trade .offer-item {
   display: inline-block;
@@ -376,3 +400,5 @@ body.trade-corner-theme {
     font-size: 12px;
   }
 }
+
+

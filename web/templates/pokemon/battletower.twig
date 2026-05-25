@@ -4,12 +4,26 @@
 {% block title %}Pok&eacute;mon - Battle Tower{% endblock %}
 
 {% block head %}
-<link href="/css/battle-tower.css?v=battle-tower-v1" rel="stylesheet">
+<link href="/css/battle-tower.css?v=battle-tower-v24" rel="stylesheet">
+<link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v41" rel="stylesheet">
+<style>
+    @font-face {
+        font-family: "PokeCrystalInline";
+        src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+    }
+    .battle-tower-page,
+    .battle-tower-page * {
+        font-family: "PokeCrystalInline", "PokeCrystal", monospace !important;
+        font-weight: 400 !important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="battle-tower-page">
-    <h1 class="trade-corner-title">BATTLE TOWER</h1>
+    <h1 class="trade-corner-title">&#xFF22;&#xFF21;&#xFF34;&#xFF34;&#xFF2C;&#xFF25;&#x3000;&#xFF34;&#xFF2F;&#xFF37;&#xFF25;&#xFF32;</h1>
 
     <form class="battle-tower-controls" method="get">
         <div class="battle-control-level">
@@ -28,6 +42,14 @@
             </select>
         </div>
 
+        <div class="battle-control-zoom">
+            <label class="battle-zoom-label" for="battle-zoom-btn-1">Zoom:</label>
+            <div class="trade-size-buttons battle-zoom-buttons" role="group" aria-label="Battle Tower zoom">
+                <button id="battle-zoom-btn-1" class="trade-size-btn battle-zoom-btn" type="button" data-battle-zoom="1" aria-pressed="true">1x</button>
+                <button class="trade-size-btn battle-zoom-btn" type="button" data-battle-zoom="2" aria-pressed="false">2x</button>
+            </div>
+        </div>
+
         <div class="battle-honor-roll-label">HONOR ROLL</div>
     </form>
 
@@ -38,7 +60,7 @@
                     <thead>
                         <tr>
                             <th>ROOM LEADER</th>
-                            <th>POKéMON</th>
+                            <th>POK&eacute;MON</th>
                             <th>MESSAGE</th>
                         </tr>
                     </thead>
@@ -46,10 +68,14 @@
                         {% for leader in leaders %}
                             <tr class="bt-row">
                                 <td class="bt-leader-cell">
-                                    <img class="bt-trainer-sprite" src="{{ leader.sprite_path }}" alt="{{ leader.trainer_class }}" loading="lazy">
-                                    <div class="bt-leader-text">
-                                        <div class="bt-trainer-class">{{ leader.trainer_class }}</div>
-                                        <div class="bt-player-name">{{ leader.player_name }}</div>
+                                    <div class="bt-leader-subcols">
+                                        <div class="bt-leader-sprite-col">
+                                            <img class="bt-trainer-sprite" src="{{ leader.sprite_path }}" alt="{{ leader.trainer_class }}" loading="lazy">
+                                        </div>
+                                        <div class="bt-leader-name-col">
+                                            <div class="bt-trainer-class">{{ leader.trainer_class }}</div>
+                                            <div class="bt-player-name">{{ leader.player_name }}</div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="bt-pokemon-cell">
@@ -67,7 +93,7 @@
 
                         {% if leaders is empty %}
                             <tr class="bt-empty-row">
-                                <td colspan="3">No Trainers found.</td>
+                                <td colspan="3" class="crystal-empty-message">No Trainers found.</td>
                             </tr>
                         {% endif %}
                     </tbody>
@@ -79,7 +105,7 @@
                     <thead>
                         <tr>
                             <th>ROOM LEADER</th>
-                            <th>POKéMON</th>
+                            <th>POK&eacute;MON</th>
                             <th>MESSAGE</th>
                         </tr>
                     </thead>
@@ -92,6 +118,45 @@
 {% endblock %}
 
 {% block body %}
+<script>
+(() => {
+    "use strict";
+
+    function findSideBackgroundAnchor() {
+        return document.querySelector(
+            "header.navbar.container-xxl, header.navbar, main#content.container-xxl, #content.container-xxl, .container-xxl"
+        );
+    }
+
+    function applyHonorRollSideBackgroundVars() {
+        const anchor = findSideBackgroundAnchor();
+        if (!anchor) {
+            return;
+        }
+        const rect = anchor.getBoundingClientRect();
+        const sideLeft = Math.max(0, Math.round(rect.left));
+        const sideRight = Math.max(0, Math.round(window.innerWidth - rect.right));
+        document.documentElement.style.setProperty("--trade-corner-nav-side-left", `${sideLeft}px`);
+        document.documentElement.style.setProperty("--trade-corner-nav-side-right", `${sideRight}px`);
+    }
+
+    function initHonorRollSideBackgrounds() {
+        document.body.classList.add("honor-roll-theme");
+        applyHonorRollSideBackgroundVars();
+        window.addEventListener("resize", applyHonorRollSideBackgroundVars, { passive: true });
+        window.addEventListener("load", applyHonorRollSideBackgroundVars, { passive: true });
+        if (document.fonts && typeof document.fonts.ready === "object") {
+            document.fonts.ready.then(applyHonorRollSideBackgroundVars);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initHonorRollSideBackgrounds);
+    } else {
+        initHonorRollSideBackgrounds();
+    }
+})();
+</script>
 <script>
 (() => {
     const tableWrap = document.querySelector("[data-bt-table-wrap]");
@@ -112,6 +177,7 @@
     }
 
     const sourceRows = Array.from(primaryBody.querySelectorAll("tr.bt-row"));
+    const pageNode = document.querySelector(".battle-tower-page");
     if (sourceRows.length === 0) {
         secondaryPanel.hidden = true;
         return;
@@ -144,6 +210,11 @@
         appendRange(primaryBody, 0, rowMarkup.length);
         secondaryPanel.hidden = true;
         tableWrap.classList.remove("is-split");
+
+        const zoomMode = pageNode ? String(pageNode.getAttribute("data-battle-zoom") || "1") : "1";
+        if (zoomMode !== "1") {
+            return;
+        }
 
         const availableHeight = Math.max(
             220,
@@ -197,4 +268,50 @@
     }
 })();
 </script>
+<script>
+(() => {
+    const STORAGE_KEY = "reon_battle_tower_zoom";
+    const page = document.querySelector(".battle-tower-page");
+    const buttons = Array.from(document.querySelectorAll(".battle-zoom-btn[data-battle-zoom]"));
+    if (!page || buttons.length === 0) {
+        return;
+    }
+
+    const clamp = (value) => String(value) === "2" ? "2" : "1";
+
+    const setActive = (zoom) => {
+        buttons.forEach((button) => {
+            const active = button.getAttribute("data-battle-zoom") === zoom;
+            button.classList.toggle("is-active", active);
+            button.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+    };
+
+    const applyZoom = (rawZoom) => {
+        const zoom = clamp(rawZoom);
+        page.setAttribute("data-battle-zoom", zoom);
+        setActive(zoom);
+        window.setTimeout(() => {
+            window.dispatchEvent(new Event("resize"));
+        }, 0);
+        return zoom;
+    };
+
+    const initialZoom = applyZoom(localStorage.getItem(STORAGE_KEY) || "1");
+    localStorage.setItem(STORAGE_KEY, initialZoom);
+
+    buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const zoom = applyZoom(button.getAttribute("data-battle-zoom") || "1");
+            localStorage.setItem(STORAGE_KEY, zoom);
+        });
+    });
+})();
+</script>
 {% endblock %}
+
+
+
+
+
+
