@@ -45,6 +45,7 @@ link-invalid-expired: This link is invalid or has expired.
 invalid-trade-setting: Not a valid region pool setting.
 invalid-pokemon-news-setting: Not a valid Pokémon news preference.
 invalid-time-zone-setting: Not a valid time zone setting.
+default-time-zone: UTC+9 (default)
 auth:
   login-to-reon: Login to your REON account
   invalid-email-pass: Incorrect email or password
@@ -112,7 +113,7 @@ account:
   pokemon-news-custom-opt-in-on: Custom Pokémon News when available
   time-zone: Time zone preference
   time-zone-blurb: The time zone to use for in-game timestamps.
-    Note that JST timestamps may still appear depending on the game and context.
+    Note that UTC+9 timestamps may appear depending on the game and context.
 index:
   what-is-reon: What is REON?
   reon-description: REON is something.

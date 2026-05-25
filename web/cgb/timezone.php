@@ -3,7 +3,7 @@
 	require_once(CORE_PATH."/database.php");
 
 	function get_user_local_time($user_id = null) {
-		$tz = "Asia/Tokyo";
+		$tz = "+0900";
 		if (session_status() == PHP_SESSION_ACTIVE) {
 			$user_id = $_SESSION['userId'];
 		}

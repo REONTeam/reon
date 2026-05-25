@@ -46,6 +46,7 @@ link-invalid-expired: Soit ce lien est invalide, soit il a expiré.
 invalid-trade-setting: Réglage invalide pour le pool des régions.
 invalid-pokemon-news-setting: Préférence d’actualités Pokémon invalide.
 invalid-time-zone: Fuseau horaire invalide.
+default-time-zone: UTC+9 (défaut)
 auth:
   login-to-reon: Se connecter à votre compte REON
   invalid-email-pass: Addresse ou mot de passe incorrect
@@ -103,7 +104,7 @@ account:
   pokemon-news-custom-opt-in-on: Actualités Pokémon personnalisées lorsqu’elles sont disponibles
   time-zone: Préférence de fuseau horaire
   time-zone-blurb: Le fuseau horaire à utiliser pour les horodatages dans les jeux.
-    Notez bien que l'heure normale du Japon peut s'afficher, en fonction du jeu et du contexte.
+    Notez bien que quelques horodatages peut s'afficher en UTC+9, en fonction du jeu et du contexte.
 index:
   what-is-reon: Qu'est-ce c'est REON?
   reon-description: REON est quelque chose.

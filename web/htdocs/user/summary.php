@@ -33,7 +33,7 @@
             }
         }
         if (array_key_exists("timeZone", $_POST)) {
-            if (in_array($_POST["timeZone"], timezone_identifiers_list(), true)) {
+            if ($_POST["timeZone"] === "+0900" || in_array($_POST["timeZone"], timezone_identifiers_list(), true)) {
                 $db = DBUtil::getInstance()->getDB();
                 $stmt = $db->prepare("update sys_users set timezone = ? where id = ?");
                 $stmt->bind_param("si", $_POST["timeZone"], $_SESSION["user_id"]);
