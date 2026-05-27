@@ -31,110 +31,110 @@
   };
   var TAG_DISPLAY_LABELS_BY_LOCALE = {
     en: {
-      species: "SPECIES",
-      level: "LEVEL",
-      gender: "GENDER",
-      shiny: "SHINY",
-      name: "NAME",
-      ot: "OT",
-      item: "ITEM",
-      offerer: "OFFERER",
-      language: "LANGUAGE",
-      country: "COUNTRY",
-      pokerus: "POK\u00E9RUS",
-      wanted: "WANTED",
-      offer: "OFFER",
+      species: "SPECIES:",
+      level: "LEVEL:",
+      gender: "GENDER:",
+      shiny: "SHINY:",
+      name: "NAME:",
+      ot: "OT:",
+      item: "ITEM:",
+      offerer: "OFFERER:",
+      language: "LANGUAGE:",
+      country: "COUNTRY:",
+      pokerus: "POK\u00E9RUS:",
+      wanted: "WANTED:",
+      offer: "OFFER:",
     },
     de: {
-      species: "SPEZIES",
-      level: "LEVEL",
-      gender: "GESCHLECHT",
-      shiny: "SHINY",
-      name: "NAME",
-      ot: "OT",
-      item: "ITEM",
-      offerer: "ANBIETER",
-      language: "SPRACHE",
-      country: "LAND",
-      pokerus: "POK\u00E9RUS",
-      wanted: "GESUCHT",
-      offer: "ANGEBOT",
+      species: "SPEZIES:",
+      level: "LEVEL:",
+      gender: "GESCHLECHT:",
+      shiny: "SHINY:",
+      name: "NAME:",
+      ot: "OT:",
+      item: "ITEM:",
+      offerer: "ANBIETER:",
+      language: "SPRACHE:",
+      country: "LAND:",
+      pokerus: "POK\u00E9RUS:",
+      wanted: "GESUCHT:",
+      offer: "ANGEBOT:",
     },
     es: {
-      species: "ESPECIE",
-      level: "NIVEL",
-      gender: "GENERO",
-      shiny: "SHINY",
-      name: "NOMBRE",
-      ot: "OT",
-      item: "OBJETO",
-      offerer: "OFERENTE",
-      language: "IDIOMA",
-      country: "PAIS",
-      pokerus: "POK\u00E9RUS",
-      wanted: "BUSCADO",
-      offer: "OFERTA",
+      species: "ESPECIE:",
+      level: "NIVEL:",
+      gender: "GENERO:",
+      shiny: "SHINY:",
+      name: "NOMBRE:",
+      ot: "OT:",
+      item: "OBJETO:",
+      offerer: "OFERENTE:",
+      language: "IDIOMA:",
+      country: "PAIS:",
+      pokerus: "POK\u00E9RUS:",
+      wanted: "BUSCADO:",
+      offer: "OFERTA:",
     },
     fr: {
-      species: "ESPECE",
-      level: "NIVEAU",
-      gender: "SEXE",
-      shiny: "SHINY",
-      name: "NOM",
-      ot: "OT",
-      item: "OBJET",
-      offerer: "DONNEUR",
-      language: "LANGUE",
-      country: "PAYS",
-      pokerus: "POK\u00E9RUS",
-      wanted: "RECHERCHE",
-      offer: "OFFRE",
+      species: "ESPECE:",
+      level: "NIVEAU:",
+      gender: "SEXE:",
+      shiny: "SHINY:",
+      name: "NOM:",
+      ot: "OT:",
+      item: "OBJET:",
+      offerer: "DONNEUR:",
+      language: "LANGUE:",
+      country: "PAYS:",
+      pokerus: "POK\u00E9RUS:",
+      wanted: "RECHERCHE:",
+      offer: "OFFRE:",
     },
     it: {
-      species: "SPECIE",
-      level: "LIVELLO",
-      gender: "SESSO",
-      shiny: "SHINY",
-      name: "NOME",
-      ot: "OT",
-      item: "STRUMENTO",
-      offerer: "OFFERENTE",
-      language: "LINGUA",
-      country: "PAESE",
-      pokerus: "POK\u00E9RUS",
-      wanted: "RICERCATO",
-      offer: "OFFERTA",
+      species: "SPECIE:",
+      level: "LIVELLO:",
+      gender: "SESSO:",
+      shiny: "SHINY:",
+      name: "NOME:",
+      ot: "OT:",
+      item: "STRUMENTO:",
+      offerer: "OFFERENTE:",
+      language: "LINGUA:",
+      country: "PAESE:",
+      pokerus: "POK\u00E9RUS:",
+      wanted: "RICERCATO:",
+      offer: "OFFERTA:",
     },
     ja: {
-      species: "\u7A2E\u65CF",
-      level: "\u30EC\u30D9\u30EB",
-      gender: "\u6027\u5225",
-      shiny: "\u8272\u9055\u3044",
-      name: "\u540D\u524D",
-      ot: "OT",
-      item: "\u3082\u3061\u3082\u306E",
-      offerer: "\u51FA\u54C1\u8005",
-      language: "\u8A00\u8A9E",
-      country: "\u56FD",
-      pokerus: "POK\u00E9RUS",
-      wanted: "\u307B\u3057\u3044",
-      offer: "\u63D0\u4F9B",
+      species: "\u7A2E\u65CF:",
+      level: "\u30EC\u30D9\u30EB:",
+      gender: "\u6027\u5225:",
+      shiny: "\u8272\u9055\u3044:",
+      name: "\u540D\u524D:",
+      ot: "OT:",
+      item: "\u3082\u3061\u3082\u306E:",
+      offerer: "\u51FA\u54C1\u8005:",
+      language: "\u8A00\u8A9E:",
+      country: "\u56FD:",
+      pokerus: "POK\u00E9RUS:",
+      wanted: "\u307B\u3057\u3044:",
+      offer: "\u63D0\u4F9B:",
     },
   };
   var TAG_DISPLAY_LABELS = {
-    species: "SPECIES",
-    level: "LEVEL",
-    gender: "GENDER",
-    shiny: "SHINY",
-    name: "NAME",
-    ot: "OT",
-    item: "ITEM",
-    offerer: "OFFERER",
-    language: "LANGUAGE",
-    country: "COUNTRY",
-    pokerus: "POK\u00E9RUS",
-    wanted: "WANTED",
-    offer: "OFFER",
+    species: "SPECIES:",
+    level: "LEVEL:",
+    gender: "GENDER:",
+    shiny: "SHINY:",
+    name: "NAME:",
+    ot: "OT:",
+    item: "ITEM:",
+    offerer: "OFFERER:",
+    language: "LANGUAGE:",
+    country: "COUNTRY:",
+    pokerus: "POK\u00E9RUS:",
+    wanted: "WANTED:",
+    offer: "OFFER:",
   };
   var REGION_FILTER_VALUES = {
     global: true,
@@ -165,7 +165,10 @@
   var uiLocale = "en";
 
   function normalizeSearchText(value) {
-    return String(value || "")
+    var source = String(value || "")
+      .replace(/[\u2640]/g, " female ")
+      .replace(/[\u2642]/g, " male ");
+    return source
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -220,6 +223,51 @@
       }
     }
     return null;
+  }
+
+  function parseLevelRangeFromRaw(rawValue) {
+    var raw = String(rawValue || "").trim();
+    if (!raw) {
+      return null;
+    }
+    var match = raw.match(
+      /(?:^|[^0-9])(?:l|lv|level)?\s*(\d{1,3})\s*[-~\u2010-\u2015\uFF5E]\s*(?:l|lv|level)?\s*(\d{1,3})(?:$|[^0-9])/i
+    );
+    if (!match) {
+      return null;
+    }
+    var a = parseInt(match[1], 10);
+    var b = parseInt(match[2], 10);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) {
+      return null;
+    }
+    return {
+      min: Math.min(a, b),
+      max: Math.max(a, b),
+    };
+  }
+
+  function parseLevelRangeFromTerms(terms) {
+    if (!terms || terms.length < 2) {
+      return null;
+    }
+    var values = [];
+    for (var i = 0; i < terms.length; i++) {
+      var parsed = parseLevelNumberFromTerm(terms[i]);
+      if (parsed !== null && Number.isFinite(parsed)) {
+        values.push(parsed);
+      }
+      if (values.length >= 2) {
+        break;
+      }
+    }
+    if (values.length < 2) {
+      return null;
+    }
+    return {
+      min: Math.min(values[0], values[1]),
+      max: Math.max(values[0], values[1]),
+    };
   }
 
   function parseBooleanFromTerms(terms) {
@@ -557,7 +605,7 @@
       var localizedWanted = String(wantedLabel.textContent || "").trim();
       registerTagAlias(localizedWanted, "wanted");
       if (localizedWanted) {
-        TAG_DISPLAY_LABELS.wanted = localizedWanted.toUpperCase();
+        TAG_DISPLAY_LABELS.wanted = localizedWanted.toUpperCase() + ":";
       }
     }
 
@@ -566,7 +614,7 @@
       var localizedName = String(offerLabels[0].textContent || "").trim();
       registerTagAlias(localizedName, "name");
       if (localizedName) {
-        TAG_DISPLAY_LABELS.name = localizedName.toUpperCase();
+        TAG_DISPLAY_LABELS.name = localizedName.toUpperCase() + ":";
       }
     }
     if (offerLabels.length >= 2) {
@@ -576,14 +624,14 @@
       var localizedItem = String(offerLabels[2].textContent || "").trim();
       registerTagAlias(localizedItem, "item");
       if (localizedItem) {
-        TAG_DISPLAY_LABELS.item = localizedItem.toUpperCase();
+        TAG_DISPLAY_LABELS.item = localizedItem.toUpperCase() + ":";
       }
     }
     if (offerLabels.length >= 4) {
       var localizedOfferer = String(offerLabels[3].textContent || "").trim();
       registerTagAlias(localizedOfferer, "offerer");
       if (localizedOfferer) {
-        TAG_DISPLAY_LABELS.offerer = localizedOfferer.toUpperCase();
+        TAG_DISPLAY_LABELS.offerer = localizedOfferer.toUpperCase() + ":";
       }
     }
 
@@ -1655,6 +1703,7 @@
         tags.push({
           field: field,
           terms: parsedTerms,
+          raw: valueTokens.join(" ").trim(),
         });
       }
     }
@@ -1711,7 +1760,24 @@
     return entry.meta.gender === parsed;
   }
 
-  function matchLevelTag(entry, terms) {
+  function matchLevelTag(entry, terms, rawValue) {
+    var parsedRange = parseLevelRangeFromRaw(rawValue);
+    if (!parsedRange) {
+      parsedRange = parseLevelRangeFromTerms(terms);
+    }
+    if (parsedRange) {
+      if (
+        parsedRange.min < 1 ||
+        parsedRange.max > 100 ||
+        parsedRange.min > parsedRange.max
+      ) {
+        return false;
+      }
+      return (
+        entry.meta.level >= parsedRange.min && entry.meta.level <= parsedRange.max
+      );
+    }
+
     var parsedLevel = parseLevelNumberFromTerms(terms);
     if (parsedLevel === null) {
       return containsAllTerms(entry.fields.level, terms, entry.fieldTokenSets.level);
@@ -1772,7 +1838,7 @@
       }
 
       if (tag.field === "level") {
-        if (!matchLevelTag(entry, tag.terms)) {
+        if (!matchLevelTag(entry, tag.terms, tag.raw)) {
           return false;
         }
         continue;

@@ -203,6 +203,8 @@ header.navbar #localeDropdownMenu .dropdown-item {
 }
 
 .trade-search-chip {
+  --tag-cut: 2px;
+  --tag-cut2: 4px;
   display: inline-flex;
   align-items: stretch;
   gap: 0;
@@ -216,8 +218,12 @@ header.navbar #localeDropdownMenu .dropdown-item {
   overflow: hidden;
   position: relative;
   isolation: isolate;
-  -webkit-clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
-  clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
+  -webkit-mask:
+    linear-gradient(#000 0 0) center / calc(100% - var(--tag-cut2)) 100% no-repeat,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--tag-cut2)) no-repeat;
+  mask:
+    linear-gradient(#000 0 0) center / calc(100% - var(--tag-cut2)) 100% no-repeat,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--tag-cut2)) no-repeat;
 }
 
 .trade-search-chip.trade-search-chip-composing {
@@ -234,8 +240,12 @@ header.navbar #localeDropdownMenu .dropdown-item {
     linear-gradient(#246ad4, #246ad4) 2px 100% / calc(100% - 4px) 4px no-repeat,
     linear-gradient(#246ad4, #246ad4) 0 2px / 4px calc(100% - 4px) no-repeat,
     linear-gradient(#246ad4, #246ad4) 100% 2px / 4px calc(100% - 4px) no-repeat;
-  -webkit-clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
-  clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
+  -webkit-mask:
+    linear-gradient(#000 0 0) center / calc(100% - var(--tag-cut2)) 100% no-repeat,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--tag-cut2)) no-repeat;
+  mask:
+    linear-gradient(#000 0 0) center / calc(100% - var(--tag-cut2)) 100% no-repeat,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--tag-cut2)) no-repeat;
   pointer-events: none;
   z-index: 5;
 }
@@ -322,6 +332,8 @@ header.navbar #localeDropdownMenu .dropdown-item {
 }
 
 .trade-search-tag-pill {
+  --tag-cut: 2px;
+  --tag-cut2: 4px;
   border: 0;
   border-radius: 0;
   background: #246ad4;
@@ -331,8 +343,12 @@ header.navbar #localeDropdownMenu .dropdown-item {
   cursor: pointer;
   position: relative;
   isolation: isolate;
-  -webkit-clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
-  clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
+  -webkit-mask:
+    linear-gradient(#000 0 0) center / calc(100% - var(--tag-cut2)) 100% no-repeat,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--tag-cut2)) no-repeat;
+  mask:
+    linear-gradient(#000 0 0) center / calc(100% - var(--tag-cut2)) 100% no-repeat,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--tag-cut2)) no-repeat;
 }
 
 .trade-search-tag-pill::after {
@@ -344,8 +360,12 @@ header.navbar #localeDropdownMenu .dropdown-item {
     linear-gradient(#246ad4, #246ad4) 2px 100% / calc(100% - 4px) 4px no-repeat,
     linear-gradient(#246ad4, #246ad4) 0 2px / 4px calc(100% - 4px) no-repeat,
     linear-gradient(#246ad4, #246ad4) 100% 2px / 4px calc(100% - 4px) no-repeat;
-  -webkit-clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
-  clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
+  -webkit-mask:
+    linear-gradient(#000 0 0) center / calc(100% - var(--tag-cut2)) 100% no-repeat,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--tag-cut2)) no-repeat;
+  mask:
+    linear-gradient(#000 0 0) center / calc(100% - var(--tag-cut2)) 100% no-repeat,
+    linear-gradient(#000 0 0) center / 100% calc(100% - var(--tag-cut2)) no-repeat;
   pointer-events: none;
   z-index: 5;
 }
