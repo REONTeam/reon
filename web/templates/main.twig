@@ -6,7 +6,7 @@
 		<title>{% block title %}Default Title{% endblock %} - REON</title>
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
-		<link href="/css/main.css?v=core-main-css-v35" rel="stylesheet">
+		<link href="/css/main.css?v=core-main-css-v36" rel="stylesheet">
 		<link href="/css/mobile-trainer.css" rel="stylesheet">
 		{% block head %}
 		{% endblock %}
@@ -146,24 +146,52 @@
 					var toggle = document.getElementById('localeDropdown');
 					var menu = document.getElementById('localeDropdownMenu');
 					if (!toggle || !menu) return;
+					var menuPlaceholder = null;
+					var originalParent = menu.parentNode;
 
 					function positionMenu() {
 						var rect = toggle.getBoundingClientRect();
 						var spacer = 2;
 						var contentWidth = Math.ceil(menu.scrollWidth || 0);
 						var minWidth = Math.max(Math.ceil(rect.width), contentWidth);
+						var maxLeft = Math.max(4, window.innerWidth - minWidth - 4);
+						var left = Math.max(4, Math.min(Math.round(rect.left), maxLeft));
+
 						menu.style.setProperty('position', 'fixed', 'important');
-						menu.style.setProperty('left', Math.round(rect.left) + 'px', 'important');
+						menu.style.setProperty('left', left + 'px', 'important');
 						menu.style.setProperty('top', Math.round(rect.bottom + spacer) + 'px', 'important');
 						menu.style.setProperty('right', 'auto', 'important');
 						menu.style.setProperty('margin-top', '0', 'important');
 						menu.style.setProperty('transform', 'none', 'important');
 						menu.style.setProperty('min-width', minWidth + 'px', 'important');
+						menu.style.setProperty('z-index', '2147483647', 'important');
+						menu.style.setProperty('pointer-events', 'auto', 'important');
+					}
+
+					function mountToBody() {
+						if (menu.parentNode === document.body) return;
+						menuPlaceholder = document.createComment('locale-dropdown-placeholder');
+						if (menu.parentNode) {
+							menu.parentNode.insertBefore(menuPlaceholder, menu);
+						}
+						document.body.appendChild(menu);
+						menu.classList.add('locale-dropdown-floating');
+					}
+
+					function restoreToNavbar() {
+						if (menu.parentNode !== document.body) return;
+						menu.classList.remove('locale-dropdown-floating');
+						if (menuPlaceholder && menuPlaceholder.parentNode) {
+							menuPlaceholder.parentNode.insertBefore(menu, menuPlaceholder);
+							menuPlaceholder.parentNode.removeChild(menuPlaceholder);
+							menuPlaceholder = null;
+						} else if (originalParent) {
+							originalParent.appendChild(menu);
+						}
 					}
 
 					function ensureTopLayer() {
-						menu.style.zIndex = '2147483647';
-						menu.style.pointerEvents = 'auto';
+						mountToBody();
 						positionMenu();
 					}
 
@@ -185,19 +213,9 @@
 						}
 					}, { passive: true });
 
-					menu.querySelectorAll('a[data-locale-code]').forEach(function(anchor) {
-						anchor.addEventListener('click', function(event) {
-							event.preventDefault();
-							var code = anchor.getAttribute('data-locale-code');
-							if (!code) return;
-							var url = new URL(window.location.href);
-							url.searchParams.set('lang', code);
-							window.location.assign(url.toString());
-						});
-					});
-
 					toggle.addEventListener('hidden.bs.dropdown', function() {
 						document.body.classList.remove('locale-menu-open');
+						restoreToNavbar();
 					});
 				}
 

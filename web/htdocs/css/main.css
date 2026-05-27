@@ -62,6 +62,13 @@ header.navbar #localeDropdownMenu {
   min-width: max-content;
 }
 
+body > #localeDropdownMenu.locale-dropdown-floating,
+body > #localeDropdownMenu.locale-dropdown-floating.show {
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+}
+
 header.navbar #localeDropdownMenu * {
   pointer-events: auto !important;
 }

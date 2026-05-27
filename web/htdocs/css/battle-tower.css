@@ -413,8 +413,37 @@
   }
 
   .battle-tower-page[data-battle-zoom="2"] .battle-table-panel {
-    width: calc(var(--bt-mobile-panel-base-width) / 2);
-    max-width: calc(var(--bt-mobile-panel-base-width) / 2);
+    width: 440px;
+    min-width: 440px;
+    max-width: 440px;
+  }
+
+  .battle-tower-page[data-battle-zoom="2"] .battle-table-grid {
+    min-width: max-content;
+    width: max-content;
+    justify-content: flex-start;
+  }
+
+  .battle-tower-page[data-battle-zoom="2"] .battle-honor-table {
+    width: 440px;
+    min-width: 440px;
+  }
+
+  .battle-tower-page[data-battle-zoom="2"] .battle-honor-table th:nth-child(3),
+  .battle-tower-page[data-battle-zoom="2"] .bt-message-cell {
+    width: 159px;
+    min-width: 159px;
+    max-width: 159px;
+  }
+
+  .battle-tower-page[data-battle-zoom="2"] .bt-message-box {
+    width: 155px;
+    min-width: 155px;
+    max-width: 155px;
+    height: 44px;
+    min-height: 44px;
+    background-size: 155px 44px;
+    padding: 13px 6px 0 6px;
   }
 
   .battle-honor-table {
