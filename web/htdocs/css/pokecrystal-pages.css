@@ -113,6 +113,55 @@
   padding: 5px 30px 3px 40px !important;
 }
 
+.exchange-page .trade-search-tail-input {
+  font-size: 16px !important;
+  min-height: 22px !important;
+  line-height: 22px !important;
+  padding: 0 !important;
+}
+
+.exchange-page .trade-search-tokenized .trade-search-tail-input:focus {
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+.exchange-page .trade-search-tail-input.trade-search-tail-input-inside-chip {
+  min-height: 16px !important;
+  line-height: 16px !important;
+  color: #000 !important;
+  background: #fff !important;
+  caret-color: #000 !important;
+}
+
+.exchange-page .trade-search-input-hidden {
+  min-height: 0 !important;
+  height: 1px !important;
+  line-height: 0 !important;
+  padding: 0 !important;
+}
+
+.exchange-page .trade-search-tokenized {
+  min-height: 34px !important;
+  padding-top: 5px !important;
+  padding-bottom: 3px !important;
+  padding-left: 40px !important;
+}
+
+.exchange-page .trade-search-chip,
+.exchange-page .trade-search-leading-text,
+.exchange-page .trade-search-chip-label,
+.exchange-page .trade-search-chip-value,
+.exchange-page .trade-search-chip-remove,
+.exchange-page .trade-search-tag-label,
+.exchange-page .trade-search-tag-pill {
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+
+.exchange-page .trade-search-chip {
+  padding: 4px !important;
+}
+
 .exchange-page .trade-search-wrap::before,
 .trainer-rankings-page .trade-search-wrap::before {
   width: 24px !important;
@@ -293,7 +342,7 @@ body.trade-corner-theme::before {
 
 body.trade-corner-theme::after {
   background-color: #1e4a93;
-  background-image: url("/images/crystal/TradeCornerPageRightEdge.png"), url("/images/crystal/TradeCornerPageRepeatAltRL.png");
+  background-image: url("/images/crystal/TradeCornerPageRightEdge.png"), url("/images/crystal/TradeCornerPageRepeatAltLR.png");
   background-size: auto auto, 640px 320px;
   background-position: left top, left top;
 }

@@ -2,7 +2,7 @@
 
 {% block title %}Pok&eacute;mon - Trade Corner{% endblock %}
 {% block head %}
-    <link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v41" rel="stylesheet">
+    <link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v42" rel="stylesheet">
     <style>
         @font-face {
             font-family: "PokeCrystalInline";
@@ -39,15 +39,42 @@
         </select>
     </div>
     <div class="trade-search-wrap">
+        <div id="trade-search-tokenized" class="trade-search-tokenized" role="group" aria-label="Search trades">
+            <div id="trade-search-chip-list" class="trade-search-chip-list" aria-live="polite"></div>
+            <input
+                id="trade-search-tail-input"
+                class="trade-search-tail-input trade-search-input"
+                type="text"
+                placeholder="Search..."
+                aria-label="Search trades"
+                autocomplete="off"
+                spellcheck="false"
+            >
+        </div>
         <input
             id="trade-search-input"
-            class="trade-search-input"
+            class="trade-search-input-hidden"
             type="text"
-            placeholder="Search..."
-            aria-label="Search trades"
             autocomplete="off"
             spellcheck="false"
+            tabindex="-1"
+            aria-hidden="true"
         >
+    </div>
+    <div id="trade-search-tag-pills" class="trade-search-tag-pills" data-locale="{{ curr_locale|default('en')|e('html_attr') }}" aria-label="Search tags">
+        <span class="trade-search-tag-label">Tags:</span>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="species">SPECIES</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="level">LEVEL</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="gender">GENDER</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="shiny">SHINY</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="name">NAME</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="ot">OT</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="item">ITEM</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="offerer">OFFERER</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="language">LANGUAGE</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="country">COUNTRY</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="pokerus">POK&eacute;RUS</button>
+        <button class="trade-search-tag-pill" type="button" data-tag-field="wanted">WANTED</button>
     </div>
     <div class="trade-size-wrap">
         <label class="trade-size-label" for="trade-size-btn-1">Zoom:</label>
@@ -228,7 +255,7 @@
 })();
 </script>
 <script src="/js/crystal-search-ui.js?v=crystal-search-ui-v8"></script>
-<script src="/js/exchange-hover-anim.js?v=exchange-hover-anim-v2"></script>
+<script src="/js/exchange-hover-anim.js?v=exchange-hover-anim-v13"></script>
 {% endblock %}
 
 

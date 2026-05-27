@@ -12,6 +12,130 @@
   var COLOR_YELLOW = [138, 103, 0];
   var COLOR_RED = [180, 35, 24];
   var TAG_ALIASES = Object.create(null);
+  var ANY_TAG_TERMS = {
+    any: true,
+    all: true,
+    alles: true,
+    todos: true,
+    cualquiera: true,
+    tout: true,
+    tous: true,
+    nimporte: true,
+    tutti: true,
+    qualsiasi: true,
+    beliebig: true,
+    zenbu: true,
+    arbitrary: true,
+    "\u4EFB\u610F": true,
+    "\u3069\u308C\u3067\u3082": true,
+  };
+  var TAG_DISPLAY_LABELS_BY_LOCALE = {
+    en: {
+      species: "SPECIES",
+      level: "LEVEL",
+      gender: "GENDER",
+      shiny: "SHINY",
+      name: "NAME",
+      ot: "OT",
+      item: "ITEM",
+      offerer: "OFFERER",
+      language: "LANGUAGE",
+      country: "COUNTRY",
+      pokerus: "POK\u00E9RUS",
+      wanted: "WANTED",
+      offer: "OFFER",
+    },
+    de: {
+      species: "SPEZIES",
+      level: "LEVEL",
+      gender: "GESCHLECHT",
+      shiny: "SHINY",
+      name: "NAME",
+      ot: "OT",
+      item: "ITEM",
+      offerer: "ANBIETER",
+      language: "SPRACHE",
+      country: "LAND",
+      pokerus: "POK\u00E9RUS",
+      wanted: "GESUCHT",
+      offer: "ANGEBOT",
+    },
+    es: {
+      species: "ESPECIE",
+      level: "NIVEL",
+      gender: "GENERO",
+      shiny: "SHINY",
+      name: "NOMBRE",
+      ot: "OT",
+      item: "OBJETO",
+      offerer: "OFERENTE",
+      language: "IDIOMA",
+      country: "PAIS",
+      pokerus: "POK\u00E9RUS",
+      wanted: "BUSCADO",
+      offer: "OFERTA",
+    },
+    fr: {
+      species: "ESPECE",
+      level: "NIVEAU",
+      gender: "SEXE",
+      shiny: "SHINY",
+      name: "NOM",
+      ot: "OT",
+      item: "OBJET",
+      offerer: "DONNEUR",
+      language: "LANGUE",
+      country: "PAYS",
+      pokerus: "POK\u00E9RUS",
+      wanted: "RECHERCHE",
+      offer: "OFFRE",
+    },
+    it: {
+      species: "SPECIE",
+      level: "LIVELLO",
+      gender: "SESSO",
+      shiny: "SHINY",
+      name: "NOME",
+      ot: "OT",
+      item: "STRUMENTO",
+      offerer: "OFFERENTE",
+      language: "LINGUA",
+      country: "PAESE",
+      pokerus: "POK\u00E9RUS",
+      wanted: "RICERCATO",
+      offer: "OFFERTA",
+    },
+    ja: {
+      species: "\u7A2E\u65CF",
+      level: "\u30EC\u30D9\u30EB",
+      gender: "\u6027\u5225",
+      shiny: "\u8272\u9055\u3044",
+      name: "\u540D\u524D",
+      ot: "OT",
+      item: "\u3082\u3061\u3082\u306E",
+      offerer: "\u51FA\u54C1\u8005",
+      language: "\u8A00\u8A9E",
+      country: "\u56FD",
+      pokerus: "POK\u00E9RUS",
+      wanted: "\u307B\u3057\u3044",
+      offer: "\u63D0\u4F9B",
+    },
+  };
+  var TAG_DISPLAY_LABELS = {
+    species: "SPECIES",
+    level: "LEVEL",
+    gender: "GENDER",
+    shiny: "SHINY",
+    name: "NAME",
+    ot: "OT",
+    item: "ITEM",
+    offerer: "OFFERER",
+    language: "LANGUAGE",
+    country: "COUNTRY",
+    pokerus: "POK\u00E9RUS",
+    wanted: "WANTED",
+    offer: "OFFER",
+  };
   var REGION_FILTER_VALUES = {
     global: true,
     int: true,
@@ -29,8 +153,16 @@
   var countdownEntries = [];
   var searchEntries = [];
   var searchInput = null;
+  var searchTailInput = null;
+  var searchChipList = null;
+  var searchTokenizedRoot = null;
+  var searchTagPills = null;
+  var tokenizedSearchChips = [];
+  var activeTokenizedChipIndex = -1;
+  var deferredGeneralSegments = [];
   var regionFilterSelect = null;
   var noResultsNode = null;
+  var uiLocale = "en";
 
   function normalizeSearchText(value) {
     return String(value || "")
@@ -100,6 +232,13 @@
       si: true,
       oui: true,
       ja: true,
+      verdadero: true,
+      vrai: true,
+      vero: true,
+      wahr: true,
+      hai: true,
+      ari: true,
+      with: true,
     };
     var falsy = {
       no: true,
@@ -109,6 +248,19 @@
       notshiny: true,
       non: true,
       nein: true,
+      none: true,
+      falso: true,
+      faux: true,
+      falsch: true,
+      iie: true,
+      nashi: true,
+      without: true,
+      aucun: true,
+      aucune: true,
+      nessuno: true,
+      nessuna: true,
+      ninguno: true,
+      ninguna: true,
     };
     var seenTrue = false;
     var seenFalse = false;
@@ -304,9 +456,97 @@
       "livello",
       "\u30ec\u30d9\u30eb",
     ]);
+
+    registerTagAliasList("ot", [
+      "ot",
+      "original trainer",
+      "owner",
+      "dresseur",
+      "entraineur",
+      "trainer",
+      "\u306a\u307e\u3048",
+      "\u30c8\u30ec\u30fc\u30ca\u30fc",
+    ]);
+
+    registerTagAliasList("country", [
+      "country",
+      "nation",
+      "pays",
+      "pais",
+      "paese",
+      "land",
+      "region",
+      "countrycode",
+      "\u56fd",
+      "\u5730\u57df",
+    ]);
+
+    registerTagAliasList("pokerus", [
+      "pokerus",
+      "pkrs",
+      "virus",
+      "infected",
+      "cured",
+      "active",
+      "none",
+      "infecte",
+      "infectado",
+      "infetto",
+      "\u30dd\u30b1\u30eb\u30b9",
+    ]);
+  }
+
+  function resolveUiLocale() {
+    var root = document.getElementById("trade-search-tag-pills");
+    var fromAttr = root ? String(root.getAttribute("data-locale") || "") : "";
+    var normalized = normalizeTagKey(fromAttr).slice(0, 2);
+    if (normalized === "nl") {
+      normalized = "en";
+    }
+    if (!TAG_DISPLAY_LABELS_BY_LOCALE[normalized]) {
+      normalized = "en";
+    }
+    return normalized;
+  }
+
+  function applyLocaleTagDisplayLabels() {
+    var localized = TAG_DISPLAY_LABELS_BY_LOCALE[uiLocale] || TAG_DISPLAY_LABELS_BY_LOCALE.en;
+    var keys = Object.keys(localized);
+    for (var i = 0; i < keys.length; i++) {
+      TAG_DISPLAY_LABELS[keys[i]] = localized[keys[i]];
+    }
+  }
+
+  function applyTagPillLabelsToUi() {
+    var root = document.getElementById("trade-search-tag-pills");
+    if (!root) {
+      return;
+    }
+    var buttons = root.querySelectorAll(".trade-search-tag-pill[data-tag-field]");
+    for (var i = 0; i < buttons.length; i++) {
+      var button = buttons[i];
+      var field = String(button.getAttribute("data-tag-field") || "").toLowerCase();
+      if (!field) {
+        continue;
+      }
+      button.textContent = getTagDisplayLabel(field);
+    }
   }
 
   function addLocalizedAliasesFromUi() {
+    var tagPillRoot = document.getElementById("trade-search-tag-pills");
+    if (tagPillRoot) {
+      var tagPills = tagPillRoot.querySelectorAll(".trade-search-tag-pill[data-tag-field]");
+      for (var p = 0; p < tagPills.length; p++) {
+        var pill = tagPills[p];
+        var field = String(pill.getAttribute("data-tag-field") || "").toLowerCase();
+        if (!field) {
+          continue;
+        }
+        registerTagAlias(pill.textContent || "", field);
+      }
+    }
+
     var firstSlot = document.querySelector(".crystal-trade-slot");
     if (!firstSlot) {
       return;
@@ -314,20 +554,464 @@
 
     var wantedLabel = firstSlot.querySelector(".wanted-label");
     if (wantedLabel) {
-      registerTagAlias(wantedLabel.textContent || "", "wanted");
+      var localizedWanted = String(wantedLabel.textContent || "").trim();
+      registerTagAlias(localizedWanted, "wanted");
+      if (localizedWanted) {
+        TAG_DISPLAY_LABELS.wanted = localizedWanted.toUpperCase();
+      }
     }
 
     var offerLabels = firstSlot.querySelectorAll(".offer-details .label");
+    if (offerLabels.length >= 1) {
+      var localizedName = String(offerLabels[0].textContent || "").trim();
+      registerTagAlias(localizedName, "name");
+      if (localizedName) {
+        TAG_DISPLAY_LABELS.name = localizedName.toUpperCase();
+      }
+    }
+    if (offerLabels.length >= 2) {
+      registerTagAlias(offerLabels[1].textContent || "", "ot");
+    }
     if (offerLabels.length >= 3) {
-      registerTagAlias(offerLabels[0].textContent || "", "name");
-      registerTagAlias(offerLabels[1].textContent || "", "offerer");
-      registerTagAlias(offerLabels[2].textContent || "", "item");
+      var localizedItem = String(offerLabels[2].textContent || "").trim();
+      registerTagAlias(localizedItem, "item");
+      if (localizedItem) {
+        TAG_DISPLAY_LABELS.item = localizedItem.toUpperCase();
+      }
+    }
+    if (offerLabels.length >= 4) {
+      var localizedOfferer = String(offerLabels[3].textContent || "").trim();
+      registerTagAlias(localizedOfferer, "offerer");
+      if (localizedOfferer) {
+        TAG_DISPLAY_LABELS.offerer = localizedOfferer.toUpperCase();
+      }
     }
 
     var levelLabel = firstSlot.querySelector(".level-label");
     if (levelLabel) {
       registerTagAlias(levelLabel.textContent || "", "level");
     }
+  }
+
+  function getTagDisplayLabel(field) {
+    var key = String(field || "").toLowerCase();
+    if (TAG_DISPLAY_LABELS[key]) {
+      return TAG_DISPLAY_LABELS[key];
+    }
+    if (!key) {
+      return "";
+    }
+    return key.charAt(0).toUpperCase() + key.slice(1);
+  }
+
+  function resolveTagFieldFromPrefix(prefixText) {
+    var normalized = normalizeTagKey(prefixText);
+    if (!normalized) {
+      return "";
+    }
+    return TAG_ALIASES[normalized] || "";
+  }
+
+  function pushTokenizedSearchChip(field, valueText, allowEmptyValue, isComposing) {
+    var normalizedField = String(field || "").toLowerCase();
+    var normalizedTerms = tokenize(valueText || "").join(" ");
+    if (!normalizedField) {
+      return false;
+    }
+    if (!allowEmptyValue && !normalizedTerms) {
+      return false;
+    }
+    tokenizedSearchChips.push({
+      field: normalizedField,
+      label: getTagDisplayLabel(normalizedField),
+      value: normalizedTerms,
+      composing: !!isComposing,
+    });
+    return true;
+  }
+
+  function normalizeDeferredGeneralSegments() {
+    var normalized = [];
+    var chipCount = tokenizedSearchChips.length;
+    for (var i = 0; i < deferredGeneralSegments.length; i++) {
+      var segment = deferredGeneralSegments[i];
+      if (!segment) {
+        continue;
+      }
+      var text = String(segment.text || "").trim();
+      if (!text) {
+        continue;
+      }
+      var index = parseInt(segment.index, 10);
+      if (!Number.isFinite(index)) {
+        index = chipCount;
+      }
+      index = Math.max(0, Math.min(chipCount, index));
+      normalized.push({
+        text: text,
+        index: index,
+      });
+    }
+    deferredGeneralSegments = normalized;
+  }
+
+  function hasDeferredGeneralSegments() {
+    return deferredGeneralSegments.length > 0;
+  }
+
+  function pushDeferredGeneralSegment(text, index) {
+    var value = String(text || "").trim();
+    if (!value) {
+      return false;
+    }
+    deferredGeneralSegments.push({
+      text: value,
+      index: index,
+    });
+    normalizeDeferredGeneralSegments();
+    return true;
+  }
+
+  function renderTokenizedSearchChips() {
+    if (!searchChipList) {
+      return;
+    }
+    searchChipList.innerHTML = "";
+    var isComposing = activeTokenizedChipIndex >= 0;
+    var hostedTailInputInsideChip = false;
+    if (searchChipList.parentNode && searchChipList.parentNode.classList) {
+      searchChipList.parentNode.classList.toggle("trade-search-tokenized-composing", isComposing);
+    }
+
+    normalizeDeferredGeneralSegments();
+
+    var appendDeferredTextNodesAtIndex = function (index) {
+      for (var s = 0; s < deferredGeneralSegments.length; s++) {
+        var segment = deferredGeneralSegments[s];
+        if (!segment || segment.index !== index) {
+          continue;
+        }
+        var segmentText = String(segment.text || "").trim();
+        if (!segmentText) {
+          continue;
+        }
+        var leadingTextNode = document.createElement("span");
+        leadingTextNode.className = "trade-search-leading-text";
+        leadingTextNode.textContent = segmentText;
+        searchChipList.appendChild(leadingTextNode);
+      }
+    };
+
+    for (var i = 0; i < tokenizedSearchChips.length; i++) {
+      appendDeferredTextNodesAtIndex(i);
+
+      var chip = tokenizedSearchChips[i];
+      var chipNode = document.createElement("span");
+      chipNode.className = "trade-search-chip";
+      chipNode.setAttribute("data-chip-index", String(i));
+      if (chip.composing) {
+        chipNode.classList.add("trade-search-chip-composing");
+      }
+
+      var labelNode = document.createElement("span");
+      labelNode.className = "trade-search-chip-label";
+      labelNode.textContent = chip.label;
+
+      var valueNode = document.createElement("span");
+      valueNode.className = "trade-search-chip-value";
+      if (chip.composing && searchTailInput) {
+        valueNode.classList.add("trade-search-chip-value-composing");
+        valueNode.textContent = "";
+        searchTailInput.classList.add("trade-search-tail-input-inside-chip");
+        searchTailInput.setAttribute("placeholder", "");
+        valueNode.appendChild(searchTailInput);
+        hostedTailInputInsideChip = true;
+      } else {
+        valueNode.textContent = chip.value || "\u00A0";
+      }
+
+      var removeButton = document.createElement("button");
+      removeButton.type = "button";
+      removeButton.className = "trade-search-chip-remove";
+      removeButton.setAttribute("aria-label", "Remove " + chip.label + " tag");
+      removeButton.setAttribute("data-chip-index", String(i));
+      removeButton.textContent = "\u00d7";
+
+      chipNode.appendChild(labelNode);
+      chipNode.appendChild(valueNode);
+      chipNode.appendChild(removeButton);
+      searchChipList.appendChild(chipNode);
+    }
+
+    appendDeferredTextNodesAtIndex(tokenizedSearchChips.length);
+
+    if (searchTailInput && !hostedTailInputInsideChip) {
+      searchTailInput.classList.remove("trade-search-tail-input-inside-chip");
+      searchTailInput.style.removeProperty("width");
+      if (tokenizedSearchChips.length > 0 || hasDeferredGeneralSegments()) {
+        searchTailInput.setAttribute("placeholder", "");
+      } else {
+        searchTailInput.setAttribute("placeholder", "Search...");
+      }
+      if (searchTokenizedRoot && searchTailInput.parentNode !== searchTokenizedRoot) {
+        searchTokenizedRoot.appendChild(searchTailInput);
+      }
+    }
+
+    if (
+      !isComposing &&
+      tokenizedSearchChips.length === 0 &&
+      hasDeferredGeneralSegments() &&
+      searchTailInput &&
+      !String(searchTailInput.value || "").trim()
+    ) {
+      var carryText = [];
+      for (var d = 0; d < deferredGeneralSegments.length; d++) {
+        var carry = String(deferredGeneralSegments[d].text || "").trim();
+        if (carry) {
+          carryText.push(carry);
+        }
+      }
+      searchTailInput.value = carryText.join(" ").trim();
+      deferredGeneralSegments = [];
+    }
+
+    updateTailInputInlineWidth();
+  }
+
+  function updateTailInputInlineWidth() {
+    if (!searchTailInput) {
+      return;
+    }
+    if (!searchTailInput.classList.contains("trade-search-tail-input-inside-chip")) {
+      searchTailInput.style.removeProperty("width");
+      return;
+    }
+    var chars = String(searchTailInput.value || "").length;
+    var widthCh = Math.max(1, chars);
+    searchTailInput.style.width = widthCh + "ch";
+  }
+
+  function buildTokenizedSearchQuery() {
+    var parts = [];
+    normalizeDeferredGeneralSegments();
+
+    var appendDeferredTextPartsAtIndex = function (index) {
+      for (var s = 0; s < deferredGeneralSegments.length; s++) {
+        var segment = deferredGeneralSegments[s];
+        if (!segment || segment.index !== index) {
+          continue;
+        }
+        var segmentText = String(segment.text || "").trim();
+        if (!segmentText) {
+          continue;
+        }
+        parts.push(segmentText);
+      }
+    };
+
+    for (var i = 0; i < tokenizedSearchChips.length; i++) {
+      appendDeferredTextPartsAtIndex(i);
+      var chip = tokenizedSearchChips[i];
+      if (!chip.field) {
+        continue;
+      }
+      if (chip.value) {
+        parts.push(chip.field + ":" + chip.value);
+      }
+    }
+    appendDeferredTextPartsAtIndex(tokenizedSearchChips.length);
+
+    var tailText = searchTailInput ? String(searchTailInput.value || "").trim() : "";
+    if (tailText && activeTokenizedChipIndex < 0) {
+      parts.push(tailText);
+    }
+    return parts.join(" ").trim();
+  }
+
+  function syncTokenizedSearchToHiddenInput() {
+    if (!searchInput) {
+      return "";
+    }
+    var queryText = buildTokenizedSearchQuery();
+    searchInput.value = queryText;
+    return queryText;
+  }
+
+  function syncActiveTokenizedChipFromTail() {
+    if (activeTokenizedChipIndex < 0) {
+      return false;
+    }
+    if (activeTokenizedChipIndex >= tokenizedSearchChips.length) {
+      activeTokenizedChipIndex = -1;
+      return false;
+    }
+
+    var activeChip = tokenizedSearchChips[activeTokenizedChipIndex];
+    if (!activeChip) {
+      activeTokenizedChipIndex = -1;
+      return false;
+    }
+    activeChip.value = String(searchTailInput ? searchTailInput.value : "");
+    return true;
+  }
+
+  function finalizeActiveTokenizedChip() {
+    if (activeTokenizedChipIndex < 0) {
+      return false;
+    }
+    if (activeTokenizedChipIndex >= tokenizedSearchChips.length) {
+      activeTokenizedChipIndex = -1;
+      return false;
+    }
+
+    var activeChip = tokenizedSearchChips[activeTokenizedChipIndex];
+    if (!activeChip) {
+      activeTokenizedChipIndex = -1;
+      return false;
+    }
+
+    activeChip.value = String(activeChip.value || "").trim();
+    activeChip.composing = false;
+    activeTokenizedChipIndex = -1;
+    renderTokenizedSearchChips();
+    if (searchTailInput) {
+      searchTailInput.value = "";
+    }
+    return true;
+  }
+
+  function beginActiveTokenizedChip(field, presetRawValue, preserveExistingTailText) {
+    var resolvedField = String(field || "").toLowerCase();
+    var priorChipCount = tokenizedSearchChips.length;
+    if (!resolvedField) {
+      return false;
+    }
+
+    if (activeTokenizedChipIndex >= 0) {
+      finalizeActiveTokenizedChip();
+    }
+
+    var added = pushTokenizedSearchChip(resolvedField, "", true, true);
+    if (!added) {
+      return false;
+    }
+    activeTokenizedChipIndex = tokenizedSearchChips.length - 1;
+    renderTokenizedSearchChips();
+
+    if (searchTailInput) {
+      if (preserveExistingTailText) {
+        var currentTail = String(searchTailInput.value || "").trim();
+        if (currentTail) {
+          pushDeferredGeneralSegment(currentTail, priorChipCount);
+        }
+      }
+      searchTailInput.value = String(presetRawValue || "");
+      syncActiveTokenizedChipFromTail();
+      renderTokenizedSearchChips();
+      searchTailInput.focus();
+    }
+    return true;
+  }
+
+  function startEditingTokenizedChip(index) {
+    if (index < 0 || index >= tokenizedSearchChips.length) {
+      return false;
+    }
+
+    if (activeTokenizedChipIndex === index) {
+      if (searchTailInput) {
+        searchTailInput.focus();
+        searchTailInput.setSelectionRange(
+          searchTailInput.value.length,
+          searchTailInput.value.length
+        );
+      }
+      return true;
+    }
+
+    if (activeTokenizedChipIndex >= 0) {
+      finalizeActiveTokenizedChip();
+    } else if (searchTailInput) {
+      var looseTail = String(searchTailInput.value || "").trim();
+      if (looseTail) {
+        pushDeferredGeneralSegment(looseTail, tokenizedSearchChips.length);
+        searchTailInput.value = "";
+      }
+    }
+
+    for (var i = 0; i < tokenizedSearchChips.length; i++) {
+      tokenizedSearchChips[i].composing = false;
+    }
+
+    var chip = tokenizedSearchChips[index];
+    chip.composing = true;
+    activeTokenizedChipIndex = index;
+
+    if (searchTailInput) {
+      searchTailInput.value = String(chip.value || "");
+    }
+
+    renderTokenizedSearchChips();
+    applyTokenizedSearchStateWithoutRender();
+
+    if (searchTailInput) {
+      searchTailInput.focus();
+      searchTailInput.setSelectionRange(
+        searchTailInput.value.length,
+        searchTailInput.value.length
+      );
+    }
+    return true;
+  }
+
+  function maybeBeginTokenizedChipFromTail(rawTail) {
+    var splitMatch = String(rawTail || "").match(/^(.+?)(?:\:|\uFF1A)(.*)$/);
+    if (!splitMatch) {
+      return false;
+    }
+
+    var rawPrefix = String(splitMatch[1] || "").trim();
+    if (!rawPrefix) {
+      return false;
+    }
+
+    var field = resolveTagFieldFromPrefix(rawPrefix);
+    if (!field) {
+      return false;
+    }
+
+    var valueRemainder = String(splitMatch[2] || "").replace(/^\s+/, "");
+    return beginActiveTokenizedChip(field, valueRemainder, false);
+  }
+
+  function commitTailInputToTagChips() {
+    if (!searchTailInput) {
+      return false;
+    }
+
+    var rawTail = String(searchTailInput.value || "").trim();
+    if (!rawTail) {
+      return false;
+    }
+
+    var parsed = parseSearchQuery(rawTail);
+    if (!parsed.tags || parsed.tags.length === 0) {
+      return false;
+    }
+
+    var addedAny = false;
+    for (var i = 0; i < parsed.tags.length; i++) {
+      var tag = parsed.tags[i];
+      var valueText = tag.terms.join(" ");
+      if (pushTokenizedSearchChip(tag.field, valueText, false, false)) {
+        addedAny = true;
+      }
+    }
+
+    searchTailInput.value = parsed.terms.join(" ");
+    renderTokenizedSearchChips();
+    return addedAny;
   }
 
   function extractGifFirstFrameDataUrl(animSrc, callback) {
@@ -679,6 +1363,33 @@
     }
   }
 
+  function countryTokensForRegionCode(gameRegion) {
+    switch (gameRegion) {
+      case "e":
+        return "usa united states america";
+      case "p":
+        return "europe eur eu";
+      case "u":
+        return "australia aus";
+      case "f":
+        return "france";
+      case "d":
+        return "germany";
+      case "i":
+        return "italy";
+      case "s":
+        return "spain";
+      case "j":
+        return "japan";
+      case "int":
+        return "international";
+      case "eng":
+        return "english all";
+      default:
+        return "";
+    }
+  }
+
   function getSearchEntry(slot) {
     var regionNode = slot.querySelector(".region, .offer-region-line");
     var languageCode = regionNode
@@ -694,16 +1405,39 @@
     var offerSpecies = mergeSearchParts([offerSpeciesVisible, offerSpeciesLocalized]);
     var wantedSpecies = mergeSearchParts([wantedSpeciesVisible, wantedSpeciesLocalized]);
     var nickname = textOf(slot, ".offer-name");
+    var otName = textOf(slot, ".offer-ot");
     var offerer = textOf(slot, ".offer-offerer");
     var item = textOf(slot, ".offer-item");
+    var hasItem = item.length > 0;
     var gameRegion = normalizeSearchText(slot.getAttribute("data-game-region") || "");
     var offerGender = extractOfferGender(slot);
     var offerLevel = extractOfferLevel(slot);
     var isShiny = !!slot.querySelector(".trade-offer.shiny, .shiny-mark");
+    var pokerusLine = slot.querySelector(".offer-pokerus-line");
+    var hasPokerus = !!(
+      pokerusLine && pokerusLine.classList.contains("pokerus-active")
+    );
+    var hasPokerusCured = !!slot.querySelector(".offer-pokerus-cured");
+    var hasPokerusInfected = !!slot.querySelector(".offer-pokerus-infected");
+    var pokerusState = "none";
+    if (hasPokerus) {
+      if (hasPokerusCured) {
+        pokerusState = "cured";
+      } else if (hasPokerusInfected) {
+        pokerusState = "infected";
+      } else {
+        pokerusState = "active";
+      }
+    }
 
-    var compactItem = item.replace(/\s+/g, "");
-    if (compactItem && compactItem !== item) {
-      item = item + " " + compactItem;
+    if (hasItem) {
+      var compactItem = item.replace(/\s+/g, "");
+      if (compactItem && compactItem !== item) {
+        item = item + " " + compactItem;
+      }
+      item += " yes true with holding held attached";
+    } else {
+      item = "none no false without noitem itemless";
     }
 
     var shinyField = isShiny ? "shiny yes true" : "no false notshiny";
@@ -724,12 +1458,15 @@
         " level" +
         String(offerLevel);
     }
+    var pokerusField = hasPokerus
+      ? "pokerus pkrs yes true active " + pokerusState
+      : "none no false clean uninfected";
 
     var fields = {
       wanted: wantedSpecies,
       offerer: offerer,
       offer: offerSpecies,
-      species: (offerSpecies + " " + wantedSpecies).trim(),
+      species: offerSpecies,
       language: (
         languageCode +
         " " +
@@ -737,11 +1474,14 @@
         " " +
         languageTokensForRegionCode(gameRegion)
       ).trim(),
+      country: (languageTitle + " " + countryTokensForRegionCode(gameRegion)).trim(),
       item: item,
       name: nickname,
+      ot: otName,
       shiny: shinyField,
       gender: genderField,
       level: levelField,
+      pokerus: pokerusField,
     };
 
     var combined = (
@@ -755,15 +1495,21 @@
       " " +
       fields.language +
       " " +
+      fields.country +
+      " " +
       fields.item +
       " " +
       fields.name +
+      " " +
+      fields.ot +
       " " +
       fields.shiny +
       " " +
       fields.gender +
       " " +
-      fields.level
+      fields.level +
+      " " +
+      fields.pokerus
     ).trim();
 
     var fieldTokenSets = Object.create(null);
@@ -783,6 +1529,9 @@
         isShiny: isShiny,
         gender: offerGender,
         level: offerLevel,
+        hasItem: hasItem,
+        hasPokerus: hasPokerus,
+        pokerusState: pokerusState,
       },
     };
   }
@@ -973,6 +1722,26 @@
     return entry.meta.level === parsedLevel;
   }
 
+  function matchPokerusTag(entry, terms) {
+    var parsed = parseBooleanFromTerms(terms);
+    if (parsed !== null) {
+      return entry.meta.hasPokerus === parsed;
+    }
+    return containsAllTerms(
+      entry.fields.pokerus,
+      terms,
+      entry.fieldTokenSets.pokerus
+    );
+  }
+
+  function matchItemTag(entry, terms) {
+    var parsed = parseBooleanFromTerms(terms);
+    if (parsed !== null) {
+      return entry.meta.hasItem === parsed;
+    }
+    return containsAllTerms(entry.fields.item, terms, entry.fieldTokenSets.item);
+  }
+
   function entryMatchesQuery(entry, query) {
     if (!containsAllTerms(entry.combined, query.terms, entry.combinedTokenSet)) {
       return false;
@@ -980,6 +1749,13 @@
 
     for (var i = 0; i < query.tags.length; i++) {
       var tag = query.tags[i];
+      if (
+        tag.terms &&
+        tag.terms.length > 0 &&
+        tag.terms.every(function (term) { return !!ANY_TAG_TERMS[term]; })
+      ) {
+        continue;
+      }
 
       if (tag.field === "shiny") {
         if (!matchShinyTag(entry, tag.terms)) {
@@ -997,6 +1773,20 @@
 
       if (tag.field === "level") {
         if (!matchLevelTag(entry, tag.terms)) {
+          return false;
+        }
+        continue;
+      }
+
+      if (tag.field === "pokerus") {
+        if (!matchPokerusTag(entry, tag.terms)) {
+          return false;
+        }
+        continue;
+      }
+
+      if (tag.field === "item") {
+        if (!matchItemTag(entry, tag.terms)) {
           return false;
         }
         continue;
@@ -1154,17 +1944,259 @@
     });
   }
 
-  function initSearch() {
-    searchInput = document.getElementById("trade-search-input");
-    if (searchInput) {
-      searchInput.addEventListener("input", applySearchFilter);
+  function removeTokenizedSearchChip(index) {
+    if (index < 0 || index >= tokenizedSearchChips.length) {
+      return;
     }
+    tokenizedSearchChips.splice(index, 1);
+    for (var d = 0; d < deferredGeneralSegments.length; d++) {
+      var seg = deferredGeneralSegments[d];
+      if (!seg) {
+        continue;
+      }
+      if (seg.index > index) {
+        seg.index -= 1;
+      } else if (seg.index > tokenizedSearchChips.length) {
+        seg.index = tokenizedSearchChips.length;
+      }
+    }
+    normalizeDeferredGeneralSegments();
+    if (activeTokenizedChipIndex === index) {
+      activeTokenizedChipIndex = -1;
+      if (searchTailInput) {
+        searchTailInput.value = "";
+      }
+    } else if (activeTokenizedChipIndex > index) {
+      activeTokenizedChipIndex -= 1;
+    }
+    renderTokenizedSearchChips();
+  }
+
+  function applyTokenizedSearchState() {
+    syncActiveTokenizedChipFromTail();
+    renderTokenizedSearchChips();
+    syncTokenizedSearchToHiddenInput();
     applySearchFilter();
   }
 
+  function applyTokenizedSearchStateWithoutRender() {
+    syncActiveTokenizedChipFromTail();
+    updateTailInputInlineWidth();
+    syncTokenizedSearchToHiddenInput();
+    applySearchFilter();
+  }
+
+  function bindTagPillEvents() {
+    if (!searchTagPills) {
+      return;
+    }
+    searchTagPills.addEventListener("click", function (event) {
+      var target = event.target;
+      if (!target || !target.classList || !target.classList.contains("trade-search-tag-pill")) {
+        return;
+      }
+      var field = String(target.getAttribute("data-tag-field") || "").toLowerCase();
+      if (!field) {
+        return;
+      }
+      beginActiveTokenizedChip(field, "", true);
+      applyTokenizedSearchStateWithoutRender();
+    });
+  }
+
+  function bindTokenChipEvents() {
+    if (!searchChipList) {
+      return;
+    }
+    searchChipList.addEventListener("click", function (event) {
+      var target = event.target;
+      if (!target) {
+        return;
+      }
+
+      var removeButton = target.closest
+        ? target.closest(".trade-search-chip-remove")
+        : null;
+      if (removeButton && searchChipList.contains(removeButton)) {
+        var removeIdx = parseInt(removeButton.getAttribute("data-chip-index") || "-1", 10);
+        if (!Number.isFinite(removeIdx) || removeIdx < 0) {
+          return;
+        }
+        removeTokenizedSearchChip(removeIdx);
+        applyTokenizedSearchState();
+        if (searchTailInput) {
+          searchTailInput.focus();
+        }
+        return;
+      }
+
+      var chipNode = target.closest
+        ? target.closest(".trade-search-chip")
+        : null;
+      if (!chipNode || !searchChipList.contains(chipNode)) {
+        return;
+      }
+      var editIdx = parseInt(chipNode.getAttribute("data-chip-index") || "-1", 10);
+      if (!Number.isFinite(editIdx) || editIdx < 0) {
+        return;
+      }
+      startEditingTokenizedChip(editIdx);
+    });
+  }
+
+  function initTokenizedSearchFromExistingValue() {
+    if (!searchInput || !searchTailInput) {
+      return;
+    }
+    var existingValue = String(searchInput.value || "").trim();
+    if (!existingValue) {
+      tokenizedSearchChips = [];
+      deferredGeneralSegments = [];
+      activeTokenizedChipIndex = -1;
+      renderTokenizedSearchChips();
+      return;
+    }
+
+    var parsed = parseSearchQuery(existingValue);
+    tokenizedSearchChips = [];
+    deferredGeneralSegments = [];
+    activeTokenizedChipIndex = -1;
+    for (var i = 0; i < parsed.tags.length; i++) {
+      pushTokenizedSearchChip(parsed.tags[i].field, parsed.tags[i].terms.join(" "), false, false);
+    }
+    searchTailInput.value = parsed.terms.join(" ");
+    renderTokenizedSearchChips();
+  }
+
+  function exitActiveTokenizedChipEditing() {
+    if (activeTokenizedChipIndex < 0) {
+      return false;
+    }
+    finalizeActiveTokenizedChip();
+    applyTokenizedSearchState();
+    if (searchTailInput) {
+      searchTailInput.focus();
+      searchTailInput.setSelectionRange(
+        searchTailInput.value.length,
+        searchTailInput.value.length
+      );
+    }
+    return true;
+  }
+
+  function initSearch() {
+    searchInput = document.getElementById("trade-search-input");
+    searchTailInput = document.getElementById("trade-search-tail-input");
+    searchChipList = document.getElementById("trade-search-chip-list");
+    searchTokenizedRoot = document.getElementById("trade-search-tokenized");
+    searchTagPills = document.getElementById("trade-search-tag-pills");
+
+    if (searchInput && searchTailInput) {
+      initTokenizedSearchFromExistingValue();
+      bindTokenChipEvents();
+      bindTagPillEvents();
+
+      if (searchTokenizedRoot) {
+        searchTokenizedRoot.addEventListener("mousedown", function (event) {
+          if (activeTokenizedChipIndex < 0) {
+            return;
+          }
+          var activeChipNode = searchChipList
+            ? searchChipList.querySelector(".trade-search-chip-composing")
+            : null;
+          if (activeChipNode && activeChipNode.contains(event.target)) {
+            return;
+          }
+          if (searchTailInput && event.target === searchTailInput) {
+            return;
+          }
+          event.preventDefault();
+          exitActiveTokenizedChipEditing();
+        });
+      }
+
+      document.addEventListener("mousedown", function (event) {
+        if (activeTokenizedChipIndex < 0) {
+          return;
+        }
+        if (!searchTokenizedRoot || searchTokenizedRoot.contains(event.target)) {
+          return;
+        }
+        exitActiveTokenizedChipEditing();
+      });
+
+      searchTailInput.addEventListener("input", function () {
+        var rawTail = String(searchTailInput.value || "");
+
+        if (activeTokenizedChipIndex < 0 && maybeBeginTokenizedChipFromTail(rawTail)) {
+          applyTokenizedSearchStateWithoutRender();
+          return;
+        }
+
+        if (activeTokenizedChipIndex >= 0) {
+          applyTokenizedSearchStateWithoutRender();
+          return;
+        }
+
+        var hasTagSyntax = rawTail.indexOf(":") >= 0 || rawTail.indexOf("\uFF1A") >= 0;
+        var hasTrailingWhitespace = /\s$/.test(rawTail);
+        if (hasTagSyntax && hasTrailingWhitespace) {
+          commitTailInputToTagChips();
+        }
+        applyTokenizedSearchState();
+      });
+
+      searchTailInput.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          if (activeTokenizedChipIndex >= 0) {
+            finalizeActiveTokenizedChip();
+            applyTokenizedSearchState();
+            searchTailInput.focus();
+            searchTailInput.setSelectionRange(
+              searchTailInput.value.length,
+              searchTailInput.value.length
+            );
+            return;
+          }
+          commitTailInputToTagChips();
+          applyTokenizedSearchState();
+          return;
+        }
+
+        if (event.key === "Backspace") {
+          var currentValue = String(searchTailInput.value || "");
+          if (currentValue.length === 0 && activeTokenizedChipIndex >= 0) {
+            event.preventDefault();
+            removeTokenizedSearchChip(activeTokenizedChipIndex);
+            applyTokenizedSearchState();
+            return;
+          }
+          if (currentValue.length === 0 && tokenizedSearchChips.length > 0) {
+            event.preventDefault();
+            tokenizedSearchChips.pop();
+            if (activeTokenizedChipIndex >= tokenizedSearchChips.length) {
+              activeTokenizedChipIndex = -1;
+            }
+            renderTokenizedSearchChips();
+            applyTokenizedSearchState();
+          }
+        }
+      });
+    } else if (searchInput) {
+      searchInput.addEventListener("input", applySearchFilter);
+    }
+
+    applyTokenizedSearchState();
+  }
+
   function init() {
+    uiLocale = resolveUiLocale();
+    applyLocaleTagDisplayLabels();
     initializeTagAliases();
+    applyTagPillLabelsToUi();
     addLocalizedAliasesFromUi();
+    applyTagPillLabelsToUi();
 
     var slots = document.querySelectorAll(".crystal-trade-slot");
     slots.forEach(function (slot) {

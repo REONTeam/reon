@@ -318,11 +318,13 @@
 
 @media (max-width: 991.98px) {
   .trainer-rankings-page {
+    --rankings-mobile-panel-base-width: min(620px, calc(100vw - 12px));
     width: 100% !important;
     max-width: 100% !important;
     padding-left: 0;
     padding-right: 0;
     box-sizing: border-box;
+    overflow-x: auto;
   }
 
   .trainer-rankings-controls {
@@ -338,8 +340,22 @@
   }
 
   .trainer-ranking-panel {
+    width: var(--rankings-mobile-panel-base-width);
+    max-width: var(--rankings-mobile-panel-base-width);
     overflow: visible;
     padding-bottom: 2px;
+  }
+
+  .trainer-rankings-page[data-rankings-zoom="2"] .trainer-ranking-panel {
+    width: calc(var(--rankings-mobile-panel-base-width) / 2);
+    max-width: calc(var(--rankings-mobile-panel-base-width) / 2);
+  }
+
+  .trainer-rankings-grid {
+    width: max-content;
+    min-width: 100%;
+    justify-content: center;
+    row-gap: 14px;
   }
 
   .trainer-ranking-table {
@@ -406,8 +422,8 @@
     padding: clamp(10px, calc(var(--ranking-mobile-message-height) * 0.28), 14px) 5px 0 6px;
     line-height: 1 !important;
     white-space: pre-wrap;
-    overflow-wrap: break-word;
-    word-break: normal;
+    overflow-wrap: normal;
+    word-break: keep-all;
     hyphens: none;
   }
 }
@@ -471,6 +487,9 @@
     padding: clamp(10px, calc(min(148px, max(110px, calc(100vw - 186px))) * 0.08), 12px) 4px 0 5px;
     line-height: 1 !important;
     white-space: pre-wrap;
+    overflow-wrap: normal;
+    word-break: keep-all;
+    hyphens: none;
   }
 }
 

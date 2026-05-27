@@ -335,6 +335,7 @@
 
 @media (max-width: 991.98px) {
   .battle-tower-page {
+    --bt-mobile-panel-base-width: min(440px, calc(100vw - 12px));
     width: 100%;
     max-width: 100%;
     padding-left: 0;
@@ -344,27 +345,30 @@
 
   .battle-tower-controls {
     width: 100%;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      "level"
-      "room"
-      "zoom"
-      "honor";
-    justify-items: center;
+      "level room"
+      "honor zoom";
+    justify-items: stretch;
     row-gap: 8px;
   }
 
   .battle-control-level,
-  .battle-control-room,
   .battle-honor-roll-label {
-    justify-self: center;
-    text-align: center;
+    justify-self: start;
+    text-align: left;
+  }
+
+  .battle-control-room,
+  .battle-control-zoom {
+    justify-self: end;
+    text-align: right;
   }
 
   .battle-control-zoom {
-    justify-self: center;
-    width: 100%;
-    max-width: calc(100% - 12px);
+    width: auto;
+    max-width: 100%;
+    justify-content: flex-end;
     column-gap: 8px;
   }
 
@@ -374,15 +378,16 @@
   }
 
   .battle-tower-controls .trade-region-filter {
-    min-width: min(320px, 100%);
-    width: min(320px, 100%);
+    min-width: min(220px, calc(50vw - 14px));
+    width: min(220px, calc(50vw - 14px));
   }
 
   .battle-table-shell {
     width: 100%;
     max-width: 100%;
     padding: 0;
-    overflow: visible;
+    overflow-x: auto;
+    overflow-y: visible;
   }
 
   .battle-table-shell::before,
@@ -393,17 +398,23 @@
   }
 
   .battle-table-grid {
-    min-width: 0;
-    width: 100%;
+    min-width: 100%;
+    width: max-content;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 14px;
+    justify-content: flex-start;
   }
 
   .battle-table-panel {
-    width: 100%;
-    max-width: 100%;
+    width: var(--bt-mobile-panel-base-width);
+    max-width: var(--bt-mobile-panel-base-width);
+  }
+
+  .battle-tower-page[data-battle-zoom="2"] .battle-table-panel {
+    width: calc(var(--bt-mobile-panel-base-width) / 2);
+    max-width: calc(var(--bt-mobile-panel-base-width) / 2);
   }
 
   .battle-honor-table {
@@ -437,12 +448,13 @@
   }
 
   .bt-pokemon-list li {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
     overflow-wrap: normal;
     word-break: keep-all;
     hyphens: none;
+    line-height: 1.15;
   }
 
   .battle-honor-table th,
