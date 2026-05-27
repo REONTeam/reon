@@ -44,6 +44,8 @@ wrong-password: Wrong password
 link-invalid-expired: This link is invalid or has expired.
 invalid-trade-setting: Not a valid region pool setting.
 invalid-pokemon-news-setting: Not a valid Pokémon news preference.
+invalid-time-zone-setting: Not a valid time zone setting.
+default-time-zone: UTC+9 (default)
 auth:
   login-to-reon: Login to your REON account
   invalid-email-pass: Incorrect email or password
@@ -92,7 +94,7 @@ account:
   email-changed-success: Your email was changed successfully.
   change-your-password: Change your password
   password-changed-success: Your password was changed successfully.
-  pokemon-crystal-settings: Pokémon Crystal settings
+  pokemon-crystal-settings: Other settings
   trade-corner-region-allowlist: 'Trade Corner: Trading Preferences'
   trade-region-allowlist-blurb: Select the region pool you’re willing to trade with
     when you deposit your Pokémon in the Trade Corner. Any match you receive will
@@ -109,6 +111,9 @@ account:
     If no custom news exists, official news will be used instead.
   pokemon-news-custom-opt-in-off: Official Pokémon News only
   pokemon-news-custom-opt-in-on: Custom Pokémon News when available
+  time-zone: Time zone preference
+  time-zone-blurb: The time zone to use for in-game timestamps.
+    Note that UTC+9 timestamps may appear depending on the game and context.
 index:
   what-is-reon: What is REON?
   reon-description: REON is something.

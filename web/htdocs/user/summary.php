@@ -32,11 +32,21 @@
                 $errors[] = "pokemonNewsValue";
             }
         }
+        if (array_key_exists("timeZone", $_POST)) {
+            if ($_POST["timeZone"] === "+0900" || in_array($_POST["timeZone"], timezone_identifiers_list(), true)) {
+                $db = DBUtil::getInstance()->getDB();
+                $stmt = $db->prepare("update sys_users set timezone = ? where id = ?");
+                $stmt->bind_param("si", $_POST["timeZone"], $_SESSION["user_id"]);
+                $stmt->execute();
+            } else {
+                $errors[] = "timeZoneValue";
+            }
+        }
 
 
 		
 		$db = $db_util->getDB();
-		$stmt = $db->prepare("select email, dion_ppp_id, dion_email_local, log_in_password, money_spent, trade_region_allowlist, custom_pokemon_news_opt_in from sys_users where id = ?");
+		$stmt = $db->prepare("select email, dion_ppp_id, dion_email_local, log_in_password, money_spent, trade_region_allowlist, custom_pokemon_news_opt_in, timezone from sys_users where id = ?");
 		$stmt->bind_param("i", $_SESSION["user_id"]);
 		$stmt->execute();
 		$result = DBUtil::fancy_get_result($stmt)[0];
@@ -55,6 +65,8 @@
 			"money_spent" => $result["money_spent"],
             "trade_region_allowlist" => $result["trade_region_allowlist"],
             "pokemon_news_custom_opt_in" => intval($result["custom_pokemon_news_opt_in"]),
+            "time_zone" => $result["timezone"],
+            "all_time_zones" => timezone_identifiers_list(),
 			"inbox_size" => $inbox_size,
             "errors" => $errors
 		]);

@@ -1,6 +1,7 @@
 <?php
 	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/database.php");
+	require_once(CORE_PATH."/timezone.php");
 
 	$db = connectMySQL();
 	
@@ -9,7 +10,7 @@
 		http_response_code(500);
 		return;
 	}
-$stmt = $db->prepare("select count(*) from amg_rankings");
+	$stmt = $db->prepare("select count(*) from amg_rankings");
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 	$count = $result[0]["count(*)"];
@@ -35,11 +36,12 @@ $stmt = $db->prepare("select count(*) from amg_rankings");
 		}
 	}
 
-	echo pack("n", date("Y", time() + 32400));
-	echo pack("C", date("m", time() + 32400));
-	echo pack("C", date("d", time() + 32400));
-	echo pack("C", date("H", time() + 32400));
-	echo pack("C", date("i"));
+	$time = get_user_local_time();
+	echo pack("n", $time->format("Y")); // Year
+	echo pack("C", $time->format("m")); // Month
+	echo pack("C", $time->format("d")); // Day
+	echo pack("C", $time->format("H")); // Hour
+	echo pack("C", $time->format("i")); // Minute
 
 	echo pack("n", sizeof($top10));
 	for ($i = 0; $i < sizeof($top10); $i++) {

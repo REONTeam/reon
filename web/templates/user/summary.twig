@@ -120,6 +120,20 @@
                             <small><p>{{ "invalid-pokemon-news-setting"|trans }}</p></small>
                             {% endif %}
                         </div>
+                        
+                        <div class="mb-3">
+                            <label for="timeZone">{{ "account.time-zone"|trans }}</label>
+                            <small><p>{{ "account.time-zone-blurb"|trans }}</p></small>
+                            <select id="timeZone" name="timeZone">
+                                <option value="+0900"{% if (time_zone == "+0900") %} selected{% endif %}>{{ "default-time-zone"|trans }}</option>
+                                {% for zone in all_time_zones %}
+                                <option value="{{ zone|e }}"{% if (zone == time_zone) %} selected{% endif %}>{{ zone }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if ("timeZoneValue" in errors) %}
+                            <small><p>{{ "invalid-time-zone-setting"|trans }}</p></small>
+                            {% endif %}
+                        </div>
 
 <button type="submit" class="btn btn-primary">{{ "account.update-settings"|trans }}</button>
                     </form>
