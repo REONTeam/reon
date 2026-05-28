@@ -4,7 +4,7 @@
 	require_once(CORE_PATH."/timezone.php");
 
 	function makeRankingEntry($raceData) {
-		$time = get_user_local_time($datetime = $raceData["date"]);
+		$time = date_create_immutable($raceData["date"]);
 		$output = pack("C", $raceData["course"]);
 		$output = $output.pack("C", $raceData["weather"]);
 		$output = $output.pack("C", $raceData["car"]);
