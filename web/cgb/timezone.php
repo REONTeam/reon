@@ -2,7 +2,7 @@
 	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/database.php");
 
-	function get_user_local_time($user_id = null) {
+	function get_user_timezone($user_id = null) {
 		$tz = "+0900";
 		if (session_status() == PHP_SESSION_ACTIVE) {
 			$user_id = $_SESSION['userId'];
@@ -17,6 +17,10 @@
 				$tz = $result[0]["timezone"];
 			}
 		}
-		return date_create_immutable("now", timezone_open($tz));
+		return timezone_open($tz);
+	}
+
+	function get_user_local_time($user_id = null, $datetime = "now") {
+		return date_create_immutable($datetime)->setTimezone(get_user_timezone($user_id));
 	}
 ?>

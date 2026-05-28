@@ -1,8 +1,10 @@
 <?php
 	// SPDX-License-Identifier: MIT
 	require_once(CORE_PATH."/database.php");
+	require_once(CORE_PATH."/timezone.php");
 
 	function makeRankingEntry($raceData) {
+		$time = get_user_local_time($datetime = $raceData["date"]);
 		$output = pack("C", $raceData["course"]);
 		$output = $output.pack("C", $raceData["weather"]);
 		$output = $output.pack("C", $raceData["car"]);
@@ -17,12 +19,12 @@
 		$output = $output.pack("v", $raceData["handicap"]);
 		$output = $output.$raceData["name"];
 		$output = $output.pack("V", $raceData["time"]);
-		$output = $output.pack("v", (int)substr($raceData["date"], 0, 4));
-		$output = $output.pack("C", (int)substr($raceData["date"], 5, 2));
-		$output = $output.pack("C", (int)substr($raceData["date"], 8, 2));
-		$output = $output.pack("C", (int)substr($raceData["date"], 11, 2));
-		$output = $output.pack("C", (int)substr($raceData["date"], 14, 2));
-		$output = $output.pack("C", (int)substr($raceData["date"], 17, 2));
+		$output = $output.pack("v", $time->format("Y"));
+		$output = $output.pack("C", $time->format("m"));
+		$output = $output.pack("C", $time->format("d"));
+		$output = $output.pack("C", $time->format("H"));
+		$output = $output.pack("C", $time->format("i"));
+		$output = $output.pack("C", $time->format("s"));
 		$output = $output."\0";
 		$output = $output.pack("V", $raceData["id"]);
 		return $output;
@@ -71,20 +73,18 @@
 			return;
 		}
 
-		echo pack("v", (int)substr($result[0]["dl_ok"], 0, 4));
-		echo pack("C", (int)substr($result[0]["dl_ok"], 5, 2));
-		echo pack("C", (int)substr($result[0]["dl_ok"], 8, 2));
-		echo pack("C", (int)substr($result[0]["dl_ok"], 11, 2));
-		echo pack("C", (int)substr($result[0]["dl_ok"], 14, 2));
-		echo pack("C", (int)substr($result[0]["dl_ok"], 17, 2));
+		$time = date_create_immutable($result[0]["dl_ok"])->setTimezone("+0900");
+		echo pack("v", $time->format("Y"));
+		echo pack("C", $time->format("m"));
+		echo pack("C", $time->format("d"));
+		echo pack("C", $time->format("H"));
+		echo pack("C", $time->format("i"));
+		echo pack("C", $time->format("s"));
 		echo "\0";
 
 		for ($i = 0; $i < sizeof($result); $i++) {
 			echo makeRankingEntry($result[$i]);
-			$filename = sprintf("ghost.cgb&agtj=%08x", $result[$i]["id"]);
-			if ($result[$i]["price"] != 0) {
-				$filename = sprintf("%d", $result[$i]["price"]).".".$filename;
-			}
+			$filename = sprintf("%d.ghost.cgb&agtj=%08x", $result[$i]["price"], $result[$i]["id"]);
 			echo $filename;
 			for ($j = strlen($filename); $j < 32; $j++) {
 				echo "\0";
@@ -123,33 +123,14 @@
 		for ($i = 1; $i < sizeof($result); $i++) {
 			$date = max($date, $result[$i]["date"]);
 		}
-		$date_array = array(
-			(int)substr($date, 0, 4),
-			(int)substr($date, 5, 2),
-			(int)substr($date, 8, 2),
-			(int)substr($date, 11, 2) + 9,
-			(int)substr($date, 14, 2),
-			(int)substr($date, 17, 2)
-		);
-		if ($date_array[3] >= 24) {
-			$date_array[3] -= 24;
-			$date_array[2]++;
-		}
-		if ($date_array[2] > cal_days_in_month(CAL_GREGORIAN, $date_array[1], $date_array[0])) {
-			$date_array[2] = 1;
-			$date_array[1]++;
-		}
-		if ($date_array[1] > 12) {
-			$date_array[1] = 1;
-			$date_array[0]++;
-		}
 
-		echo pack("v", $date_array[0]);
-		echo pack("C", $date_array[1]);
-		echo pack("C", $date_array[2]);
-		echo pack("C", $date_array[3]);
-		echo pack("C", $date_array[4]);
-		echo pack("C", $date_array[5]);
+		$time = date_create_immutable($date)->setTimezone("+0900");
+		echo pack("v", $time->format("Y"));
+		echo pack("C", $time->format("m"));
+		echo pack("C", $time->format("d"));
+		echo pack("C", $time->format("H"));
+		echo pack("C", $time->format("i"));
+		echo pack("C", $time->format("s"));
 		echo "\0";
 
 		for ($i = 0; $i < sizeof($result); $i++) {
