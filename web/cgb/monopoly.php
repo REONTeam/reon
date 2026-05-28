@@ -13,19 +13,9 @@
 			$output = $output."\0";
 		}
 
-		$year = (int)substr($result["timestamp"], 0, 4);
-		$month = (int)substr($result["timestamp"], 5, 2);
-		$hour = (int)substr($result["timestamp"], 11, 2);
-		if ($hour >= 15) {
-			$day = (int)substr($result["timestamp"], 8, 2);
-			if ($day == cal_days_in_month(CAL_GREGORIAN, $month, $year)) {
-				$month++;
-				if ($month == 13) {
-					$month = 1;
-					$year++;
-				}
-			}
-		}
+		$time = date_create_immutable($result["timestamp"])->setTimezone(timezone_open("+0900"));
+		$year = (int)$time->format("Y");
+		$month = (int)$time->format("m");
 		$today = ($year % 16) << 4 | $month;
 
 		$output = $output.pack("C", $today);
@@ -77,9 +67,8 @@
 			// this is the worst thing.
 			$result = array();
 			for ($i = 0; sizeof($result) < 10; $i++) {
-				$stmt = $db->prepare("select * from amo_ranking where valid = 1 and game_region = ? order by points, money desc limit 1 offset ?");
-				$game_region = getCurrentGameRegion();
-				$stmt->bind_param("si", $game_region, $i);
+				$stmt = $db->prepare("select * from amo_ranking where valid = 1 order by points, money desc limit 1 offset ?");
+				$stmt->bind_param("i", $i);
 				$stmt->execute();
 				$result_i = fancy_get_result($stmt);
 				if (sizeof($result_i) == 0) {
@@ -99,15 +88,12 @@
 				}
 			}
 		} else {
-			$year = date("Y", time() + 32400);
-			$month = date("m", time() + 32400);
-			if ($month == 1) {
-				$timestamp = ($year-1)."-12-31 15:00:00";
-			} else {
-				$timestamp = sprintf("%04d-%02d-%02d 15:00:00", $year, $month-1, cal_days_in_month(CAL_GREGORIAN, $month-1, $year));
-			}
+			$time = date_create_immutable_from_format("j,u", "1,0", timezone_open("+0900"));
+			$year = (int)$time->format("Y");
+			$month = (int)$time->format("m");
+			$timestamp = $time->setTimezone(timezone_open(date_default_timezone_get()))->format("Y-m-d H:i:s");
 			if (($today >> 4) == ($year % 16) && ($today & 0xF) == $month) {
-				$stmt = $db->prepare("select * from amo_ranking where valid = 1 and timestamp >= ? and game_region = ? order by points, money desc limit 10");
+				$stmt = $db->prepare("select * from amo_ranking where valid = 1 and timestamp >= ? order by points, money desc limit 10");
 				$stmt->bind_param("s", $timestamp);
 			} else {
 				if ($month == 1) {
@@ -120,12 +106,10 @@
 					http_response_code(400);
 					return;
 				}
-				if ($month == 1) {
-					$timestamp2 = ($year-1)."-12-31 15:00:00";
-				} else {
-					$timestamp2 = sprintf("%04d-%02d-%02d 15:00:00", $year, $month-1, cal_days_in_month(CAL_GREGORIAN, $month-1, $year));
-				}
-				$stmt = $db->prepare("select * from amo_ranking where valid = 1 and timestamp >= ? and timestamp < ? and game_region = ? order by points, money desc limit 10");
+				$timestamp2 = date_create_immutable($year."-".$month, timezone_open("+0900"))
+					->setTimezone(timezone_open(date_default_timezone_get()))
+					->format("Y-m-d H:i:s");
+				$stmt = $db->prepare("select * from amo_ranking where valid = 1 and timestamp >= ? and timestamp < ? order by points, money desc limit 10");
 				$stmt->bind_param("ss", $timestamp2, $timestamp);
 			}
 			$stmt->execute();
@@ -137,20 +121,14 @@
 			echo makeRankingEntry($i + 1, $result[$i]);
 		}
 
-		$stmt = $db->prepare("delete ignore from amo_ranking where valid = 0 and name = ? and email = ? and game_region = ?");
-		$game_region = getCurrentGameRegion();
-		$stmt->bind_param("sss", $name, $email, $game_region);
-		$stmt->execute();
-
 		if ($today == 0) {
-			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and game_region = ? order by points, money desc limit 1");
-			$game_region = getCurrentGameRegion();
-		$stmt->bind_param("sss", $name, $email, $game_region);
+			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? order by points, money desc limit 1");
+			$stmt->bind_param("ss", $name, $email);
 		} else if (isset($timestamp2)) {
-			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and timestamp >= ? and game_region = ? and timestamp < ? and game_region = ?");
+			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and timestamp >= ? and timestamp < ?");
 			$stmt->bind_param("ssss", $name, $email, $timestamp2, $timestamp);
 		} else {
-			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and timestamp >= ? and game_region = ?");
+			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and timestamp >= ?");
 			$stmt->bind_param("sss", $name, $email, $timestamp);
 		}
 		$stmt->execute();
@@ -160,16 +138,13 @@
 		if (sizeof($result) != 0) {
 			if ($today == 0) {
 				$stmt = $db->prepare("select count(distinct acc_id, name, gender, age, state) as `rank` from amo_ranking where valid = 1 and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?))))");
-				$game_region = getCurrentGameRegion();
-				$stmt->bind_param("siiiii", $game_region, $result[0]["points"], $result[0]["points"], $result[0]["money"], $result[0]["money"], $result[0]["id"]);
+				$stmt->bind_param("iiiii", $result[0]["points"], $result[0]["points"], $result[0]["money"], $result[0]["money"], $result[0]["id"]);
 			} else if (isset($timestamp2)) {
 				$stmt = $db->prepare("select count(*) as `rank` from amo_ranking where valid = 1 and timestamp >= ? and timestamp < ? and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?))))");
-				$game_region = getCurrentGameRegion();
-				$stmt->bind_param("sssiiiii", $game_region, $timestamp2, $timestamp, $result[0]["points"], $result[0]["points"], $result[0]["money"], $result[0]["money"], $result[0]["id"]);
+				$stmt->bind_param("ssiiiii", $timestamp2, $timestamp, $result[0]["points"], $result[0]["points"], $result[0]["money"], $result[0]["money"], $result[0]["id"]);
 			} else {
 				$stmt = $db->prepare("select count(*) as `rank` from amo_ranking where valid = 1 and timestamp >= ? and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?))))");
-				$game_region = getCurrentGameRegion();
-				$stmt->bind_param("ssiiiii", $game_region, $timestamp, $result[0]["points"], $result[0]["points"], $result[0]["money"], $result[0]["money"], $result[0]["id"]);
+				$stmt->bind_param("siiiii", $timestamp, $result[0]["points"], $result[0]["points"], $result[0]["money"], $result[0]["money"], $result[0]["id"]);
 			}
 			$stmt->execute();
 			$rank = fancy_get_result($stmt)[0]["rank"];

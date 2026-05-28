@@ -24,8 +24,11 @@
 		http_response_code(500);
 		return;
 	}
-$stmt = $db->prepare("select id from amo_ranking where acc_id = ? and points = ? and money = ? order by id desc limit 1");
-	$stmt->bind_param("iii", $_SESSION['userId'], $points, $money);
+
+	$config = getConfig();
+	$valid = !empty($config["amoj_regist"]);
+	$stmt = $db->prepare("select id from amo_ranking where valid = ? and acc_id = ? and points = ? and money = ? and game_region = ? order by id desc limit 1");
+	$stmt->bind_param("iiiis", $valid, $_SESSION['userId'], $points, $money, $game_region);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
 	if (sizeof($result) == 0) {
@@ -33,17 +36,14 @@ $stmt = $db->prepare("select id from amo_ranking where acc_id = ? and points = ?
 		return;
 	}
 
-	$stmt = $db->prepare("update amo_ranking set valid = 1 where id = ?");
-	$stmt->bind_param("i", $result[0]["id"]);
-	$stmt->execute();
-
-	$year = date("Y", time() + 32400);
-	$month = date("m", time() + 32400);
-	if ($month == 1) {
-		$timestamp = ($year-1)."-12-31 15:00:00";
-	} else {
-		$timestamp = sprintf("%04d-%02d-%02d 15:00:00", $year, $month-1, cal_days_in_month(CAL_GREGORIAN, $month-1, $year));
+	if (!$valid) {
+		$stmt = $db->prepare("update amo_ranking set valid = 1 where id = ?");
+		$stmt->bind_param("i", $result[0]["id"]);
+		$stmt->execute();
 	}
+
+	$timestamp = date_create_immutable_from_format("j,u", "1,0", timezone_open("+0900"))
+		->setTimezone(timezone_open(date_default_timezone_get()))->format("Y-m-d H:i:s");
 
 	$stmt = $db->prepare("select count(*) from amo_ranking where valid = 1 and timestamp >= ? and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?)))) group by acc_id, name, gender, age, state");
 	$stmt->bind_param("siiiii", $timestamp, $points, $points, $money, $money, $result[0]["id"]);

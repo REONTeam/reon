@@ -45,7 +45,8 @@
 		http_response_code(500);
 		return;
 	}
-$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
+
+	$stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
 	$stmt->bind_param("i", $_SESSION['userId']);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
@@ -55,15 +56,12 @@ $stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
 		return;
 	}
 
-	$year = date("Y", time() + 32400);
-	$month = date("m", time() + 32400);
+	$time = date_create_immutable_from_format("j,u", "1,0", timezone_open("+0900"));
+	$year = $time->format("Y");
+	$month = $time->format("m");
 
 	if ($today == 0) {
-		if ($month == 1) {
-			$timestamp = ($year-1)."-12-31 15:00:00";
-		else {
-			$timestamp = sprintf("%04d-%02d-%02d 15:00:00", $year, $month-1, cal_days_in_month(CAL_GREGORIAN, $month-1, $year));
-		}
+		$timestamp = $time->setTimezone(timezone_open(date_default_timezone_get()))->format("Y-m-d H:i:s");
 		$db->begin_transaction();
 		try {
 			$stmt = $db->prepare("delete ignore from amo_ranking where (valid = 0 or timestamp >= ?) and acc_id = ? and name = ? and gender = ? and age = ? and state = ? and game_region = ?");
@@ -90,11 +88,11 @@ $stmt = $db->prepare("select dion_email_local from sys_users where id = ?");
 		if (empty($config["amoj_regist"])) {
 			return;
 		}
-		$stmt = $db->prepare("update amo_ranking set valid = 1 where valid = 0 and acc_id = ? and name = ? and points = ? and money = ? and gender = ? and age = ? and state = ?");
+		$stmt = $db->prepare("update amo_ranking set valid = 1 where acc_id = ? and name = ? and points = ? and money = ? and gender = ? and age = ? and state = ? and game_region = ?");
 		$stmt->bind_param("isiiiiis", $_SESSION['userId'], $name, $points, $money, $gender, $age, $state, $game_region);
 		$stmt->execute();
 		if ($config["amoj_regist"][0] === "h") {
-			http_response_code(intval(substr($config["amoj_regist"], 1)));
+			http_response_code(substr($config["amoj_regist"], 1));
 		} else if ($config["amoj_regist"][0] === "g") {
 			header("Gb-Status: ".substr($config["amoj_regist"], 1));
 		}
