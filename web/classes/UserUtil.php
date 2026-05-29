@@ -229,6 +229,15 @@
 			for ($i = 0; $i < 8; $i++) {
 				$password .= $allowed_chars[random_int(0, strlen($allowed_chars) - 1)];
 			}
+			if (trim($password, substr($allowed_chars, 0, 10)) === "") {
+				// all digits, add a random letter.
+				// this has less than a .00005% chance of happening, but hey.
+				$password[random_int(0, 7)] = $allowed_chars[random_int(10, strlen($allowed_chars) - 1)];
+			} elseif (trim($password, substr($allowed_chars, 10)) === "") {
+				// all letters, add a random digit.
+				// this has nearly a 24.5% chance of happening.
+				$password[random_int(0, 7)] = $allowed_chars[random_int(0, 9)];
+			}
 			return $password;
 		}
 		
