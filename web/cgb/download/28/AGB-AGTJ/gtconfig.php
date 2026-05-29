@@ -41,7 +41,7 @@ $ghosts_avail = $excrs ? 0x7F : 0x3F;
 	echo pack("C", $excrs);
 	$cksum = $cksum + $excrs;
 
-	$ranking_prefix = "http://gameboy.datacenter.ne.jp/cgb/download?name=/28/AGB-AGTJ/";
+	$ranking_prefix = "http://gameboy.datacenter.ne.jp/cgb/download?name=/28/AGB-AGTJ/0.";
 	echo $ranking_prefix;
 	$i = 0;
 	while ($i < strlen($ranking_prefix)) {

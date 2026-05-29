@@ -124,7 +124,7 @@
 			$date = max($date, $result[$i]["date"]);
 		}
 
-		$time = date_create_immutable($date)->setTimezone("+0900");
+		$time = date_create_immutable($date)->setTimezone(get_user_timezone());
 		echo pack("v", $time->format("Y"));
 		echo pack("C", $time->format("m"));
 		echo pack("C", $time->format("d"));
