@@ -62,6 +62,12 @@
 			return;
 		}
 
+		$game_region = getCurrentGameRegion();
+		if ($game_region === null) {
+			http_response_code(500);
+			return;
+		}
+
 		$db = connectMySQL();
 		if ($today == 0) {
 			// this is the worst thing.
@@ -79,7 +85,8 @@
 						&& $result_i[0]["name"] === $result[$j]["name"]
 						&& $result_i[0]["gender"] == $result[$j]["gender"]
 						&& $result_i[0]["age"] == $result[$j]["age"]
-						&& $result_i[0]["state"] == $result[$j]["state"]) {
+						&& $result_i[0]["state"] == $result[$j]["state"]
+						&& $result_i[0]["game_region"] == $result[$j]["game_region"]) {
 						break;
 					}
 				}
@@ -122,14 +129,14 @@
 		}
 
 		if ($today == 0) {
-			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? order by points, money desc limit 1");
-			$stmt->bind_param("ss", $name, $email);
+			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and game_region = ? order by points, money desc limit 1");
+			$stmt->bind_param("sss", $name, $email, $game_region);
 		} else if (isset($timestamp2)) {
-			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and timestamp >= ? and timestamp < ?");
-			$stmt->bind_param("ssss", $name, $email, $timestamp2, $timestamp);
+			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and game_region = ? and timestamp >= ? and timestamp < ?");
+			$stmt->bind_param("sssss", $name, $email, $timestamp2, $timestamp, $game_region);
 		} else {
-			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and timestamp >= ?");
-			$stmt->bind_param("sss", $name, $email, $timestamp);
+			$stmt = $db->prepare("select * from amo_ranking where name = ? and email = ? and game_region = ? and timestamp >= ?");
+			$stmt->bind_param("ssss", $name, $email, $timestamp, $game_region);
 		}
 		$stmt->execute();
 		$result = fancy_get_result($stmt);
@@ -137,7 +144,7 @@
 		echo pack("n", sizeof($result));
 		if (sizeof($result) != 0) {
 			if ($today == 0) {
-				$stmt = $db->prepare("select count(distinct acc_id, name, gender, age, state) as `rank` from amo_ranking where valid = 1 and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?))))");
+				$stmt = $db->prepare("select count(distinct acc_id, name, gender, age, state, game_region) as `rank` from amo_ranking where valid = 1 and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?))))");
 				$stmt->bind_param("iiiii", $result[0]["points"], $result[0]["points"], $result[0]["money"], $result[0]["money"], $result[0]["id"]);
 			} else if (isset($timestamp2)) {
 				$stmt = $db->prepare("select count(*) as `rank` from amo_ranking where valid = 1 and timestamp >= ? and timestamp < ? and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?))))");

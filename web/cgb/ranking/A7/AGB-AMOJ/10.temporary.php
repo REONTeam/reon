@@ -45,7 +45,7 @@
 	$timestamp = date_create_immutable_from_format("j,u", "1,0", timezone_open("+0900"))
 		->setTimezone(timezone_open(date_default_timezone_get()))->format("Y-m-d H:i:s");
 
-	$stmt = $db->prepare("select count(*) from amo_ranking where valid = 1 and timestamp >= ? and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?)))) group by acc_id, name, gender, age, state");
+	$stmt = $db->prepare("select count(*) from amo_ranking where valid = 1 and timestamp >= ? and (points > ? or (points = ? and (money > ? or (money = ? and id <= ?)))) group by acc_id, name, gender, age, state, game_region");
 	$stmt->bind_param("siiiii", $timestamp, $points, $points, $money, $money, $result[0]["id"]);
 	$stmt->execute();
 	$result = fancy_get_result($stmt);
