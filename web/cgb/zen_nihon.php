@@ -73,7 +73,7 @@
 			return;
 		}
 
-		$time = date_create_immutable($result[0]["dl_ok"])->setTimezone("+0900");
+		$time = date_create_immutable($result[0]["dl_ok"])->setTimezone(timezone_open("+0900"));
 		echo pack("v", $time->format("Y"));
 		echo pack("C", $time->format("m"));
 		echo pack("C", $time->format("d"));
