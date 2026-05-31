@@ -115,23 +115,6 @@ async function doExchange() {
         await connection.execute("DELETE FROM " + table + " WHERE id = ?", [a["id"]]);
         await connection.execute("DELETE FROM " + table + " WHERE id = ?", [b["id"]]);
       }
-    },
-        raw: "To: " + trades[i]["email"] + "\r\n" + trades[i-1]["message"],
-      });
-      await mailTransport.sendMail({
-        envelope: {
-          from: trades[i]["email"],
-          to: trades[i-1]["email"],
-        },
-        raw: "To: " + trades[i-1]["email"] + "\r\n" + trades[i]["message"],
-      });
-
-      await connection.execute(
-        "DELETE FROM " + table + " WHERE id = ?", [trades[i-1]["id"]]
-      );
-      await connection.execute(
-        "DELETE FROM " + table + " WHERE id = ?", [trades[i]["id"]]
-      );
     }
 
     await connection.commit();
