@@ -45,8 +45,6 @@ wrong-password: Mot de passe incorrect
 link-invalid-expired: Soit ce lien est invalide, soit il a expiré.
 invalid-trade-setting: Réglage invalide pour le pool des régions.
 invalid-pokemon-news-setting: Préférence d’actualités Pokémon invalide.
-invalid-time-zone: Fuseau horaire invalide.
-default-time-zone: UTC+9 (défaut)
 auth:
   login-to-reon: Se connecter à votre compte REON
   invalid-email-pass: Addresse ou mot de passe incorrect
@@ -85,7 +83,7 @@ account:
   email-changed-success: Votre addresse courriel a été changé avec succès.
   change-your-password: Changer votre mot de passe
   password-changed-success: Votre mot de passe a été changé avec succès.
-  pokemon-crystal-settings: Autres paramètres
+  pokemon-crystal-settings: Paramètres Pokémon Cristal
   trade-corner-region-allowlist: 'Coin Troc : Préférences d''Échange International'
   trade-region-allowlist-blurb: Selectionnez les régions avec qui vous voulez échanger
     au Coin Troc. N'import quel Pokémon que vous recevez sera d'en un. « Régions avec
@@ -102,9 +100,6 @@ account:
     officielles seront utilisées à la place.
   pokemon-news-custom-opt-in-off: Actualités Pokémon officielles uniquement
   pokemon-news-custom-opt-in-on: Actualités Pokémon personnalisées lorsqu’elles sont disponibles
-  time-zone: Préférence de fuseau horaire
-  time-zone-blurb: Le fuseau horaire à utiliser pour les horodatages dans les jeux.
-    Notez bien que quelques horodatages peut s'afficher en UTC+9, en fonction du jeu et du contexte.
 index:
   what-is-reon: Qu'est-ce c'est REON?
   reon-description: REON est quelque chose.

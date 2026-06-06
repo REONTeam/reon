@@ -147,6 +147,10 @@
   padding-left: 40px !important;
 }
 
+.exchange-page .trade-search-chip-list {
+  display: contents !important;
+}
+
 .exchange-page .trade-search-chip,
 .exchange-page .trade-search-leading-text,
 .exchange-page .trade-search-chip-label,
@@ -156,10 +160,39 @@
 .exchange-page .trade-search-tag-pill {
   font-size: 16px !important;
   line-height: 16px !important;
+  -webkit-font-smoothing: none !important;
+  -moz-osx-font-smoothing: auto !important;
+  font-smooth: never !important;
+  text-rendering: optimizeSpeed !important;
 }
 
 .exchange-page .trade-search-chip {
   padding: 4px !important;
+  max-width: 100% !important;
+}
+
+.exchange-page .trade-search-chip-value {
+  max-width: min(48ch, 100%) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.exchange-page .trade-search-chip-value-composing {
+  overflow: hidden !important;
+}
+
+.exchange-page .trade-search-tail-input.trade-search-tail-input-inside-chip {
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  white-space: nowrap !important;
+}
+
+.exchange-page .trade-search-chip,
+.exchange-page .trade-search-tag-pill {
+  flex: 0 0 auto !important;
+  left: var(--trade-search-pixel-nudge-x, 0) !important;
+  top: var(--trade-search-pixel-nudge-y, 0) !important;
 }
 
 .exchange-page .trade-search-wrap::before,

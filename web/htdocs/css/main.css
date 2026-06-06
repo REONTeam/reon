@@ -225,6 +225,7 @@ header.navbar #localeDropdownMenu .dropdown-item {
   overflow: hidden;
   position: relative;
   isolation: isolate;
+  max-width: 100%;
   -webkit-mask:
     linear-gradient(#000 0 0) center / calc(100% - var(--tag-cut2)) 100% no-repeat,
     linear-gradient(#000 0 0) center / 100% calc(100% - var(--tag-cut2)) no-repeat;
@@ -273,6 +274,9 @@ header.navbar #localeDropdownMenu .dropdown-item {
   color: #000;
   padding: 1px 6px;
   min-width: 2ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .trade-search-chip-remove {
@@ -319,6 +323,8 @@ header.navbar #localeDropdownMenu .dropdown-item {
   color: #000;
   line-height: 1;
   caret-color: #000;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .trade-search-tag-pills {

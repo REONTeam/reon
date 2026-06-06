@@ -117,15 +117,17 @@ const defaultNewsConfig = {
    * Map game_region letters to encoding table names for message_decode.
    * The requirement is:
    *   - jp table for Japanese
-   *   - en table for any other language
+   *   - en table for English family (E/P/U)
+   *   - fr_de table for French/German
+   *   - es_it table for Spanish/Italian
    */
   region_message_encoding: {
     j: "jp",
     e: "en",
-    f: "en",
-    d: "en",
-    s: "en",
-    i: "en",
+    f: "fr_de",
+    d: "fr_de",
+    s: "es_it",
+    i: "es_it",
     p: "en",
     u: "en",
   },
@@ -1230,6 +1232,7 @@ function encodeMessageText(message, tableName, encoding, maxBytes) {
   let normalizedSource = String(
     message === undefined || message === null ? "" : message
   ).normalize("NFC");
+  normalizedSource = repairMojibakeString(normalizedSource).normalize("NFC");
   // Normalize non-ASCII spacing used in some schedule messages.
   normalizedSource = normalizedSource.replace(/\u3000/g, " ");
   // In non-J language content, '#' is often used as a shorthand token for POKé.
@@ -1250,7 +1253,7 @@ function encodeMessageText(message, tableName, encoding, maxBytes) {
   while (i < src.length && out.length < limit) {
     let matched = false;
     for (const entry of encoder.tokens) {
-      if (i + entry.len > src.length) continue;
+      if (i + entry.len > src.length || out.length >= limit) continue;
       const candidate = src.slice(i, i + entry.len).join("");
       if (candidate === entry.token) {
         out.push(entry.byteValue);
@@ -1279,6 +1282,7 @@ function buildScheduledMessageField(newsBinary, plainMessage, tableName, encodin
     end++;
   }
   if (end <= start) {
+    // Fallback to Crystal's 0x21-byte message field footprint.
     end = Math.min(start + 0x21, newsBinary.length);
   }
   if (end <= start) return null;
@@ -1291,6 +1295,31 @@ function buildScheduledMessageField(newsBinary, plainMessage, tableName, encodin
     messageBuf,
     messageDecode: decoded,
   };
+}
+
+function resolveMessageEncodingTableForRegion(newsCfg, region) {
+  const normalizedRegion = String(region || "").toLowerCase();
+  const sourceDefault = {
+    j: "jp",
+    e: "en",
+    p: "en",
+    u: "en",
+    f: "fr_de",
+    d: "fr_de",
+    s: "es_it",
+    i: "es_it",
+  };
+  const fallback = sourceDefault[normalizedRegion] || "en";
+  const configured =
+    newsCfg &&
+    newsCfg.region_message_encoding &&
+    typeof newsCfg.region_message_encoding === "object"
+      ? newsCfg.region_message_encoding[normalizedRegion]
+      : null;
+  if (typeof configured === "string" && configured.trim().length > 0) {
+    return configured.trim();
+  }
+  return fallback;
 }
 
 /**
@@ -1959,7 +1988,7 @@ async function processPokemonNewsCycle(
     const binData = fs.readFileSync(binPath);
 
     // 1) message + message_decode
-    const encTableName = newsCfg.region_message_encoding[region] || "en";
+    const encTableName = resolveMessageEncodingTableForRegion(newsCfg, region);
     if (chosenMessage === null) {
       console.warn(
         `[news:${trackLabel}] configured article ${chosenArticleId} for region=${region} is missing schedule.message; skipping`

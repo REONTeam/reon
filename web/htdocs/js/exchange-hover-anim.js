@@ -163,6 +163,7 @@
   var regionFilterSelect = null;
   var noResultsNode = null;
   var uiLocale = "en";
+  var searchTagPixelSnapFrame = 0;
 
   function normalizeSearchText(value) {
     var source = String(value || "")
@@ -579,6 +580,7 @@
       }
       button.textContent = getTagDisplayLabel(field);
     }
+    scheduleSearchTagPixelSnap();
   }
 
   function addLocalizedAliasesFromUi() {
@@ -650,6 +652,89 @@
       return "";
     }
     return key.charAt(0).toUpperCase() + key.slice(1);
+  }
+
+  function syncTagPillAvailability() {
+    var root = searchTagPills || document.getElementById("trade-search-tag-pills");
+    if (!root) {
+      return;
+    }
+
+    var activeFields = Object.create(null);
+    for (var i = 0; i < tokenizedSearchChips.length; i++) {
+      var chip = tokenizedSearchChips[i];
+      if (!chip || !chip.field) {
+        continue;
+      }
+      activeFields[String(chip.field).toLowerCase()] = true;
+    }
+
+    var pills = root.querySelectorAll(".trade-search-tag-pill[data-tag-field]");
+    for (var p = 0; p < pills.length; p++) {
+      var pill = pills[p];
+      var field = String(pill.getAttribute("data-tag-field") || "").toLowerCase();
+      if (!field) {
+        continue;
+      }
+      var isActive = !!activeFields[field];
+      pill.style.display = isActive ? "none" : "";
+      pill.disabled = isActive;
+      pill.setAttribute("aria-hidden", isActive ? "true" : "false");
+    }
+    scheduleSearchTagPixelSnap();
+  }
+
+  function snapSearchTagPixels() {
+    searchTagPixelSnapFrame = 0;
+    var nodes = [];
+    var collectNodes = function (root, selector) {
+      if (!root) {
+        return;
+      }
+      var matches = root.querySelectorAll(selector);
+      for (var i = 0; i < matches.length; i++) {
+        nodes.push(matches[i]);
+      }
+    };
+
+    collectNodes(searchChipList, ".trade-search-chip");
+    collectNodes(searchTagPills, ".trade-search-tag-pill");
+
+    if (!nodes.length) {
+      return;
+    }
+
+    for (var r = 0; r < nodes.length; r++) {
+      nodes[r].style.removeProperty("--trade-search-pixel-nudge-x");
+      nodes[r].style.removeProperty("--trade-search-pixel-nudge-y");
+    }
+
+    var dpr = window.devicePixelRatio || 1;
+    for (var n = 0; n < nodes.length; n++) {
+      var node = nodes[n];
+      if (!node.offsetParent) {
+        continue;
+      }
+      var rect = node.getBoundingClientRect();
+      var nudgeX = (Math.round(rect.left * dpr) - rect.left * dpr) / dpr;
+      var nudgeY = (Math.round(rect.top * dpr) - rect.top * dpr) / dpr;
+      if (Math.abs(nudgeX) > 0.01) {
+        node.style.setProperty("--trade-search-pixel-nudge-x", nudgeX.toFixed(3) + "px");
+      }
+      if (Math.abs(nudgeY) > 0.01) {
+        node.style.setProperty("--trade-search-pixel-nudge-y", nudgeY.toFixed(3) + "px");
+      }
+    }
+  }
+
+  function scheduleSearchTagPixelSnap() {
+    if (typeof window === "undefined" || !window.requestAnimationFrame) {
+      return;
+    }
+    if (searchTagPixelSnapFrame) {
+      return;
+    }
+    searchTagPixelSnapFrame = window.requestAnimationFrame(snapSearchTagPixels);
   }
 
   function resolveTagFieldFromPrefix(prefixText) {
@@ -757,6 +842,7 @@
       var chipNode = document.createElement("span");
       chipNode.className = "trade-search-chip";
       chipNode.setAttribute("data-chip-index", String(i));
+      chipNode.setAttribute("title", chip.label + (chip.value ? " " + chip.value : ""));
       if (chip.composing) {
         chipNode.classList.add("trade-search-chip-composing");
       }
@@ -825,6 +911,7 @@
     }
 
     updateTailInputInlineWidth();
+    syncTagPillAvailability();
   }
 
   function updateTailInputInlineWidth() {
@@ -838,6 +925,46 @@
     var chars = String(searchTailInput.value || "").length;
     var widthCh = Math.max(1, chars);
     searchTailInput.style.width = widthCh + "ch";
+    capActiveTagInputWidth();
+  }
+
+  function capActiveTagInputWidth() {
+    if (
+      !searchTailInput ||
+      !searchTailInput.classList.contains("trade-search-tail-input-inside-chip")
+    ) {
+      return;
+    }
+    var chipNode = searchTailInput.closest ? searchTailInput.closest(".trade-search-chip") : null;
+    if (!chipNode || !searchTokenizedRoot) {
+      searchTailInput.style.removeProperty("max-width");
+      return;
+    }
+
+    var valueNode = searchTailInput.parentNode;
+    var labelNode = chipNode.querySelector(".trade-search-chip-label");
+    var removeNode = chipNode.querySelector(".trade-search-chip-remove");
+    var rootRect = searchTokenizedRoot.getBoundingClientRect();
+    var labelWidth = labelNode ? labelNode.getBoundingClientRect().width : 0;
+    var removeWidth = removeNode ? removeNode.getBoundingClientRect().width : 0;
+    var chipStyle = window.getComputedStyle ? window.getComputedStyle(chipNode) : null;
+    var rootStyle = window.getComputedStyle ? window.getComputedStyle(searchTokenizedRoot) : null;
+    var chipPadding =
+      (chipStyle ? parseFloat(chipStyle.paddingLeft) || 0 : 0) +
+      (chipStyle ? parseFloat(chipStyle.paddingRight) || 0 : 0);
+    var rootPadding =
+      (rootStyle ? parseFloat(rootStyle.paddingLeft) || 0 : 0) +
+      (rootStyle ? parseFloat(rootStyle.paddingRight) || 0 : 0);
+    var gap = rootStyle ? parseFloat(rootStyle.columnGap || rootStyle.gap) || 0 : 0;
+    var available = Math.max(
+      24,
+      Math.floor(rootRect.width - rootPadding - chipPadding - labelWidth - removeWidth - gap)
+    );
+
+    searchTailInput.style.maxWidth = available + "px";
+    if (valueNode && valueNode.style) {
+      valueNode.style.maxWidth = available + "px";
+    }
   }
 
   function buildTokenizedSearchQuery() {
@@ -931,7 +1058,6 @@
 
   function beginActiveTokenizedChip(field, presetRawValue, preserveExistingTailText) {
     var resolvedField = String(field || "").toLowerCase();
-    var priorChipCount = tokenizedSearchChips.length;
     if (!resolvedField) {
       return false;
     }
@@ -940,20 +1066,22 @@
       finalizeActiveTokenizedChip();
     }
 
+    var priorChipCount = tokenizedSearchChips.length;
+    if (searchTailInput && preserveExistingTailText) {
+      var currentTail = String(searchTailInput.value || "").trim();
+      if (currentTail) {
+        pushDeferredGeneralSegment(currentTail, priorChipCount);
+      }
+      searchTailInput.value = "";
+    }
+
     var added = pushTokenizedSearchChip(resolvedField, "", true, true);
     if (!added) {
       return false;
     }
     activeTokenizedChipIndex = tokenizedSearchChips.length - 1;
-    renderTokenizedSearchChips();
 
     if (searchTailInput) {
-      if (preserveExistingTailText) {
-        var currentTail = String(searchTailInput.value || "").trim();
-        if (currentTail) {
-          pushDeferredGeneralSegment(currentTail, priorChipCount);
-        }
-      }
       searchTailInput.value = String(presetRawValue || "");
       syncActiveTokenizedChipFromTail();
       renderTokenizedSearchChips();
@@ -2041,12 +2169,14 @@
   function applyTokenizedSearchState() {
     syncActiveTokenizedChipFromTail();
     renderTokenizedSearchChips();
+    syncTagPillAvailability();
     syncTokenizedSearchToHiddenInput();
     applySearchFilter();
   }
 
   function applyTokenizedSearchStateWithoutRender() {
     syncActiveTokenizedChipFromTail();
+    syncTagPillAvailability();
     updateTailInputInlineWidth();
     syncTokenizedSearchToHiddenInput();
     applySearchFilter();
@@ -2056,17 +2186,51 @@
     if (!searchTagPills) {
       return;
     }
-    searchTagPills.addEventListener("click", function (event) {
-      var target = event.target;
-      if (!target || !target.classList || !target.classList.contains("trade-search-tag-pill")) {
+
+    var resolveTagPillTarget = function (eventTarget) {
+      if (!eventTarget) {
+        return null;
+      }
+      var target = eventTarget.closest
+        ? eventTarget.closest(".trade-search-tag-pill")
+        : eventTarget;
+      if (
+        !target ||
+        !target.classList ||
+        !target.classList.contains("trade-search-tag-pill") ||
+        !searchTagPills.contains(target)
+      ) {
+        return null;
+      }
+      return target;
+    };
+
+    var activateTagPill = function (event) {
+      var target = resolveTagPillTarget(event.target);
+      if (!target || target.disabled) {
         return;
       }
       var field = String(target.getAttribute("data-tag-field") || "").toLowerCase();
       if (!field) {
         return;
       }
+      event.preventDefault();
+      event.stopPropagation();
       beginActiveTokenizedChip(field, "", true);
       applyTokenizedSearchStateWithoutRender();
+    };
+
+    var pointerEventName =
+      typeof window !== "undefined" && "PointerEvent" in window
+        ? "pointerdown"
+        : "mousedown";
+    searchTagPills.addEventListener(pointerEventName, activateTagPill);
+    searchTagPills.addEventListener("click", function (event) {
+      if (event.detail > 0) {
+        event.preventDefault();
+        return;
+      }
+      activateTagPill(event);
     });
   }
 
@@ -2161,6 +2325,7 @@
       initTokenizedSearchFromExistingValue();
       bindTokenChipEvents();
       bindTagPillEvents();
+      syncTagPillAvailability();
 
       if (searchTokenizedRoot) {
         searchTokenizedRoot.addEventListener("mousedown", function (event) {
@@ -2181,8 +2346,16 @@
         });
       }
 
+      window.addEventListener("resize", scheduleSearchTagPixelSnap);
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(scheduleSearchTagPixelSnap);
+      }
+
       document.addEventListener("mousedown", function (event) {
         if (activeTokenizedChipIndex < 0) {
+          return;
+        }
+        if (searchTagPills && searchTagPills.contains(event.target)) {
           return;
         }
         if (!searchTokenizedRoot || searchTokenizedRoot.contains(event.target)) {

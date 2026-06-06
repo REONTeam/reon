@@ -3390,12 +3390,34 @@ function toHexString(value, byteLength) {
   return s;
 }
 
+function resolveCrystalGameTitleByRegion(regionCode) {
+  const normalized = String(regionCode || "").toLowerCase();
+  if (normalized === "j") {
+    return "POCKET MONSTERS";
+  }
+  switch (normalized) {
+    case "f":
+      return "POCKET MONSTERS FR";
+    case "d":
+      return "POCKET MONSTERS DE";
+    case "s":
+      return "POCKET MONSTERS ES";
+    case "i":
+      return "POCKET MONSTERS IT";
+    case "e":
+    case "p":
+    case "u":
+    default:
+      return "POCKET MONSTERS EN";
+  }
+}
+
 // ------------------------------
 // Email + main exchange logic
 // ------------------------------
 
 async function sendExchangeSuccessEmail(
-  region,
+  receivingRegion,
   emailAddress,
   trainerId,
   secretId,
@@ -3415,7 +3437,9 @@ async function sendExchangeSuccessEmail(
   if (!Buffer.isBuffer(mail))
     mail = Buffer.from(mail || "", "binary");
 
-  const regionLower = String(region || "e").toLowerCase();
+  // Header language/title is based on the receiving game's region.
+  const regionLower = String(receivingRegion || "e").toLowerCase();
+  const gameTitle = resolveCrystalGameTitleByRegion(regionLower);
   let r;
   switch (regionLower) {
     case "p":
@@ -3456,7 +3480,7 @@ async function sendExchangeSuccessEmail(
     "MIME-Version: 1.0\r\n" +
     "From: MISSINGNO.\r\n" +
     "Subject: Trade\r\n" +
-    "X-Game-title: POCKET MONSTERS\r\n" +
+    `X-Game-title: ${gameTitle}\r\n` +
     `X-Game-code: CGB-BXT${r}-00\r\n` +
     `X-Game-result: 1 ${tidHex}${sidHex} ${offerGenderHex}${offerSpeciesHex} ${requestGenderHex}${requestSpeciesHex} 1\r\n` +
     "X-GBmail-type: exclusive\r\n" +
