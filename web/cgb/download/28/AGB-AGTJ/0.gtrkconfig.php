@@ -12,7 +12,7 @@
 		return;
 	}
 
-	$rankings_avail = $excrs ? 0x7F : 0x3F;
+	$rankings_avail = 0x7F;
 	for ($i = 0; $i < ($excrs ? 7 : 6); $i++) {
 		if ($i != 6) {
 			$j = $i + 9;
