@@ -19,7 +19,8 @@
 		http_response_code(500);
 		return;
 	}
-$ghosts_avail = $excrs ? 0x7F : 0x3F;
+
+	$ghosts_avail = $excrs ? 0x7F : 0x3F;
 	for ($i = 0; $i < ($excrs ? 7 : 6); $i++) {
 		if ($i != 6) {
 			$j = $i + 9;
@@ -41,7 +42,7 @@ $ghosts_avail = $excrs ? 0x7F : 0x3F;
 	echo pack("C", $excrs);
 	$cksum = $cksum + $excrs;
 
-	$ranking_prefix = "http://gameboy.datacenter.ne.jp/cgb/download?name=/28/AGB-AGTJ/0.";
+	$ranking_prefix = "gameboy.datacenter.ne.jp/cgb/download?name=/28/AGB-AGTJ/0.";
 	echo $ranking_prefix;
 	$i = 0;
 	while ($i < strlen($ranking_prefix)) {

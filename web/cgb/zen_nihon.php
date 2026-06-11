@@ -154,7 +154,7 @@
 		}
 
 		$db = connectMySQL();
-		$stmt = $db->prepare("select * from agt_ghosts where dl_ok is not null and id = ? and game_region = ? limit 1")
+		$stmt = $db->prepare("select * from agt_ghosts where dl_ok is not null and id = ? and game_region = ? limit 1");
 		$game_region = getCurrentGameRegion();
 		$stmt->bind_param("is", $id, $game_region);
 		$result = fancy_get_result($stmt);
