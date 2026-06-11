@@ -152,6 +152,7 @@
 
             if ($pokerus_days != 0 || $pokerus_strain != 0) {
                 $pkm["pokerus"] = [ 
+                    "strain" => $pokerus_strain,
                     "days" => $pokerus_days,
                     "cured" => $pokerus_days == 0,
                 ];
