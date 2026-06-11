@@ -96,7 +96,8 @@
     >
     <div class="trade-warning{% if not trade.trade_warning_key %} trade-warning-empty{% endif %}">
         {% if trade.trade_warning_key %}
-            {{ trade.trade_warning_key|trans({'%game_id%': trade.trade_warning_game_id}) }}
+            {% set trade_warning_text = trade.trade_warning_key|trans({'%game_id%': trade.trade_warning_game_id}) %}
+            {{ trade_warning_text|replace({'⚠️': '!', '⚠': '!', 'âš ï¸': '!', 'âš ': '!'}) }}
         {% else %}
             &nbsp;
         {% endif %}

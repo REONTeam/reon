@@ -12,6 +12,9 @@ pokemon:
   item: ITEM
   trainer: OT
   wanted: GESUCHT
+  pokerus:
+    cured: "POK\u00C9RUS (GEHEILT)"
+    infected: "POK\u00C9RUS (INFIZIERT)"
   trade-warning-all-disabled: "⚠️ Dieser Nutzer hat internationale Tausche deaktiviert."
   trade-warning-only-own-game: "⚠️ Dieser Nutzer hat nur Tausche mit %game_id% aktiviert."
   trade-warning-no-japanese: "⚠️ Dieser Nutzer hat Tausche mit nicht-europäischen Sprachen deaktiviert."

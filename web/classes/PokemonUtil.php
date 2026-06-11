@@ -146,14 +146,17 @@
                 "name" => $this->getItemName($pkm["item"])
             ];
 
-            if ($pkm["pokerus"] == 0) {
-                $pkm["pokerus"] = null;
-            } else { 
+            $pokerus_byte = $pkm["pokerus"];
+            $pokerus_strain = ($pokerus_byte >> 4) & 0xF;
+            $pokerus_days = $pokerus_byte & 0xF;
+
+            if ($pokerus_days != 0 || $pokerus_strain != 0) {
                 $pkm["pokerus"] = [ 
-                    "strain" =>  $pkm["pokerus"] >> 4,
-                    "days" => $pkm["pokerus"] & 0xF,
-                    "cured" => $pkm["pokerus"] & 0xF == 0,
+                    "days" => $pokerus_days,
+                    "cured" => $pokerus_days == 0,
                 ];
+            } else {
+                $pkm["pokerus"] = null;
             }
 
             foreach(range(1,4) as $i) {

@@ -13,6 +13,9 @@ pokemon:
   item: OBJETOS
   trainer: EO
   wanted: SE BUSCA
+  pokerus:
+    cured: "POK\u00C9RUS (CURADO)"
+    infected: "POK\u00C9RUS (INFECTADO)"
   trade-warning-all-disabled: "⚠️ Este usuario ha desactivado los intercambios internacionales."
   trade-warning-only-own-game: "⚠️ Este usuario solo ha habilitado intercambios con %game_id%."
   trade-warning-no-japanese: "⚠️ Este usuario ha desactivado los intercambios con idiomas no europeos."

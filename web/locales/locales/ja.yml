@@ -9,6 +9,9 @@ locale:
 pokemon:
   shiny: 光る
   level: :L
+  pokerus:
+    cured: "\u30DD\u30B1\u30EB\u30B9 (\u6CBB\u7652)"
+    infected: "\u30DD\u30B1\u30EB\u30B9 (\u611F\u67D3)"
   trade-warning-all-disabled: "⚠️ このユーザーは国際交換を無効にしています"
   trade-warning-only-own-game: "⚠️ このユーザーは%game_id%との交換のみを有効にしています"
   trade-warning-no-japanese: "⚠️ このユーザーは非ヨーロッパ言語との交換を無効にしています"

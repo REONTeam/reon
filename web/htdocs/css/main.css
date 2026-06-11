@@ -945,6 +945,10 @@ header.navbar #localeDropdownMenu .dropdown-item {
 
 .crystal-trade .offer-pokerus-line .offer-pokerus-cured {
   color: #000;
+  display: block;
+  width: 100%;
+  line-height: 13px;
+  text-align: center;
 }
 
 .crystal-trade .offer-pokerus-line .offer-pokerus-infected {

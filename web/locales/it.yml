@@ -12,6 +12,9 @@ pokemon:
   item: STRUM.
   trainer: AO
   wanted: CHIESTO
+  pokerus:
+    cured: "POK\u00C9RUS (GUARITO)"
+    infected: "POK\u00C9RUS (INFETTO)"
   trade-warning-all-disabled: "⚠️ Questo utente ha disattivato gli scambi internazionali."
   trade-warning-only-own-game: "⚠️ Questo utente ha abilitato gli scambi solo con %game_id%."
   trade-warning-no-japanese: "⚠️ Questo utente ha disattivato gli scambi con lingue non europee."
