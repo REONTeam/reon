@@ -8,8 +8,8 @@
 		echo "\0";
 		$cksum = 0;
 	} else {
-		echo "\x10";
-		$cksum = 0x10;
+		echo "\x01";
+		$cksum = 1;
 	}
 
 	$db = connectMySQL();
