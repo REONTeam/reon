@@ -465,6 +465,74 @@ body.rankings-theme > main {
     overflow-x: visible !important;
   }
 
+  .exchange-page .trade-region-filter,
+  .save-converter-page .trade-region-filter,
+  .battle-tower-page .trade-region-filter,
+  .trainer-rankings-page .trade-region-filter,
+  .exchange-page .trade-region-filter option,
+  .save-converter-page .trade-region-filter option,
+  .battle-tower-page .trade-region-filter option,
+  .trainer-rankings-page .trade-region-filter option,
+  .exchange-page .trade-search-input,
+  .trainer-rankings-page .trade-search-input,
+  .exchange-page .trade-search-tokenized,
+  .exchange-page .trade-search-tail-input,
+  .exchange-page .trade-search-leading-text,
+  .exchange-page .trade-search-chip-label,
+  .exchange-page .trade-search-chip-value,
+  .exchange-page .trade-search-chip-remove,
+  .exchange-page .trade-search-tag-label,
+  .exchange-page .trade-search-tag-pill {
+    overflow: visible !important;
+    clip-path: inset(-2px 0 -2px 0) !important;
+  }
+
+  .exchange-page .trade-region-filter,
+  .save-converter-page .trade-region-filter,
+  .battle-tower-page .trade-region-filter,
+  .trainer-rankings-page .trade-region-filter {
+    min-height: 38px !important;
+    line-height: 24px !important;
+    padding-top: 7px !important;
+    padding-bottom: 3px !important;
+  }
+
+  .exchange-page .trade-region-filter option,
+  .save-converter-page .trade-region-filter option,
+  .battle-tower-page .trade-region-filter option,
+  .trainer-rankings-page .trade-region-filter option {
+    min-height: 24px !important;
+    line-height: 24px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .exchange-page .trade-search-input,
+  .trainer-rankings-page .trade-search-input {
+    min-height: 38px !important;
+    line-height: 24px !important;
+    padding-top: 7px !important;
+    padding-bottom: 3px !important;
+  }
+
+  .exchange-page .trade-search-tokenized {
+    min-height: 38px !important;
+    padding-top: 6px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .exchange-page .trade-search-tail-input:not(.trade-search-tail-input-inside-chip) {
+    min-height: 24px !important;
+    line-height: 24px !important;
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+  }
+
+  .exchange-page .trade-search-chip-value,
+  .exchange-page .trade-search-tail-input.trade-search-tail-input-inside-chip {
+    clip-path: inset(-2px 0 -2px 0) !important;
+  }
+
   .exchange-page .trade-corner-title,
   .battle-tower-page .trade-corner-title,
   .trainer-rankings-page .trade-corner-title,
@@ -567,6 +635,14 @@ body.rankings-theme > main {
     line-height: 1.15 !important;
   }
 
+  .exchange-page .crystal-trade .offer-species-line {
+    top: -3px !important;
+  }
+
+  .exchange-page .crystal-trade .offer-details .offer-row {
+    top: -6px !important;
+  }
+
   .exchange-page .crystal-trade .wanted-menu-sprite {
     margin-right: calc(1px + 1.5ch) !important;
   }
@@ -577,7 +653,7 @@ body.rankings-theme > main {
   }
 
   .exchange-page .crystal-trade .trade-request-text {
-    top: -1px !important;
+    top: 0 !important;
     margin-left: 0 !important;
     line-height: 1 !important;
   }

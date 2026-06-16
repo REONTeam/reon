@@ -503,8 +503,8 @@ mario-kart:
 
 pokemon:
   pokerus:
-    cured: POKÉRUS (Cured)
-    infected: POKÉRUS (Infected)
+    cured: POKéRUS (Cured)
+    infected: POKéRUS (Infected)
   shiny: SHINY
   level: :L
   name: NAME

@@ -148,8 +148,8 @@ region:
     s: Éspagnol
 pokemon:
   pokerus:
-    cured: POKÉRUS (SOIGNÉ)
-    infected: POKÉRUS (INFECTÉ)
+    cured: POKéRUS (SOIGNÉ)
+    infected: POKéRUS (INFECTÉ)
   shiny: BRILLANT
   level: :N
   name: NOM
