@@ -522,8 +522,9 @@ body.rankings-theme > main {
   .exchange-page .crystal-trade .offer-species-line,
   .exchange-page .crystal-trade .offer-details .offer-row,
   .exchange-page .crystal-trade .request-species {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    overflow: visible !important;
+    clip-path: inset(-2px 0 -2px 0) !important;
+    text-overflow: clip !important;
     white-space: nowrap !important;
     word-break: normal !important;
     overflow-wrap: normal !important;
@@ -541,6 +542,24 @@ body.rankings-theme > main {
   .exchange-page .crystal-trade .label,
   .exchange-page .crystal-trade .wanted-label {
     line-height: 1 !important;
+  }
+
+  .exchange-page .crystal-trade .offer-details .offer-row,
+  .exchange-page .crystal-trade .offer-species-fixed,
+  .exchange-page .crystal-trade .offer-level-fixed,
+  .exchange-page .crystal-trade .offer-level-prefix,
+  .exchange-page .crystal-trade .offer-level-digits,
+  .exchange-page .crystal-trade .offer-name,
+  .exchange-page .crystal-trade .offer-ot,
+  .exchange-page .crystal-trade .offer-item,
+  .exchange-page .crystal-trade .offer-offerer,
+  .exchange-page .crystal-trade .label,
+  .exchange-page .crystal-trade .trade-request-text,
+  .exchange-page .crystal-trade .wanted-label,
+  .exchange-page .crystal-trade .wanted-gender-char,
+  .exchange-page .crystal-trade .request-species {
+    overflow: visible !important;
+    clip-path: inset(-2px 0 -2px 0) !important;
   }
 
   .exchange-page .crystal-trade .trade-warning,

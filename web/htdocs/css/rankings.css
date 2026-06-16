@@ -402,6 +402,7 @@
   .trainer-ranking-table th,
   .trainer-ranking-table td {
     padding: 4px;
+    line-height: 1.15 !important;
   }
 
   .ranking-col-name,
@@ -420,7 +421,7 @@
     min-height: var(--ranking-mobile-message-height);
     background-size: var(--ranking-mobile-message-width) var(--ranking-mobile-message-height);
     padding: clamp(10px, calc(var(--ranking-mobile-message-height) * 0.28), 14px) 5px 0 6px;
-    line-height: 1 !important;
+    line-height: 1.15 !important;
     white-space: pre-wrap;
     overflow-wrap: normal;
     word-break: keep-all;
@@ -450,6 +451,7 @@
   .trainer-ranking-table td {
     font-size: 8px;
     padding: 3px;
+    line-height: 1.15 !important;
   }
 
   .trainer-ranking-table col.ranking-colgroup-name,
@@ -485,7 +487,7 @@
     background-size: min(148px, max(110px, calc(100vw - 186px))) clamp(36px, calc(min(148px, max(110px, calc(100vw - 186px))) * 0.3), 44px);
     box-sizing: border-box;
     padding: clamp(10px, calc(min(148px, max(110px, calc(100vw - 186px))) * 0.08), 12px) 4px 0 5px;
-    line-height: 1 !important;
+    line-height: 1.15 !important;
     white-space: pre-wrap;
     overflow-wrap: normal;
     word-break: keep-all;

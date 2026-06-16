@@ -438,7 +438,8 @@ header.navbar #localeDropdownMenu .dropdown-item {
 }
 
 .trade-size-btn.is-active {
-  background: #dceaff;
+  background: #246ad4;
+  color: #f8f8f8;
 }
 
 .trade-size-btn:focus {

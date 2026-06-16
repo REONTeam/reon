@@ -473,7 +473,7 @@
     min-height: var(--bt-mobile-msg-height);
     background-size: var(--bt-mobile-msg-box-width) var(--bt-mobile-msg-height);
     padding: clamp(10px, calc(var(--bt-mobile-msg-height) * 0.28), 13px) 5px 0 5px;
-    line-height: 1 !important;
+    line-height: 1.15 !important;
   }
 
   .bt-pokemon-list li {
@@ -489,7 +489,7 @@
   .battle-honor-table th,
   .battle-honor-table td {
     padding: 4px;
-    line-height: 1.1 !important;
+    line-height: 1.15 !important;
   }
 }
 
@@ -508,6 +508,7 @@
   .battle-honor-table td {
     font-size: 8px;
     padding: 3px;
+    line-height: 1.15 !important;
   }
 
   .bt-trainer-sprite {
@@ -540,6 +541,6 @@
     min-height: clamp(36px, calc(min(145px, max(110px, calc(100vw - 186px))) * 0.28), 42px);
     background-size: calc(min(145px, max(110px, calc(100vw - 186px))) - 4px) clamp(36px, calc(min(145px, max(110px, calc(100vw - 186px))) * 0.28), 42px);
     padding: clamp(10px, calc(min(145px, max(110px, calc(100vw - 186px))) * 0.08), 12px) 4px 0 4px;
-    line-height: 1 !important;
+    line-height: 1.15 !important;
   }
 }
