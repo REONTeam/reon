@@ -1500,11 +1500,13 @@ function make_ranking_table($region, $category, $top10, $total_ranked, $my_rank)
 		// Player name in ranking records:
 		// - Saved as BINARY(7) in the database (padded with 0x00).
 		// - Protocol uses 7 bytes for non-J, 5 bytes for J plus 2 extra bytes we append below.
-		$name = $player["player_name"];
-		if ($region === "j") {
-			$name = substr($name, 0, 5);
-		} else {
-			$name = substr($name, 0, 7);
+		$name_len = $region === "j" ? 5 : 7;
+		$name = isset($player["player_name"]) && is_string($player["player_name"])
+			? $player["player_name"]
+			: "";
+		$name = substr($name, 0, $name_len);
+		if (strlen($name) < $name_len) {
+			$name = str_pad($name, $name_len, "\0", STR_PAD_RIGHT);
 		}
 		$out .= $name;
 		if ($region == "j") $out .= hex2bin("5000"); // japanese version has a 6th byte for the name plus a completely unused byte
@@ -1516,9 +1518,13 @@ function make_ranking_table($region, $category, $top10, $total_ranked, $my_rank)
 		// Ranking protocol message width:
 		// - Japanese (j): 12 bytes
 		// - Non-Japanese: 8 bytes (DB column may be wider, we trim here)
-		$message = $player["player_message"];
-		if ($region !== "j") {
-			$message = substr($message, 0, 8);
+		$message_len = $region === "j" ? 12 : 8;
+		$message = isset($player["player_message"]) && is_string($player["player_message"])
+			? $player["player_message"]
+			: "";
+		$message = substr($message, 0, $message_len);
+		if (strlen($message) < $message_len) {
+			$message = str_pad($message, $message_len, "\0", STR_PAD_RIGHT);
 		}
 		$out .= $message;
 		if ($category["size"] == 1) {
