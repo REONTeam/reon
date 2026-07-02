@@ -218,6 +218,118 @@
 		return $whitelist;
 	}
 
+	function bxt_rankings_is_english_region($game_region) {
+		$region = strtolower((string)$game_region);
+		return $region === "e" || $region === "p" || $region === "u";
+	}
+
+	function bxt_rankings_locale_for_game_region($game_region) {
+		switch (strtolower((string)$game_region)) {
+			case "j": return "ja";
+			case "d": return "de";
+			case "f": return "fr";
+			case "i": return "it";
+			case "s": return "es";
+			case "e":
+			case "p":
+			case "u":
+			default: return "en";
+		}
+	}
+
+	function bxt_rankings_is_magikarp_size_category($category_id) {
+		$id = intval($category_id);
+		return $id === 39 || $id === 40;
+	}
+
+	function bxt_rankings_is_money_category($category_id) {
+		return intval($category_id) === 38;
+	}
+
+	function bxt_rankings_is_bug_contest_score_category($category_id) {
+		return intval($category_id) === 41;
+	}
+
+	function bxt_rankings_valid_imperial_magikarp_score($score) {
+		$score = intval($score);
+		$feet = ($score >> 8) & 0xff;
+		$inches = $score & 0xff;
+		$total_inches = ($feet * 12) + $inches;
+		return $feet >= 0 && $feet <= 5 && $inches >= 0 && $inches <= 11 && $total_inches >= 7 && $total_inches <= 70;
+	}
+
+	function bxt_rankings_metric_magikarp_to_imperial($score) {
+		$total_inches = intdiv(intval($score) * 10, 254);
+		return array(intdiv($total_inches, 12), $total_inches % 12);
+	}
+
+	function bxt_rankings_translate_unit($game_region, $key, $fallback) {
+		$locale = bxt_rankings_locale_for_game_region($game_region);
+		$translation_key = "pokemon.rankings.units." . $key;
+		$unit = TemplateUtil::translate($translation_key, array(), null, $locale);
+		return $unit === $translation_key ? $fallback : $unit;
+	}
+
+	function bxt_rankings_bug_contest_score_unit($game_region) {
+		return bxt_rankings_translate_unit($game_region, "bug-contest-score", " points");
+	}
+
+	function bxt_rankings_format_money_score($game_region, $score) {
+		$score = (string)intval($score);
+		$region = strtolower((string)$game_region);
+		$symbol = bxt_rankings_translate_unit($game_region, "money-symbol", $region === "j" ? "\u{00A5}" : "$");
+		if ($region === "j") {
+			return $score . $symbol;
+		}
+		if ($region === "e" || $region === "p" || $region === "u" || $region === "d" || $region === "i") {
+			return $symbol . $score;
+		}
+		return $score . $symbol;
+	}
+
+	function bxt_rankings_format_magikarp_metric_score($game_region, $score) {
+		$unit = bxt_rankings_translate_unit($game_region, "magikarp-centimeters", "cm");
+		return number_format(intval($score) / 10, 1, ".", "") . $unit;
+	}
+
+	function bxt_rankings_format_magikarp_imperial_score($game_region, $score) {
+		if (bxt_rankings_valid_imperial_magikarp_score($score)) {
+			$feet = ($score >> 8) & 0xff;
+			$inches = $score & 0xff;
+		} else {
+			list($feet, $inches) = bxt_rankings_metric_magikarp_to_imperial($score);
+		}
+
+		$feet_unit = bxt_rankings_translate_unit($game_region, "magikarp-feet", "\u{2032}");
+		$inches_unit = bxt_rankings_translate_unit($game_region, "magikarp-inches", "\u{2033}");
+		return $feet . $feet_unit . $inches . $inches_unit;
+	}
+
+	function bxt_rankings_format_score($game_region, $category_id, $score) {
+		$score = intval($score);
+		if ($score <= 0) {
+			return (string)$score;
+		}
+
+		if (bxt_rankings_is_money_category($category_id)) {
+			return bxt_rankings_format_money_score($game_region, $score);
+		}
+
+		if (bxt_rankings_is_bug_contest_score_category($category_id)) {
+			return (string)$score . bxt_rankings_bug_contest_score_unit($game_region);
+		}
+
+		if (!bxt_rankings_is_magikarp_size_category($category_id)) {
+			return (string)$score;
+		}
+
+		if (bxt_rankings_is_english_region($game_region)) {
+			return bxt_rankings_format_magikarp_imperial_score($game_region, $score);
+		}
+
+		return bxt_rankings_format_magikarp_metric_score($game_region, $score);
+	}
+
 	function bxt_rankings_sort_address_mode(&$rows) {
 		usort($rows, function ($a, $b) {
 			$address_cmp = strcasecmp((string)$a["address"], (string)$b["address"]);
@@ -826,12 +938,16 @@
 					$message = "...";
 				}
 
+				$raw_score = intval($entry["score"] ?? 0);
+				$score_display = bxt_rankings_format_score($pc, $cat_id, $raw_score);
+
 				$rows[] = array(
 					"rank" => 0,
 					"name" => $player_name,
 					"address" => $address,
 					"message" => $message,
-					"score" => intval($entry["score"] ?? 0),
+					"score" => $raw_score,
+					"score_display" => $score_display,
 					"timestamp" => (string)($entry["timestamp"] ?? ""),
 					"_source_index" => $source_index,
 				);

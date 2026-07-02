@@ -29,6 +29,7 @@ program
   .option("-r, --rotation-config <path>", "File rotation config file path.", defaultRotationConfigPath)
   .option("-f, --feature-config <path>", "Timed feature availability config file path.", defaultFeatureAvailabilityConfigPath)
   .option("--refresh", "Re-apply the current expected news and clear bxt_ranking.")
+  .option("--override <file>", "Apply a specific scheduled news file/article id, such as june_2002.bin.")
   .argument("[mode]", "Optional mode. Use \"refresh\" to re-apply the current expected news.")
   .parse(process.argv);
 
@@ -36,6 +37,7 @@ const options = program.opts();
 const refreshMode =
   !!options.refresh ||
   program.args.some((arg) => String(arg || "").toLowerCase() === "refresh");
+const overrideArticleName = normalizeOverrideArticleName(options.override);
 function parseJsonFile(filePath) {
   const raw = fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/, "");
   return JSON.parse(raw);
@@ -1571,6 +1573,38 @@ function findBinInDir(dir) {
   }
   return null;
 }
+function normalizeOverrideArticleName(value) {
+  const raw = String(value || "").trim();
+  return raw ? raw : null;
+}
+
+function scheduleEntryMatchesOverride(entry, overrideName) {
+  const raw = normalizeOverrideArticleName(overrideName);
+  if (!entry || !raw) return false;
+
+  const wanted = raw.replace(/\\/g, "/").toLowerCase();
+  const wantedBase = path.basename(wanted).toLowerCase();
+  const candidates = [
+    entry.articleId,
+    entry.parsed && entry.parsed.file,
+    entry.parsed && entry.parsed.messageFile,
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    const normalized = String(candidate).replace(/\\/g, "/").toLowerCase();
+    const candidateBase = path.basename(normalized).toLowerCase();
+    if (normalized === wanted || candidateBase === wantedBase) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function selectOverrideScheduledEntry(regionEntries, overrideName) {
+  return (regionEntries || []).find((entry) => scheduleEntryMatchesOverride(entry, overrideName)) || null;
+}
+
 function scheduleHasAnyEntries(cfg) {
   if (!cfg || !cfg.schedule || typeof cfg.schedule !== "object" || Array.isArray(cfg.schedule)) {
     return false;
@@ -1779,6 +1813,7 @@ async function processPokemonNewsCycle(
 ) {
   const updatedByRegion = {};
   const refresh = !!(runOptions && runOptions.refresh);
+  const overrideArticle = normalizeOverrideArticleName(runOptions && runOptions.overrideArticle);
 
   for (const [region, folderName] of Object.entries(newsCfg.region_folder_map)) {
     const regionDir = path.join(newsCfg.articles_dir, folderName);
@@ -1818,7 +1853,16 @@ async function processPokemonNewsCycle(
 
     let chosenArticleId = null;
 
-    if (hasSlots) {
+    if (overrideArticle) {
+      const candidate = selectOverrideScheduledEntry(regionEntries, overrideArticle);
+      if (!candidate) {
+        console.warn(
+          `[news:${trackLabel}] override ${overrideArticle} has no schedule entry for region=${region}`
+        );
+        continue;
+      }
+      chosenArticleId = candidate.articleId;
+    } else if (hasSlots) {
       // Slot-based cycle, using the schedule dates and JSON log file.
       let lastSlot = -1;
       if (
@@ -1839,11 +1883,13 @@ async function processPokemonNewsCycle(
 
       chosenArticleId = candidate.articleId;
 
-      // Update cycle state for this region.
-      if (!cycleState[cycleStateKey] || typeof cycleState[cycleStateKey] !== "object") {
-        cycleState[cycleStateKey] = {};
+      // Refresh re-applies the current expected article without advancing the logged cycle.
+      if (!refresh) {
+        if (!cycleState[cycleStateKey] || typeof cycleState[cycleStateKey] !== "object") {
+          cycleState[cycleStateKey] = {};
+        }
+        cycleState[cycleStateKey][region] = { lastSlot: candidate.parsed.slot };
       }
-      cycleState[cycleStateKey][region] = { lastSlot: candidate.parsed.slot };
     } else {
       // Pure date-based mode, no slots.
       const selection = refresh
@@ -2054,6 +2100,7 @@ async function main() {
   console.log("[news] articles_dir:", newsCfg.articles_dir);
   console.log("[news] pokemon_news_custom_enabled:", pokemonNewsCustomEnabled);
   console.log("[news] refresh:", refreshMode);
+  console.log("[news] override:", overrideArticleName || false);
 
   const pool = createPool(mainConfig);
 
@@ -2076,7 +2123,7 @@ async function main() {
         todayDate,
         false,
         "vanilla",
-        { refresh: refreshMode }
+        { refresh: refreshMode, overrideArticle: overrideArticleName }
       );
 
       // 2) Custom cycle (only if schedule is present)
@@ -2091,7 +2138,7 @@ async function main() {
           todayDate,
           true,
           "pokemon_news_custom",
-          { refresh: refreshMode }
+          { refresh: refreshMode, overrideArticle: overrideArticleName }
         );
       }
 
@@ -2115,9 +2162,11 @@ async function main() {
         await clearRankingsForRegions(
           conn,
           rankingClearRegions,
-          refreshMode
-            ? `refresh for ${todayDate.toISOString().slice(0, 10)}`
-            : `news rotated for ${todayDate.toISOString().slice(0, 10)}`
+          overrideArticleName
+            ? `override ${overrideArticleName} for ${todayDate.toISOString().slice(0, 10)}`
+            : refreshMode
+              ? `refresh for ${todayDate.toISOString().slice(0, 10)}`
+              : `news rotated for ${todayDate.toISOString().slice(0, 10)}`
         );
       }
 

@@ -7,6 +7,13 @@ locale:
   fr: Français
 
 pokemon:
+  rankings:
+    units:
+      bug-contest-score: "\u3066\u3093"
+      money-symbol: "\u00A5"
+      magikarp-centimeters: "\u30BB\u30F3\u30C1"
+      magikarp-feet: "\u2032"
+      magikarp-inches: "\u2033"
   shiny: 光る
   level: :L
   pokerus:

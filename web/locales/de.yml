@@ -7,6 +7,13 @@ locale:
   fr: Français
 
 pokemon:
+  rankings:
+    units:
+      bug-contest-score: " Pkt."
+      money-symbol: "$"
+      magikarp-centimeters: "cm"
+      magikarp-feet: "\u2032"
+      magikarp-inches: "\u2033"
   name: NAME
   offerer: ANBIETER
   item: ITEM

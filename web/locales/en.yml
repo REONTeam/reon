@@ -502,6 +502,13 @@ mario-kart:
     - Mobile GP
 
 pokemon:
+  rankings:
+    units:
+      bug-contest-score: " pts"
+      money-symbol: "$"
+      magikarp-centimeters: "cm"
+      magikarp-feet: "\u2032"
+      magikarp-inches: "\u2033"
   pokerus:
     cured: POKÉRUS (Cured)
     infected: POKÉRUS (Infected)
