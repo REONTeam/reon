@@ -47,6 +47,9 @@ services:
     volumes:
       - ./config.json:/var/www/reon/config.json:ro
       - ./web/:/var/www/reon/web
+      # Preserve composer deps built into the image; the bind mount above would
+      # otherwise shadow vendor/ (breaking the website + scripts/add_user.php).
+      - /var/www/reon/web/vendor
     tmpfs:
       - /tmp/reon
     depends_on:
