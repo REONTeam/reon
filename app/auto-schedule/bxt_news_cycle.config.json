@@ -33,35 +33,47 @@
     },
     "schedule": {
       "j": {
+        "january_2001.bin": {
+          "date": "01-01",
+          "file": "bxt/j/january_2001.bin",
+          "message_file": "bxt/j/january_2001.bin.message",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ],
+          "message": "ポケモンニュース　１がつごう"
+        },
         "june_2002.bin": {
           "date": "05-22",
           "file": "bxt/j/june_2002.bin",
           "message_file": "bxt/j/june_2002.bin.message",
-          "slot": 0,
+          "slot": 1,
           "ranking_categories": [
             5,
             29,
             8
           ],
-          "message": "ポケモンニュース　6がつごう"
+          "message": "ポケモンニュース　６がつごう"
         },
         "july_2002.bin": {
           "date": "06-26",
           "file": "bxt/j/july_2002.bin",
           "message_file": "bxt/j/july_2002.bin.message",
-          "slot": 1,
+          "slot": 2,
           "ranking_categories": [
             5,
             8,
             12
           ],
-          "message": "ポケモンニュース　7がつごう"
+          "message": "ポケモンニュース　７がつごう"
         },
         "august_2002.bin": {
           "date": "07-31",
           "file": "bxt/j/august_2002.bin",
           "message_file": "bxt/j/august_2002.bin.message",
-          "slot": 2,
+          "slot": 3,
           "ranking_categories": [
             5,
             12,
@@ -73,7 +85,7 @@
           "date": "08-28",
           "file": "bxt/j/september_2002.bin",
           "message_file": "bxt/j/september_2002.bin.message",
-          "slot": 3,
+          "slot": 4,
           "ranking_categories": [
             5,
             14,
@@ -85,7 +97,7 @@
           "date": "09-25",
           "file": "bxt/j/october_2002.bin",
           "message_file": "bxt/j/october_2002.bin.message",
-          "slot": 4,
+          "slot": 5,
           "ranking_categories": [
             5,
             16,
@@ -97,7 +109,7 @@
           "date": "10-30",
           "file": "bxt/j/november_2002.bin",
           "message_file": "bxt/j/november_2002.bin.message",
-          "slot": 5,
+          "slot": 6,
           "ranking_categories": [
             5,
             15,
@@ -109,7 +121,7 @@
           "date": "11-27",
           "file": "bxt/j/december_2002.bin",
           "message_file": "bxt/j/december_2002.bin.message",
-          "slot": 6,
+          "slot": 7,
           "ranking_categories": [
             5,
             13,
@@ -119,11 +131,23 @@
         }
       },
       "e": {
+        "january_2001.bin": {
+          "date": "01-01",
+          "file": "bxt/e/january_2001.bin",
+          "message_file": "bxt/e/january_2001.bin.message",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ],
+          "message": "#MON NEWS No.1"
+        },
         "june_2002.bin": {
           "date": "05-22",
           "file": "bxt/e/june_2002.bin",
           "message_file": "bxt/e/june_2002.bin.message",
-          "slot": 0,
+          "slot": 1,
           "ranking_categories": [
             5,
             29,
@@ -135,7 +159,7 @@
           "date": "06-26",
           "file": "bxt/e/july_2002.bin",
           "message_file": "bxt/e/july_2002.bin.message",
-          "slot": 1,
+          "slot": 2,
           "ranking_categories": [
             5,
             8,
@@ -147,7 +171,7 @@
           "date": "07-31",
           "file": "bxt/e/august_2002.bin",
           "message_file": "bxt/e/august_2002.bin.message",
-          "slot": 2,
+          "slot": 3,
           "ranking_categories": [
             5,
             12,
@@ -159,7 +183,7 @@
           "date": "08-28",
           "file": "bxt/e/september_2002.bin",
           "message_file": "bxt/e/september_2002.bin.message",
-          "slot": 3,
+          "slot": 4,
           "ranking_categories": [
             5,
             14,
@@ -171,7 +195,7 @@
           "date": "09-25",
           "file": "bxt/e/october_2002.bin",
           "message_file": "bxt/e/october_2002.bin.message",
-          "slot": 4,
+          "slot": 5,
           "ranking_categories": [
             5,
             16,
@@ -183,7 +207,7 @@
           "date": "10-30",
           "file": "bxt/e/november_2002.bin",
           "message_file": "bxt/e/november_2002.bin.message",
-          "slot": 5,
+          "slot": 6,
           "ranking_categories": [
             5,
             15,
@@ -195,7 +219,7 @@
           "date": "11-27",
           "file": "bxt/e/december_2002.bin",
           "message_file": "bxt/e/december_2002.bin.message",
-          "slot": 6,
+          "slot": 7,
           "ranking_categories": [
             5,
             13,
@@ -205,11 +229,23 @@
         }
       },
       "f": {
+        "january_2001.bin": {
+          "date": "01-01",
+          "file": "bxt/f/january_2001.bin",
+          "message_file": "bxt/f/january_2001.bin.message",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ],
+          "message": "INFOS PKMN No.1"
+        },
         "june_2002.bin": {
           "date": "05-22",
           "file": "bxt/f/june_2002.bin",
           "message_file": "bxt/f/june_2002.bin.message",
-          "slot": 0,
+          "slot": 1,
           "ranking_categories": [
             5,
             29,
@@ -221,7 +257,7 @@
           "date": "06-26",
           "file": "bxt/f/july_2002.bin",
           "message_file": "bxt/f/july_2002.bin.message",
-          "slot": 1,
+          "slot": 2,
           "ranking_categories": [
             5,
             8,
@@ -233,7 +269,7 @@
           "date": "07-31",
           "file": "bxt/f/august_2002.bin",
           "message_file": "bxt/f/august_2002.bin.message",
-          "slot": 2,
+          "slot": 3,
           "ranking_categories": [
             5,
             12,
@@ -245,7 +281,7 @@
           "date": "08-28",
           "file": "bxt/f/september_2002.bin",
           "message_file": "bxt/f/september_2002.bin.message",
-          "slot": 3,
+          "slot": 4,
           "ranking_categories": [
             5,
             14,
@@ -257,7 +293,7 @@
           "date": "09-25",
           "file": "bxt/f/october_2002.bin",
           "message_file": "bxt/f/october_2002.bin.message",
-          "slot": 4,
+          "slot": 5,
           "ranking_categories": [
             5,
             16,
@@ -269,7 +305,7 @@
           "date": "10-30",
           "file": "bxt/f/november_2002.bin",
           "message_file": "bxt/f/november_2002.bin.message",
-          "slot": 5,
+          "slot": 6,
           "ranking_categories": [
             5,
             15,
@@ -281,7 +317,7 @@
           "date": "11-27",
           "file": "bxt/f/december_2002.bin",
           "message_file": "bxt/f/december_2002.bin.message",
-          "slot": 6,
+          "slot": 7,
           "ranking_categories": [
             5,
             13,
@@ -291,11 +327,23 @@
         }
       },
       "d": {
+        "january_2001.bin": {
+          "date": "01-01",
+          "file": "bxt/d/january_2001.bin",
+          "message_file": "bxt/d/january_2001.bin.message",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ],
+          "message": "NACHRICHTEN Nr. 1"
+        },
         "june_2002.bin": {
           "date": "05-22",
           "file": "bxt/d/june_2002.bin",
           "message_file": "bxt/d/june_2002.bin.message",
-          "slot": 0,
+          "slot": 1,
           "ranking_categories": [
             5,
             29,
@@ -307,7 +355,7 @@
           "date": "06-26",
           "file": "bxt/d/july_2002.bin",
           "message_file": "bxt/d/july_2002.bin.message",
-          "slot": 1,
+          "slot": 2,
           "ranking_categories": [
             5,
             8,
@@ -319,7 +367,7 @@
           "date": "07-31",
           "file": "bxt/d/august_2002.bin",
           "message_file": "bxt/d/august_2002.bin.message",
-          "slot": 2,
+          "slot": 3,
           "ranking_categories": [
             5,
             12,
@@ -331,7 +379,7 @@
           "date": "08-28",
           "file": "bxt/d/september_2002.bin",
           "message_file": "bxt/d/september_2002.bin.message",
-          "slot": 3,
+          "slot": 4,
           "ranking_categories": [
             5,
             14,
@@ -343,7 +391,7 @@
           "date": "09-25",
           "file": "bxt/d/october_2002.bin",
           "message_file": "bxt/d/october_2002.bin.message",
-          "slot": 4,
+          "slot": 5,
           "ranking_categories": [
             5,
             16,
@@ -355,7 +403,7 @@
           "date": "10-30",
           "file": "bxt/d/november_2002.bin",
           "message_file": "bxt/d/november_2002.bin.message",
-          "slot": 5,
+          "slot": 6,
           "ranking_categories": [
             5,
             15,
@@ -367,7 +415,7 @@
           "date": "11-27",
           "file": "bxt/d/december_2002.bin",
           "message_file": "bxt/d/december_2002.bin.message",
-          "slot": 6,
+          "slot": 7,
           "ranking_categories": [
             5,
             13,
@@ -377,11 +425,23 @@
         }
       },
       "s": {
+        "january_2001.bin": {
+          "date": "01-01",
+          "file": "bxt/s/january_2001.bin",
+          "message_file": "bxt/s/january_2001.bin.message",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ],
+          "message": "NOTICIA PKMN N.º1"
+        },
         "june_2002.bin": {
           "date": "05-22",
           "file": "bxt/s/june_2002.bin",
           "message_file": "bxt/s/june_2002.bin.message",
-          "slot": 0,
+          "slot": 1,
           "ranking_categories": [
             5,
             29,
@@ -393,7 +453,7 @@
           "date": "06-26",
           "file": "bxt/s/july_2002.bin",
           "message_file": "bxt/s/july_2002.bin.message",
-          "slot": 1,
+          "slot": 2,
           "ranking_categories": [
             5,
             8,
@@ -405,7 +465,7 @@
           "date": "07-31",
           "file": "bxt/s/august_2002.bin",
           "message_file": "bxt/s/august_2002.bin.message",
-          "slot": 2,
+          "slot": 3,
           "ranking_categories": [
             5,
             12,
@@ -417,7 +477,7 @@
           "date": "08-28",
           "file": "bxt/s/september_2002.bin",
           "message_file": "bxt/s/september_2002.bin.message",
-          "slot": 3,
+          "slot": 4,
           "ranking_categories": [
             5,
             14,
@@ -429,7 +489,7 @@
           "date": "09-25",
           "file": "bxt/s/october_2002.bin",
           "message_file": "bxt/s/october_2002.bin.message",
-          "slot": 4,
+          "slot": 5,
           "ranking_categories": [
             5,
             16,
@@ -441,7 +501,7 @@
           "date": "10-30",
           "file": "bxt/s/november_2002.bin",
           "message_file": "bxt/s/november_2002.bin.message",
-          "slot": 5,
+          "slot": 6,
           "ranking_categories": [
             5,
             15,
@@ -453,7 +513,7 @@
           "date": "11-27",
           "file": "bxt/s/december_2002.bin",
           "message_file": "bxt/s/december_2002.bin.message",
-          "slot": 6,
+          "slot": 7,
           "ranking_categories": [
             5,
             13,
@@ -463,11 +523,23 @@
         }
       },
       "i": {
+        "january_2001.bin": {
+          "date": "01-01",
+          "file": "bxt/i/january_2001.bin",
+          "message_file": "bxt/i/january_2001.bin.message",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ],
+          "message": "NOTIZIE PKMN Nº1"
+        },
         "june_2002.bin": {
           "date": "05-22",
           "file": "bxt/i/june_2002.bin",
           "message_file": "bxt/i/june_2002.bin.message",
-          "slot": 0,
+          "slot": 1,
           "ranking_categories": [
             5,
             29,
@@ -479,7 +551,7 @@
           "date": "06-26",
           "file": "bxt/i/july_2002.bin",
           "message_file": "bxt/i/july_2002.bin.message",
-          "slot": 1,
+          "slot": 2,
           "ranking_categories": [
             5,
             8,
@@ -491,7 +563,7 @@
           "date": "07-31",
           "file": "bxt/i/august_2002.bin",
           "message_file": "bxt/i/august_2002.bin.message",
-          "slot": 2,
+          "slot": 3,
           "ranking_categories": [
             5,
             12,
@@ -503,7 +575,7 @@
           "date": "08-28",
           "file": "bxt/i/september_2002.bin",
           "message_file": "bxt/i/september_2002.bin.message",
-          "slot": 3,
+          "slot": 4,
           "ranking_categories": [
             5,
             14,
@@ -515,7 +587,7 @@
           "date": "09-25",
           "file": "bxt/i/october_2002.bin",
           "message_file": "bxt/i/october_2002.bin.message",
-          "slot": 4,
+          "slot": 5,
           "ranking_categories": [
             5,
             16,
@@ -527,7 +599,7 @@
           "date": "10-30",
           "file": "bxt/i/november_2002.bin",
           "message_file": "bxt/i/november_2002.bin.message",
-          "slot": 5,
+          "slot": 6,
           "ranking_categories": [
             5,
             15,
@@ -539,7 +611,7 @@
           "date": "11-27",
           "file": "bxt/i/december_2002.bin",
           "message_file": "bxt/i/december_2002.bin.message",
-          "slot": 6,
+          "slot": 7,
           "ranking_categories": [
             5,
             13,
@@ -549,11 +621,23 @@
         }
       },
       "p": {
+        "january_2001.bin": {
+          "date": "01-01",
+          "file": "bxt/p/january_2001.bin",
+          "message_file": "bxt/p/january_2001.bin.message",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ],
+          "message": "#MON NEWS No.1"
+        },
         "june_2002.bin": {
           "date": "05-22",
           "file": "bxt/p/june_2002.bin",
           "message_file": "bxt/p/june_2002.bin.message",
-          "slot": 0,
+          "slot": 1,
           "ranking_categories": [
             5,
             29,
@@ -565,7 +649,7 @@
           "date": "06-26",
           "file": "bxt/p/july_2002.bin",
           "message_file": "bxt/p/july_2002.bin.message",
-          "slot": 1,
+          "slot": 2,
           "ranking_categories": [
             5,
             8,
@@ -577,7 +661,7 @@
           "date": "07-31",
           "file": "bxt/p/august_2002.bin",
           "message_file": "bxt/p/august_2002.bin.message",
-          "slot": 2,
+          "slot": 3,
           "ranking_categories": [
             5,
             12,
@@ -589,7 +673,7 @@
           "date": "08-28",
           "file": "bxt/p/september_2002.bin",
           "message_file": "bxt/p/september_2002.bin.message",
-          "slot": 3,
+          "slot": 4,
           "ranking_categories": [
             5,
             14,
@@ -601,7 +685,7 @@
           "date": "09-25",
           "file": "bxt/p/october_2002.bin",
           "message_file": "bxt/p/october_2002.bin.message",
-          "slot": 4,
+          "slot": 5,
           "ranking_categories": [
             5,
             16,
@@ -613,7 +697,7 @@
           "date": "10-30",
           "file": "bxt/p/november_2002.bin",
           "message_file": "bxt/p/november_2002.bin.message",
-          "slot": 5,
+          "slot": 6,
           "ranking_categories": [
             5,
             15,
@@ -625,7 +709,7 @@
           "date": "11-27",
           "file": "bxt/p/december_2002.bin",
           "message_file": "bxt/p/december_2002.bin.message",
-          "slot": 6,
+          "slot": 7,
           "ranking_categories": [
             5,
             13,
@@ -635,11 +719,23 @@
         }
       },
       "u": {
+        "january_2001.bin": {
+          "date": "01-01",
+          "file": "bxt/u/january_2001.bin",
+          "message_file": "bxt/u/january_2001.bin.message",
+          "slot": 0,
+          "ranking_categories": [
+            5,
+            41,
+            39
+          ],
+          "message": "#MON NEWS No.1"
+        },
         "june_2002.bin": {
           "date": "05-22",
           "file": "bxt/u/june_2002.bin",
           "message_file": "bxt/u/june_2002.bin.message",
-          "slot": 0,
+          "slot": 1,
           "ranking_categories": [
             5,
             29,
@@ -651,7 +747,7 @@
           "date": "06-26",
           "file": "bxt/u/july_2002.bin",
           "message_file": "bxt/u/july_2002.bin.message",
-          "slot": 1,
+          "slot": 2,
           "ranking_categories": [
             5,
             8,
@@ -663,7 +759,7 @@
           "date": "07-31",
           "file": "bxt/u/august_2002.bin",
           "message_file": "bxt/u/august_2002.bin.message",
-          "slot": 2,
+          "slot": 3,
           "ranking_categories": [
             5,
             12,
@@ -675,7 +771,7 @@
           "date": "08-28",
           "file": "bxt/u/september_2002.bin",
           "message_file": "bxt/u/september_2002.bin.message",
-          "slot": 3,
+          "slot": 4,
           "ranking_categories": [
             5,
             14,
@@ -687,7 +783,7 @@
           "date": "09-25",
           "file": "bxt/u/october_2002.bin",
           "message_file": "bxt/u/october_2002.bin.message",
-          "slot": 4,
+          "slot": 5,
           "ranking_categories": [
             5,
             16,
@@ -699,7 +795,7 @@
           "date": "10-30",
           "file": "bxt/u/november_2002.bin",
           "message_file": "bxt/u/november_2002.bin.message",
-          "slot": 5,
+          "slot": 6,
           "ranking_categories": [
             5,
             15,
@@ -711,7 +807,7 @@
           "date": "11-27",
           "file": "bxt/u/december_2002.bin",
           "message_file": "bxt/u/december_2002.bin.message",
-          "slot": 6,
+          "slot": 7,
           "ranking_categories": [
             5,
             13,
