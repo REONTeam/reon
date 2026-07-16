@@ -11,6 +11,20 @@ server {
     index  index.php index.html index.htm;
     
 
+    # Battle Tower dynamic routing. The Apache .htaccess (web/htdocs/cgb/.htaccess)
+    # rewrites roomNNNN.cgb -> room.cgb?room=NNNN (and leadersNNNN.cgb likewise),
+    # but nginx ignores .htaccess, so without this Battle Tower rooms 404 on the
+    # Docker/nginx setup. Exact-match location avoids the "if + try_files" pitfall.
+    location = /cgb/download {
+        if ($arg_name ~ "^/01/CGB-BXT([A-Z])/battle/room(....)\.cgb$") {
+            set $args "name=/01/CGB-BXT$1/battle/room.cgb&room=$2";
+        }
+        if ($arg_name ~ "^/01/CGB-BXT([A-Z])/battle/leaders(....)\.cgb$") {
+            set $args "name=/01/CGB-BXT$1/battle/leaders.cgb&room=$2";
+        }
+        rewrite ^ /cgb/download.php last;
+    }
+
     location /cgb/ {
         try_files $uri $uri/ @extensionless-php;
     }
