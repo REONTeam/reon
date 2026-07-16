@@ -54,7 +54,7 @@ final class InitialSchema extends AbstractMigration
 
         // sys_email_change
         $table = $this->table('sys_email_change', ['id' => false, 'primary_key' => 'user_id']);
-        $table->addColumn('user_id', 'integer', ['signed' => false, 'limit' => 11])
+        $table->addColumn('user_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
               ->addColumn('new_email', 'string', ['limit' => 254])
               ->addColumn('secret', 'string', ['limit' => 48])
               ->addColumn('time', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
@@ -62,7 +62,7 @@ final class InitialSchema extends AbstractMigration
 
         // sys_password_reset
         $table = $this->table('sys_password_reset', ['id' => false, 'primary_key' => 'user_id']);
-        $table->addColumn('user_id', 'integer', ['signed' => false, 'limit' => 11])
+        $table->addColumn('user_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
               ->addColumn('secret', 'string', ['limit' => 48])
               ->addColumn('time', 'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
               ->create();
@@ -128,9 +128,9 @@ final class InitialSchema extends AbstractMigration
 
         // bxtj_battle_tower_trainers
         $table = $this->table('bxtj_battle_tower_trainers', ['id' => false, 'primary_key' => ['no', 'room', 'level']]);
-        $table->addColumn('no', 'integer', ['signed' => false, 'limit' => 1])
-              ->addColumn('room', 'integer', ['signed' => false, 'limit' => 10])
-              ->addColumn('level', 'integer', ['signed' => false, 'limit' => 1])
+        $table->addColumn('no', 'integer', ['signed' => false, 'limit' => 1, 'null' => false])
+              ->addColumn('room', 'integer', ['signed' => false, 'limit' => 10, 'null' => false])
+              ->addColumn('level', 'integer', ['signed' => false, 'limit' => 1, 'null' => false])
               ->addColumn('name', 'binary', ['limit' => 5])
               ->addColumn('class', 'integer', ['limit' => 1])
               ->addColumn('pokemon1', 'binary', ['limit' => 54])
@@ -151,12 +151,12 @@ final class InitialSchema extends AbstractMigration
 
         // bxtj_ranking
         $table = $this->table('bxtj_ranking', ['id' => false, 'primary_key' => ['news_id', 'category_id', 'account_id', 'trainer_id', 'secret_id']]);
-        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
+        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2, 'null' => false])
               ->addColumn('score', 'integer', ['signed' => false, 'limit' => 11])			  
-              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
-              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
+              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
+              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
               ->addColumn('player_name', 'binary', ['limit' => 5])
               ->addColumn('player_gender', 'integer', ['signed' => false, 'limit' => 1])
               ->addColumn('player_age', 'integer', ['signed' => false, 'limit' => 3])
@@ -193,9 +193,9 @@ final class InitialSchema extends AbstractMigration
 
         // bxte_battle_tower_trainers
         $table = $this->table('bxte_battle_tower_trainers', ['id' => false, 'primary_key' => ['no', 'room', 'level']]);
-        $table->addColumn('no', 'integer', ['signed' => false, 'limit' => 1])
-              ->addColumn('room', 'integer', ['signed' => false, 'limit' => 10])
-              ->addColumn('level', 'integer', ['signed' => false, 'limit' => 1])
+        $table->addColumn('no', 'integer', ['signed' => false, 'limit' => 1, 'null' => false])
+              ->addColumn('room', 'integer', ['signed' => false, 'limit' => 10, 'null' => false])
+              ->addColumn('level', 'integer', ['signed' => false, 'limit' => 1, 'null' => false])
               ->addColumn('name', 'binary', ['limit' => 7])
               ->addColumn('class', 'integer', ['limit' => 1])
               ->addColumn('pokemon1', 'binary', ['limit' => 59])
@@ -216,11 +216,11 @@ final class InitialSchema extends AbstractMigration
 
         // bxte_ranking
         $table = $this->table('bxte_ranking', ['id' => false, 'primary_key' => ['news_id', 'category_id', 'account_id', 'trainer_id', 'secret_id']]);
-        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
-              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
-              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
+        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2, 'null' => false])
+              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
+              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
               ->addColumn('player_name', 'binary', ['limit' => 7])
               ->addColumn('player_gender', 'integer', ['signed' => false, 'limit' => 1])
               ->addColumn('player_age', 'integer', ['signed' => false, 'limit' => 3])
@@ -236,11 +236,11 @@ final class InitialSchema extends AbstractMigration
     {
         // bxtd_ranking
         $table = $this->table('bxtd_ranking', ['id' => false, 'primary_key' => ['news_id', 'category_id', 'account_id', 'trainer_id', 'secret_id']]);
-        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
-              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
-              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
+        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2, 'null' => false])
+              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
+              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
               ->addColumn('player_name', 'binary', ['limit' => 7])
               ->addColumn('player_gender', 'integer', ['signed' => false, 'limit' => 1])
               ->addColumn('player_age', 'integer', ['signed' => false, 'limit' => 3])
@@ -256,11 +256,11 @@ final class InitialSchema extends AbstractMigration
     {
         // bxtf_ranking
         $table = $this->table('bxtf_ranking', ['id' => false, 'primary_key' => ['news_id', 'category_id', 'account_id', 'trainer_id', 'secret_id']]);
-        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
-              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
-              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
+        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2, 'null' => false])
+              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
+              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
               ->addColumn('player_name', 'binary', ['limit' => 7])
               ->addColumn('player_gender', 'integer', ['signed' => false, 'limit' => 1])
               ->addColumn('player_age', 'integer', ['signed' => false, 'limit' => 3])
@@ -276,11 +276,11 @@ final class InitialSchema extends AbstractMigration
     {
         // bxti_ranking
         $table = $this->table('bxti_ranking', ['id' => false, 'primary_key' => ['news_id', 'category_id', 'account_id', 'trainer_id', 'secret_id']]);
-        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
-              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
-              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
+        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2, 'null' => false])
+              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
+              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
               ->addColumn('player_name', 'binary', ['limit' => 7])
               ->addColumn('player_gender', 'integer', ['signed' => false, 'limit' => 1])
               ->addColumn('player_age', 'integer', ['signed' => false, 'limit' => 3])
@@ -296,11 +296,11 @@ final class InitialSchema extends AbstractMigration
     {
         // bxtp_ranking
         $table = $this->table('bxtp_ranking', ['id' => false, 'primary_key' => ['news_id', 'category_id', 'account_id', 'trainer_id', 'secret_id']]);
-        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
-              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
-              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
+        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2, 'null' => false])
+              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
+              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
               ->addColumn('player_name', 'binary', ['limit' => 7])
               ->addColumn('player_gender', 'integer', ['signed' => false, 'limit' => 1])
               ->addColumn('player_age', 'integer', ['signed' => false, 'limit' => 3])
@@ -316,11 +316,11 @@ final class InitialSchema extends AbstractMigration
     {
         // bxts_ranking
         $table = $this->table('bxts_ranking', ['id' => false, 'primary_key' => ['news_id', 'category_id', 'account_id', 'trainer_id', 'secret_id']]);
-        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
-              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
-              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
+        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2, 'null' => false])
+              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
+              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
               ->addColumn('player_name', 'binary', ['limit' => 7])
               ->addColumn('player_gender', 'integer', ['signed' => false, 'limit' => 1])
               ->addColumn('player_age', 'integer', ['signed' => false, 'limit' => 3])
@@ -336,11 +336,11 @@ final class InitialSchema extends AbstractMigration
     {
         // bxtu_ranking
         $table = $this->table('bxtu_ranking', ['id' => false, 'primary_key' => ['news_id', 'category_id', 'account_id', 'trainer_id', 'secret_id']]);
-        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2])
-              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11])
-              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5])
-              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5])
+        $table->addColumn('news_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('category_id', 'integer', ['signed' => false, 'limit' => 2, 'null' => false])
+              ->addColumn('account_id', 'integer', ['signed' => false, 'limit' => 11, 'null' => false])
+              ->addColumn('trainer_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
+              ->addColumn('secret_id', 'integer', ['signed' => false, 'limit' => 5, 'null' => false])
               ->addColumn('player_name', 'binary', ['limit' => 7])
               ->addColumn('player_gender', 'integer', ['signed' => false, 'limit' => 1])
               ->addColumn('player_age', 'integer', ['signed' => false, 'limit' => 3])
@@ -374,7 +374,7 @@ final class InitialSchema extends AbstractMigration
 
         // bxt_ranking_categories
         $table = $this->table('bxt_ranking_categories', ['id' => false, 'primary_key' => 'id']);
-        $table->addColumn('id', 'integer', ['signed' => false, 'limit' => 2])
+        $table->addColumn('id', 'integer', ['signed' => false, 'limit' => 2, 'null' => false])
               ->addColumn('name', 'string', ['limit' => 80])
               ->addColumn('ram_address', 'binary', ['limit' => 2])
               ->addColumn('size', 'integer', ['signed' => false, 'limit' => 1])
@@ -452,7 +452,7 @@ final class InitialSchema extends AbstractMigration
     {
         // amkj_user_map
         $table = $this->table('amkj_user_map', ['id' => false, 'primary_key' => 'player_id']);
-        $table->addColumn('player_id', 'binary', ['limit' => 16])
+        $table->addColumn('player_id', 'binary', ['limit' => 16, 'null' => false])
               ->addColumn('user_id', 'integer', ['limit' => 11, 'null' => true])
               ->create();
 
