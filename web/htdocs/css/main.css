@@ -510,7 +510,7 @@ header.navbar #localeDropdownMenu .dropdown-item {
 
 .crystal-trade-slot {
   float: none;
-  width: calc(250px - 1ch);
+  width: calc(250px - 8px);
   margin: 5px;
   max-height: 480px;
   overflow: visible;
@@ -762,9 +762,12 @@ header.navbar #localeDropdownMenu .dropdown-item {
   white-space: nowrap;
   margin-top: 8px;
   margin-bottom: 2px;
-  margin-left: -1ch;
+  /* Offset in plain px, not ch: under `zoom` Safari resolves `ch` against the
+     already-zoomed font size, so a `ch` offset over-shifts the row left into the
+     sprite and clips the text. This font is fixed-width at 1ch = 8px, so the old
+     `-1ch + 2px` is exactly -6px. (All card ch values are px for the same reason.) */
+  margin-left: -6px;
   position: relative;
-  left: 2px;
   top: -4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -777,9 +780,9 @@ header.navbar #localeDropdownMenu .dropdown-item {
 
 .crystal-trade .offer-species-fixed {
   display: inline-block;
-  width: 10ch;
-  min-width: 10ch;
-  max-width: 10ch;
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
   overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
@@ -788,68 +791,70 @@ header.navbar #localeDropdownMenu .dropdown-item {
 .crystal-trade .offer-level-fixed {
   display: inline-flex;
   align-items: baseline;
-  width: 3ch;
-  min-width: 3ch;
-  max-width: 3ch;
+  width: 24px;
+  min-width: 24px;
+  max-width: 24px;
   overflow: hidden;
   white-space: nowrap;
 }
 
 .crystal-trade .offer-level-prefix {
   display: inline-block;
-  width: 1ch;
-  min-width: 1ch;
-  max-width: 1ch;
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
   overflow: hidden;
-  letter-spacing: -0.45ch;
+  letter-spacing: -3.6px;
 }
 
 .crystal-trade .offer-level-digits {
   display: inline-block;
-  width: 2ch;
-  min-width: 2ch;
-  max-width: 2ch;
+  width: 16px;
+  min-width: 16px;
+  max-width: 16px;
   overflow: hidden;
 }
 
 .crystal-trade .offer-inline-space {
   display: inline-block;
-  width: 1ch;
-  min-width: 1ch;
-  max-width: 1ch;
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
 }
 
 .crystal-trade .offer-gender-fixed {
   display: inline-block;
-  width: 1ch;
-  min-width: 1ch;
-  max-width: 1ch;
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
   text-align: center;
 }
 
 .crystal-trade .offer-shiny-fixed {
   display: inline-block;
-  width: 1ch;
-  min-width: 1ch;
-  max-width: 1ch;
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
   text-align: center;
 }
 
 .crystal-trade .offer-tail-space {
   display: inline-block;
-  width: 1ch;
+  width: 8px;
 }
 
 .crystal-trade .offer-details .offer-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
-  column-gap: 1ch;
+  /* px, not ch: Safari resolves ch against the zoomed font under `zoom` (see
+     .offer-species-line), which over-widens this gap and over-shifts the margin,
+     clipping labels on the left and values on the right. 1ch = 8px for this font. */
+  column-gap: 8px;
   line-height: 1.15;
-  margin-left: -1ch;
+  margin-left: -6px;
   position: relative;
   top: -7px;
-  left: 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -976,7 +981,7 @@ header.navbar #localeDropdownMenu .dropdown-item {
   align-items: flex-end;
   flex: 1 1 auto;
   min-width: 0;
-  margin-left: 0.5ch;
+  margin-left: 4px;
   color: #f8f8f8;
   position: relative;
   top: -2px;
@@ -988,16 +993,16 @@ header.navbar #localeDropdownMenu .dropdown-item {
   color: #f8f8f8;
   text-transform: uppercase;
   display: inline-block;
-  width: 6ch;
-  min-width: 6ch;
-  max-width: 6ch;
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
   overflow: hidden;
 }
 
 .crystal-trade .offer-row-offerer .label {
-  width: 9ch;
-  min-width: 9ch;
-  max-width: 9ch;
+  width: 72px;
+  min-width: 72px;
+  max-width: 72px;
 }
 
 .crystal-trade .wanted-label {
@@ -1011,9 +1016,9 @@ header.navbar #localeDropdownMenu .dropdown-item {
 
 .crystal-trade .wanted-gender-char {
   display: inline-block;
-  width: 1ch;
-  min-width: 1ch;
-  max-width: 1ch;
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
   text-align: center;
   font-size: .9em;
   line-height: 1;
@@ -1023,22 +1028,22 @@ header.navbar #localeDropdownMenu .dropdown-item {
 
 .crystal-trade .wanted-gap-before-gender {
   display: inline-block;
-  width: 1ch;
-  min-width: 1ch;
-  max-width: 1ch;
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
 }
 
 .crystal-trade .wanted-gap-after-gender {
   display: inline-block;
-  width: 1ch;
-  min-width: 1ch;
-  max-width: 1ch;
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
 }
 
 .crystal-trade .wanted-gap-after-gender.wanted-gap-no-gender {
-  width: 1ch;
-  min-width: 1ch;
-  max-width: 1ch;
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
 }
 
 .crystal-trade .request-species {
@@ -1058,7 +1063,7 @@ header.navbar #localeDropdownMenu .dropdown-item {
   object-fit: contain;
   image-rendering: pixelated;
   margin-left: auto;
-  margin-right: calc(1px + 1.5ch);
+  margin-right: calc(1px + 12px);
   align-self: flex-end;
   flex: 0 0 auto;
 }

@@ -254,7 +254,9 @@
   margin: 0;
   display: block !important;
   position: relative;
-  padding-left: calc(7px + 1ch);
+  /* px, not ch: this list is inside the zoomed .battle-table-panel, and Safari
+     over-scales `ch` under `zoom` (see trade-corner cards). 1ch = 8px for this font. */
+  padding-left: calc(7px + 8px);
   white-space: nowrap;
 }
 

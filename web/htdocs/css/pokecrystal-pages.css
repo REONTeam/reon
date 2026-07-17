@@ -1,6 +1,6 @@
 @font-face {
   font-family: "PokeCrystal";
-  src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
+  src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v6") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -14,141 +14,161 @@
 .trainer-rankings-page *,
 .save-converter-page,
 .save-converter-page * {
-  font-family: "PokeCrystal", monospace !important;
+  font-family: "PokeCrystal", monospace;
+  font-size: 8px;
+  font-weight: 400;
+  line-height: 1;
+  font-kerning: none;
+  font-variant-ligatures: normal;
+  font-feature-settings: "kern" 0, "liga" 1, "clig" 1;
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: auto;
+  font-smooth: never;
+  text-rendering: optimizeSpeed;
+  text-size-adjust: 100%;
+}
+
+/* Everything inside a trade card must render at the 8px pixel size. main.css sizes
+   card text with deep selectors (e.g. .crystal-trade .offer-details .offer-row) in
+   relative units; this is the one non-media spot where !important is required. Scoping
+   it (rather than a blanket .exchange-page * !important) is what lets the rest of the
+   non-media rules drop !important without the title/search/etc. needing it back. */
+.exchange-page .crystal-trade * {
   font-size: 8px !important;
-  font-weight: 400 !important;
   line-height: 1 !important;
-  font-kerning: none !important;
-  font-variant-ligatures: normal !important;
-  font-feature-settings: "kern" 0, "liga" 1, "clig" 1 !important;
-  font-synthesis: none !important;
-  -webkit-font-smoothing: none !important;
-  -moz-osx-font-smoothing: auto !important;
-  font-smooth: never !important;
-  text-rendering: optimizeSpeed !important;
-  text-size-adjust: 100% !important;
+}
+
+/* Save Converter's language labels are sized in relative units by a deeper rule and
+   need the 8px pixel size forced, same as the card text above. */
+.save-converter-page label {
+  font-size: 8px !important;
+  line-height: 1 !important;
 }
 
 .exchange-page :is(input, select, option, textarea, button),
 .battle-tower-page :is(input, select, option, textarea, button),
 .trainer-rankings-page :is(input, select, option, textarea, button),
 .save-converter-page :is(input, select, option, textarea, button) {
-  font-family: "PokeCrystal", monospace !important;
-  font-size: 8px !important;
-  font-weight: 400 !important;
+  font-family: "PokeCrystal", monospace;
+  font-size: 8px;
+  font-weight: 400;
 }
 
 .exchange-page .trade-corner-title,
 .battle-tower-page .trade-corner-title,
 .trainer-rankings-page .trade-corner-title,
 .save-converter-page .trade-corner-title {
-  font-size: 32px !important;
-  line-height: 32px !important;
-  margin: 8px 0 40px !important;
-  letter-spacing: 0 !important;
-  font-weight: 400 !important;
+  font-size: 32px;
+  line-height: 32px;
+  margin: 8px 0 40px;
+  letter-spacing: 0;
+  font-weight: 400;
 }
 
 .exchange-page .trade-region-filter,
 .battle-tower-page .trade-region-filter,
 .trainer-rankings-page .trade-region-filter,
 .save-converter-page .trade-region-filter {
-  font-size: 16px !important;
-  min-height: 34px !important;
-  line-height: 22px !important;
-  padding: 5px 24px 3px 8px !important;
-  overflow-y: auto !important;
+  font-size: 16px;
+  min-height: 34px;
+  line-height: 22px;
+  padding: 5px 24px 3px 8px;
+  overflow-y: auto;
 }
 
 .exchange-page .trade-region-filter option,
 .battle-tower-page .trade-region-filter option,
 .trainer-rankings-page .trade-region-filter option,
 .save-converter-page .trade-region-filter option {
-  font-size: 16px !important;
-  line-height: 16px !important;
+  font-size: 16px;
+  line-height: 16px;
 }
 
 .exchange-page .trade-search-wrap,
 .trainer-rankings-page .trade-search-wrap {
-  width: 640px !important;
-  max-width: calc(100% - 12px) !important;
+  width: 640px;
+  max-width: calc(100% - 12px);
 }
 
 .exchange-page .trade-size-wrap {
-  width: 640px !important;
-  max-width: calc(100% - 12px) !important;
-  justify-content: center !important;
-  align-items: center !important;
-  grid-template-columns: auto auto !important;
-  column-gap: 16px !important;
-  row-gap: 0 !important;
+  width: 640px;
+  max-width: calc(100% - 12px);
+  justify-content: center;
+  align-items: center;
+  grid-template-columns: auto auto;
+  column-gap: 16px;
+  row-gap: 0;
 }
 
 .exchange-page .trade-size-label,
 .exchange-page .trade-size-btn {
-  font-size: 16px !important;
-  line-height: 16px !important;
+  font-size: 16px;
+  line-height: 16px;
 }
 
 .exchange-page .trade-size-buttons {
-  width: auto !important;
-  min-width: 0 !important;
-  display: inline-flex !important;
-  align-items: stretch !important;
-  justify-content: stretch !important;
+  width: auto;
+  min-width: 0;
+  display: inline-flex;
+  align-items: stretch;
+  justify-content: stretch;
 }
 
 .exchange-page .trade-size-btn {
-  min-height: 32px !important;
-  padding: 4px 0.75ch !important;
-  font-size: 16px !important;
-  line-height: 16px !important;
+  min-height: 32px;
+  padding: 4px 0.75ch;
+  font-size: 16px;
+  line-height: 16px;
 }
 
 .exchange-page .trade-search-input,
 .trainer-rankings-page .trade-search-input {
-  font-size: 16px !important;
-  min-height: 34px !important;
-  line-height: 22px !important;
-  padding: 5px 30px 3px 40px !important;
+  font-size: 16px;
+  min-height: 34px;
+  line-height: 22px;
+  padding: 5px 30px 3px 40px;
 }
 
 .exchange-page .trade-search-tail-input {
-  font-size: 16px !important;
-  min-height: 22px !important;
-  line-height: 22px !important;
-  padding: 0 !important;
+  font-size: 16px;
+  min-height: 22px;
+  line-height: 22px;
+  padding: 0;
 }
 
 .exchange-page .trade-search-tokenized .trade-search-tail-input:focus {
-  outline: 0 !important;
-  box-shadow: none !important;
+  outline: 0;
+  box-shadow: none;
 }
 
 .exchange-page .trade-search-tail-input.trade-search-tail-input-inside-chip {
-  min-height: 16px !important;
-  line-height: 16px !important;
-  color: #000 !important;
-  background: #fff !important;
-  caret-color: #000 !important;
+  min-height: 16px;
+  line-height: 16px;
+  color: #000;
+  background: #fff;
+  caret-color: #000;
 }
 
 .exchange-page .trade-search-input-hidden {
-  min-height: 0 !important;
-  height: 1px !important;
-  line-height: 0 !important;
-  padding: 0 !important;
+  min-height: 0;
+  height: 1px;
+  line-height: 0;
+  padding: 0;
 }
 
 .exchange-page .trade-search-tokenized {
-  min-height: 34px !important;
-  padding-top: 5px !important;
-  padding-bottom: 3px !important;
-  padding-left: 40px !important;
+  /* Match the height of a single-chip row so adding a filter never resizes the
+     field and chips keep their natural height. Content is centred, so the empty
+     placeholder still sits mid-field. Multiple chips still wrap to more rows. */
+  min-height: 40px;
+  padding-top: 5px;
+  padding-bottom: 3px;
+  padding-left: 40px;
 }
 
 .exchange-page .trade-search-chip-list {
-  display: contents !important;
+  display: contents;
 }
 
 .exchange-page .trade-search-chip,
@@ -158,62 +178,73 @@
 .exchange-page .trade-search-chip-remove,
 .exchange-page .trade-search-tag-label,
 .exchange-page .trade-search-tag-pill {
-  font-size: 16px !important;
-  line-height: 16px !important;
-  -webkit-font-smoothing: none !important;
-  -moz-osx-font-smoothing: auto !important;
-  font-smooth: never !important;
-  text-rendering: optimizeSpeed !important;
+  font-size: 16px;
+  line-height: 16px;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: auto;
+  font-smooth: never;
+  text-rendering: optimizeSpeed;
 }
 
 .exchange-page .trade-search-chip {
-  padding: 4px !important;
-  max-width: 100% !important;
+  padding: 4px;
+  max-width: 100%;
 }
 
 .exchange-page .trade-search-chip-value {
-  max-width: min(48ch, 100%) !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+  max-width: min(48ch, 100%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .exchange-page .trade-search-chip-value-composing {
-  overflow: hidden !important;
+  overflow: hidden;
+}
+
+/* On/off (shiny, pokerus) and gender tag chips keep the normal white value box but
+   hold a font glyph instead of typed text: the font's × when a boolean filter is on
+   (blank when off, so the box stays), or ♂/♀ for gender. The glyph is centred and the
+   box is clickable to toggle/swap. */
+.exchange-page .trade-search-chip-value.trade-search-chip-boolean,
+.exchange-page .trade-search-chip-value.trade-search-chip-gender {
+  justify-content: center;
+  min-width: 2.5ch;
+  cursor: pointer;
 }
 
 .exchange-page .trade-search-tail-input.trade-search-tail-input-inside-chip {
-  max-width: 100% !important;
-  overflow-x: auto !important;
-  white-space: nowrap !important;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .exchange-page .trade-search-chip,
 .exchange-page .trade-search-tag-pill {
-  flex: 0 0 auto !important;
-  left: var(--trade-search-pixel-nudge-x, 0) !important;
-  top: var(--trade-search-pixel-nudge-y, 0) !important;
+  flex: 0 0 auto;
+  left: var(--trade-search-pixel-nudge-x, 0);
+  top: var(--trade-search-pixel-nudge-y, 0);
 }
 
 .exchange-page .trade-search-wrap::before,
 .trainer-rankings-page .trade-search-wrap::before {
-  width: 24px !important;
-  height: 24px !important;
-  background-size: 24px 24px !important;
-  left: 8px !important;
-  background-image: var(--search-icon-image, url("/images/crystal/Slowpoke_0.png")) !important;
-  image-rendering: pixelated !important;
+  width: 24px;
+  height: 24px;
+  background-size: 24px 24px;
+  left: 8px;
+  background-image: var(--search-icon-image, url("/images/crystal/Slowpoke_0.png"));
+  image-rendering: pixelated;
 }
 
 .exchange-page .trade-remaining {
-  font-size: 16px !important;
-  line-height: 16px !important;
-  white-space: nowrap !important;
+  font-size: 16px;
+  line-height: 16px;
+  white-space: nowrap;
 }
 
 .battle-tower-page .battle-honor-roll-label {
-  font-size: 16px !important;
-  line-height: 16px !important;
+  font-size: 16px;
+  line-height: 16px;
 }
 
 .exchange-page .trade-warning,
@@ -221,24 +252,24 @@
 .battle-tower-page .battle-honor-table td,
 .trainer-rankings-page .trainer-ranking-table th,
 .trainer-rankings-page .trainer-ranking-table td {
-  letter-spacing: 0 !important;
-  text-rendering: optimizeSpeed !important;
-  font-size: 8px !important;
-  line-height: 1 !important;
-  text-shadow: none !important;
-  font-synthesis: none !important;
-  -webkit-font-smoothing: none !important;
+  letter-spacing: 0;
+  text-rendering: optimizeSpeed;
+  font-size: 8px;
+  line-height: 1;
+  text-shadow: none;
+  font-synthesis: none;
+  -webkit-font-smoothing: none;
 }
 
 .exchange-page .gender-male,
 .exchange-page .gender-female {
-  width: auto !important;
-  height: auto !important;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
-  background: none !important;
-  color: inherit !important;
-  vertical-align: baseline !important;
+  width: auto;
+  height: auto;
+  mask-image: none;
+  -webkit-mask-image: none;
+  background: none;
+  color: inherit;
+  vertical-align: baseline;
 }
 
 .battle-tower-page .battle-honor-roll-label,
@@ -246,8 +277,8 @@
 .trainer-rankings-page .trainer-ranking-table thead th,
 .save-converter-page .save-converter-label,
 .save-converter-page .save-convert-btn {
-  letter-spacing: 0 !important;
-  font-weight: 400 !important;
+  letter-spacing: 0;
+  font-weight: 400;
 }
 
 /* Keep numeric text tight (no wide-spacing on digits). */
@@ -255,7 +286,7 @@
 .battle-tower-page :is(input, select, option, td, .bt-message-box, .bt-pokemon-list),
 .trainer-rankings-page :is(input, select, option, td, .ranking-col-rank, .ranking-col-score, .ranking-message-box),
 .save-converter-page :is(input, select, option, .save-file-input, .save-converter-status) {
-  letter-spacing: normal !important;
+  letter-spacing: normal;
 }
 
 :root {
@@ -430,34 +461,34 @@ body.rankings-theme > main {
 
 .exchange-page .trade-no-results,
 .exchange-page .trade-no-results.crystal-empty-message {
-  font-size: 16px !important;
-  line-height: 16px !important;
+  font-size: 16px;
+  line-height: 16px;
 }
 
 .trainer-rankings-page .crystal-empty-message,
 .battle-tower-page .crystal-empty-message {
-  font-size: 16px !important;
-  line-height: 16px !important;
+  font-size: 16px;
+  line-height: 16px;
 }
 
 .trainer-rankings-page .trainer-rankings-issue {
-  font-size: 24px !important;
-  line-height: 24px !important;
-  letter-spacing: 0 !important;
-  font-weight: 400 !important;
+  font-size: 24px;
+  line-height: 24px;
+  letter-spacing: 0;
+  font-weight: 400;
 }
 
 .trainer-rankings-page .trainer-ranking-table td.crystal-empty-message,
 .trainer-rankings-page .ranking-page-empty.crystal-empty-message,
 .battle-tower-page .battle-honor-table td.crystal-empty-message {
-  font-size: 16px !important;
-  line-height: 16px !important;
+  font-size: 16px;
+  line-height: 16px;
 }
 
 .trainer-rankings-page .rankings-zoom-label,
 .battle-tower-page .battle-zoom-label {
-  font-size: 16px !important;
-  line-height: 16px !important;
+  font-size: 16px;
+  line-height: 16px;
 }
 
 @media (max-width: 768px) {
