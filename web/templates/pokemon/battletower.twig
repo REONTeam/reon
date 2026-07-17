@@ -4,21 +4,8 @@
 {% block title %}Pok&eacute;mon - Battle Tower{% endblock %}
 
 {% block head %}
-<link href="/css/battle-tower.css?v=battle-tower-v27" rel="stylesheet">
-<link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v50" rel="stylesheet">
-<style>
-    @font-face {
-        font-family: "PokeCrystalInline";
-        src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
-        font-weight: 400;
-        font-style: normal;
-    }
-    .battle-tower-page,
-    .battle-tower-page * {
-        font-family: "PokeCrystalInline", "PokeCrystal", monospace !important;
-        font-weight: 400 !important;
-    }
-</style>
+<link href="{{ asset('/css/battle-tower.css') }}" rel="stylesheet">
+<link href="{{ asset('/css/pokecrystal-pages.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}

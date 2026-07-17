@@ -15,6 +15,17 @@
 				'auto_reload' => true,
 			]);
 			$this->twig->addExtension(new \Symfony\Bridge\Twig\Extension\TranslationExtension(self::getTranslator()));
+
+			// Cache-busting: append the file's modification time as ?v= so changed
+			// assets are re-fetched automatically, instead of hand-bumped version
+			// strings. Assets live under htdocs/ and are referenced by their URL path
+			// (e.g. asset('/css/main.css')). Missing file => return the path unversioned
+			// so the asset still loads.
+			$this->twig->addFunction(new \Twig\TwigFunction('asset', function ($path) {
+				$file = dirname(__DIR__) . '/htdocs' . $path;
+				$mtime = @filemtime($file);
+				return $mtime ? $path . '?v=' . $mtime : $path;
+			}));
 		}
 
 		public static function render($template, $vars = null) {
