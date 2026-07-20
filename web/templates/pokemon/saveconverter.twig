@@ -4,21 +4,8 @@
 {% block title %}Pok&eacute;mon - BXT Save Converter{% endblock %}
 
 {% block head %}
-<link href="/css/saveconverter.css?v=bxt-save-converter-v4" rel="stylesheet">
-<link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v42" rel="stylesheet">
-<style>
-    @font-face {
-        font-family: "PokeCrystalInline";
-        src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
-        font-weight: 400;
-        font-style: normal;
-    }
-    .save-converter-page,
-    .save-converter-page * {
-        font-family: "PokeCrystalInline", "PokeCrystal", monospace !important;
-        font-weight: 400 !important;
-    }
-</style>
+<link href="{{ asset('/css/saveconverter.css') }}" rel="stylesheet">
+<link href="{{ asset('/css/pokecrystal-pages.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -62,7 +49,7 @@
 {% endblock %}
 
 {% block body %}
-<script src="/js/saveconverter.js?v=bxt-save-converter-v3"></script>
+<script src="{{ asset('/js/saveconverter.js') }}"></script>
 {% endblock %}
 
 

@@ -2,20 +2,7 @@
 
 {% block title %}Pok&eacute;mon - Trade Corner{% endblock %}
 {% block head %}
-    <link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v50" rel="stylesheet">
-    <style>
-        @font-face {
-            font-family: "PokeCrystalInline";
-            src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
-            font-weight: 400;
-            font-style: normal;
-        }
-        .exchange-page,
-        .exchange-page * {
-            font-family: "PokeCrystalInline", "PokeCrystal", monospace !important;
-            font-weight: 400 !important;
-        }
-    </style>
+    <link href="{{ asset('/css/pokecrystal-pages.css') }}" rel="stylesheet">
 {% endblock %}
 {% block content %}
     <div class="exchange-page">
@@ -115,7 +102,7 @@
                 <img class="sprite-pokemon sprite-hoveranim" src="{{static_path}}" data-static-src="{{static_path}}" data-anim-src="{{anim_path}}" alt="{{offer_species_label}}" loading="lazy">
                 <div class="offer-region-line" title="{{ trade.region_hover_text|default('') }}">{{ trade.region_display_fullwidth|default('') }}</div>
                 {% if trade.pokemon.pokerus %}
-                    <img class="offer-pkrs-tag" src="/images/crystal/TradeCornerPKRSTag.png?v={{ trade_asset_rev }}" alt="" loading="lazy">
+                    <img class="offer-pkrs-tag" src="/images/crystal/pokerus_bg.svg?v={{ trade_asset_rev }}" alt="" loading="lazy">
                 {% endif %}
                 <div class="offer-pokerus-line{% if trade.pokemon.pokerus %} pokerus-active{% endif %}">
                     {% if trade.pokemon.pokerus %}
@@ -255,8 +242,8 @@
     }
 })();
 </script>
-<script src="/js/crystal-search-ui.js?v=crystal-search-ui-v8"></script>
-<script src="/js/exchange-hover-anim.js?v=exchange-hover-anim-v16"></script>
+<script src="{{ asset('/js/crystal-search-ui.js') }}"></script>
+<script src="{{ asset('/js/exchange-hover-anim.js') }}"></script>
 {% endblock %}
 
 

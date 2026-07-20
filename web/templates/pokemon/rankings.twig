@@ -4,21 +4,8 @@
 {% block title %}Pok&eacute;mon - Rankings{% endblock %}
 
 {% block head %}
-<link href="/css/rankings.css?v=trainer-rankings-v48" rel="stylesheet">
-<link href="/css/pokecrystal-pages.css?v=pokecrystal-pages-v50" rel="stylesheet">
-<style>
-    @font-face {
-        font-family: "PokeCrystalInline";
-        src: url("/fonts/Crystal/pokecrystal.ttf?v=pokecrystal-font-v5") format("truetype");
-        font-weight: 400;
-        font-style: normal;
-    }
-    .trainer-rankings-page,
-    .trainer-rankings-page * {
-        font-family: "PokeCrystalInline", "PokeCrystal", monospace !important;
-        font-weight: 400 !important;
-    }
-</style>
+<link href="{{ asset('/css/rankings.css') }}" rel="stylesheet">
+<link href="{{ asset('/css/pokecrystal-pages.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -158,7 +145,7 @@
 {% endblock %}
 
 {% block body %}
-<script src="/js/crystal-search-ui.js?v=crystal-search-ui-v8"></script>
+<script src="{{ asset('/js/crystal-search-ui.js') }}"></script>
 <script>
 (() => {
     "use strict";
