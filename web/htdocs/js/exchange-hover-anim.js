@@ -333,6 +333,19 @@
     return null;
   }
 
+  // Fields whose only meaningful value is on/off. Their chips show a checkbox the
+  // user clicks instead of typing yes/no. The stored value is still a plain term
+  // ("yes"/"no") so the query string and the filter logic stay unchanged.
+  var BOOLEAN_TAG_FIELDS = { shiny: true, pokerus: true };
+
+  function isBooleanTagField(field) {
+    return !!BOOLEAN_TAG_FIELDS[String(field || "").toLowerCase()];
+  }
+
+  function isTruthyChipValue(value) {
+    return parseBooleanFromTerms(tokenize(String(value || ""))) === true;
+  }
+
   function parseGenderFromTerms(terms) {
     var maleTokens = {
       m: true,
@@ -374,6 +387,25 @@
       return "female";
     }
     return "";
+  }
+
+  // Gender is a two-state symbol field: its chip shows ♂/♀ and clicking it swaps
+  // between them (defaulting to male), instead of typing m/f. The stored value stays
+  // a plain term ("male"/"female") so the query string and filter logic are unchanged.
+  function isGenderTagField(field) {
+    return String(field || "").toLowerCase() === "gender";
+  }
+
+  function genderSymbolForValue(value) {
+    return parseGenderFromTerms(tokenize(String(value || ""))) === "female"
+      ? "♀"   // ♀
+      : "♂";  // ♂ (also the default when unset)
+  }
+
+  function swapGenderValue(value) {
+    return parseGenderFromTerms(tokenize(String(value || ""))) === "female"
+      ? "male"
+      : "female";
   }
 
   function registerTagAlias(alias, field) {
@@ -860,6 +892,21 @@
         searchTailInput.setAttribute("placeholder", "");
         valueNode.appendChild(searchTailInput);
         hostedTailInputInsideChip = true;
+      } else if (isBooleanTagField(chip.field)) {
+        var checkedValue = isTruthyChipValue(chip.value);
+        valueNode.classList.add("trade-search-chip-boolean");
+        valueNode.setAttribute("role", "img");
+        valueNode.setAttribute("aria-label", checkedValue ? "yes" : "no");
+        // Font \u00D7 (same glyph as the remove button) when on; blank keeps the box sized.
+        valueNode.textContent = checkedValue ? "\u00D7" : "\u00A0";
+      } else if (isGenderTagField(chip.field)) {
+        valueNode.classList.add("trade-search-chip-gender");
+        valueNode.setAttribute("role", "img");
+        valueNode.setAttribute(
+          "aria-label",
+          parseGenderFromTerms(tokenize(chip.value)) === "female" ? "female" : "male"
+        );
+        valueNode.textContent = genderSymbolForValue(chip.value);
       } else {
         valueNode.textContent = chip.value || "\u00A0";
       }
@@ -2216,6 +2263,18 @@
       }
       event.preventDefault();
       event.stopPropagation();
+      if (isBooleanTagField(field) || isGenderTagField(field)) {
+        if (activeTokenizedChipIndex >= 0) {
+          finalizeActiveTokenizedChip();
+        }
+        // Boolean fields default to on (yes); gender defaults to male.
+        pushTokenizedSearchChip(field, isGenderTagField(field) ? "male" : "yes", false, false);
+        applyTokenizedSearchState();
+        if (searchTailInput) {
+          searchTailInput.focus();
+        }
+        return;
+      }
       beginActiveTokenizedChip(field, "", true);
       applyTokenizedSearchStateWithoutRender();
     };
@@ -2268,6 +2327,25 @@
       }
       var editIdx = parseInt(chipNode.getAttribute("data-chip-index") || "-1", 10);
       if (!Number.isFinite(editIdx) || editIdx < 0) {
+        return;
+      }
+      var editChip = tokenizedSearchChips[editIdx];
+      if (editChip && isBooleanTagField(editChip.field)) {
+        editChip.value = isTruthyChipValue(editChip.value) ? "no" : "yes";
+        editChip.composing = false;
+        applyTokenizedSearchState();
+        if (searchTailInput) {
+          searchTailInput.focus();
+        }
+        return;
+      }
+      if (editChip && isGenderTagField(editChip.field)) {
+        editChip.value = swapGenderValue(editChip.value);
+        editChip.composing = false;
+        applyTokenizedSearchState();
+        if (searchTailInput) {
+          searchTailInput.focus();
+        }
         return;
       }
       startEditingTokenizedChip(editIdx);
