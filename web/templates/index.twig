@@ -3,9 +3,25 @@
 
 {% block title %}{{'home'|trans}}{% endblock %}
 {% block content %}
-	<h1>What is REON?</h1>
-	<p>REON is something.</p>
-	<p>Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-	<h1>What is the Mobile Adapter?</h1>
-	<p>The Mobile Adapter was a thing.</p>
+	<h1>What is REON? (TEMP, NOT FINALIZED)</h1>
+	<p>REON is a revival of Nintendo's Japan-exclusive &ldquo;Mobile System
+    GB&rdquo; service, which brought online functionality to games like
+    <i>Pok&eacute;mon Crystal</i> and <i>Mario Kart: Super Circuit</i>. Using a
+    device called the &ldquo;Mobile Adapter GB&rdquo;, you could connect your
+    Game Boy Color or Game Boy Advance to a mobile phone, and unlock a side of
+    these games that players haven't seen since 2002, if ever.</p>
+    <p>The folks who work on REON aren't just bringing these games back
+    online&mdash;they're also bringing their online functionality to other
+    languages and countries, so that people outside of Japan can experience a
+    new side of these games for the first time.</p>
+    <h2>How to connect</h2>
+    <ol>
+        <li>Need mGBA with libmobile, or BGB + libmobile-bgb command line tool</li>
+        <li>Also need a patched version of your game, if outside of Japan</li>
+        <li>Sign up for a REON account</li>
+        <li>Download the config.bin file, and feed it into your emulator of choice via XXX method. You'll be auto-assigned a phone number by the relay server</li>
+        <li>Alternative (in the future): set up via Mobile Trainer</li>
+        <li>Boot your games with libmobile connected, and set in-game settings too (stuff like "which adapter" and ur password)</li>
+        <li>PHEW!!! You can try going online now!</li>
+    </ol>
 {% endblock %}
