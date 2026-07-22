@@ -1,0 +1,554 @@
+/* ==========================================================================
+   Homepage v2 — "2003 Nintendo" design language (gem-pills, connector vine,
+   star dividers, pickup headers). Loaded only by index2.php / index_v2.twig,
+   layered on top of home.css, so the original homepage is untouched.
+   ========================================================================== */
+
+/* ---- narrow 2000s layout on a tiled pattern field ---- */
+/* Blue "water ripple" tile, recreated from the Mobile Trainer manual pages.
+   The whole page narrows to an early-2000s fixed width; the pattern shows in
+   the margins, with the content sitting on a white "sheet" like sites did then. */
+body.home-v2 {
+  background-color: #d4ebfa;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='14'%3E%3Cpath d='M0 10 Q10 4 20 10 T40 10' fill='none' stroke='%239fccec' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 40px 14px;
+  background-attachment: fixed;
+}
+
+/* Narrow 2000s width; nav, ticker and content are each their own boxed panel
+   floating on the pattern field — the nav boxed to match the news ticker. */
+body.home-v2 .container-xxl {
+  max-width: 860px;
+}
+
+body.home-v2 header.navbar {
+  background: #ffffff !important;
+  border: 2px solid var(--reon-line);
+  border-radius: 10px;
+  box-shadow: var(--reon-shadow-hard);
+  margin-top: 12px;
+}
+
+/* Hide the shared standalone ticker strip; v2 renders its own inside the box */
+body.home-v2 > div.container-xxl {
+  display: none;
+}
+
+/* Ticker sits flush at the top of the page box */
+body.home-v2 main#content .reon-ticker {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+body.home-v2 main#content {
+  background: #faf6e2; /* warm cream page, like the Mobile System GB content boxes */
+  border: 2px solid var(--reon-line);
+  border-radius: 12px;
+  box-shadow: var(--reon-shadow-hard);
+  padding: 16px 18px 24px;
+}
+
+/* Keep the nav on one row at the narrow width */
+body.home-v2 header.navbar .nav-link {
+  padding-left: 0.55rem;
+  padding-right: 0.55rem;
+}
+
+/* Primary nav lives in the left sidebar on v2 — hide the top-header main links
+   (logo + account/language stay in the top bar). */
+body.home-v2 header.navbar nav > ul.navbar-nav {
+  display: none;
+}
+
+/* Two-column page: gem-pill sidebar nav + main content */
+.home-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-top: 4px;
+}
+
+.home-sidebar {
+  flex: 0 0 198px;
+}
+
+.home-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.reon-menu--side {
+  max-width: none;
+  margin: 0;
+  padding-left: 4px;
+}
+
+.reon-menu--side .reon-menu-item {
+  font-size: 0.8rem;
+  padding: 8px 10px 8px 8px;
+  gap: 9px;
+  margin: 10px 0;
+}
+
+.reon-menu--side .reon-menu-item .label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reon-menu--side .reon-gem {
+  width: 22px;
+  height: 22px;
+}
+
+@media (max-width: 640px) {
+  .home-layout { flex-direction: column; }
+  .home-sidebar { flex-basis: auto; width: 100%; }
+}
+
+/* ==========================================================================
+   Dense Japanese-portal furniture (news box, status box, pickup grid)
+   ========================================================================== */
+
+.reon-pickup__jp {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  color: #c5d2e8;
+  letter-spacing: 0.05em;
+}
+
+.reon-inforow {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0 4px;
+}
+
+.reon-inforow > * {
+  flex: 1 1 50%;
+  min-width: 0;
+}
+
+.reon-box {
+  border: 1px solid var(--reon-line);
+  background: #fffdf4;
+  box-shadow: 2px 2px 0 rgba(26, 28, 38, 0.22);
+}
+
+.reon-box__bar {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  padding: 5px 10px;
+  background: var(--reon-blue-deep);
+  color: #fff;
+  font-family: var(--reon-font-display);
+  font-size: 0.85rem;
+}
+
+.reon-box__bar--teal { background: var(--reon-teal); }
+
+.reon-box__jp {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+  opacity: 0.9;
+}
+
+.reon-news {
+  list-style: none;
+  margin: 0;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+}
+
+.reon-news li {
+  padding: 5px 0;
+  border-bottom: 2px dotted #d8cfae;
+  line-height: 1.35;
+}
+
+.reon-news li:last-child { border-bottom: 0; }
+
+.reon-news__date {
+  color: var(--reon-teal);
+  font-family: var(--reon-font-display);
+  font-size: 0.76rem;
+  margin-right: 7px;
+}
+
+.reon-status {
+  margin: 0;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+}
+
+.reon-status > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 2px dotted #d8cfae;
+}
+
+.reon-status > div:last-child { border-bottom: 0; }
+.reon-status dt { color: var(--reon-ink-soft); font-weight: normal; }
+.reon-status dd { margin: 0; font-family: var(--reon-font-display); }
+
+/* blinking NEW! badge — the era demands it */
+.reon-blink {
+  font-style: normal;
+  color: #e8380d;
+  font-family: var(--reon-font-display);
+  font-size: 0.7rem;
+  margin-left: 7px;
+  animation: reon-blink 1.1s step-start infinite;
+}
+
+@keyframes reon-blink { 50% { opacity: 0; } }
+
+.reon-pickupgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.reon-pickupcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  text-decoration: none;
+  text-align: center;
+  border: 1px solid var(--reon-line);
+  border-top: 4px solid var(--pc, var(--reon-blue-deep));
+  background: #fff;
+  color: var(--reon-ink);
+  font-family: var(--reon-font-display);
+  font-size: 0.78rem;
+  box-shadow: 2px 2px 0 rgba(26, 28, 38, 0.22);
+}
+
+.reon-pickupcard:hover { background: #fff8dc; color: var(--reon-ink); }
+.reon-pickupcard img { height: 40px; width: auto; image-rendering: pixelated; }
+.reon-pickupcard .reon-blink { margin-left: 0; }
+
+/* ---- density: tighten the whole column ---- */
+body.home-v2 main#content { padding: 12px 14px 18px; }
+
+.home-v2 .home-hero { padding: 12px 16px 16px; }
+.home-v2 .reon-rig { max-width: 400px; margin: 0 auto 2px; }
+.home-v2 .home-hero__eyebrow { font-size: 0.72rem; margin-bottom: 2px; }
+.home-v2 .home-hero__title { font-size: clamp(2rem, 5vw, 2.8rem); margin: 0 0 8px; }
+.home-v2 .home-hero__tagline { font-size: 0.92rem; margin-bottom: 12px; }
+
+.home-v2 .home-prose {
+  max-width: none;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.home-v2 .reon-divider { margin: 28px 0; }
+.home-v2 .reon-pickup { margin: 16px 0 12px; }
+
+/* ---- footer identity ---- */
+.reon-footer {
+  margin-top: 34px;
+  text-align: center;
+}
+
+.reon-footer__nav { margin-bottom: 12px; }
+
+.reon-footer__meta {
+  font-family: var(--reon-font-display);
+  font-size: 0.82rem;
+  color: var(--reon-ink-soft);
+  margin: 6px 0 2px;
+}
+
+.reon-footer__gh { color: var(--reon-blue-deep); }
+.reon-footer__dot { margin: 0 7px; color: #b8ad8a; }
+
+.reon-footer__gag {
+  font-family: var(--reon-font-display);
+  font-size: 0.72rem;
+  color: #b3a983;
+  margin: 2px 0 0;
+}
+
+/* ---- floating widgets (fixed; the only non-static bits) ---- */
+.reon-float {
+  position: fixed;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border: 2px solid var(--reon-line);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #dfe6f0 100%);
+  box-shadow: var(--reon-shadow-hard);
+  color: var(--reon-blue-deep);
+  font-family: var(--reon-font-display);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.reon-float:hover { filter: brightness(1.05); color: var(--reon-blue-deep); }
+.reon-float:active { transform: translateY(1px); }
+
+.reon-float__glyph { width: 18px; height: 18px; }
+
+.reon-float--account { top: 16px; right: 18px; }
+.reon-float--top { bottom: 16px; right: 18px; padding: 8px 12px; }
+
+/* ---- deep royal-blue bubble hero (Mobile Trainer manual cover) ---- */
+.home-v2 .home-hero {
+  flex-direction: column;
+  align-items: stretch;
+  border-color: #0c3468;
+  color: #eaf2fc;
+  background:
+    radial-gradient(circle at 12% 22%, rgba(255, 255, 255, 0.20) 0 42px, transparent 44px),
+    radial-gradient(circle at 74% 28%, rgba(255, 255, 255, 0.14) 0 74px, transparent 76px),
+    radial-gradient(circle at 40% 82%, rgba(255, 255, 255, 0.12) 0 58px, transparent 60px),
+    radial-gradient(circle at 90% 74%, rgba(255, 255, 255, 0.16) 0 46px, transparent 48px),
+    radial-gradient(circle at 60% 12%, rgba(255, 255, 255, 0.10) 0 30px, transparent 32px),
+    linear-gradient(180deg, #2f74c9 0%, #164e97 55%, #0e3a75 100%);
+}
+
+/* Illustrated cord-header rig (single SVG): phone -cord- adapter(REON) -cord- console */
+.reon-rig {
+  display: block;
+  width: 100%;
+  max-width: 470px;
+  height: auto;
+  margin: 2px auto 8px;
+}
+
+.reon-rig__cord {
+  fill: none;
+  stroke: #a4abae; /* grey cable, same as the connectors (real Mobile Adapter GB) */
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.reon-rig image {
+  filter: drop-shadow(3px 5px 2px rgba(0, 0, 20, 0.38));
+}
+
+.reon-rig__shadow {
+  fill: url(#rigShadow);
+}
+
+/* hero copy sits centered under the rig */
+.home-v2 .home-hero__copy {
+  text-align: center;
+}
+
+.home-v2 .home-hero__title {
+  border: 0;
+  padding: 0;
+}
+
+.home-v2 .home-hero__tagline {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.home-v2 .home-hero__cta {
+  justify-content: center;
+}
+
+.home-v2 .home-hero__eyebrow { color: #9fd0ff; }
+
+/* official REON logo as the hero wordmark; soft light glow lifts the blue
+   logo off the dark blue field */
+.home-v2 .home-hero__logo {
+  margin: 4px 0 10px;
+  border: 0;      /* cancel the theme's default h1 underline */
+  padding: 0;
+}
+
+.home-v2 .home-hero__logo img {
+  display: block;
+  margin: 0 auto;
+  width: min(280px, 64%);
+  height: auto;
+  /* era-correct "sticker" treatment: hard white keyline + hard offset shadow,
+     no soft glow. Brightness lifts the blue off the dark field. */
+  filter:
+    brightness(1.45)
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(3px 3px 0 rgba(4, 16, 44, 0.65));
+}
+
+.home-v2 .home-hero__tagline { color: #eaf2fc; }
+
+/* soft "worldwide" halo behind the adapter so it pops on the blue field */
+.home-v2 .home-hero__product { position: relative; }
+
+.home-v2 .home-hero__product::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.10) 42%, transparent 68%);
+  z-index: 0;
+}
+
+.home-v2 .home-hero__product img { position: relative; z-index: 1; }
+
+/* ---- section header: heart bullet + rainbow gloss bar (Pickup Corner) ---- */
+/* Solid dark rounded header bar + gem bullet + white title INSIDE the bar,
+   like GameCube's "Hardware…" / "Software…" sections. */
+.reon-pickup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 26px 0 16px;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #333a48 0%, #1a1f2b 100%);
+  color: #fff;
+  font-family: var(--reon-font-display);
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 3px rgba(0, 0, 0, 0.3);
+}
+
+.reon-pickup::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, #fff 0 2px, transparent 3.5px),
+    radial-gradient(circle at 50% 60%, var(--reon-blue) 40%, var(--reon-blue-deep) 100%);
+  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.reon-pickup .bar { display: none; }
+
+/* ---- divider: a thin repeating border band after the early-2000s Nintendo
+   section borders, but in the REON/CGB accent palette (blue -> teal blocks) ---- */
+.reon-divider {
+  height: 8px;
+  margin: 30px 0;
+  background: repeating-linear-gradient(90deg,
+    #2e97dd 0 14px,        /* sky blue block */
+    #1667b4 14px 16px,     /* deep-blue transition */
+    #00938a 16px 30px,     /* teal block */
+    #1667b4 30px 32px);    /* deep-blue transition */
+}
+
+/* ---- glossy gem-pill menu, threaded by a connector vine ---- */
+.reon-menu {
+  position: relative;
+  max-width: 460px;
+  margin: 0 auto;
+  padding-left: 6px;
+}
+
+.reon-menu__vine {
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  bottom: 10px;
+  width: 40px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.reon-menu__vine path {
+  fill: none;
+  stroke: url(#reonVineGrad);
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+/* clip the home content to its beige box so the vine's adapter (and anything else
+   reaching past the edge) tucks under the border instead of spilling onto the waves */
+body.home-v2 main#content { overflow: hidden; }
+
+/* the vine plugs into a REON adapter at its bottom end; it sits low and to the
+   left so its far end slips under the page container's border */
+.reon-menu__adapter {
+  position: absolute;
+  left: -93px;
+  top: 290px;
+  width: 121px;
+  transform: rotate(-13deg);
+  transform-origin: 90% 15%;
+  z-index: 0;
+  pointer-events: none;
+  filter: drop-shadow(2px 3px 2px rgba(0, 0, 20, 0.32));
+}
+
+.reon-menu-item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 11px 0;
+  padding: 9px 16px 9px 9px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #1a2340;
+  font-family: var(--reon-font-display);
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f6 46%, #d5dce8 100%);
+  border: 1px solid #b3bccc;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 3px rgba(20, 30, 60, 0.28);
+  transition: filter 0.1s ease, transform 0.06s ease;
+}
+
+.reon-menu-item:hover { filter: brightness(1.04); color: #1a2340; }
+.reon-menu-item:active { transform: translateY(1px); box-shadow: inset 0 2px 3px rgba(20, 30, 60, 0.3); }
+
+/* candy-gem bullet */
+.reon-gem {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, #fff 0 2.5px, rgba(255, 255, 255, 0.65) 4px, transparent 8px),
+    radial-gradient(circle at 50% 60%, var(--gem) 40%, color-mix(in srgb, var(--gem) 60%, #000) 100%);
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.45), 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+/* dotted separator between service rows (GameCube list style); starts past
+   the gem/vine column on the left so it doesn't collide with the vine */
+.reon-dotsep {
+  display: block;
+  height: 0;
+  margin: 3px 14px 3px 48px;
+  border-top: 2px dotted #b6a98a;
+  position: relative;
+  z-index: 1;
+}
+
+.reon-menu-item .label { flex: 1 1 auto; }
+
+.reon-menu-item .thumb {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reon-menu-item .thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+}

@@ -6,6 +6,38 @@ locale:
   it: Italiano
   fr: Français
 
+home: Start
+games: Spiele
+mobile-home: Mobile Startseite
+news: Aktuelles
+status: Status
+players-online: Spieler online
+in-service-since: In Betrieb seit
+welcome-alpha: Willkommen zum Alphatest!
+login: Anmelden
+logout: Abmelden
+signup: Registrieren
+your-account: Mein Konto
+pokemon-crystal: Pokémon Kristall
+gameboy-wars: Game Boy Wars 3
+
+mario-kart:
+  title: Mario Kart
+
+homepage:
+  eyebrow: Das Mobile-GB-System
+  tagline: "Verbinde deinen Game Boy Color mit der Welt. Tausche, kämpfe und klettere in den Ranglisten mit Spielern überall, alles über den Mobile Adapter."
+  learn-more: Mehr erfahren
+  what-is-reon: Was ist REON?
+  intro-1: "REON ist eine Nachbildung des Mobile-GB-Systems: ein vollständiger Onlinedienst für den Game Boy Color, der deinen Handheld mit dem Netzwerk und der weiten Welt verbindet. Es zeigt, wie eine weltweite Veröffentlichung von Nintendos Mobile System GB hätte aussehen können, ein Ort zum Tauschen, Wettkämpfen und Herunterladen, alles aus deiner Handfläche."
+  intro-2: "Der Schlüssel dazu ist der Mobile Adapter. Dieses kleine Zubehör wird an den EXT-Anschluss deines Game Boy Color oder Game Boy Advance angeschlossen und verbindet ihn mit einem Mobiltelefon, sodass sich dein Handheld einwählen und die Dienste von REON von überall mit Empfang erreichen kann."
+  games-services: "Spiele & Dienste"
+  crystal-desc: "Erklimme die nationalen Ranglisten, triff Trainer im Trade Corner und jage die Ruhmesliste des Kampfturms, alles direkt aus der Kristall-Edition."
+  gbwars-desc: "Durchstöbere die Kartengalerie und lade neue Schlachtfelder herunter, um deine Armee aufzustellen und das Kommando zu übernehmen."
+  mariokart-desc: "Trage deine schnellsten Runden ein und fahre gegen Geisterdaten aus aller Welt in den Super-Circuit-Bestenlisten."
+  enter: Öffnen
+  top: Nach oben
+
 pokemon:
   rankings:
     units:

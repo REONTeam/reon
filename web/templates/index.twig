@@ -1,11 +1,132 @@
 {% extends "main.twig" %}
 {% set nav_item = "index" %}
+{% set body_class = "home home-v2" %}
 
 {% block title %}{{'home'|trans}}{% endblock %}
+
+{% block head %}
+	<link href="{{ asset('/css/home.css') }}" rel="stylesheet">
+	<link href="{{ asset('/css/home-v2.css') }}" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-	<h1>What is REON?</h1>
-	<p>REON is something.</p>
-	<p>Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-	<h1>What is the Mobile Adapter?</h1>
-	<p>The Mobile Adapter was a thing.</p>
+	{# news ticker (inside the page box) #}
+	<div class="reon-ticker">
+		<span class="reon-ticker__label">{{'news'|trans}}</span>
+		<marquee class="reon-ticker__scroll">{{'welcome-alpha'|trans}}</marquee>
+	</div>
+
+	<div class="home-layout">
+		{# ---- left sidebar: primary gem-pill navigation (vine-threaded) ---- #}
+		<aside class="home-sidebar">
+			<nav class="reon-menu reon-menu--side">
+				<svg class="reon-menu__vine" viewBox="0 0 40 300" preserveAspectRatio="none" aria-hidden="true">
+					<defs>
+						<linearGradient id="reonVineGrad" x1="0" y1="0" x2="0" y2="1">
+							<stop offset="0" stop-color="#6fb7ec"/>
+							<stop offset="1" stop-color="#1667b4"/>
+						</linearGradient>
+					</defs>
+					<path d="M20 8 C 2 48, 38 88, 20 128 S 2 208, 20 248 S 34 292, 20 296"/>
+				</svg>
+				{# the vine plugs into a REON adapter that slips under the page border #}
+				<img class="reon-menu__adapter" src="/images/mobile_adapter/REON_Blue_Adapter_Horizontal.svg" alt="" aria-hidden="true">
+				<a class="reon-menu-item" href="/index.php" style="--gem:#2e97dd"><span class="reon-gem"></span><span class="label">{{'home'|trans}}</span></a>
+				<a class="reon-menu-item" href="/pokemon/" style="--gem:#b80a41"><span class="reon-gem"></span><span class="label">{{'pokemon-crystal'|trans}}</span></a>
+				<a class="reon-menu-item" href="/gbwars/" style="--gem:#6eb122"><span class="reon-gem"></span><span class="label">{{'gameboy-wars'|trans}}</span></a>
+				<a class="reon-menu-item" href="/mariokart/" style="--gem:#daac06"><span class="reon-gem"></span><span class="label">{{'mario-kart.title'|trans}}</span></a>
+				<a class="reon-menu-item" href="#" onclick="openGbcModal(); return false;" style="--gem:#00938a"><span class="reon-gem"></span><span class="label">{{'mobile-home'|trans}}</span></a>
+			</nav>
+		</aside>
+
+		{# ---- right column: hero + intro ---- #}
+		<div class="home-main">
+			<section class="home-hero">
+				{# Illustrated cord-header on top, composed in one SVG so the cord actually
+				   plugs phone -> adapter(REON) -> console. data-* attrs drive dynamic swaps. #}
+				{# Composition after the compact Mobile Adapter GB product photo:
+				   phone upper-left, adapter bottom-centre, GBC tilted on the right,
+				   cable arcing up the GBC's left side into its link port at the top. #}
+				<svg class="reon-rig" data-console="cgb" data-adapter="blue" data-phone="classic"
+				     viewBox="0 0 560 310" role="img"
+				     aria-label="A mobile phone connected to a Game Boy Color through the REON adapter">
+					<defs>
+						{# ground-shadow: dense core fading out, so it reads as soft contact shadow #}
+						<radialGradient id="rigShadow">
+							<stop offset="0%" stop-color="#04102c" stop-opacity="0.38"/>
+							<stop offset="55%" stop-color="#04102c" stop-opacity="0.20"/>
+							<stop offset="100%" stop-color="#04102c" stop-opacity="0"/>
+						</radialGradient>
+					</defs>
+					<ellipse class="reon-rig__shadow" cx="108" cy="180" rx="36" ry="8"/>
+					<ellipse class="reon-rig__shadow" cx="258" cy="294" rx="94" ry="9"/>
+					<ellipse class="reon-rig__shadow" cx="446" cy="244" rx="80" ry="10"/>
+					{# phone bottom plug curves down into the adapter's left stub #}
+					<path class="reon-rig__cord" d="M103 149 C 112 192, 132 248, 174 262"/>
+					{# adapter right stub: cable sweeps up the GBC's left side into its top link port #}
+					<path class="reon-rig__cord" d="M340 245 C 384 222, 342 150, 326 112 C 314 84, 336 66, 368 84"/>
+					<image class="reon-rig__phone" href="/images/phones/Phone.svg" x="96" y="4" width="34" height="150" transform="rotate(8 113 79)"/>
+					<image class="reon-rig__adapter" href="/images/mobile_adapter/REON_Blue_Adapter_Horizontal.svg" x="170" y="225" width="176" height="58" transform="rotate(-6 258 254)"/>
+					<image class="reon-rig__console" href="/images/cgb/CGB.svg" x="352" y="64" width="128" height="152" transform="rotate(20 416 140)"/>
+				</svg>
+				<div class="home-hero__copy">
+					<p class="home-hero__eyebrow">{{'homepage.eyebrow'|trans}}</p>
+					<h1 class="home-hero__logo"><img src="/images/REON_Logo.svg" alt="REON"></h1>
+					<p class="home-hero__tagline">{{'homepage.tagline'|trans}}</p>
+					<div class="home-hero__cta">
+						<a class="reon-gloss-btn" href="/signup.php">{{'signup'|trans}}</a>
+						<a class="reon-chrome-btn" href="#what-is-reon">{{'homepage.learn-more'|trans}}</a>
+					</div>
+				</div>
+			</section>
+
+			<div class="reon-pickup" id="what-is-reon">{{'homepage.what-is-reon'|trans}}<span class="bar"></span></div>
+			<div class="home-prose">
+				<p>{{'homepage.intro-1'|trans}}</p>
+			</div>
+
+			{# ---- dense portal row: dated news + service status ---- #}
+			<div class="reon-inforow">
+				<section class="reon-box">
+					<h2 class="reon-box__bar">{{'news'|trans}}</h2>
+					<ul class="reon-news">
+						<li><span class="reon-news__date">2026.07.19</span>Trade filters improved<em class="reon-blink">NEW!</em></li>
+						<li><span class="reon-news__date">2026.07.12</span>Battle Tower updated<em class="reon-blink">NEW!</em></li>
+					</ul>
+				</section>
+				<section class="reon-box">
+					<h2 class="reon-box__bar reon-box__bar--teal">{{'status'|trans}}</h2>
+					<dl class="reon-status">
+						<div><dt>{{'players-online'|trans}}</dt><dd>-</dd></div>
+						<div><dt>{{'in-service-since'|trans}}</dt><dd>-</dd></div>
+					</dl>
+				</section>
+			</div>
+
+			{# ---- pickup corner: game highlights ---- #}
+			<div class="reon-pickup">{{'homepage.games-services'|trans}}<span class="bar"></span></div>
+			<div class="reon-pickupgrid">
+				<a href="/pokemon/" class="reon-pickupcard" style="--pc:#b80a41">
+					<img src="/images/crystal/logo.png" alt="">
+					<span>{{'pokemon-crystal'|trans}}</span>
+				</a>
+				<a href="/gbwars/" class="reon-pickupcard" style="--pc:#6eb122">
+					<img src="/images/mobile_adapter/REON_Adapter_Green.svg" alt="">
+					<span>{{'gameboy-wars'|trans}}</span>
+				</a>
+				<a href="/mariokart/" class="reon-pickupcard" style="--pc:#daac06">
+					<img src="/images/mariokart/icon_big_mario.png" alt="">
+					<span>{{'mario-kart.title'|trans}}</span>
+				</a>
+			</div>
+		</div>
+	</div>
+
+	{# ---- footer ---- #}
+	<footer class="reon-footer">
+		<div class="reon-footer__nav">
+			<a class="reon-chrome-btn" href="#top">{{'homepage.top'|trans}}</a>
+		</div>
+	</footer>
+
 {% endblock %}

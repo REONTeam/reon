@@ -74,40 +74,6 @@
 {% endblock %}
 
 {% block body %}
-<script>
-(() => {
-    function findMarioKartAnchor() {
-        return document.querySelector(
-            "header.navbar.container-xxl, header.navbar, main#content.container-xxl, #content.container-xxl, .container-xxl"
-        );
-    }
-
-    function applyMarioKartSideBackgroundVars() {
-        const anchor = findMarioKartAnchor();
-        if (!anchor) {
-            return;
-        }
-        const rect = anchor.getBoundingClientRect();
-        const sideLeft = Math.max(0, Math.round(rect.left));
-        const sideRight = Math.max(0, Math.round(window.innerWidth - rect.right));
-        document.documentElement.style.setProperty("--mkgba-nav-side-left", `${sideLeft}px`);
-        document.documentElement.style.setProperty("--mkgba-nav-side-right", `${sideRight}px`);
-    }
-
-    function initMarioKartSideBackgrounds() {
-        applyMarioKartSideBackgroundVars();
-        window.addEventListener("resize", applyMarioKartSideBackgroundVars, { passive: true });
-        window.addEventListener("load", applyMarioKartSideBackgroundVars, { passive: true });
-        if (document.fonts && typeof document.fonts.ready === "object") {
-            document.fonts.ready.then(applyMarioKartSideBackgroundVars);
-        }
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initMarioKartSideBackgrounds);
-    } else {
-        initMarioKartSideBackgrounds();
-    }
-})();
-</script>
+<script src="{{ asset('/js/side-backgrounds.js') }}"></script>
+<script>initReonSideBackgrounds("mkgba");</script>
 {% endblock %}

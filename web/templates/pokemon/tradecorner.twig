@@ -203,45 +203,8 @@
 {% endblock %}
 
 {% block body %}
-<script>
-(function () {
-    "use strict";
-
-    function findTradeCornerAnchor() {
-        return document.querySelector(
-            "header.navbar.container-xxl, header.navbar, main#content.container-xxl, #content.container-xxl, .container-xxl"
-        );
-    }
-
-    function applyTradeCornerSideBackgroundVars() {
-        var anchor = findTradeCornerAnchor();
-        if (!anchor) {
-            return;
-        }
-        var rect = anchor.getBoundingClientRect();
-        var sideLeft = Math.max(0, Math.round(rect.left));
-        var sideRight = Math.max(0, Math.round(window.innerWidth - rect.right));
-        document.documentElement.style.setProperty("--trade-corner-nav-side-left", sideLeft + "px");
-        document.documentElement.style.setProperty("--trade-corner-nav-side-right", sideRight + "px");
-    }
-
-    function initTradeCornerSideBackgrounds() {
-        document.body.classList.add("trade-corner-theme");
-        applyTradeCornerSideBackgroundVars();
-        window.addEventListener("resize", applyTradeCornerSideBackgroundVars, { passive: true });
-        window.addEventListener("load", applyTradeCornerSideBackgroundVars, { passive: true });
-        if (document.fonts && typeof document.fonts.ready === "object") {
-            document.fonts.ready.then(applyTradeCornerSideBackgroundVars);
-        }
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initTradeCornerSideBackgrounds);
-    } else {
-        initTradeCornerSideBackgrounds();
-    }
-})();
-</script>
+<script src="{{ asset('/js/side-backgrounds.js') }}"></script>
+<script>initReonSideBackgrounds("trade-corner", { bodyClass: "trade-corner-theme" });</script>
 <script src="{{ asset('/js/crystal-search-ui.js') }}"></script>
 <script src="{{ asset('/js/exchange-hover-anim.js') }}"></script>
 {% endblock %}

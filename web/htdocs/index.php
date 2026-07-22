@@ -3,5 +3,5 @@
 	session_start();
 	
 	echo TemplateUtil::render("index", [
-		
+
 	]);

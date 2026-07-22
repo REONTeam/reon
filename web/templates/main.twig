@@ -4,10 +4,19 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>{% block title %}Default Title{% endblock %} - REON</title>
+		<meta name="description" content="{% block meta_description %}REON — a recreation of the Mobile GB System, the online service reached by connecting a Game Boy Color through the Mobile Adapter.{% endblock %}">
+		<meta name="theme-color" content="#1272b0">
+		<link rel="icon" href="{{ asset('/images/REON_Logo.svg') }}" type="image/svg+xml">
+		<meta property="og:site_name" content="REON">
+		<meta property="og:title" content="{% block og_title %}REON — The Mobile GB System{% endblock %}">
+		<meta property="og:description" content="A recreation of the Game Boy Color's Mobile Adapter online service.">
+		<meta property="og:type" content="website">
+		<meta property="og:image" content="{{ asset('/images/REON_Logo.svg') }}">
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+		<link href="{{ asset('/css/mobile-trainer.css') }}" rel="stylesheet">
 		<link href="{{ asset('/css/main.css') }}" rel="stylesheet">
-		<link href="/css/mobile-trainer.css" rel="stylesheet">
+		<link href="{{ asset('/css/reon-theme.css') }}" rel="stylesheet">
 		{% block head %}
 		{% endblock %}
 	</head>
@@ -17,7 +26,12 @@
 				<a href="/index.php" class="navbar-brand">
 					<img src="/images/REON_Logo.svg" alt="REON" class="reon-navbar-logo">
 				</a>
-				
+
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#reonNavbar" aria-controls="reonNavbar" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
+				<div class="collapse navbar-collapse" id="reonNavbar">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 					<li class="nav-item"><a href="/index.php" class="nav-link{% if nav_item == 'index' %}{{ ' active' }}{% endif %}" aria-current="page">{{'home'|trans}}</a></li>
 					<li class="nav-item dropdown">
@@ -33,8 +47,7 @@
 					<li class="nav-item"><a href="#" class="nav-link" onclick="openGbcModal(); return false;">{{'mobile-home'|trans}}</a></li>
 				</ul>
 				
-				<div class="d-flex">
-					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<ul class="navbar-nav mb-2 mb-lg-0 align-items-lg-center reon-navbar-actions">
 						<li class="nav-item dropdown locale-nav-item">
 							<a href="#" class="nav-link dropdown-toggle" id="localeDropdown" role="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
 								{% set lang_tmpl = 'locale.' ~ curr_locale %}{{ lang_tmpl|trans }}
@@ -61,7 +74,10 @@
 		</header>
 		
 		<div class="container-xxl">
-			<marquee>{{'welcome-alpha'|trans}}</marquee>
+			<div class="reon-ticker">
+				<span class="reon-ticker__label">{{'news'|trans}}</span>
+				<marquee class="reon-ticker__scroll">{{'welcome-alpha'|trans}}</marquee>
+			</div>
 		</div>
 		
 		<main id="content" class="container-xxl mt-3 my-md-4">{% block content %}Default Content{% endblock %}</main>
@@ -78,6 +94,11 @@
 						<iframe id="gbc-iframe" class="gbc-frame-iframe" title="Mobile Trainer"></iframe>
 					</div>
 					<img class="gbc-frame-svg" src="/images/cgb/CGB_Transparent_Screen.svg" alt="Game Boy Color">
+					<!-- the link cable runs off the connector to a REON adapter that trails off-screen -->
+					<div class="gbc-link-rig" aria-hidden="true">
+						<img class="gbc-link-rig__adapter" src="/images/mobile_adapter/REON_Blue_Adapter_Horizontal.svg" alt="">
+						<span class="gbc-link-rig__cable"></span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -88,11 +109,10 @@
 				var iframe = document.getElementById('gbc-iframe');
 				// Inject styles when iframe loads
 				iframe.onload = function() {
-					injectGbcStyles(iframe);
-					requestAnimationFrame(alignGbcScreen);
+					try { iframe.contentWindow.focus(); } catch (e) {}
 				};
-				// Load the iframe content only when opening
-				iframe.src = '/01/CGB-B9AJ/index.html';
+				// Load the iframe content only when opening (versioned so edits aren't cached)
+				iframe.src = '{{ asset('/cgb/trainer.html') }}';
 				modal.classList.add('active');
 				document.body.style.overflow = 'hidden';
 			}
@@ -164,7 +184,7 @@
 						menu.style.setProperty('margin-top', '0', 'important');
 						menu.style.setProperty('transform', 'none', 'important');
 						menu.style.setProperty('min-width', minWidth + 'px', 'important');
-						menu.style.setProperty('z-index', '2147483647', 'important');
+						menu.style.setProperty('z-index', '30', 'important');
 						menu.style.setProperty('pointer-events', 'auto', 'important');
 					}
 
