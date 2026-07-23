@@ -106,6 +106,18 @@
   background-size: 100% var(--bt-frame-bottom);
 }
 
+/* The framed box now wraps the title + controls + table. The left/right
+   frame borders and the white backdrop live on this wrapper so everything
+   sits inside one honor-roll shell. */
+.battle-table-inner {
+  position: relative;
+  background-color: #fff;
+  z-index: 2;
+  /* padding-top keeps the white backdrop flush under the top frame border
+     (blocks the title's margin from collapsing out and exposing the wall). */
+  padding-top: 6px;
+}
+
 .battle-table-grid {
   position: relative;
   display: flex;
@@ -115,8 +127,8 @@
   z-index: 2;
 }
 
-.battle-table-grid::before,
-.battle-table-grid::after {
+.battle-table-inner::before,
+.battle-table-inner::after {
   content: "";
   position: absolute;
   top: 0;
@@ -126,14 +138,14 @@
   z-index: 1;
 }
 
-.battle-table-grid::before {
+.battle-table-inner::before {
   left: calc(-1 * var(--bt-frame-left));
   width: var(--bt-frame-left);
   background: url("/images/crystal/HonorRollBorderLeft.png") no-repeat left top;
   background-size: var(--bt-frame-left) 100%;
 }
 
-.battle-table-grid::after {
+.battle-table-inner::after {
   right: calc(-1 * var(--bt-frame-right));
   width: var(--bt-frame-right);
   background: url("/images/crystal/HonorRollBorderRight.png") no-repeat right top;

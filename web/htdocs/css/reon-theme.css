@@ -1,0 +1,556 @@
+/* ==========================================================================
+   REON theme — shared shell skin (early-2000s Nintendo, styled over Bootstrap)
+   --------------------------------------------------------------------------
+   Loaded globally after main.css. Restyles Bootstrap's own component classes
+   (.btn, .card, .navbar, .alert, .form-control, .dropdown-menu) plus a few
+   .reon-* helpers, so no template-wide class renames are needed.
+
+   Game pages (body.*-theme) keep their own identity: the page background and
+   heading display font below are scoped with :not([class*="-theme"]) so the
+   themed pages (gbwars, mariokart, ...) are never touched.
+   ========================================================================== */
+
+:root {
+  /* Brand blues — sampled from REON_Logo.svg */
+  --reon-blue-deep: #1272b0;
+  --reon-blue: #2e97dd;
+  --reon-blue-light: #3eb0f6;
+
+  /* CGB "color family" — the five Game Boy Color marketing hues
+     (same swatch as .cgb-gradient-border and the Mobile Adapter SVGs) */
+  --reon-red: #b80a41;
+  --reon-purple: #4e4ba8;
+  --reon-green: #6eb122;
+  --reon-yellow: #daac06;
+  --reon-teal: #00938a;
+
+  /* Ink & paper */
+  --reon-ink: #1a1c26;      /* near-black text + hard pixel borders */
+  --reon-ink-soft: #4a4d5e; /* muted labels */
+  --reon-paper: #eef0f4;    /* soft off-white page field (CRT-ish) */
+  --reon-panel: #ffffff;    /* raised surface */
+  --reon-line: #1a1c26;     /* border color for the boxed retro look */
+
+  /* Structural bits */
+  --reon-radius: 0;                         /* square corners — border-radius
+                                               didn't exist in the CSS of the era */
+  --reon-shadow-hard: 3px 3px 0 var(--reon-ink);  /* hard offset, no blur */
+  --reon-font-display: "MobileTrainer", "Courier New", monospace;
+
+  /* Bootstrap variable overrides — recolor the framework at the source */
+  --bs-primary: var(--reon-blue-deep);
+  --bs-primary-rgb: 18, 114, 176;
+  --bs-link-color: var(--reon-blue-deep);
+  --bs-link-hover-color: var(--reon-red);
+  --bs-border-radius: var(--reon-radius);
+}
+
+/* ------------------------------------------------------------------ page */
+
+body:not([class*="-theme"]) {
+  background-color: var(--reon-paper);
+  /* faint dotted "graph paper" — quiet early-web texture */
+  background-image: radial-gradient(var(--reon-ink) 0.5px, transparent 0.5px);
+  background-size: 16px 16px;
+  background-position: -1px -1px;
+  color: var(--reon-ink);
+}
+
+/* Display font on shell headings only (game pages excluded) */
+body:not([class*="-theme"]) h1,
+body:not([class*="-theme"]) h2,
+body:not([class*="-theme"]) h3,
+body:not([class*="-theme"]) legend {
+  font-family: var(--reon-font-display);
+  letter-spacing: 0.01em;
+  color: var(--reon-ink);
+}
+
+body:not([class*="-theme"]) h1 {
+  font-size: clamp(1.25rem, 2.4vw, 1.7rem);
+  line-height: 1.2;
+  margin-bottom: 0.6em;
+  /* chunky underline in the brand blue */
+  padding-bottom: 0.25em;
+  border-bottom: 3px solid var(--reon-blue-deep);
+}
+
+body:not([class*="-theme"]) h2 {
+  font-size: clamp(1.05rem, 1.8vw, 1.3rem);
+  line-height: 1.2;
+}
+
+body:not([class*="-theme"]) h3,
+body:not([class*="-theme"]) legend {
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+}
+
+/* ---------------------------------------------------------------- navbar */
+
+header.navbar {
+  background: linear-gradient(180deg, #ffffff 0%, #e7eaf1 100%) !important;
+}
+
+/* Game themes set `body.<theme> > .container-xxl { z-index: 1 }` on every
+   top-level container — including the nav AND the ticker. Because the ticker
+   comes later in the DOM, its stacking context would cover the nav's Games
+   dropdown. Re-raise the nav above its sibling containers on themed pages.
+   (Higher specificity than the theme rule, so it wins regardless of order.) */
+body[class*="-theme"] > header.navbar.container-xxl {
+  position: relative;
+  z-index: 10;
+}
+
+header.navbar .nav-link {
+  font-family: var(--reon-font-display);
+  color: var(--reon-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: color 0.12s ease;
+}
+
+header.navbar .nav-link:hover,
+header.navbar .nav-link:focus {
+  color: var(--reon-blue-deep);
+}
+
+header.navbar .nav-link.active {
+  color: var(--reon-blue-deep);
+  box-shadow: inset 0 -3px 0 var(--reon-blue-deep);
+}
+
+/* ----------------------------------------------------------- reon-panel */
+/* Boxed retro surface: hard border + hard offset shadow, no blur. */
+
+.reon-panel {
+  background: var(--reon-panel);
+  border: 2px solid var(--reon-line);
+  border-radius: var(--reon-radius);
+  box-shadow: var(--reon-shadow-hard);
+}
+
+.reon-panel__header {
+  font-family: var(--reon-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #fff;
+  background: var(--reon-blue-deep);
+  border-bottom: 2px solid var(--reon-line);
+  padding: 6px 12px;
+}
+
+.reon-panel__body {
+  padding: 16px;
+}
+
+/* Bootstrap cards adopt the same look */
+.card {
+  border: 2px solid var(--reon-line);
+  border-radius: var(--reon-radius);
+  box-shadow: var(--reon-shadow-hard);
+}
+
+.card-header {
+  font-family: var(--reon-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #fff;
+  background: var(--reon-blue-deep);
+  border-bottom: 2px solid var(--reon-line);
+}
+
+/* --------------------------------------------------------------- buttons */
+/* Glossy candy button with a hard bevel that "presses" on click. */
+
+.btn {
+  font-family: var(--reon-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-width: 2px;
+  border-radius: var(--reon-radius);
+  box-shadow: var(--reon-shadow-hard);
+  transition: transform 0.06s ease, box-shadow 0.06s ease, filter 0.12s ease;
+}
+
+.btn:active {
+  /* drop into the shadow — tactile press */
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--reon-ink);
+}
+
+.btn-primary,
+.btn-primary:focus {
+  color: #fff;
+  border-color: var(--reon-ink);
+  background: linear-gradient(180deg, var(--reon-blue-light) 0%, var(--reon-blue-deep) 100%);
+}
+
+.btn-primary:hover {
+  color: #fff;
+  filter: brightness(1.08);
+  background: linear-gradient(180deg, var(--reon-blue-light) 0%, var(--reon-blue-deep) 100%);
+}
+
+.btn-outline-primary,
+.btn-outline-primary:focus {
+  color: var(--reon-blue-deep);
+  border-color: var(--reon-ink);
+  background: #fff;
+}
+
+.btn-outline-primary:hover {
+  color: #fff;
+  border-color: var(--reon-ink);
+  background: linear-gradient(180deg, var(--reon-blue-light) 0%, var(--reon-blue-deep) 100%);
+}
+
+.btn-outline-secondary {
+  color: var(--reon-ink);
+  border-color: var(--reon-ink);
+  background: #fff;
+}
+
+/* Header account buttons (login / signup / your-account / logout) adopt the
+   glossy pill CTA language, matching the hero .reon-gloss-btn and the gem-pill
+   menu. Scoped to the navbar so functional form buttons stay square. */
+header.navbar .btn-primary,
+header.navbar .btn-outline-primary {
+  border-radius: 999px;
+  border-width: 1px;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 2px 3px rgba(0, 0, 0, 0.28);
+}
+
+header.navbar .btn-primary,
+header.navbar .btn-primary:focus {
+  color: #fff;
+  border-color: #114a86;
+  text-shadow: 0 1px 1px rgba(0, 0, 40, 0.5);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 44%),
+    linear-gradient(180deg, #5cb2f2 0%, #2e86d6 50%, #1667b4 100%);
+}
+
+header.navbar .btn-primary:hover {
+  color: #fff;
+  filter: brightness(1.07);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 44%),
+    linear-gradient(180deg, #5cb2f2 0%, #2e86d6 50%, #1667b4 100%);
+}
+
+/* Secondary (login / logout): glossy silver pill, echoing the gem-pill menu */
+header.navbar .btn-outline-primary,
+header.navbar .btn-outline-primary:focus {
+  color: #16306e;
+  border-color: #b3bccc;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f6 46%, #d5dce8 100%);
+}
+
+header.navbar .btn-outline-primary:hover {
+  color: #16306e;
+  filter: brightness(1.04);
+  background: linear-gradient(180deg, #ffffff 0%, #eef1f6 46%, #d5dce8 100%);
+}
+
+header.navbar .btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 40, 0.35);
+}
+
+/* ---------------------------------------------------------------- forms */
+
+.form-label,
+.form-check-label {
+  font-family: var(--reon-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.9em;
+  color: var(--reon-ink-soft);
+}
+
+.form-control,
+.form-select {
+  border: 2px solid var(--reon-line);
+  border-radius: var(--reon-radius);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--reon-blue-deep);
+  box-shadow: 0 0 0 3px rgba(18, 114, 176, 0.25);
+}
+
+/* --------------------------------------------------------------- alerts */
+
+.alert {
+  border: 2px solid var(--reon-line);
+  border-radius: var(--reon-radius);
+  box-shadow: var(--reon-shadow-hard);
+}
+
+/* ----------------------------------------------------------- dropdowns */
+
+.dropdown-menu {
+  border: 2px solid var(--reon-line);
+  border-radius: var(--reon-radius);
+  box-shadow: var(--reon-shadow-hard);
+  padding: 4px;
+}
+
+.dropdown-item {
+  border-radius: 0;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: var(--reon-blue-deep);
+  color: #fff;
+}
+
+/* Games menu items match the nav-link display font. The locale menu is left
+   in the default font since the pixel face has no Japanese glyphs. */
+.dropdown-menu[aria-labelledby="gamesDropdown"] .dropdown-item {
+  font-family: var(--reon-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.9em;
+}
+
+/* --------------------------------------------------------- news ticker */
+/* Wraps the top-of-page <marquee> into an intentional status bar. */
+
+.reon-ticker {
+  display: flex;
+  align-items: stretch;
+  margin: 10px 0;
+  border: 2px solid var(--reon-line);
+  border-radius: var(--reon-radius);
+  box-shadow: var(--reon-shadow-hard);
+  background: #fff;
+  overflow: hidden;
+}
+
+.reon-ticker__label {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  font-family: var(--reon-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.85em;
+  color: #fff;
+  background: var(--reon-red);
+  border-right: 2px solid var(--reon-line);
+  padding: 4px 12px;
+}
+
+.reon-ticker marquee,
+.reon-ticker__scroll {
+  flex: 1 1 auto;
+  align-self: center;
+  font-family: var(--reon-font-display);
+  color: var(--reon-ink);
+  padding: 4px 0;
+}
+
+/* ==========================================================================
+   Decorative buttons — glossy / rounded, recreated from Nintendo's 2001-era
+   graphical (GIF) buttons. Deliberately NOT square: those ornate nav/CTA
+   buttons were images, so they were glossy pills, while functional form
+   controls (.btn, above) stay square and flat. Both are period-correct.
+   ========================================================================== */
+
+/* Chrome nav button — the «« HOME »» / «« TOP »» sunburst style */
+.reon-chrome-btn {
+  --cb-ink: #16306e;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-width: 96px;
+  padding: 9px 20px;
+  border: 1px solid #6f8fc4;
+  border-radius: 999px;
+  font-family: var(--reon-font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--cb-ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 46%, rgba(120, 150, 200, 0.28) 100%),
+    repeating-conic-gradient(from 0deg at 50% 50%, #a9c4e8 0deg 3.2deg, #e3eefb 3.2deg 6.4deg);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.9),
+              inset 0 -2px 4px rgba(70, 100, 150, 0.35),
+              0 1px 2px rgba(0, 0, 0, 0.28);
+  transition: transform 0.06s ease, box-shadow 0.06s ease, filter 0.1s ease;
+}
+
+/* Chevrons drawn in the same pixel font as the label so they share its
+   baseline (guillemets fall back to a different font and sit misaligned). */
+.reon-chrome-btn::before,
+.reon-chrome-btn::after {
+  font-family: var(--reon-font-display);
+  line-height: 1;
+  opacity: 0.7;
+}
+.reon-chrome-btn::before { content: "<<"; }
+.reon-chrome-btn::after  { content: ">>"; }
+.reon-chrome-btn:hover { filter: brightness(1.06); color: var(--cb-ink); }
+.reon-chrome-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(70, 100, 150, 0.5), 0 0 0 rgba(0, 0, 0, 0.28);
+}
+
+/* CGB-palette colour variants */
+.reon-chrome-btn.is-red {
+  border-color: #c46f8f; --cb-ink: #7a1636;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 46%, rgba(200, 120, 140, 0.28) 100%),
+    repeating-conic-gradient(from 0deg at 50% 50%, #e8a9bd 0deg 3.2deg, #fbe3ea 3.2deg 6.4deg);
+}
+.reon-chrome-btn.is-green {
+  border-color: #7fc46f; --cb-ink: #245c16;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 46%, rgba(120, 180, 110, 0.28) 100%),
+    repeating-conic-gradient(from 0deg at 50% 50%, #b6dca0 0deg 3.2deg, #e9f6e0 3.2deg 6.4deg);
+}
+.reon-chrome-btn.is-yellow {
+  border-color: #c4b06f; --cb-ink: #6b5300;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 46%, rgba(200, 180, 90, 0.3) 100%),
+    repeating-conic-gradient(from 0deg at 50% 50%, #ecd98a 0deg 3.2deg, #fbf4d0 3.2deg 6.4deg);
+}
+
+/* Gloss pill CTA — the primary "action" button */
+.reon-gloss-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 11px 26px;
+  border: 1px solid #114a86;
+  border-radius: 999px;
+  font-family: var(--reon-font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 40, 0.5);
+  cursor: pointer;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 44%),
+    linear-gradient(180deg, #5cb2f2 0%, #2e86d6 50%, #1667b4 100%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 2px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.06s ease, box-shadow 0.06s ease, filter 0.1s ease;
+}
+
+.reon-gloss-btn::after { content: "\25B6"; font-size: 0.8em; }
+.reon-gloss-btn:hover { filter: brightness(1.07); color: #fff; }
+.reon-gloss-btn:active { transform: translateY(1px); box-shadow: inset 0 2px 4px rgba(0, 0, 40, 0.4); }
+
+/* Rounded pill section header — the "● Title" banner (2002 Pokémon pages) */
+.reon-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 28px 0 16px;
+  padding: 8px 16px;
+  border: 1px solid var(--reon-blue-deep);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #eaf4fd 0%, #cfe6fa 100%);
+  font-family: var(--reon-font-display);
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  color: var(--reon-blue-deep);
+}
+
+.reon-section-header::before {
+  content: "";
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  background: var(--reon-blue-deep);
+  flex: 0 0 auto;
+}
+
+/* Wavy dotted divider (footer separator) */
+.reon-wave {
+  height: 14px;
+  margin: 30px 0;
+  background: radial-gradient(circle at 10px -4px, transparent 12px, #8fa8d6 12px 13px, transparent 13px) 0 0 / 20px 14px repeat-x;
+}
+
+/* ==========================================================================
+   Shared rounded, boxed header
+   The one piece of the home-page frame that is safe on every page. The game
+   pages keep their own full-width themed layouts and backgrounds (the cream
+   content box was shrinking them and exposing the white body); the home page
+   supplies its own cream box + waves via home-v2.
+   ========================================================================== */
+header.navbar {
+  background: #ffffff !important;
+  border: 2px solid var(--reon-line);
+  border-radius: 10px;
+  box-shadow: var(--reon-shadow-hard);
+  margin-top: 12px;
+}
+
+/* ==========================================================================
+   Mario Kart + Game Boy Wars: home-style boxed layout
+   Each game's own tiled pattern fills the whole page field (like the home
+   page's waves) so there's no white between or around the header/content, and
+   the content sits in the same cream box + narrow column as the home page.
+   ========================================================================== */
+body.mariokart-theme,
+body.gbwars-theme {
+  background-repeat: repeat;
+  background-attachment: fixed;
+  image-rendering: pixelated;
+}
+
+body.mariokart-theme {
+  background-color: #e7ffff;
+  background-image: url("/images/mariokart/main.gif");
+}
+
+body.gbwars-theme {
+  background-color: #08162c;
+  background-image: url("/images/gbwars/gbwarsrepeat.png");
+}
+
+body.mariokart-theme .container-xxl,
+body.gbwars-theme .container-xxl {
+  max-width: 860px;
+}
+
+body.mariokart-theme main#content,
+body.gbwars-theme main#content {
+  background: #faf6e2;
+  border: 2px solid var(--reon-line);
+  border-radius: 12px;
+  box-shadow: var(--reon-shadow-hard);
+  padding: 16px 18px 24px;
+}
+
+/* Pokémon Crystal hub page (/pokemon/): same boxed cream frame + width as the
+   game pages, on a crystal-blue field. */
+body.pokecrystal-index {
+  background: #1e4a93;
+}
+
+body.pokecrystal-index .container-xxl {
+  max-width: 860px;
+}
+
+body.pokecrystal-index main#content {
+  background: #faf6e2;
+  border: 2px solid var(--reon-line);
+  border-radius: 12px;
+  box-shadow: var(--reon-shadow-hard);
+  padding: 16px 18px 24px;
+}

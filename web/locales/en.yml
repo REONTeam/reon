@@ -5,6 +5,20 @@ locale:
   es: Español
   it: Italiano
   fr: Français
+
+homepage:
+  eyebrow: The Mobile GB System
+  tagline: "Plug your Game Boy Color into the world. Trade, battle and climb the rankings with players everywhere, all through the Mobile Adapter."
+  learn-more: Learn more
+  what-is-reon: What is REON?
+  intro-1: "REON is a recreation of the Mobile GB System: a full online service for the Game Boy Color that links your handheld to the network and out to the wider world. It reimagines what a worldwide release of Nintendo's Mobile System GB might have been, one place to trade, compete and download, all from the palm of your hand."
+  intro-2: "The key to it all is the Mobile Adapter. This small accessory plugs into the EXT port on your Game Boy Color or Game Boy Advance and links it to a mobile phone, so your handheld can dial out and reach REON's services from anywhere with a signal."
+  games-services: "Games & Services"
+  crystal-desc: "Climb the national rankings, meet trainers at the Trade Corner and chase the Battle Tower honor roll, all straight from Crystal Version."
+  gbwars-desc: "Browse the map gallery and download fresh battlefields to deploy your army and take command."
+  mariokart-desc: "Post your fastest laps and race against ghost data from around the world on the Super Circuit leaderboards."
+  enter: Enter
+  top: Top
 language:
   en: English
   ja: Japanese
@@ -19,6 +33,10 @@ score: Score
 home: Home
 games: Games
 mobile-home: Mobile Homepage
+news: News
+status: Status
+players-online: Players online
+in-service-since: In service since
 welcome-alpha: Welcome to the alpha test!
 what-is-this: What is this?
 send: Send

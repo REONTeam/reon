@@ -4,10 +4,14 @@
 
 :root {
     /* GBC Classic Green Palette */
-    --gbc-background: #ffffff;   /* Lightest green - background */
-    --gbc-link-new: cornflowerblue;      /* Light green - hover states */
-    --gbc-link-old: red;       /* Dark green - links */
-    --gbc-color: #000000;    /* Darkest green - text */
+    --gbc-background: #ffffff;
+    /* Lightest green - background */
+    --gbc-link-new: cornflowerblue;
+    /* Light green - hover states */
+    --gbc-link-old: red;
+    /* Dark green - links */
+    --gbc-color: #000000;
+    /* Darkest green - text */
 
     /* GBC Frame positioning
      * The link cable on the left side makes the SVG asymmetric.
@@ -16,19 +20,23 @@
     --gbc-svg-width: 977;
     --gbc-cable-width: 290;
     /* Derived values (as percentages of SVG width): */
-    --gbc-cable-percent: calc(var(--gbc-cable-width) / var(--gbc-svg-width) * 100%); /* 29.68% */
-    --gbc-body-percent: calc(100% - var(--gbc-cable-percent)); /* 70.32% */
+    --gbc-cable-percent: calc(var(--gbc-cable-width) / var(--gbc-svg-width) * 100%);
+    /* 29.68% */
+    --gbc-body-percent: calc(100% - var(--gbc-cable-percent));
+    /* 70.32% */
     /* Offset to center GBC body: cable creates asymmetry, shift by half cable width */
-    --gbc-adapter-offset: calc(var(--gbc-cable-percent) / 2); /* 14.84% */
+    --gbc-adapter-offset: calc(var(--gbc-cable-percent) / 2);
+    /* 14.84% */
     /* Scale factor to make GBC body fill container (for mobile clipping) */
-    --gbc-body-scale: calc(100% / var(--gbc-body-percent)); /* 142.2% */
+    --gbc-body-scale: calc(100% / var(--gbc-body-percent));
+    /* 142.2% */
 }
 
 @font-face {
     font-family: 'MobileTrainer';
     src: url('/fonts/MobileTrainer/MobileTrainer.woff2') format('woff2'),
-         url('/fonts/MobileTrainer/MobileTrainer.woff') format('woff'),
-         url('/fonts/MobileTrainer/MobileTrainer.ttf') format('truetype');
+        url('/fonts/MobileTrainer/MobileTrainer.woff') format('woff'),
+        url('/fonts/MobileTrainer/MobileTrainer.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
     font-display: block;
@@ -79,27 +87,29 @@
 
 /* Horizontal rule */
 .gbc-screen hr {
-	border: 0;
-	border-color: var(--gbc-color);
-	border-top: calc(1px * 1) solid  var(--gbc-color);
-	margin-bottom: calc(5px * 1);
+    border: 0;
+    border-color: var(--gbc-color);
+    border-top: calc(1px * 1) solid var(--gbc-color);
+    margin-bottom: calc(5px * 1);
 }
 
 /* Lists */
 
 .gbc-screen ul {
-  list-style: none; /* Remove list bullets */
-  padding: 0;
-  margin: 0;
+    list-style: none;
+    /* Remove list bullets */
+    padding: 0;
+    margin: 0;
 }
 
-.gbc-screen ul, .gbc-screen ol {
+.gbc-screen ul,
+.gbc-screen ol {
     margin: 0;
     padding-left: 12px;
 }
 
 .gbc-screen li::before {
-  content: "\30fb";
+    content: "\30fb";
 }
 
 /* Images should be pixelated */
@@ -120,13 +130,13 @@
 }
 
 .gbc-screen.scale-2x hr {
-	border-top: calc(1px * 2) solid  var(--gbc-color);
-	margin-bottom: calc(5px * 2);
+    border-top: calc(1px * 2) solid var(--gbc-color);
+    margin-bottom: calc(5px * 2);
 }
 
 .gbc-screen.scale-3x hr {
-	border-top: calc(1px * 3) solid  var(--gbc-color);
-	margin-bottom: calc(5px * 3);
+    border-top: calc(1px * 3) solid var(--gbc-color);
+    margin-bottom: calc(5px * 3);
 }
 
 /* GBC Frame wrapper styles
@@ -143,7 +153,8 @@
  * As percentage: 290/977 = 29.68%
  */
 .gbc-frame-container {
-    --gbc-width: 400px; /* Base width, adjust as needed */
+    --gbc-width: 400px;
+    /* Base width, adjust as needed */
     position: relative;
     display: inline-block;
     width: var(--gbc-width);
@@ -151,8 +162,48 @@
     transform: translateX(calc(var(--gbc-adapter-offset) * -1));
 }
 
+/* The GBC art is tall and its LCD is only ~38% of its width, so a crisp integer 2x
+   screen forces a ~834px / ~1000px console that dominates the page. So: default to a
+   COMPACT crisp 1x (console ~416px, screen 160x144 filling the LCD), and upgrade to a
+   crisp 2x only on screens with room for it. Both are integer -> always sharp, never
+   the ugly fractional scaling. Screen centred on the SVG's REAL hole centre
+   (measured by flood-fill: 64.381%, 24.486%) and sized a touch bigger than the hole
+   so its edges tuck just under the baked-in bezel. */
 .gbc-frame-container.gbc-large {
-    --gbc-width: 500px;
+    --gbc-width: 416px;
+}
+
+.gbc-frame-container.gbc-large .gbc-frame-screen {
+    width: 160px;
+    height: 144px;
+    left: calc(64.432% - 80px);
+    top: calc(24.486% - 72px);
+}
+
+/* keep the pixel art hard-edged when the mockup is scaled up */
+.gbc-frame-iframe {
+    image-rendering: pixelated;
+}
+
+/* Scale the whole compact mockup up by how much room the viewport has: 1x -> 1.5x -> 2x.
+   The layout box stays the small 1x size, so scaling never causes overflow/scroll;
+   transform only enlarges it, centred. */
+.gbc-modal-content {
+    transform-origin: center center;
+}
+
+@media (min-width: 720px) and (min-height: 760px) {
+    .gbc-modal-content {
+        transform: scale(1.5);
+    }
+}
+
+/* 2x needs room for the console AND the trailing adapter to its left, else the
+   adapter runs off-screen; require a wider viewport before going 2x. */
+@media (min-width: 1360px) and (min-height: 1080px) {
+    .gbc-modal-content {
+        transform: scale(2);
+    }
 }
 
 .gbc-frame-svg {
@@ -164,6 +215,7 @@
     z-index: 2;
     /* But allow clicks through to iframe on transparent screen area */
     pointer-events: none;
+    filter: drop-shadow(0px 5px 2px rgba(0, 0, 20, 0.36));
 }
 
 .gbc-frame-svg svg {
@@ -198,6 +250,37 @@
     background-color: var(--gbc-background);
 }
 
+.gbc-link-rig {
+    position: absolute;
+    top: 23.2%;
+    right: 98.4%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.gbc-link-rig__adapter {
+    position: relative;
+    width: 362px;
+    left: 6px;
+    top: 17px;
+    height: auto;
+    filter: drop-shadow(0px 5px 2px rgba(0, 0, 20, 0.36));
+    z-index: 1;
+}
+
+.gbc-link-rig__cable {
+    position: relative;
+    top: 15px;
+    width: 200px;
+    height: 16px;
+    left: -3px;
+    background: #a4abae;
+    box-shadow: inset 0 -3px 3px rgba(0, 0, 0, 0.18);
+}
+
 /* Modal/popup styles for the GBC frame */
 .gbc-modal-overlay {
     position: fixed;
@@ -208,8 +291,15 @@
     background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
-    align-items: center;
-    z-index: 1000;
+    align-items: safe center;
+    /* keep top reachable when the console is taller than the viewport */
+    overflow-x: hidden;
+    /* clip the adapter where it runs off the left edge */
+    overflow-y: auto;
+    /* scroll a large console on short windows */
+    padding: 24px 0;
+    /* top of the stack: content <=10, header 20, dropdowns 30, floats 40, modal 100 */
+    z-index: 100;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -223,7 +313,7 @@
 .gbc-modal-content {
     position: relative;
     max-width: 90vw;
-    max-height: 90vh;
+    /* no max-height: keep the console at full 2x size; the overlay scrolls if needed */
 }
 
 .gbc-modal-close {

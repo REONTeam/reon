@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mobile Trainer</title>
+<style>
+  @font-face {
+    font-family: 'MobileTrainer';
+    src: url('/fonts/MobileTrainer/MobileTrainer.woff2') format('woff2'),
+         url('/fonts/MobileTrainer/MobileTrainer.woff') format('woff');
+    font-display: block;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%; background: #000; overflow: hidden; cursor: default; user-select: none;
+    font-family: 'MobileTrainer', monospace;
+    -webkit-font-smoothing: none; font-smooth: never; text-rendering: optimizeSpeed;
+    image-rendering: pixelated;
+  }
+
+  /* the stage is the native 160x144 GBC screen, scaled up to fill the frame */
+  .stage {
+    position: absolute; top: 0; left: 0;
+    width: 160px; height: 144px;
+    transform-origin: top left;
+    background: url('/cgb/mt/mt-sprites.png') no-repeat 0 0 / 160px 184px;
+    image-rendering: pixelated;
+    color: #000;
+  }
+
+  /* overlays, positioned in native pixels over the real frame */
+  .t-title {
+    position: absolute; left: 33px; top: 1px; width: 124px; height: 13px;
+    color: #fff; font-size: 12px; line-height: 14px; text-align: center;
+    white-space: nowrap; overflow: hidden;
+  }
+  .t-body {
+    position: absolute; left: 6px; top: 28px; width: 146px; height: 94px;
+    padding-left: 2px;
+    overflow: hidden; font-size: 8px; line-height: 10px; color: #000;
+  }
+  /* timer: five real 8x8 glyph sprites (MM:SS) in the bottom-right box */
+  .t-timer { position: absolute; left: 112px; top: 128px; width: 40px; height: 8px; }
+  .t-timer i {
+    position: absolute; top: 0; width: 8px; height: 8px; display: block;
+    background: url('/cgb/mt/mt-sprites.png') no-repeat 0 0 / 160px 184px;
+    image-rendering: pixelated;
+  }
+  .t-timer i:nth-child(1) { left: 0; }
+  .t-timer i:nth-child(2) { left: 8px; }
+  .t-timer i:nth-child(3) { left: 16px; }
+  .t-timer i:nth-child(4) { left: 24px; }
+  .t-timer i:nth-child(5) { left: 32px; }
+
+  /* scroll thumb: pink tab hugging the right inner edge */
+  .t-thumb {
+    position: absolute; right: 0; width: 8px; height: 8px; display: none;
+    background: url('/cgb/mt/mt-sprites.png') no-repeat -16px -168px / 160px 184px; image-rendering: pixelated;
+  }
+  /* scroll arrows: real pink hump sprite, up at top / down (flipped) at bottom.
+     They never blink; instead they do the ROM's subtle 1px vertical nudge, in sync.
+     Animating margin-top keeps the down arrow's scaleY(-1) flip intact. */
+  .t-arrow {
+    position: absolute; left: 72px; width: 16px; height: 8px; visibility: hidden;
+    background: url('/cgb/mt/mt-sprites.png') no-repeat 0 -168px / 160px 184px; image-rendering: pixelated;
+    animation: mt-bob 1s steps(1) infinite;   /* kept visibility (not display) so both stay in phase */
+  }
+  .t-arrow--up { top: 16px; }
+  .t-arrow--dn { top: 120px; transform: scaleY(-1); animation-name: mt-bob-dn; }
+  /* up arrow rests low + nudges up; down arrow rests high + nudges down; same clock = synced */
+  @keyframes mt-bob    { 0% { margin-top: 0; } 85% { margin-top: -1px; } 100% { margin-top: 0; } }
+  @keyframes mt-bob-dn { 0% { margin-top: 0; } 85% { margin-top:  1px; } 100% { margin-top: 0; } }
+
+  /* walking mascot: character (top 16px) and earth (bottom 8px) animate on
+     independent step cycles, exactly like the ROM. Both loop twice a second. */
+  .t-scene { position: absolute; left: 8px; top: 0; width: 24px; height: 24px; }
+  .t-scene span {
+    position: absolute; left: 0; display: block;
+    background-repeat: no-repeat; image-rendering: pixelated;
+  }
+  .t-char {
+    top: 0; width: 24px; height: 17px;
+    background-image: url('/cgb/mt/mt-sprites.png'); background-size: 160px 184px;
+    background-position: 0 -144px;
+    animation: mt-walk 0.5s steps(3) infinite;
+  }
+  .t-earth {
+    top: 17px; width: 24px; height: 7px;
+    background-image: url('/cgb/mt/mt-sprites.png'); background-size: 160px 184px;
+    background-position: 0 -161px;
+    animation: mt-earth 0.5s steps(4) infinite;
+  }
+  /* walk strip lives at y=144 (3 frames), earth strip at y=161 (4 frames) in the atlas */
+  @keyframes mt-walk  { from { background-position: 0 -144px; } to { background-position: -72px -144px; } }
+  @keyframes mt-earth { from { background-position: 0 -161px; } to { background-position: -96px -161px; } }
+
+  .t-body h1 { font-size: 8px; line-height: 10px; color: #ee6f3d; margin-bottom: 3px; }
+  .t-body p { margin-bottom: 5px; }
+  .t-body hr { border: 0; border-top: 1px solid #000; margin: 4px 1px; }
+  .t-lead { color: #000; margin-bottom: 4px; }
+
+  .t-menu { list-style: none; }
+  /* the bullet lives on the <li> so it stays black and outside the highlight;
+     only the <a> text gets the cyan selection block (per line), matching the ROM. */
+  .t-menu li { position: relative; padding-left: 8px; }
+  .t-menu li::before { content: "\30FB"; position: absolute; left: 0; color: #000; }
+  .t-link {
+    color: #30c8f5; cursor: pointer;
+    -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  }
+  .t-link.sel { background: #30c8f5; color: #fff; }
+  .t-credits { list-style: none; }
+  .t-credits li { padding-left: 8px; position: relative; }
+  .t-credits li::before { content: "\30FB"; position: absolute; left: 0; color: #000; }
+</style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <div class="t-scene"><span class="t-char"></span><span class="t-earth"></span></div>
+    <div class="t-title" id="title">Mobile Home Page</div>
+    <div class="t-body" id="body"></div>
+    <span class="t-thumb" id="thumb"></span>
+    <span class="t-arrow t-arrow--up" id="arrowUp"></span>
+    <span class="t-arrow t-arrow--dn" id="arrowDn"></span>
+    <div class="t-timer" id="timer"><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+
+<script>
+(function () {
+  var PAGES = {
+    home: { title: "REON Mobile", html:
+      '<p class="t-lead">You are now online.<br>Choose a service:</p>' +
+      '<ul class="t-menu">' +
+      '<li><a class="t-link" data-nav="about">What is REON?</a></li>' +
+      '<li><a class="t-link" data-nav="games">All Games</a></li>' +
+      '<li><a class="t-link" data-nav="trade">Trade Corner</a></li>' +
+      '<li><a class="t-link" data-nav="news">News Machine</a></li>' +
+      '<li><a class="t-link" data-nav="credits">Credits</a></li></ul>' },
+    about: { title: "About", html:
+      '<h1>THE MOBILE ADAPTER</h1>' +
+      '<p>Plugs into the EXT port of a Game Boy Color or Advance and dials out over a mobile phone.</p>' +
+      '<p>REON brings the service back.</p>' +
+      '<ul class="t-menu"><li><a class="t-link" data-nav="home">Back</a></li></ul>' },
+    games: { title: "All Games", html:
+      '<h1>ALL GAMES</h1>' +
+      '<ul class="t-menu">' +
+      '<li><a class="t-link" data-nav="trade">Pokemon Crystal</a></li>' +
+      '<li><a class="t-link" data-nav="home">Game Boy Wars 3</a></li>' +
+      '<li><a class="t-link" data-nav="home">Mario Kart</a></li>' +
+      '<li><a class="t-link" data-nav="home">Back</a></li></ul>' },
+    trade: { title: "Trade Corner", html:
+      '<h1>TRADE CORNER</h1>' +
+      '<p>Trade Pokemon with players worldwide.</p>' +
+      '<p class="t-lead">Open it on the web for live offers.</p>' +
+      '<ul class="t-menu"><li><a class="t-link" data-nav="home">Back</a></li></ul>' },
+    news: { title: "News Machine", html:
+      '<h1>NEWS MACHINE</h1>' +
+      '<p>07/19 Trade filters improved.</p>' +
+      '<p>07/12 Battle Tower updated.</p>' +
+      '<ul class="t-menu"><li><a class="t-link" data-nav="home">Back</a></li></ul>' },
+    credits: { title: "Welcome!", html:
+      '<p>You are now online.<br>Thank you for being a great tester! &lt;3</p>' +
+      '<hr>Credits:' +
+      '<ul class="t-credits"><li>Arves100</li><li>Billy</li><li>EchleonPrime</li>' +
+      '<li>Hacky</li><li>Incineroar</li><li>Matze</li><li>pfero</li><li>Shonumi</li>' +
+      '<li>thomasnet</li></ul>' +
+      '<ul class="t-menu"><li><a class="t-link" data-nav="home">Back</a></li></ul>' }
+  };
+
+  var stage = document.getElementById('stage');
+  var body = document.getElementById('body');
+  var titleEl = document.getElementById('title');
+  var thumb = document.getElementById('thumb');
+  var arrowUp = document.getElementById('arrowUp');
+  var arrowDn = document.getElementById('arrowDn');
+  var stack = [], links = [], sel = 0;
+
+  function fit() {
+    var dpr = window.devicePixelRatio || 1;
+    var maxScale = Math.min(window.innerWidth / 160, window.innerHeight / 144);
+    // integer number of DEVICE pixels per source pixel -> uniform, crisp pixels
+    var s = Math.max(1, Math.floor(maxScale * dpr)) / dpr;
+    stage.style.transform = 'scale(' + s + ')';
+    stage.style.left = Math.round((window.innerWidth - 160 * s) / 2) + 'px';
+    stage.style.top = Math.round((window.innerHeight - 144 * s) / 2) + 'px';
+  }
+  window.addEventListener('resize', fit);
+
+  function updateScroll() {
+    var max = body.scrollHeight - body.clientHeight;
+    if (max <= 1) {
+      thumb.style.display = 'none';
+      arrowUp.style.visibility = 'hidden';
+      arrowDn.style.visibility = 'hidden';
+      return;
+    }
+    thumb.style.display = 'block';
+    var TOP = 24, BOTTOM = 112;            // thumb travel range on the right edge
+    thumb.style.top = (TOP + (body.scrollTop / max) * (BOTTOM - TOP)) + 'px';
+    arrowUp.style.visibility = (body.scrollTop > 1) ? 'visible' : 'hidden';
+    arrowDn.style.visibility = (body.scrollTop + body.clientHeight < body.scrollHeight - 1) ? 'visible' : 'hidden';
+  }
+
+  function render(id, isBack) {
+    var page = PAGES[id] || PAGES.home;
+    if (!isBack) stack.push(id);
+    titleEl.textContent = page.title;
+    body.innerHTML = page.html;
+    links = [].slice.call(body.querySelectorAll('.t-link'));
+    sel = 0; highlight(false);          // start at the top, don't jump to the link
+    body.scrollTop = 0; updateScroll();
+    links.forEach(function (a, i) {
+      a.addEventListener('mouseenter', function () { sel = i; highlight(true); });
+      a.addEventListener('click', function () { follow(a); });
+    });
+  }
+  function highlight(doScroll) {
+    links.forEach(function (a, i) { a.classList.toggle('sel', i === sel); });
+    if (doScroll && links[sel]) links[sel].scrollIntoView({ block: 'nearest' });
+    updateScroll();
+  }
+  function follow(a) { var to = a.getAttribute('data-nav'); if (to) render(to); }
+  function back() { if (stack.length > 1) { stack.pop(); render(stack[stack.length - 1], true); } }
+  body.addEventListener('scroll', updateScroll);
+  document.addEventListener('wheel', function (e) {
+    body.scrollTop += (e.deltaY > 0 ? 16 : -16);
+    updateScroll();
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown') {
+      if (sel < links.length - 1) { sel++; highlight(true); }
+      else { body.scrollTop += 16; updateScroll(); }   // scroll long text (e.g. credits)
+      e.preventDefault();
+    }
+    else if (e.key === 'ArrowUp') {
+      if (sel > 0) { sel--; highlight(true); }
+      else { body.scrollTop -= 16; updateScroll(); }
+      e.preventDefault();
+    }
+    else if (e.key === 'Enter' || e.key === 'a' || e.key === 'x' || e.key === 'z') { if (links[sel]) follow(links[sel]); e.preventDefault(); }
+    else if (e.key === 'Backspace' || e.key === 'b' || e.key === 's') { back(); e.preventDefault(); }
+  });
+
+  // timer: real MM:SS drawn with the glyph sprites. Minute pair is zero-padded,
+  // seconds roll at 60, and it freezes once it reaches 99:59.
+  var glyphs = document.getElementById('timer').querySelectorAll('i');
+  function setTimer(mm, ss) {
+    // atlas: digits 0-9 at x=0..72 (y=176), separator at x=80
+    var seq = [Math.floor(mm / 10), mm % 10, -1, Math.floor(ss / 10), ss % 10];
+    for (var i = 0; i < 5; i++) {
+      var x = seq[i] === -1 ? 80 : seq[i] * 8;
+      glyphs[i].style.backgroundPosition = (-x) + 'px -176px';
+    }
+  }
+  var secs = 0, MAX = 99 * 60 + 59;       // 99:59
+  setTimer(0, 0);
+  setInterval(function () {
+    if (secs >= MAX) return;
+    secs++;
+    setTimer(Math.floor(secs / 60), secs % 60);
+  }, 1000);
+
+  fit(); render('home');
+})();
+</script>
+</body>
+</html>

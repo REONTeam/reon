@@ -1,0 +1,150 @@
+/* ==========================================================================
+   REON homepage — early-2000s Nintendo product-landing layout
+   Loaded only on index.php. Uses the shared components from reon-theme.css
+   (.reon-gloss-btn, .reon-chrome-btn, .reon-section-header, .reon-wave).
+   ========================================================================== */
+
+/* Periwinkle field with a faint bubble watermark, like the 2001 NOM page.
+   Scoped to body.home so other shell pages keep the dotted-paper background. */
+body.home {
+  background-color: #d3d6ee;
+  background-image:
+    radial-gradient(circle at 15% 22%, rgba(255, 255, 255, 0.45) 0 70px, transparent 72px),
+    radial-gradient(circle at 82% 30%, rgba(255, 255, 255, 0.32) 0 110px, transparent 112px),
+    radial-gradient(circle at 60% 75%, rgba(255, 255, 255, 0.30) 0 95px, transparent 97px),
+    radial-gradient(circle at 30% 88%, rgba(255, 255, 255, 0.28) 0 80px, transparent 82px);
+  background-attachment: fixed;
+}
+
+/* ------------------------------------------------------------------- hero */
+
+.home-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  margin: 8px 0 12px;
+  padding: 28px;
+  border: 2px solid var(--reon-line);
+  box-shadow: var(--reon-shadow-hard);
+  background: linear-gradient(180deg, #ffffff 0%, #eaf0fb 100%);
+}
+
+.home-hero__copy {
+  flex: 1 1 320px;
+  min-width: 280px;
+}
+
+.home-hero__eyebrow {
+  font-family: var(--reon-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.85rem;
+  color: var(--reon-teal);
+  margin: 0 0 4px;
+}
+
+/* Override the theme's underlined h1 for the hero lockup */
+.home-hero__title {
+  font-family: var(--reon-font-display);
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  line-height: 1;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  color: var(--reon-blue-deep);
+  text-shadow: 2px 2px 0 rgba(18, 114, 176, 0.18);
+}
+
+.home-hero__tagline {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--reon-ink);
+  margin: 0 0 20px;
+  max-width: 40ch;
+}
+
+.home-hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.home-hero__product {
+  flex: 1 1 360px;
+  min-width: 280px;
+  text-align: center;
+}
+
+.home-hero__product img {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  filter: drop-shadow(3px 4px 0 rgba(26, 28, 38, 0.18));
+}
+
+/* --------------------------------------------------------------- prose */
+
+.home-prose {
+  max-width: 68ch;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.home-prose p { margin: 0 0 1em; }
+
+/* placeholder marker — clearly not final copy, but presentable */
+.home-placeholder {
+  color: var(--reon-ink-soft);
+  font-style: italic;
+}
+
+/* -------------------------------------------------------- services grid */
+
+.home-services {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.home-service {
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  background: #fff;
+  border: 2px solid var(--reon-line);
+  box-shadow: var(--reon-shadow-hard);
+}
+
+.home-service h3 {
+  font-family: var(--reon-font-display);
+  font-size: 1.05rem;
+  margin: 0 0 8px;
+  color: var(--reon-blue-deep);
+}
+
+.home-service p {
+  flex: 1 1 auto;
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.home-service .reon-chrome-btn {
+  align-self: flex-start;
+}
+
+/* ---------------------------------------------------------- footer nav */
+
+.home-footer-nav {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+/* -------------------------------------------------------- responsive */
+
+@media (max-width: 720px) {
+  .home-services { grid-template-columns: 1fr; }
+}

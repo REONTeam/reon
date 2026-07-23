@@ -5,7 +5,8 @@
 
 .trainer-rankings-controls {
   width: min(420px, 100%);
-  margin: 0 auto 0 auto;
+  /* push the filters down so they clear the banner's green top border */
+  margin: 112px auto 0 auto;
   display: grid;
   row-gap: 8px;
   justify-items: center;

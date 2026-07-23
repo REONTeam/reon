@@ -7,6 +7,8 @@ require_once dirname(__DIR__, 2) . '/classes/TemplateUtil.php';
 require_once dirname(__DIR__, 2) . '/classes/DBUtil.php';
 require_once dirname(__DIR__, 2) . '/classes/GameboyWars3Util.php';
 
+session_start();
+
 // Validate map ID
 $mapId = $_GET['id'] ?? '';
 if (!preg_match('/^\d{4}$/', $mapId)) {

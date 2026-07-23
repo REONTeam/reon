@@ -6,6 +6,20 @@ locale:
   it: Italiano
   fr: Français
 
+homepage:
+  eyebrow: Le système Mobile GB
+  tagline: "Connecte ta Game Boy Color au monde. Échange, combats et grimpe dans les classements avec des joueurs du monde entier, le tout grâce au Mobile Adapter."
+  learn-more: En savoir plus
+  what-is-reon: "Qu'est-ce que REON ?"
+  intro-1: "REON est une recréation du système Mobile GB : un service en ligne complet pour la Game Boy Color qui relie ta console au réseau et au reste du monde. Il imagine ce qu'aurait pu être une sortie mondiale du Mobile System GB de Nintendo, un seul endroit pour échanger, s'affronter et télécharger, le tout au creux de ta main."
+  intro-2: "La clé de tout, c'est le Mobile Adapter. Ce petit accessoire se branche sur le port EXT de ta Game Boy Color ou de ta Game Boy Advance et la relie à un téléphone portable, pour que ta console puisse se connecter et accéder aux services de REON partout où il y a du réseau."
+  games-services: "Jeux et services"
+  crystal-desc: "Grimpe dans les classements nationaux, rencontre des Dresseurs au Trade Corner et vise le tableau d'honneur de la Tour de Combat, le tout directement depuis Version Cristal."
+  gbwars-desc: "Parcours la galerie de cartes et télécharge de nouveaux champs de bataille pour déployer ton armée et prendre le commandement."
+  mariokart-desc: "Enregistre tes meilleurs tours et affronte les fantômes du monde entier dans les classements du Super Circuit."
+  enter: Entrer
+  top: Revenir en haut
+
 language:
   en: Anglais
   ja: Japonais
@@ -20,15 +34,19 @@ score: Score
 home: Accueil
 games: Jeux
 mobile-home: Page d'Accueil Mobile
+news: Actualités
+status: Statut
+players-online: Joueurs en ligne
+in-service-since: En service depuis
 welcome-alpha: Bienvenue au test alpha!
 what-is-this: Qu'est-ce que c'est?
 send: Envoyer
 continue: Continuer
 reset: Réinitialiser
 reveal: Afficher
-login: Se connecter
+login: Connexion
 logout: Déconnexion
-signup: Enregistrer
+signup: Inscription
 your-account: Votre Compte
 forgot-password: Mot de passe oublié
 email-addr: Addresse courriel
@@ -114,7 +132,7 @@ index:
 gameboy-wars: Game Boy Wars 3
 pokemon-crystal: Pokémon Cristal
 rankings: Classement
-trade-corner: Coin Troc
+trade-corner: Trade Corner
 region:
   text: Région
   global: Mondial
