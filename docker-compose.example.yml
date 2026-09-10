@@ -36,6 +36,7 @@ services:
       target: cron
     volumes:
     - "./config.json:/app/config.json"
+    - ./web:/web
     depends_on:
       migrate:
         condition: service_completed_successfully
