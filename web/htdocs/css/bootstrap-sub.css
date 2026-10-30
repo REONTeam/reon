@@ -1,0 +1,277 @@
+/* What this is:
+ *
+ * A temporary substitute to fill the gap that Bootstrap left. The underlying
+ * code of the website has become very unorderly, and it's possible that
+ * dependence on Bootstrap played a part in that. With "in-house" CSS, we'll
+ * have more control and flexibility for styling the website's pages.
+ *
+ * Eventually, it should get consolidated into something like a "main.css", 
+ * since these pages use similar layout styling.
+ */
+ 
+ /* Body styling */
+ *, ::after, ::before {
+    box-sizing: border-box;
+ }
+ 
+ body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+ }
+ 
+ 
+ 
+ 
+ 
+/* Element styling */
+[role=button] {
+    cursor: pointer;
+}
+
+
+
+img {
+    vertical-align: middle;
+}
+
+
+
+button { /*~ shared with other element */
+    text-transform: none;
+}
+
+button { /*~shared with select */
+    margin: 0;
+    font-family: inherit;
+}
+
+[type=button], button {
+    -webkit-appearance: button;
+}
+
+[type=button]:not(:disabled), button:not(:disabled) {
+    cursor: pointer;
+}
+
+
+
+ul {
+    margin-top: 0;
+}
+ 
+
+
+
+
+/* Container and misc. styling */
+.me-2 {
+    margin-right: 0.5rem!important;
+}
+
+.me-auto {
+    margin-right: auto!important;
+}
+
+
+
+.container-xxl {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    width: 100%;
+    max-width: 860px;
+}
+
+
+
+
+
+/* Component styling */
+.btn {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    border: 1px solid rgb(13,110,253);
+}
+
+
+
+.dropdown-toggle {
+    white-space: nowrap;
+}
+
+.dropdown-toggle::after {
+    display: inline-block;
+    margin-left: 0.255em;
+    vertical-align: 0.255em;
+    content: "";
+    border-style: solid;
+    border-width: 0.3em 0.3em 0;
+    border-left-color: transparent;
+    border-right-color: transparent;
+}
+
+.dropdown-menu {
+    display: none;
+    margin: 0;
+    min-width: 10rem;
+    font-size: 1rem;
+    color: rgb(33,37,41);
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.25rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: rgb(33,37,41);
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+}
+
+
+
+.navbar {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.navbar>.container-xxl {
+    display: flex;
+    flex-wrap: inherit;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-brand {
+    margin-right: 1rem;
+    padding-top: 0.3125rem;
+    padding-bottom: 0.3125rem;
+    font-size: 1.25rem;
+    color: #000;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.navbar-toggler {
+    padding: 0.25rem 0.75rem;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: rgba(0,0,0,0.65);
+    background-color: transparent;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 0;
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.navbar-toggler-icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2833, 37, 41, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100%;
+}
+
+.navbar-collapse {
+    flex-grow: 1;
+    align-items: center;
+}
+
+.navbar-nav {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+}
+
+.nav-link {
+    display: block;
+    padding: 0.5rem 0;
+    text-decoration: none;
+    background: 0 0;
+    border: 0;
+}
+
+
+
+
+
+/* Responsive styling */
+@media (min-width: 992px) {
+    .mb-lg-0 {
+        margin-bottom: 0!important;
+    }
+    
+    
+    
+    .align-items-lg-center {
+        align-items: center!important;
+    }
+    
+    
+    
+    .navbar-expand-lg {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+    
+    .navbar-expand-lg .navbar-toggler {
+        display: none;
+    }
+    
+    .navbar-expand-lg .navbar-collapse {
+        display: flex!important;
+        flex-basis: auto;
+    }
+    
+    .navbar-expand-lg .navbar-nav {
+        flex-direction: row;
+    }
+    
+    .navbar-expand-lg .navbar-nav .dropdown-menu {
+        position: absolute;
+    }
+}
+
+
+
+@media (min-width: 768px) {
+    .my-md-4 {
+        margin-top: 1.5rem!important;
+        margin-bottom: 1.5rem!important;
+    }
+}
+
+
+
+@media (prefers-reduced-motion: no-preference) {
+    :root {
+        scroll-behavior: smooth;
+    }
+}

@@ -1,25 +1,30 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+        
 		<title>{% block title %}Default Title{% endblock %} - REON</title>
 		<meta name="description" content="{% block meta_description %}REON — a recreation of the Mobile GB System, the online service reached by connecting a Game Boy Color through the Mobile Adapter.{% endblock %}">
 		<meta name="theme-color" content="#1272b0">
 		<link rel="icon" href="{{ asset('/images/REON_Logo.svg') }}" type="image/svg+xml">
+        
 		<meta property="og:site_name" content="REON">
 		<meta property="og:title" content="{% block og_title %}REON — The Mobile GB System{% endblock %}">
 		<meta property="og:description" content="A recreation of the Game Boy Color's Mobile Adapter online service.">
 		<meta property="og:type" content="website">
 		<meta property="og:image" content="{{ asset('/images/REON_Logo.svg') }}">
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+            
+        <link href="{{ asset('/css/bootstrap-sub.css') }}" rel="stylesheet">
+        <script src="{{ asset('/js/bootstrap-sub.js') }}"></script>
+        
 		<link href="{{ asset('/css/mobile-trainer.css') }}" rel="stylesheet">
 		<link href="{{ asset('/css/main.css') }}" rel="stylesheet">
 		<link href="{{ asset('/css/reon-theme.css') }}" rel="stylesheet">
 		{% block head %}
 		{% endblock %}
 	</head>
+    
 	<body{% if body_class is defined and body_class %} class="{{ body_class|e('html_attr') }}"{% endif %}>
 		<header class="navbar navbar-expand-lg bg-body-tertiary cgb-gradient-border container-xxl">
 			<nav class="container-xxl">
