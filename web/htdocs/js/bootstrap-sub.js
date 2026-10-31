@@ -4,6 +4,30 @@
  * that behavior, and may eventually be renamed.
  */
 
+/* Mobile menu button ********************************************************/
+document.getElementsByClassName("navbar-toggler")[0].addEventListener("click",
+function(){
+    // First get a pointer to the navbar menu items
+    navItems = document.getElementById("reonNavbar");
+    
+    // Do the toggle
+    isOpen = navItems.classList.contains("show");
+    
+    if (isOpen) {
+        this.classList.add("collapsed");
+        navItems.classList.remove("show");
+        this.setAttribute("aria-expanded","false");
+    } else {
+        this.classList.remove("collapsed");
+        navItems.classList.add("show");
+        this.setAttribute("aria-expanded","true");
+    }
+});
+
+
+
+
+
 /* Dropdowns *****************************************************************/
 // At most, only one may be open at a time
 ddNowOpen = {

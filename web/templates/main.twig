@@ -88,6 +88,8 @@
 		
 		{% block body %}
 		{% endblock %}
+  
+        <script src="{{ asset('/js/bootstrap-sub.js') }}"></script>
 
 		<!-- GBC Mobile Trainer Modal -->
 		<div id="gbc-modal" class="gbc-modal-overlay" onclick="closeGbcModal(event)">
@@ -251,7 +253,5 @@
 			})();
 
 		</script>
-
-        <script src="{{ asset('/js/bootstrap-sub.js') }}"></script>
 	</body>
 </html>
