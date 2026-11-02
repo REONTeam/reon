@@ -262,9 +262,9 @@ header.navbar .btn:active {
 
 .form-label,
 .form-check-label {
-  font-family: var(--reon-font-display);
+  /*font-family: var(--reon-font-display);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.02em;*/
   font-size: 0.9em;
   color: var(--reon-ink-soft);
 }

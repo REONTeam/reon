@@ -116,8 +116,8 @@ main#content .gbwars-page * {
 }
 
 .map-card {
-    background: var(--bs-body-bg);
-    border: 1px solid var(--bs-border-color);
+    background: #fff;
+    border: 1px solid rgb(222,226,230);
     border-radius: 8px;
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
@@ -163,18 +163,18 @@ main#content .gbwars-page * {
     justify-content: space-between;
     align-items: center;
     font-size: 0.9rem;
-    color: var(--bs-secondary);
+    color: rgb(108,117,125);
 }
 
 .map-meta .map-id {
     font-family: monospace;
-    background: var(--bs-tertiary-bg);
+    background: rgb(248,249,250);
     padding: 2px 8px;
     border-radius: 4px;
 }
 
 .map-meta .map-price {
-    color: var(--bs-success);
+    color: rgb(25,135,84);
     font-weight: bold;
 }
 
@@ -228,15 +228,15 @@ main#content .gbwars-page * {
 }
 
 .map-info-card {
-    background: var(--bs-body-bg);
-    border: 1px solid var(--bs-border-color);
+    background: #fff;
+    border: 1px solid rgb(222,226,230);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
 }
 
 .map-info-card h5 {
-    border-bottom: 1px solid var(--bs-border-color);
+    border-bottom: 1px solid rgb(222,226,230);
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;
 }
@@ -248,7 +248,7 @@ main#content .gbwars-page * {
 }
 
 .info-label {
-    color: var(--bs-secondary);
+    color: rgb(108,117,125);
 }
 
 .info-value {
@@ -264,7 +264,7 @@ main#content .gbwars-page * {
 
 .zoom-controls label {
     margin-right: 0.5rem;
-    color: var(--bs-secondary);
+    color: rgb(108,117,125);
 }
 
 .zoom-btn {
@@ -276,8 +276,8 @@ main#content .gbwars-page * {
 }
 
 .zoom-btn.active {
-    background: var(--bs-primary);
-    border-color: var(--bs-primary);
+    background: rgb(18,114,176);
+    border-color: rgb(18,114,176);
     color: white;
 }
 
@@ -293,7 +293,7 @@ main#content .gbwars-page * {
     padding: 0.5rem;
     border-radius: 4px;
     margin-bottom: 0.25rem;
-    background: var(--bs-tertiary-bg);
+    background: rgb(248,249,250);
     font-size: 0.9rem;
 }
 
@@ -305,7 +305,7 @@ main#content .gbwars-page * {
 }
 
 .unit-item .unit-pos {
-    color: var(--bs-secondary);
+    color: rgb(108,117,125);
     margin-left: auto;
     font-family: "GBWars3", monospace;
     font-size: 0.8rem;

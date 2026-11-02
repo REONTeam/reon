@@ -6,7 +6,7 @@
  * have more control and flexibility for styling the website's pages.
  *
  * Eventually, it should get consolidated into something like a "main.css", 
- * since these pages use similar layout styling.
+ * since all the pages use similar layout styling.
  */
  
  /* Body styling */
@@ -68,14 +68,16 @@ img {
 
 
 
-/** Buttons */
-button { /*~ shared with other elements */
+/** Buttons and inputs */
+button, select {
     text-transform: none;
 }
 
-button { /*~shared with select */
+button, input, optgroup, select, textarea {
     margin: 0;
     font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
 }
 
 [type=button], [type=submit], button {
@@ -88,6 +90,11 @@ button { /*~shared with select */
 
 [role=button] {
     cursor: pointer;
+}
+
+select {
+    max-width: 100%; /* added for the account summary page */
+    word-wrap: normal;
 }
 
 
@@ -163,7 +170,7 @@ input {
 
 
 
-/** "Card" container, used on the login page */
+/** "Card" container, used on account-related pages */
 .card {
     position: relative;
     display: flex;
@@ -175,6 +182,10 @@ input {
     background-clip: border-box;
 }
 
+.card-header {
+    padding: 0.5rem 1rem;
+}
+
 .card-body {
     flex: 1 1 auto;
     padding: 1rem;
@@ -182,7 +193,18 @@ input {
 
 
 
-
+/** Grids */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+}
+.row > * {
+    max-width: 100%;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
 
 
 
@@ -390,6 +412,13 @@ input {
     
     .align-items-lg-center {
         align-items: center!important;
+    }
+    
+    
+    
+    .col-lg-6 {
+        flex: 0 0 auto;
+        width: 50%;
     }
     
     

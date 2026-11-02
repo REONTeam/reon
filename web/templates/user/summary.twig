@@ -39,14 +39,8 @@
 					{{'account.stats'|trans}}
 				</div>
 				<div class="card-body">
-					<div class="mb-3">
-						<label for="inboxSize" class="form-label">{{'account.emails-in-inbox'|trans}}</label>
-						<input id="inboxSize" type="text" readonly class="form-control-plaintext" value="{{ inbox_size }}">
-					</div>
-					<div class="mb-3">
-						<label for="moneySpent" class="form-label">{{'account.money-spent'|trans}}</label>
-						<input id="moneySpent" type="text" readonly class="form-control-plaintext" value="{{ money_spent }}">
-					</div>
+					<p class="mb-3">{{'account.emails-in-inbox'|trans}}: {{ inbox_size }}</p>
+					<p class="mb-3">{{'account.money-spent'|trans}}: {{ money_spent }}</p>
 				</div>
 			</div>
 		</div>
