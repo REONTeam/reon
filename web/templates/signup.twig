@@ -17,10 +17,10 @@
 						</div>
 						<div class="mb-3">
 							<div class="form-check">
+                                <input id="agree" type="checkbox" name="agree" required class="form-check-input{% if result == 1 %}{{ " is-invalid" }}{% endif %}">
 								<label for="agree" class="form-check-label">
 									{{'auth.i-agree-terms'|trans}}
 								</label>
-								<input id="agree" type="checkbox" name="agree" required class="form-check-input{% if result == 1 %}{{ " is-invalid" }}{% endif %}">
 								<div class="invalid-feedback">
 									{{'auth.you-must-agree'|trans}}
 								</div>

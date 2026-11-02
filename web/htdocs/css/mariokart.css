@@ -87,6 +87,7 @@ body.mariokart-theme > main {
 
 .mkgba-table {
   min-width: 100%;
+  width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
   background: #ffffff;
@@ -171,7 +172,7 @@ body.mariokart-theme > main {
   font-style: normal;
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 883px) {
   body.mariokart-theme::before,
   body.mariokart-theme::after {
     display: none;
@@ -182,7 +183,7 @@ body.mariokart-theme > main {
     max-width: 100%;
   }
 
-  /*.mkgba-title {
+  .mkgba-title {
     font-size: 32px !important;
     line-height: 32px !important;
     text-shadow:
@@ -194,7 +195,7 @@ body.mariokart-theme > main {
       -2px 2px 0 #6b0094,
       2px -2px 0 #6b0094,
       -2px -2px 0 #6b0094;
-  }*/
+  }
   
   main#content { overflow: auto; }
   /*.mkgba-table { width: auto; }*/
@@ -227,6 +228,7 @@ body.mariokart-theme > main {
 
   .mkgba-table {
     table-layout: fixed;
+    width: auto;
   }
 
   .mkgba-course-cell,
